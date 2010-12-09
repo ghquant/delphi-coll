@@ -25,18 +25,13 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I ../DeHL.Defines.inc}
+{$I Collections.Defines.inc}
 unit Collections.Dictionaries;
 interface
 uses SysUtils,
-     DeHL.Base,
-     DeHL.Types,
-     DeHL.Serialization,
-     DeHL.Exceptions,
-     DeHL.Arrays,
-     DeHL.Math.Algorithms,
-     DeHL.Tuples,
-     DeHL.Collections.Base;
+     Generics.Defaults,
+     Generics.Collections,
+     Collections.Base;
 
 type
   ///  <summary>The generic <c>dictionary</c> collection.</summary>
@@ -45,12 +40,12 @@ type
   private type
     {$REGION 'Internal Types'}
     { Generic Dictionary Pairs Enumerator }
-    TPairEnumerator = class(TEnumerator<KVPair<TKey,TValue>>)
+    TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
       FVer: NativeUInt;
       FDict: TDictionary<TKey, TValue>;
       FCurrentIndex: NativeInt;
-      FValue: KVPair<TKey,TValue>;
+      FValue: TPair<TKey,TValue>;
 
     public
       { Constructor }
@@ -59,7 +54,7 @@ type
       { Destructor }
       destructor Destroy(); override;
 
-      function GetCurrent(): KVPair<TKey,TValue>; override;
+      function GetCurrent(): TPair<TKey,TValue>; override;
       function MoveNext(): Boolean; override;
     end;
 
@@ -180,21 +175,6 @@ type
     function Hash(const AKey: TKey): NativeInt;
 
   protected
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an pair has been deserialized and needs to be inserted into the dictionary.</summary>
-    ///  <param name="AKey">The key that was deserialized.</param>
-    ///  <param name="AValue">The value that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the dictionary.</remarks>
-    procedure DeserializePair(const AKey: TKey; const AValue: TValue); override;
-
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
     function GetCount(): NativeUInt; override;
@@ -226,34 +206,23 @@ type
     ///  <remarks>The default type object is requested.</remarks>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const ACollection: IEnumerable<KVPair<TKey, TValue>>); overload;
+    constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
     ///  <remarks>The default type object is requested.</remarks>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: array of KVPair<TKey, TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: TDynamicArray<KVPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: TFixedArray<KVPair<TKey, TValue>>); overload;
+    constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>); overload;
+    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AKeyEqComparer">The equality comparer used by the .</param>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
+    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>;
       const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
@@ -261,29 +230,15 @@ type
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const ACollection: IEnumerable<KVPair<TKey, TValue>>); overload;
+    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>;
+      const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const AArray: array of KVPair<TKey,TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const AArray: TDynamicArray<KVPair<TKey,TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const AArray: TFixedArray<KVPair<TKey,TValue>>); overload;
+    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>;
+      const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -297,7 +252,7 @@ type
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const APair: KVPair<TKey,TValue>); overload;
+    procedure Add(const APair: TPair<TKey,TValue>); overload;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
@@ -352,7 +307,7 @@ type
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the dictionary.</remarks>
     ///  <returns>An enumerator object.</returns>
-    function GetEnumerator(): IEnumerator<KVPair<TKey,TValue>>; override;
+    function GetEnumerator(): IEnumerator<TPair<TKey,TValue>>; override;
 
     ///  <summary>Copies the values stored in the dictionary to a given array.</summary>
     ///  <param name="AArray">An array where to copy the contents of the dictionary.</param>
@@ -360,7 +315,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of KVPair<TKey,TValue>; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const StartIndex: NativeUInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
@@ -400,13 +355,13 @@ type
 
   protected
     ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyType">The key's type object to install.</param>
-    ///  <param name="AValueType">The value's type object to install.</param>
+    ///  <param name="AKeyEqComparer">The key's type object to install.</param>
+    ///  <param name="AValueEqComparer">The value's type object to install.</param>
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request.
     ///  Make sure to call this method in descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyType: IType<TKey>; const AValueType: IType<TValue>); override;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
+    procedure InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>); override;
 
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
@@ -443,12 +398,12 @@ type
     end;
 
     { Generic Dictionary Pairs Enumerator }
-    TPairEnumerator = class(TEnumerator<KVPair<TKey,TValue>>)
+    TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
       FVer: NativeUInt;
       FDict: TSortedDictionary<TKey, TValue>;
       FNext: TNode;
-      FValue: KVPair<TKey,TValue>;
+      FValue: TPair<TKey,TValue>;
 
     public
       { Constructor }
@@ -457,7 +412,7 @@ type
       { Destructor }
       destructor Destroy(); override;
 
-      function GetCurrent(): KVPair<TKey,TValue>; override;
+      function GetCurrent(): TPair<TKey,TValue>; override;
       function MoveNext(): Boolean; override;
     end;
 
@@ -618,82 +573,60 @@ type
     ///  <remarks>The default type object is requested.</remarks>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const ACollection: IEnumerable<KVPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
+    constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <remarks>The default type object is requested.</remarks>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: array of KVPair<TKey,TValue>; const AAscending: Boolean = true); overload;
+    constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <remarks>The default type object is requested.</remarks>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: TDynamicArray<KVPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
+    constructor Create(const AArray: TDynamicArray<TPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <remarks>The default type object is requested.</remarks>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: TFixedArray<KVPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
+    constructor Create(const AArray: TFixedArray<TPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyType">The type object describing the keys.</param>
-    ///  <param name="AValueType">The type object describing the values.</param>
+    ///  <param name="AKeyEqComparer">The type object describing the keys.</param>
+    ///  <param name="AValueEqComparer">The type object describing the values.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
+    constructor Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
       const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyType">The type object describing the keys.</param>
-    ///  <param name="AValueType">The type object describing the values.</param>
+    ///  <param name="AKeyEqComparer">The type object describing the keys.</param>
+    ///  <param name="AValueEqComparer">The type object describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const ACollection: IEnumerable<KVPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
+    constructor Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+      const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyType">The type object describing the keys.</param>
-    ///  <param name="AValueType">The type object describing the values.</param>
+    ///  <param name="AKeyEqComparer">The type object describing the keys.</param>
+    ///  <param name="AValueEqComparer">The type object describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const AArray: array of KVPair<TKey,TValue>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyType">The type object describing the keys.</param>
-    ///  <param name="AValueType">The type object describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const AArray: TDynamicArray<KVPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyType">The type object describing the keys.</param>
-    ///  <param name="AValueType">The type object describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-      const AArray: TFixedArray<KVPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
+    constructor Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+      const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -707,7 +640,7 @@ type
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const APair: KVPair<TKey,TValue>); overload;
+    procedure Add(const APair: TPair<TKey,TValue>); overload;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
@@ -762,7 +695,7 @@ type
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the dictionary.</remarks>
     ///  <returns>An enumerator object.</returns>
-    function GetEnumerator(): IEnumerator<KVPair<TKey,TValue>>; override;
+    function GetEnumerator(): IEnumerator<TPair<TKey,TValue>>; override;
 
     ///  <summary>Copies the values stored in the dictionary to a given array.</summary>
     ///  <param name="AArray">An array where to copy the contents of the dictionary.</param>
@@ -770,7 +703,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of KVPair<TKey,TValue>; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const StartIndex: NativeUInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
@@ -820,13 +753,13 @@ type
 
   protected
     ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyType">The key's type object to install.</param>
-    ///  <param name="AValueType">The value's type object to install.</param>
+    ///  <param name="AKeyEqComparer">The key's type object to install.</param>
+    ///  <param name="AValueEqComparer">The value's type object to install.</param>
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request.
     ///  Make sure to call this method in descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyType: IType<TKey>; const AValueType: IType<TValue>); override;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
+    procedure InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>); override;
 
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
@@ -842,7 +775,6 @@ type
     property OwnsValues: Boolean read GetOwnsValues write SetOwnsValues;
   end;
 
-
 {$IFNDEF BUG_URW1133}
 type
   TBugReproducer = TDictionary<TTypeClass, String>;
@@ -855,7 +787,7 @@ const
 
 { TDictionary<TKey, TValue> }
 
-procedure TDictionary<TKey, TValue>.Add(const APair: KVPair<TKey, TValue>);
+procedure TDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
 begin
  { Call insert }
  Insert(APair.Key, APair.Value);
@@ -936,7 +868,7 @@ begin
 end;
 
 procedure TDictionary<TKey, TValue>.CopyTo(
-  var AArray: array of KVPair<TKey, TValue>; const StartIndex: NativeUInt);
+  var AArray: array of TPair<TKey, TValue>; const StartIndex: NativeUInt);
 var
   I, X: NativeInt;
 begin
@@ -953,7 +885,7 @@ begin
   begin
     if (FEntryArray[I].FHashCode >= 0) then
     begin
-       AArray[X] := KVPair.Create<TKey, TValue>(FEntryArray[I].FKey, FEntryArray[I].FValue);
+       AArray[X] := TPair.Create<TKey, TValue>(FEntryArray[I].FKey, FEntryArray[I].FValue);
        Inc(X);
     end;
   end;
@@ -970,26 +902,26 @@ begin
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const ACollection: IEnumerable<KVPair<TKey, TValue>>);
+  const ACollection: IEnumerable<TPair<TKey, TValue>>);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, ACollection);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>; const AInitialCapacity: NativeUInt);
+  const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>; const AInitialCapacity: NativeUInt);
 begin
   inherited Create();
 
   { Initialize instance }
-  if (AKeyType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AKeyType');
+  if (AKeyEqComparer = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('AKeyEqComparer');
 
-  if (AValueType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AValueType');
+  if (AValueEqComparer = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('AValueEqComparer');
 
   { Install types }
-  InstallTypes(AKeyType, AValueType);
+  InstallTypes(AKeyEqComparer, AValueEqComparer);
 
   FKeyCollection := TKeyCollection.Create(Self);
   FValueCollection := TValueCollection.Create(Self);
@@ -1002,14 +934,14 @@ begin
   InitializeInternals(AInitialCapacity);
 end;
 
-constructor TDictionary<TKey, TValue>.Create(const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>;
-  const ACollection: IEnumerable<KVPair<TKey, TValue>>);
+constructor TDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>;
+  const ACollection: IEnumerable<TPair<TKey, TValue>>);
 var
-  V: KVPair<TKey, TValue>;
+  V: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, DefaultArrayLength);
+  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
@@ -1026,11 +958,11 @@ begin
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>);
+  const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>);
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, DefaultArrayLength);
+  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
 end;
 
 procedure TDictionary<TKey, TValue>.DeserializePair(const AKey: TKey; const AValue: TValue);
@@ -1076,7 +1008,7 @@ begin
   Result := (FCount - FFreeCount);
 end;
 
-function TDictionary<TKey, TValue>.GetEnumerator: IEnumerator<KVPair<TKey, TValue>>;
+function TDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   Result := TDictionary<TKey, TValue>.TPairEnumerator.Create(Self);
 end;
@@ -1315,20 +1247,20 @@ begin
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AArray: array of KVPair<TKey, TValue>);
+  const AArray: array of TPair<TKey, TValue>);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, AArray);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>;
-  const AArray: array of KVPair<TKey, TValue>);
+  const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>;
+  const AArray: array of TPair<TKey, TValue>);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, DefaultArrayLength);
+  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
@@ -1338,25 +1270,25 @@ begin
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AArray: TDynamicArray<KVPair<TKey, TValue>>);
+  const AArray: TDynamicArray<TPair<TKey, TValue>>);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, AArray);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AArray: TFixedArray<KVPair<TKey, TValue>>);
+  const AArray: TFixedArray<TPair<TKey, TValue>>);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, AArray);
 end;
 
-constructor TDictionary<TKey, TValue>.Create(const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>;
-  const AArray: TDynamicArray<KVPair<TKey, TValue>>);
+constructor TDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>;
+  const AArray: TDynamicArray<TPair<TKey, TValue>>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, DefaultArrayLength);
+  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1370,14 +1302,14 @@ begin
     end;
 end;
 
-constructor TDictionary<TKey, TValue>.Create(const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>;
-  const AArray: TFixedArray<KVPair<TKey, TValue>>);
+constructor TDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>;
+  const AArray: TFixedArray<TPair<TKey, TValue>>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, DefaultArrayLength);
+  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1409,7 +1341,7 @@ begin
   inherited;
 end;
 
-function TDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: KVPair<TKey,TValue>;
+function TDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
 begin
   if FVer <> FDict.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
@@ -1426,7 +1358,7 @@ begin
   begin
     if FDict.FEntryArray[FCurrentIndex].FHashCode >= 0 then
     begin
-      FValue := KVPair.Create<TKey, TValue>(FDict.FEntryArray[FCurrentIndex].FKey,
+      FValue := TPair.Create<TKey, TValue>(FDict.FEntryArray[FCurrentIndex].FKey,
                   FDict.FEntryArray[FCurrentIndex].FValue);
 
       Inc(FCurrentIndex);
@@ -1654,11 +1586,11 @@ begin
   Result := FValueWrapperType.AllowCleanup;
 end;
 
-procedure TObjectDictionary<TKey, TValue>.InstallTypes(const AKeyType: IType<TKey>; const AValueType: IType<TValue>);
+procedure TObjectDictionary<TKey, TValue>.InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>);
 begin
   { Create a wrapper over the real type class and switch it }
-  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyType);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueType);
+  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyEqComparer);
+  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueEqComparer);
 
   { Install overridden type }
   inherited InstallTypes(FKeyWrapperType, FValueWrapperType);
@@ -1677,7 +1609,7 @@ end;
 
 { TSortedDictionary<TKey, TValue> }
 
-procedure TSortedDictionary<TKey, TValue>.Add(const APair: KVPair<TKey, TValue>);
+procedure TSortedDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
 begin
   { Insert the pair }
   if not Insert(APair.Key, APair.Value, false) then
@@ -2089,7 +2021,7 @@ begin
   Exit(false);
 end;
 
-procedure TSortedDictionary<TKey, TValue>.CopyTo(var AArray: array of KVPair<TKey, TValue>; const StartIndex: NativeUInt);
+procedure TSortedDictionary<TKey, TValue>.CopyTo(var AArray: array of TPair<TKey, TValue>; const StartIndex: NativeUInt);
 var
   X: NativeInt;
   LNode: TNode;
@@ -2109,7 +2041,7 @@ begin
   while (LNode <> nil) do
   begin
     { Get the key }
-    AArray[X] := KVPair.Create<TKey, TValue>(LNode.FKey, LNode.FValue);
+    AArray[X] := TPair.Create<TKey, TValue>(LNode.FKey, LNode.FValue);
 
     { Navigate further in the tree }
     LNode := WalkToTheRight(LNode);
@@ -2124,19 +2056,19 @@ begin
   Create(TType<TKey>.Default, TType<TValue>.Default, AAscending);
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<KVPair<TKey, TValue>>;
+constructor TSortedDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>;
   const AAscending: Boolean);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, ACollection, AAscending);
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-  const ACollection: IEnumerable<KVPair<TKey, TValue>>; const AAscending: Boolean);
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+  const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean);
 var
-  V: KVPair<TKey, TValue>;
+  V: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, AAscending);
+  Create(AKeyEqComparer, AValueEqComparer, AAscending);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
@@ -2152,18 +2084,18 @@ begin
   end;
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>; const AAscending: Boolean);
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>; const AAscending: Boolean);
 begin
   { Initialize instance }
-  if (AKeyType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AKeyType');
+  if (AKeyEqComparer = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('AKeyEqComparer');
 
-  if (AValueType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AValueType');
+  if (AValueEqComparer = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('AValueEqComparer');
 
   { Install types }
-  InstallTypes(AKeyType, AValueType);
+  InstallTypes(AKeyEqComparer, AValueEqComparer);
 
   FKeyCollection := TKeyCollection.Create(Self);
   FValueCollection := TValueCollection.Create(Self);
@@ -2248,7 +2180,7 @@ begin
   Result := FCount;
 end;
 
-function TSortedDictionary<TKey, TValue>.GetEnumerator: IEnumerator<KVPair<TKey, TValue>>;
+function TSortedDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   Result := TPairEnumerator.Create(Self);
 end;
@@ -2683,22 +2615,22 @@ begin
   end;
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AArray: array of KVPair<TKey, TValue>;
+constructor TSortedDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>;
   const AAscending: Boolean);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, AArray, AAscending);
 end;
 
 constructor TSortedDictionary<TKey, TValue>.Create(
-  const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>;
-  const AArray: array of KVPair<TKey, TValue>;
+  const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>;
+  const AArray: array of TPair<TKey, TValue>;
   const AAscending: Boolean);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, AAscending);
+  Create(AKeyEqComparer, AValueEqComparer, AAscending);
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
@@ -2707,25 +2639,25 @@ begin
   end;
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AArray: TDynamicArray<KVPair<TKey, TValue>>;
+constructor TSortedDictionary<TKey, TValue>.Create(const AArray: TDynamicArray<TPair<TKey, TValue>>;
   const AAscending: Boolean);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, AArray, AAscending);
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AArray: TFixedArray<KVPair<TKey, TValue>>;
+constructor TSortedDictionary<TKey, TValue>.Create(const AArray: TFixedArray<TPair<TKey, TValue>>;
   const AAscending: Boolean);
 begin
   Create(TType<TKey>.Default, TType<TValue>.Default, AArray, AAscending);
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyType: IType<TKey>; const AValueType: IType<TValue>;
-  const AArray: TDynamicArray<KVPair<TKey, TValue>>; const AAscending: Boolean);
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+  const AArray: TDynamicArray<TPair<TKey, TValue>>; const AAscending: Boolean);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, AAscending);
+  Create(AKeyEqComparer, AValueEqComparer, AAscending);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -2739,15 +2671,15 @@ begin
     end;
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyType: IType<TKey>;
-  const AValueType: IType<TValue>;
-  const AArray: TFixedArray<KVPair<TKey, TValue>>;
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
+  const AValueEqComparer: IType<TValue>;
+  const AArray: TFixedArray<TPair<TKey, TValue>>;
   const AAscending: Boolean);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AKeyType, AValueType, AAscending);
+  Create(AKeyEqComparer, AValueEqComparer, AAscending);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -2780,7 +2712,7 @@ begin
   inherited;
 end;
 
-function TSortedDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: KVPair<TKey,TValue>;
+function TSortedDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
 begin
   if FVer <> FDict.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
@@ -2798,7 +2730,7 @@ begin
     Exit(false);
 
   { Get the current value }
-  FValue := KVPair.Create<TKey, TValue>(FNext.FKey, FNext.FValue);
+  FValue := TPair.Create<TKey, TValue>(FNext.FKey, FNext.FValue);
 
   { Navigate further in the tree }
   FNext := FDict.WalkToTheRight(FNext);
@@ -3011,11 +2943,11 @@ end;
 
 { TObjectSortedDictionary<TKey, TValue> }
 
-procedure TObjectSortedDictionary<TKey, TValue>.InstallTypes(const AKeyType: IType<TKey>; const AValueType: IType<TValue>);
+procedure TObjectSortedDictionary<TKey, TValue>.InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>);
 begin
   { Create  wrapper over the real type class and switch it }
-  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyType);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueType);
+  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyEqComparer);
+  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueEqComparer);
 
   { Install overridden type }
   inherited InstallTypes(FKeyWrapperType, FValueWrapperType);

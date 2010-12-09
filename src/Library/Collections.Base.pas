@@ -25,26 +25,106 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I ../DeHL.Defines.inc}
+{$I Collections.Defines.inc}
 unit Collections.Base;
 interface
 uses
   SysUtils,
-  DeHL.Base,
-  DeHL.StrConsts,
-  DeHL.Arrays,
-  DeHL.Exceptions,
-  DeHL.Types,
-  DeHL.Serialization,
-  DeHL.Conversion,
-  DeHL.Tuples;
+  Generics.Defaults,
+  Generics.Collections;
 
 {$REGION 'Base Collection Interfaces'}
 type
+{$IFDEF BUG_BASE_INTFS}
+  ///  <summary>Base interface describing all enumerators in DeHL.</summary>
+  ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> is implemented by
+  ///  all enumerator objects in DeHL.</remarks>
+  IEnumerator<T> = interface
+    ///  <summary>Returns the current element of the enumerated collection.</summary>
+    ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;.GetCurrent">DeHL.Base.IEnumerator&lt;T&gt;.GetCurrent</see> is the
+    ///  getter method for the <see cref="DeHL.Base|IEnumerator&lt;T&gt;.Current">DeHL.Base.IEnumerator&lt;T&gt;.Current</see>
+    ///  property. Use the property to obtain the element instead.</remarks>
+    ///  <returns>The current element of the enumerated collection.</returns>
+    function GetCurrent(): T;
+
+    ///  <summary>Moves the enumerator to the next element of collection.</summary>
+    ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;.MoveNext">DeHL.Base.IEnumerator&lt;T&gt;.MoveNext</see> is usually
+    ///  called by compiler generated code. Its purpose is to move the "pointer" to the next element in the collection
+    ///  (if there are elements left). Also note that many enumerator implementations may throw various exceptions if the
+    ///  enumerated collections were changed in the meantime.</remarks>
+    ///  <returns><c>True</c> if the enumerator successfully selected the next element; <c>False</c> if there are
+    ///  no more elements to be enumerated.</returns>
+    function MoveNext(): Boolean;
+
+    ///  <summary>Returns the current element of the traversed collection.</summary>
+    ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;.Current">DeHL.Base.IEnumerator&lt;T&gt;.Current</see> can only return a
+    ///  valid element if <see cref="DeHL.Base|IEnumerator&lt;T&gt;.MoveNext">DeHL.Base.IEnumerator&lt;T&gt;.MoveNext</see> was
+    ///  priorly called and returned <c>True</c>; otherwise the behavior of this property is undefined. Note that many enumerator implementations
+    ///  may throw exceptions if the collection was changed in the meantime.
+    ///  </remarks>
+    ///  <returns>The current element of the enumerater collection.</returns>
+    property Current: T read GetCurrent;
+  end;
+
+  ///  <summary>Base interface describing all enumerable collections in DeHL.</summary>
+  ///  <remarks><see cref="DeHL.Base|IEnumerable&lt;T&gt;">DeHL.Base.IEnumerable&lt;T&gt;</see> is implemented by all
+  ///  enumerable collections in DeHL.</remarks>
+  IEnumerable<T> = interface
+    ///  <summary>Returns an <see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> interface that is used
+    ///  to enumerate the collection.</summary>
+    ///  <remarks><see cref="DeHL.Base|IEnumerable&lt;T&gt;.MoveNext">DeHL.Base.IEnumerable&lt;T&gt;.MoveNext</see> is usually
+    ///  called by compiler generated code. Its purpose is to create an enumerator object that is used to actually traverse
+    ///  the collections.
+    ///  Note that many collections generate enumerators that depend on the state of the collection. If the collection is changed
+    ///  after the <see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> had been obtained,
+    ///  <see cref="DeHL.Exceptions|ECollectionChangedException">DeHL.Exceptions.ECollectionChangedException</see> is thrown.</remarks>
+    ///  <returns>The <see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> interface.</returns>
+    function GetEnumerator(): IEnumerator<T>;
+  end;
+
+  ///  <summary>Specifies common traits for classes that support comparability.</summary>
+  ///  <remarks><see cref="DeHL.Base|IComparable">DeHL.Base.IComparable</see> can be implemented by any class that requires
+  ///  comparability. If a class implements <see cref="DeHL.Base|IComparable">DeHL.Base.IComparable</see>, most of the code in DeHL
+  ///  is able to properly order the instances of the implementer class by calling the
+  ///  <see cref="DeHL.Base|IComparable.CompareTo">DeHL.Base.IComparable.CompareTo</see> method and checking the result.
+  ///  </remarks>
+  IComparable = interface
+    ['{3CA89306-B7E7-4407-888A-A59D80C3CD6B}']
+
+    ///  <summary>Compares two instances of the same class.</summary>
+    ///  <remarks><see cref="DeHL.Base|IComparable.CompareTo">DeHL.Base.IComparable.CompareTo</see> is used to compare two
+    ///  instances of the same class. This method returns the result of the comparison operations. The comparison should be based on the
+    ///  objects' semantic value rather than their memory addresses. If the <paramref name="AObject"/> parameter is of a different
+    ///  class, usually an exception is thrown. Normally, all objects should check for a <c>nil</c> value and act accordingly.</remarks>
+    ///  <param name="AObject">The instance to compare against.</param>
+    ///  <returns>An integer value depicting the result of the comparison operation.
+    ///  If the result is less than zero, <c>Self</c> is less than <paramref name="AObject"/>. If the result is zero,
+    ///  <c>Self</c> is equal to <paramref name="AObject"/>. And finally, if the result is greater than zero, <c>Self</c> is greater
+    ///  than <paramref name="AObject"/>.</returns>
+    function CompareTo(AObject: TObject): Integer; { Signature compatibility }
+  end;
+
+  ///  <summary>Specifies common traits for classes that support comparability.</summary>
+  ///  <remarks><see cref="DeHL.Base|IComparable&lt;T&gt;">DeHL.Base.IComparable&lt;T&gt;</see> can be implemented by any class that requires
+  ///  comparability. This interface is provided for convenience reasons but is not used by DeHL code.
+  ///  </remarks>
+  IComparable<T> = interface(IComparable)
+    ///  <summary>Compares an instance of a class with a given generic type.</summary>
+    ///  <remarks><see cref="DeHL.Base|IComparable&lt;T&gt;.CompareTo">DeHL.Base.IComparable&lt;T&gt;.CompareTo</see> is useful if the
+    ///  object can be compared with a given generic type. For example, a
+    ///  <see cref="DeHL.Box|TBox&lt;Integer&gt;.CompareTo">DeHL.Box.TBox&lt;Integer&gt;.CompareTo</see> can be compared with an Integer.</remarks>
+    ///  <param name="AValue">The values to compare against.</param>
+    ///  <returns>An integer value depicting the result of the comparison operation.
+    ///  If the result is less than zero, <c>Self</c> is less than <paramref name="AValue"/>. If the result is zero,
+    ///  <c>Self</c> is equal to <paramref name="AValue"/>. And finally, if the result is greater than
+    /// zero, <c>Self</c> is greater than <paramref name="AValue"/>.</returns>
+    function CompareTo(AValue: T): Integer; { Signature compatibility }
+  end;
+{$ENDIF}
+
   ///  <summary>Base interface inherited by all specific collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all collections implemented in DeHL.</remarks>
   ICollection<T> = interface(IEnumerable<T>)
-
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>For associative collections such a dictionaries or multimaps, this value represents the
@@ -90,14 +170,6 @@ type
     ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
     function ToArray(): TArray<T>;
 
-    ///  <summary>Creates a new fixed array with the contents of the collection.</summary>
-    ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
-    function ToFixedArray(): TFixedArray<T>;
-
-    ///  <summary>Creates a new dynamic array with the contents of the collection.</summary>
-    ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
-    function ToDynamicArray(): TDynamicArray<T>;
-
     ///  <summary>Specifies the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>For associative collections such a dictionaries or multimaps, this value represents the
@@ -118,21 +190,10 @@ type
   ///  <c>List.Op.Cast&lt;Integer&gt;</c> are based on this type.</remarks>
   TEnexExtOps<T> = record
   private
-    FType: IType<T>;
     FInstance: Pointer;
     FKeepAlive: IInterface;
 
   public
-    ///  <summary>Represents a "select" operation.</summary>
-    ///  <param name="ASelector">A selector method invoked for each element in the collction.</param>
-    ///  <param name="AType">A type object representing the elements in the output collection.</param>
-    ///  <returns>A new collection containing the selected values.</returns>
-    ///  <remarks>This method is use when it is required to select values related to the ones in the operated collection.
-    ///  For example, you can select collection of integers where each integer is a field of a class in the original collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    function Select<TOut>(const ASelector: TFunc<T, TOut>; const AType: IType<TOut>): IEnexCollection<TOut>; overload;
-
     ///  <summary>Represents a "select" operation.</summary>
     ///  <param name="ASelector">A selector method invoked for each element in the collction.</param>
     ///  <returns>A new collection containing the selected values.</returns>
@@ -150,28 +211,6 @@ type
     ///  "TMyObject" instances.</remarks>
     ///  <exception cref="DeHL.Exceptions|ETypeException">The collection's elements are not objects.</exception>
     function Select<TOut: class>(): IEnexCollection<TOut>; overload;
-
-    ///  <summary>Represents a cast operation.</summary>
-    ///  <param name="AType">A type object representing the elements in the output collection.</param>
-    ///  <returns>A new collection containing the casted values.</returns>
-    ///  <remarks>This method converts each element from the input collection to an element in the output collection. For example,
-    ///  given a list of integers "AList", the operation <c>AList.Op.Cast&lt;string&gt;</c> results in a new collction that contains
-    ///  the string representations of the integer values. This method uses the
-    ///  <see cref="DeHL.Conversion|TConverter&lt;TIn, TOut&gt;">DeHL.Conversion.TConverter&lt;TIn, TOut&gt;</see> class to convert each element
-    ///  from the input collection to an element in the output collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ETypeConversionNotSupported">Cannot convert an element from the input collection.</exception>
-    function Cast<TOut>(const AType: IType<TOut>): IEnexCollection<TOut>; overload;
-
-    ///  <summary>Represents a cast operation.</summary>
-    ///  <returns>A new collection containing the casted values.</returns>
-    ///  <remarks>This method converts each element from the input collection to an element in the output collection. For example,
-    ///  given a list of integers "AList", the operation <c>AList.Op.Cast&lt;string&gt;</c> results in a new collction that contains
-    ///  the string representations of the integer values. This method uses the
-    ///  <see cref="DeHL.Conversion|TConverter&lt;TIn, TOut&gt;">DeHL.Conversion.TConverter&lt;TIn, TOut&gt;</see> class to convert each element
-    ///  from the input collection to an element in the output collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ETypeConversionNotSupported">Cannot convert an element from the input collection.</exception>
-    function Cast<TOut>(): IEnexCollection<TOut>; overload;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
@@ -443,7 +482,7 @@ type
     ///  <param name="ASortProc">The comparison method.</param>
     ///  <returns>A new ordered collection.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
-    function Ordered(const ASortProc: TCompareOverride<T>): IEnexCollection<T>; overload;
+    function Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>; overload;
 
     ///  <summary>Revereses the contents of the collection.</summary>
     ///  <returns>A new collection that contains the elements from this collection but in reverse order.</returns>
@@ -597,7 +636,7 @@ type
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific associative collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all associative collections implemented in DeHL. It also introduces
   ///  a large se of extended operations that can pe performed on any collection that supports enumerability.</remarks>
-  IEnexAssociativeCollection<TKey, TValue> = interface(ICollection<KVPair<TKey, TValue>>)
+  IEnexAssociativeCollection<TKey, TValue> = interface(ICollection<TPair<TKey, TValue>>)
     ///  <summary>Creates a new dictionary containing the elements of this collection.</summary>
     ///  <returns>A dictionary containing the elements copied from this collection.</returns>
     ///  <remarks>This method also copies the type objects of this collection. Be careful if the type object
@@ -665,7 +704,7 @@ type
     ///  <summary>Checks whether this collection includes the key-value pairs in another collection.</summary>
     ///  <param name="ACollection">The collection to check against.</param>
     ///  <returns><c>True</c> if this collection includes the elements in another; <c>False</c> otherwise.</returns>
-    function Includes(const ACollection: IEnumerable<KVPair<TKey, TValue>>): Boolean;
+    function Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean;
 
     ///  <summary>Selects only the key-value pairs that satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
@@ -920,7 +959,7 @@ type
     ///  <summary>Adds a key-value pair to the map.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
-    procedure Add(const APair: KVPair<TKey, TValue>); overload;
+    procedure Add(const APair: TPair<TKey, TValue>); overload;
 {$ENDIF}
 
     ///  <summary>Adds a key-value pair to the map.</summary>
@@ -996,7 +1035,7 @@ type
     ///  <param name="APair">The key and its associated value to remove.</param>
     ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
     ///  specified value from the collection of values associated with the given key.</remarks>
-    procedure Remove(const APair: KVPair<TKey, TValue>); overload;
+    procedure Remove(const APair: TPair<TKey, TValue>); overload;
 {$ENDIF}
 
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
@@ -1009,7 +1048,7 @@ type
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
     ///  <param name="APair">The key-value pair to check for.</param>
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsValue(const APair: KVPair<TKey, TValue>): Boolean; overload;
+    function ContainsValue(const APair: TPair<TKey, TValue>): Boolean; overload;
 {$ENDIF}
   end;
 
@@ -1041,7 +1080,7 @@ type
     ///  <param name="APair">The pair to remove.</param>
     ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
-    procedure Remove(const APair: KVPair<TKey, TValue>); overload;
+    procedure Remove(const APair: TPair<TKey, TValue>); overload;
 {$ENDIF}
 
     ///  <summary>Checks whether the map contains the given key-value combination.</summary>
@@ -1054,7 +1093,7 @@ type
     ///  <summary>Checks whether the map contains a given key-value combination.</summary>
     ///  <param name="APair">The key-value pair combination.</param>
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsPair(const APair: KVPair<TKey, TValue>): Boolean; overload;
+    function ContainsPair(const APair: TPair<TKey, TValue>): Boolean; overload;
 {$ENDIF}
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
@@ -1283,6 +1322,40 @@ type
 
 {$REGION 'Base Collection Classes'}
 type
+{$HINTS OFF}
+  ///  <summary>Base for all reference counted objects in DeHL.</summary>
+  ///  <remarks><see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> is designed to be used as a base class for all
+  ///  objects that implement interfaces and require reference counting.</remarks>
+  TRefCountedObject = class abstract(TInterfacedObject, IInterface)
+  private
+    FKeepAliveList: TArray<IInterface>;
+    FInConstruction: Boolean;
+
+  protected
+    { Life-time }
+    procedure KeepObjectAlive(const AObject: TRefCountedObject);
+    procedure ReleaseObject(const AObject: TRefCountedObject; const FreeObject:
+      Boolean = false);
+
+    ///  <summary>Extract an interafce reference for this object.</summary>
+    ///  <remarks>If the reference count is zero, then no reference is extracted.</remarks>
+    ///  <returns>An interface reference or <c>nil</c>.</returns>
+    function ExtractReference(): IInterface;
+
+    ///  <summary>Specifies whether the object is currently being constructed.</summary>
+    ///  <returns><c>True</c> if the object is in construction; <c>False</c> otherwise.</returns>
+    property Constructing: Boolean read FInConstruction;
+  public
+    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
+    ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
+    class function NewInstance: TObject; override;
+
+    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
+    ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
+    procedure AfterConstruction; override;
+  end;
+{$HINTS ON}
+
   ///  <summary>Base class for all Enex enumerator objects.</summary>
   ///  <remarks>All Enex collection are expected to provide enumerators that derive from
   ///  this class.</remarks>
@@ -1311,49 +1384,13 @@ type
   ///  <summary>Base class for all collections.</summary>
   ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
   ///  enumerability and introduces serialization support.</remarks>
-  TCollection<T> = class abstract(TRefCountedObject, ISerializable, ICollection<T>, IEnumerable<T>)
+  TCollection<T> = class abstract(TRefCountedObject, ICollection<T>, IEnumerable<T>)
   protected
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>A call to this method can be costly because some
     ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
     function GetCount(): NativeUInt; virtual;
-
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    ///  <remarks>Descendant classes are supposed to override this method even if no preparation is required. If this method remains
-    ///  un-overridden, the serialization will fail.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartSerializing(const AData: TSerializationData); virtual;
-
-    ///  <summary>Called when the serialization process is about to end.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    ///  <remarks>Override this method in descending classes if any post-serialization steps are required.</remarks>
-    procedure EndSerializing(const AData: TSerializationData); virtual;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <remarks>Descendant classes are supposed to override this method even if no preparation is required. If this method remains
-    ///  un-overridden, the deserialization will fail.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); virtual;
-
-    ///  <summary>Called when the deserialization process is about to end.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <remarks>Override this method in descending classes if any post-deserialization steps are required.</remarks>
-    procedure EndDeserializing(const AData: TDeserializationData); virtual;
-
-    ///  <summary>Called when the the collection needs to serialize its contents.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    ///  <remarks>Descending classes need to override this method to actually provide code that serializes the contents of
-    ///  the collection.</remarks>
-    procedure Serialize(const AData: TSerializationData); virtual; abstract;
-
-    ///  <summary>Called when the the collection needs to be deserialize its contents.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <remarks>Descending classes need to override this method to actually provide code that deserializes the contents of
-    ///  the collection.</remarks>
-    procedure Deserialize(const AData: TDeserializationData); virtual; abstract;
   public
     ///  <summary>Checks whether the collection is empty.</summary>
     ///  <returns><c>True</c> if the collection is empty; <c>False</c> otherwise.</returns>
@@ -1393,14 +1430,6 @@ type
     ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
     function ToArray(): TArray<T>; virtual;
 
-    ///  <summary>Creates a new fixed array with the contents of the collection.</summary>
-    ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
-    function ToFixedArray(): TFixedArray<T>; virtual;
-
-    ///  <summary>Creates a new dynamic array with the contents of the collection.</summary>
-    ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
-    function ToDynamicArray(): TDynamicArray<T>; virtual;
-
     ///  <summary>Returns a new enumerator object used to enumerate the collection.</summary>
     ///  <remarks>This method is usually called by compiler generated code. It's purpose is to create an enumerator
     ///  object that is used to actually traverse the collection.
@@ -1423,39 +1452,51 @@ type
   ///  serialization support.</remarks>
   TEnexCollection<T> = class abstract(TCollection<T>, IComparable, IEnexCollection<T>)
   private
-    FElementType: IType<T>;
+    FComparer: IComparer<T>;
+    FEqualityComparer: IEqualityComparer<T>;
 
   protected
-    ///  <summary>Specifies the type object that describes the stored elements.</summary>
-    ///  <returns>A type object describing the stored elements.</returns>
-    property ElementType: IType<T> read FElementType;
+    ///  <summary>Compares two given elements using the stored comparer.</summary>
+    ///  <param name="AValue1">The first value.</param>
+    ///  <param name="AValue2">The second value.</param>
+    ///  <returns>An integer value depicting the comparison result.</returns>
+    function Compare(const AValue1, AValue2: T): NativeInt;
 
-    ///  <summary>Installs the type object.</summary>
-    ///  <param name="AType">The type object to install.</returns>
-    ///  <remarks>This method stores a given type object. The passed type object is then used
-    ///  by the collection to perform all required operation on the elements operated upon.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    procedure InstallType(const AType: IType<T>); virtual;
+    ///  <summary>Compares two given elements for equality using the stored equality comparer.</summary>
+    ///  <param name="AValue1">The first value.</param>
+    ///  <param name="AValue2">The second value.</param>
+    ///  <returns>A <c>Boolean</c> value containg the comparison result.</returns>
+    function AreEqual(const AValue1, AValue2: T): Boolean;
 
-    ///  <summary>Called when the an element has been deserialized and needs to be inserted into the collection.</summary>
-    ///  <param name="AElement">The element that was deserialized.</param>
-    ///  <remarks>Derived collection classes need to implement this method to provide proper insertion mechanics
-    ///  for the deserialized elements. For example, a simple list only needs to call the <c>Add</c> method for each
-    ///  passed element.</remarks>
-    procedure DeserializeElement(const AElement: T); virtual;
+    ///  <summary>Generates a hash code for the given value.</summary>
+    ///  <param name="AValue">The value.</param>
+    ///  <returns>An integer value that stores the hash code.</returns>
+    function HashCode(const AValue: T): NativeInt;
 
-    ///  <summary>Called when the the collection needs to serialize its contents.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    ///  <remarks>This method is overridded and provides the default serialization support based on enumerability. To provide
-    ///  an optimized serialization method, override this method (and <c>Deserialize</c>) in descending classes.</remarks>
-    procedure Serialize(const AData: TSerializationData); override;
+    ///  <summary>This method needs to be called early in the collection initialization to set a comparer.</summary>
+    ///  <param name="AComparer">The comparer to install.</param>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
+    procedure InstallComparer(const AComparer: IComparer<T>); virtual;
 
-    ///  <summary>Called when the the collection needs to deserialize its contents.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <remarks>This method is overridded and provides the default deserialization support based on enumerability. To provide
-    ///  an optimized deserialization method, override this method (and <c>Serialize</c>) in descending classes.</remarks>
-    procedure Deserialize(const AData: TDeserializationData); override;
+    ///  <summary>This method needs to be called early in the collection initialization to set up an equality comparer.</summary>
+    ///  <param name="AComparer">The eqaulity comparer to install.</param>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AEqComparer"/> is <c>nil</c>.</exception>
+    procedure InstallEqualityComparer(const AEqComparer: IEqualityComparer<T>); virtual;
+
+    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
+    ///  <param name="AValue">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: T); virtual;
   public
+    ///  <summary>Specifies the comparer used by this collection.</summary>
+    ///  <returns>A comparer instance if the collection uses comparers. Otherwise returns <c>nil</c>.</returns>
+    ///  <remarks>Not all collections require a comparer so this property might return <c>nil</c>.</remarks>
+    property Comparer: IComparer<T> read FComparer;
+
+    ///  <summary>Specifies the equality comparer used by this collection.</summary>
+    ///  <returns>A comparer instance if the collection uses equality comparers. Otherwise returns <c>nil</c>.</returns>
+    ///  <remarks>Not all collections require an equality comparer so this property might return <c>nil</c>.</remarks>
+    property EqaulityComparer: IEqualityComparer<T> read FEqualityComparer;
+
     //TODO: doc me
     constructor Create();
 
@@ -1712,7 +1753,7 @@ type
     ///  <param name="ASortProc">The comparison method.</param>
     ///  <returns>A new ordered collection.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
-    function Ordered(const ASortProc: TCompareOverride<T>): IEnexCollection<T>; overload; virtual;
+    function Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>; overload; virtual;
 
     ///  <summary>Revereses the contents of the collection.</summary>
     ///  <returns>A new collection that contains the elements from this collection but in reverse order.</returns>
@@ -1879,49 +1920,16 @@ type
   ///  <remarks>All associative Enex collections (ex. dictionary or multi-map) are derived from this base class.
   ///  It implements the extended Enex operations based on enumerability and introduces functional
   ///  serialization support.</remarks>
-  TEnexAssociativeCollection<TKey, TValue> = class abstract(TCollection<KVPair<TKey, TValue>>,
+  TEnexAssociativeCollection<TKey, TValue> = class abstract(TCollection<TPair<TKey, TValue>>,
       IEnexAssociativeCollection<TKey, TValue>)
-  private
-    FKeyType: IType<TKey>;
-    FValueType: IType<TValue>;
-
   protected
-    ///  <summary>Specifies the type object that describes the keys of the stored pairs.</summary>
-    ///  <returns>A type object describing the keys.</returns>
-    property KeyType: IType<TKey> read FKeyType;
+    ///  <summary>Called automatically when a key is "lost" and additional cleanup might be needed.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
+    procedure HandleKeyRemoved(const AValue: TKey); virtual;
 
-    ///  <summary>Specifies the type object that describes the values of the stored pairs.</summary>
-    ///  <returns>A type object describing the values.</returns>
-    property ValueType: IType<TValue> read FValueType;
-
-    ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyType">The key's type object to install.</param>
-    ///  <param name="AValueType">The value's type object to install.</param>
-    ///  <remarks>This method stores the given type objects. The passed type objects are then used
-    ///  by the collection to perform all required operation on the elements operated upon.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyType"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueType"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyType: IType<TKey>; const AValueType: IType<TValue>); virtual;
-
-    ///  <summary>Called when the an pair has been deserialized and needs to be inserted into the collection.</summary>
-    ///  <param name="AKey">The key that was deserialized.</param>
-    ///  <param name="AValue">The value that was deserialized.</param>
-    ///  <remarks>Derived collection classes need to implement this method to provide proper insertion mechanics
-    ///  for the deserialized elements. For example, a simple dictionary only needs to call the <c>Add</c> method for each
-    ///  passed pair.</remarks>
-    procedure DeserializePair(const AKey: TKey; const AValue: TValue); virtual;
-
-    ///  <summary>Called when the the collection needs to serialize its contents.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    ///  <remarks>This method is overridded and provides the default serialization support based on enumerability. To provide
-    ///  an optimized serialization method, override this method (and <c>Deserialize</c>) in descending classes.</remarks>
-    procedure Serialize(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the the collection needs to deserialize its contents.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <remarks>This method is overridded and provides the default deserialization support based on enumerability. To provide
-    ///  an optimized deserialization method, override this method (and <c>Serialize</c>) in descending classes.</remarks>
-    procedure Deserialize(const AData: TDeserializationData); override;
+    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
+    ///  <param name="AValue">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); virtual;
   public
     //TODO: doc me
     constructor Create();
@@ -1961,7 +1969,7 @@ type
     ///  <summary>Checks whether this collection includes the key-value pairs in another collection.</summary>
     ///  <param name="ACollection">The collection to check against.</param>
     ///  <returns><c>True</c> if this collection includes the elements in another; <c>False</c> otherwise.</returns>
-    function Includes(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>): Boolean; virtual;
+    function Includes(const AEnumerable: IEnumerable<TPair<TKey, TValue>>): Boolean; virtual;
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the collection.</returns>
@@ -2054,6 +2062,74 @@ type
 {$ENDREGION}
 
 type
+  ///  <summary>A static class that offers methods for throwing DeHL exceptions.</summary>
+  ///  <remarks><see cref="DeHL.Exceptions|ExceptionHelper">DeHL.Exceptions.ExceptionHelper</see> is used internally in DeHL to
+  ///  throw all kinds of exceptions. This class is useful because it separates the exceptions
+  ///  (including the messages) from the rest of the code.</remarks>
+  ExceptionHelper = class sealed
+  public
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ArgumentNotSameTypeError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ArgumentNilError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ArgumentOutOfRangeError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ArgumentOutOfSpaceError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_InvalidArgumentFormatError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ArgumentConverError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_CollectionChangedError();
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_CollectionEmptyError();
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_CollectionHasMoreThanOneElement();
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_CollectionHasNoFilteredElements();
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_DuplicateKeyError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_KeyNotFoundError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ElementNotPartOfCollectionError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ElementAlreadyPartOfCollectionError(const AArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_PositionOccupiedError();
+  end;
+
+type
   ///  <summary>A static type that exposes collection related utility methods.</summary>
   ///  <remarks>The methods exposed by this type are utilitary and useful in some circumstances. This type
   ///  also serves as a public container for all "private" types that should not be used in user code.</remarks>
@@ -2066,20 +2142,8 @@ type
     ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AElement"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    class function Fill<T>(const AElement: T; const ACount: NativeUInt; const AType: IType<T>): IEnexCollection<T>; overload; static;
-
-    //TODO: doc me
     class function Fill<T>(const AElement: T; const ACount: NativeUInt): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd, AIncrement: T; const AType: IType<T>): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd, AIncrement: T): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd: T; const AType: IType<T>): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd: T): IEnexCollection<T>; overload; static;
   end;
-
 
   //TODO: doc all these classes :(
 type
@@ -2113,8 +2177,6 @@ type
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>;
       const APredicate: TFunc<T, Boolean>; const AInvertResult: Boolean); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const APredicate: TFunc<T, Boolean>;
-      const AType: IType<T>; const AInvertResult: Boolean); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2156,8 +2218,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const ASelector: TFunc<T, TOut>; const AType: IType<TOut>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ASelector: TFunc<T, TOut>; const AType: IType<TOut>); overload;
+    constructor Create(const AEnumerable: TEnexCollection<T>; const ASelector: TFunc<T, TOut>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2201,64 +2262,13 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const AType: IType<TOut>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const AType: IType<TOut>); overload;
+    constructor Create(const AEnumerable: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
 
     { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TOut>; override;
-  end;
-
-  { The "Cast" collection }
-  TEnexCastCollection<T, TOut> = class sealed(TEnexCollection<TOut>, IEnexCollection<TOut>)
-  private
-  type
-    { The "Cast" enumerator }
-    TEnumerator = class(TEnumerator<TOut>)
-    private
-      FEnum: TEnexCastCollection<T, TOut>;
-      FIter: IEnumerator<T>;
-      FCurrent: TOut;
-
-    public
-      { Constructor }
-      constructor Create(const AEnum: TEnexCastCollection<T, TOut>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TOut; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-  var
-    FDeleteEnum: Boolean;
-    FEnum: TEnexCollection<T>;
-    FConverter: IConverter<T, TOut>;
-
-  protected
-    { Enex: Defaults }
-    function GetCount(): NativeUInt; override;
-
-  public
-    { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const AOutType: IType<TOut>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const AInType: IType<T>; const AOutType: IType<TOut>); overload;
-
-    { Destructor }
-    destructor Destroy(); override;
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<TOut>; override;
-
-    { Enex Overrides }
-    function Empty(): Boolean; override;
-    function First(): TOut; override;
-    function Last(): TOut; override;
-    function Single(): TOut; override;
-    function ElementAt(const Index: NativeUInt): TOut; override;
   end;
 
   { The "Concatenation" collection }
@@ -2293,17 +2303,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const AType: IType<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2346,17 +2346,7 @@ type
       FDeleteEnum2: Boolean;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const AType: IType<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2395,17 +2385,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const AType: IType<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2444,17 +2424,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const AType: IType<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const AType: IType<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2492,7 +2462,6 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const AType: IType<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2530,7 +2499,6 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const AStart, AEnd: NativeUInt); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const AStart, AEnd: NativeUInt; const AType: IType<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2568,7 +2536,6 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeUInt); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ACount: NativeUInt; const AType: IType<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2607,7 +2574,6 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeUInt); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ACount: NativeUInt; const AType: IType<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2645,7 +2611,7 @@ type
     function GetCount(): NativeUInt; override;
   public
     { Constructors }
-    constructor Create(const AElement: T; const Count: NativeUInt; const AType: IType<T>);
+    constructor Create(const AElement: T; const Count: NativeUInt);
 
     { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
@@ -2695,7 +2661,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const ALower, AHigher, AIncrement: T; const AType: IType<T>);
+    constructor Create(const ALower, AHigher, AIncrement: T);
 
     { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
@@ -2736,7 +2702,6 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const APredicate: TFunc<T, Boolean>; const AType: IType<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2774,41 +2739,12 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const APredicate: TFunc<T, Boolean>; const AType: IType<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
 
     { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  { The "Wrap" collection }
-  TEnexWrapCollection<T> = class sealed(TEnexCollection<T>)
-  private
-    FEnum: IEnumerable<T>;
-
-  public
-    { Constructors }
-    constructor Create(const AEnumerable: IEnumerable<T>; const AType: IType<T>);
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  { The "Wrap associative" collection }
-  TEnexAssociativeWrapCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>,
-    IEnexAssociativeCollection<TKey, TValue>)
-  private
-    FEnum: IEnumerable<KVPair<TKey, TValue>>;
-
-  public
-    { Constructors }
-    constructor Create(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>; const AKeyType: IType<TKey>;
-      const AValueType: IType<TValue>);
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<KVPair<TKey, TValue>>; override;
   end;
 
   { The "Select Keys" collection }
@@ -2819,7 +2755,7 @@ type
     TEnumerator = class(TEnumerator<TKey>)
     private
       FEnum: TEnexSelectKeysCollection<TKey, TValue>;
-      FIter: IEnumerator<KVPair<TKey, TValue>>;
+      FIter: IEnumerator<TPair<TKey, TValue>>;
       FCurrent: TKey;
 
     public
@@ -2843,8 +2779,6 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
-      const AKeyType: IType<TKey>; const AValueType: IType<TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2861,7 +2795,7 @@ type
     TEnumerator = class(TEnumerator<TValue>)
     private
       FEnum: TEnexSelectValuesCollection<TKey, TValue>;
-      FIter: IEnumerator<KVPair<TKey, TValue>>;
+      FIter: IEnumerator<TPair<TKey, TValue>>;
       FCurrent: TValue;
 
     public
@@ -2885,8 +2819,6 @@ type
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
-      const AKeyType: IType<TKey>; const AValueType: IType<TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2901,10 +2833,10 @@ type
   private
   type
     { The "Where" associative enumerator }
-    TEnumerator = class(TEnumerator<KVPair<TKey, TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
       FEnum: TEnexAssociativeWhereCollection<TKey, TValue>;
-      FIter: IEnumerator<KVPair<TKey, TValue>>;
+      FIter: IEnumerator<TPair<TKey, TValue>>;
 
     public
       { Constructor }
@@ -2913,7 +2845,7 @@ type
       { Destructor }
       destructor Destroy(); override;
 
-      function GetCurrent(): KVPair<TKey, TValue>; override;
+      function GetCurrent(): TPair<TKey, TValue>; override;
       function MoveNext(): Boolean; override;
     end;
 
@@ -2927,15 +2859,11 @@ type
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>;
         const APredicate: TFunc<TKey, TValue, Boolean>; const AInvertResult: Boolean); overload;
 
-    constructor CreateIntf(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
-      const APredicate: TFunc<TKey, TValue, Boolean>;
-      const AKeyType: IType<TKey>; const AValueType: IType<TValue>; const AInvertResult: Boolean); overload;
-
     { Destructor }
     destructor Destroy(); override;
 
     { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<KVPair<TKey, TValue>>; override;
+    function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
 
   { The "Distinct By Keys" associative collection }
@@ -2943,10 +2871,10 @@ type
   private
   type
     { The "Distinct By Keys" associative enumerator }
-    TEnumerator = class(TEnumerator<KVPair<TKey, TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
       FEnum: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>;
-      FIter: IEnumerator<KVPair<TKey, TValue>>;
+      FIter: IEnumerator<TPair<TKey, TValue>>;
       FSet: ISet<TKey>;
 
     public
@@ -2956,7 +2884,7 @@ type
       { Destructor }
       destructor Destroy(); override;
 
-      function GetCurrent(): KVPair<TKey, TValue>; override;
+      function GetCurrent(): TPair<TKey, TValue>; override;
       function MoveNext(): Boolean; override;
     end;
 
@@ -2968,14 +2896,11 @@ type
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
 
-    constructor CreateIntf(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>; const AKeyType: IType<TKey>;
-      const AValueType: IType<TValue>); overload;
-
     { Destructor }
     destructor Destroy(); override;
 
     { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<KVPair<TKey, TValue>>; override;
+    function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
 
   { The "Distinct By Values" associative collection }
@@ -2983,10 +2908,10 @@ type
   private
   type
     { The "Distinct By Keys" associative enumerator }
-    TEnumerator = class(TEnumerator<KVPair<TKey, TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
       FEnum: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>;
-      FIter: IEnumerator<KVPair<TKey, TValue>>;
+      FIter: IEnumerator<TPair<TKey, TValue>>;
       FSet: ISet<TValue>;
 
     public
@@ -2996,7 +2921,7 @@ type
       { Destructor }
       destructor Destroy(); override;
 
-      function GetCurrent(): KVPair<TKey, TValue>; override;
+      function GetCurrent(): TPair<TKey, TValue>; override;
       function MoveNext(): Boolean; override;
     end;
 
@@ -3008,22 +2933,126 @@ type
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
 
-    constructor CreateIntf(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>; const AKeyType: IType<TKey>;
-      const AValueType: IType<TValue>); overload;
-
     { Destructor }
     destructor Destroy(); override;
 
     { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<KVPair<TKey, TValue>>; override;
+    function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
 
 implementation
 uses
-  DeHL.Collections.HashSet,
-  DeHL.Collections.List,
-  DeHL.Collections.Dictionary;
+  Collections.Sets,
+  Collections.Lists,
+  Collections.Dictionaries;
 
+{ TRefCountedObject }
+
+procedure TRefCountedObject.AfterConstruction;
+begin
+  FInConstruction := false;
+  inherited AfterConstruction();
+end;
+
+function TRefCountedObject.ExtractReference(): IInterface;
+var
+  Ref: NativeInt;
+begin
+  { While constructing, an object has an implicit ref count of 1 }
+  if FInConstruction then
+    Ref := 1
+  else
+    Ref := 0;
+
+  {
+      If the object is referenced in other places as an
+      interface, get a new one, otherwise return nil
+   }
+  if RefCount > Ref then
+    Result := Self
+  else
+    Result := nil;
+end;
+
+procedure TRefCountedObject.KeepObjectAlive(const AObject: TRefCountedObject);
+var
+  I, L: NativeInt;
+  II: IInterface;
+begin
+  { Skip nil references }
+  if AObject = nil then
+    Exit;
+
+  { Cannot self-ref! }
+  if AObject = Self then
+    ExceptionHelper.Throw_CannotSelfReferenceError();
+
+  { Extract an optional reference, do not continue if failed }
+  II := AObject.ExtractReference();
+  if II = nil then
+    Exit;
+
+  L := Length(FKeepAliveList);
+
+  { Find a free spot }
+  if L > 0 then
+    for I := 0 to L - 1 do
+      if FKeepAliveList[I] = nil then
+      begin
+        FKeepAliveList[I] := II;
+        Exit;
+      end;
+
+  { No free spots, extend array and insert the ref there }
+  SetLength(FKeepAliveList, L + 1);
+  FKeepAliveList[L] := II;
+end;
+
+class function TRefCountedObject.NewInstance: TObject;
+begin
+  Result := inherited NewInstance();
+
+  { Set in construction! }
+  TRefCountedObject(Result).FInConstruction := true;
+end;
+
+procedure TRefCountedObject.ReleaseObject(const AObject: TRefCountedObject;
+  const FreeObject: Boolean = false);
+var
+  I, L: NativeInt;
+  II: IInterface;
+begin
+  { Do nothing on nil references, since it may be calle din destructors }
+  if AObject = nil then
+    Exit;
+
+  { Cannot self-ref! }
+  if AObject = Self then
+    ExceptionHelper.Throw_CannotSelfReferenceError();
+
+  { Extract an optional reference, if none received, exit }
+  II := AObject.ExtractReference();
+  if II = nil then
+  begin
+    if FreeObject then
+      AObject.Free;
+
+    Exit;
+  end;
+
+  L := Length(FKeepAliveList);
+
+  { Find a free spot }
+  if L > 0 then
+    for I := 0 to L - 1 do
+      if FKeepAliveList[I] = II then
+      begin
+        { Release the spot and kill references to the interface }
+        FKeepAliveList[I] := nil;
+        II := nil;
+        Exit;
+      end;
+end;
 
 { TEnexExtOps<T> }
 
@@ -4425,9 +4454,9 @@ begin
   Result := TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Create(Self);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.Includes(const AEnumerable: IEnumerable<KVPair<TKey, TValue>>): Boolean;
+function TEnexAssociativeCollection<TKey, TValue>.Includes(const AEnumerable: IEnumerable<TPair<TKey, TValue>>): Boolean;
 var
-  Enum: IEnumerator<KVPair<TKey, TValue>>;
+  Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object }
   Enum := AEnumerable.GetEnumerator();
@@ -4451,7 +4480,7 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
 var
-  Enum: IEnumerator<KVPair<TKey, TValue>>;
+  Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
   Enum := GetEnumerator();
@@ -4470,7 +4499,7 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MaxKey: TKey;
 var
-  Enum: IEnumerator<KVPair<TKey, TValue>>;
+  Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
   Enum := GetEnumerator();
@@ -4496,7 +4525,7 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MaxValue: TValue;
 var
-  Enum: IEnumerator<KVPair<TKey, TValue>>;
+  Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
   Enum := GetEnumerator();
@@ -4522,7 +4551,7 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MinKey: TKey;
 var
-  Enum: IEnumerator<KVPair<TKey, TValue>>;
+  Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
   Enum := GetEnumerator();
@@ -4548,7 +4577,7 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MinValue: TValue;
 var
-  Enum: IEnumerator<KVPair<TKey, TValue>>;
+  Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
   Enum := GetEnumerator();
@@ -4586,7 +4615,7 @@ end;
 
 procedure TEnexAssociativeCollection<TKey, TValue>.Serialize(const AData: TSerializationData);
 var
-  LEnum: IEnumerator<KVPair<TKey, TValue>>;
+  LEnum: IEnumerator<TPair<TKey, TValue>>;
   LKeyInfo, LValInfo, LElemInfo: TValueInfo;
 begin
   { Retrieve the enumerator object and type }
@@ -4627,7 +4656,7 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
 var
-  Enum: IEnumerator<KVPair<TKey, TValue>>;
+  Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
   Enum := GetEnumerator();
@@ -6641,7 +6670,7 @@ begin
 end;
 
 constructor TEnexSelectKeysCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
+  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
   const AKeyType: IType<TKey>; const AValueType: IType<TValue>);
 begin
   { Call the upper constructor }
@@ -6728,7 +6757,7 @@ begin
 end;
 
 constructor TEnexSelectValuesCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
+  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
   const AKeyType: IType<TKey>;
   const AValueType: IType<TValue>);
 begin
@@ -6824,7 +6853,7 @@ begin
 end;
 
 constructor TEnexAssociativeWhereCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
+  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
   const APredicate: TFunc<TKey, TValue, Boolean>;
   const AKeyType: IType<TKey>;
   const AValueType: IType<TValue>;
@@ -6845,7 +6874,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeWhereCollection<TKey, TValue>.GetEnumerator: IEnumerator<KVPair<TKey, TValue>>;
+function TEnexAssociativeWhereCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Generate an enumerator }
   Result := TEnumerator.Create(Self);
@@ -6869,7 +6898,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.GetCurrent: KVPair<TKey, TValue>;
+function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
 begin
   { Get current element of the "sub-enumerable" object }
   Result := FIter.Current;
@@ -6896,7 +6925,7 @@ end;
 { TEnexAssociativeWrapCollection<TKey, TValue> }
 
 constructor TEnexAssociativeWrapCollection<TKey, TValue>.Create(
-  const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
+  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
   const AKeyType: IType<TKey>;
   const AValueType: IType<TValue>);
 begin
@@ -6917,7 +6946,7 @@ begin
   FEnum := AEnumerable;
 end;
 
-function TEnexAssociativeWrapCollection<TKey, TValue>.GetEnumerator: IEnumerator<KVPair<TKey, TValue>>;
+function TEnexAssociativeWrapCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Generate an enumerable from the sub-enum }
   Result := FEnum.GetEnumerator();
@@ -6943,7 +6972,7 @@ begin
 end;
 
 constructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
+  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
   const AKeyType: IType<TKey>; const AValueType: IType<TValue>);
 begin
   { Call the higher constructor }
@@ -6961,7 +6990,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.GetEnumerator: IEnumerator<KVPair<TKey, TValue>>;
+function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Create an enumerator }
   Result := TEnumerator.Create(Self);
@@ -6988,7 +7017,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.GetCurrent: KVPair<TKey, TValue>;
+function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
 begin
   { Get from sub-enum }
   Result := FIter.Current;
@@ -7034,7 +7063,7 @@ begin
 end;
 
 constructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<KVPair<TKey, TValue>>;
+  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
   const AKeyType: IType<TKey>; const AValueType: IType<TValue>);
 begin
   { Call the higher constructor }
@@ -7052,7 +7081,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.GetEnumerator: IEnumerator<KVPair<TKey, TValue>>;
+function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Create an enumerator }
   Result := TEnumerator.Create(Self);
@@ -7079,7 +7108,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.GetCurrent: KVPair<TKey, TValue>;
+function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
 begin
   { Get from sub-enum }
   Result := FIter.Current;

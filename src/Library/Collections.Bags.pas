@@ -25,18 +25,11 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I ../DeHL.Defines.inc}
+{$I Collections.Defines.inc}
 unit Collections.Bags;
 interface
 uses SysUtils,
-     DeHL.Base,
-     DeHL.Types,
-     DeHL.Exceptions,
-     DeHL.Serialization,
-     DeHL.Arrays,
-     DeHL.Collections.Base,
-     DeHL.Collections.Abstract,
-     DeHL.Collections.Dictionary;
+     Collections.Base;
 
 type
   ///  <summary>The base abstract class for all <c>bags</c> in DeHL.</summary>

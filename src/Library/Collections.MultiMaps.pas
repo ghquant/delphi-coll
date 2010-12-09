@@ -25,7 +25,7 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I ../DeHL.Defines.inc}
+{$I Collections.Defines.inc}
 unit Collections.MultiMaps;
 interface
 uses SysUtils,
