@@ -25,11 +25,12 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.Defines.inc}
+{$I Collections.inc}
 unit Collections.Bags;
 interface
 uses SysUtils,
-     Collections.Base;
+     Collections.Base,
+     Collections.Dictionaries;
 
 type
   ///  <summary>The base abstract class for all <c>bags</c> in DeHL.</summary>
@@ -87,9 +88,9 @@ type
     procedure SetWeight(const AValue: T; const AWeight: NativeUInt);
 
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
-    ///  <param name="AType">The type object describing the elements.</param>
+    ///  <param name="ARules">The type object describing the elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const AType: IType<T>): IDictionary<T, NativeUInt>; virtual; abstract;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; virtual; abstract;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default type object is requested.</remarks>
@@ -117,34 +118,34 @@ type
     constructor Create(const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>); overload;
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const ACollection: IEnumerable<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: array of T); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TDynamicArray<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TFixedArray<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -283,9 +284,9 @@ type
 
   protected
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
-    ///  <param name="AType">The type object describing the bag's elements.</param>
+    ///  <param name="ARules">The type object describing the bag's elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const AType: IType<T>): IDictionary<T, NativeUInt>; override;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
 
     ///  <summary>Called when the serialization process is about to begin.</summary>
     ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
@@ -307,10 +308,10 @@ type
     constructor Create(const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">The type object describing the bag's elements.</param>
+    ///  <param name="ARules">The type object describing the bag's elements.</param>
     ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AInitialCapacity: NativeUInt); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
   end;
 
   ///  <summary>The generic <c>bag</c> collection designed to store objects.</summary>
@@ -325,11 +326,11 @@ type
 
   protected
     ///  <summary>Installs the type object.</summary>
-    ///  <param name="AType">The type object to install.</param>
+    ///  <param name="ARules">The type object to install.</param>
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
     ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    procedure InstallType(const AType: IType<T>); override;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    procedure InstallType(const ARules: TRules<T>); override;
 
   public
     ///  <summary>Specifies whether this bag owns the objects stored in it.</summary>
@@ -347,9 +348,9 @@ type
 
   protected
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
-    ///  <param name="AType">The type object describing the bag's elements.</param>
+    ///  <param name="ARules">The type object describing the bag's elements.</param>
     ///  <remarks>This method creates an AVL-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const AType: IType<T>): IDictionary<T, NativeUInt>; override;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
 
     ///  <summary>Called when the serialization process is about to begin.</summary>
     ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
@@ -396,39 +397,39 @@ type
     constructor Create(const AArray: TFixedArray<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TDynamicArray<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TFixedArray<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>; const AAscending: Boolean = true); overload;
 
   end;
 
@@ -444,11 +445,11 @@ type
 
   protected
     ///  <summary>Installs the type object.</summary>
-    ///  <param name="AType">The type object to install.</param>
+    ///  <param name="ARules">The type object to install.</param>
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
     ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    procedure InstallType(const AType: IType<T>); override;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    procedure InstallType(const ARules: TRules<T>); override;
 
   public
     ///  <summary>Specifies whether this bag owns the objects stored in it.</summary>
@@ -552,21 +553,21 @@ end;
 constructor TAbstractBag<T>.Create(const AArray: TFixedArray<T>);
 begin
   { Call upper constructor }
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
 constructor TAbstractBag<T>.Create(const AArray: TDynamicArray<T>);
 begin
   { Call upper constructor }
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TAbstractBag<T>.Create(const AType: IType<T>; const AArray: TFixedArray<T>);
+constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -576,12 +577,12 @@ begin
     end;
 end;
 
-constructor TAbstractBag<T>.Create(const AType: IType<T>; const AArray: TDynamicArray<T>);
+constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -594,16 +595,16 @@ end;
 constructor TAbstractBag<T>.Create();
 begin
   { Call upper constructor }
-  Create(TType<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
 constructor TAbstractBag<T>.Create(const ACollection: IEnumerable<T>);
 begin
   { Call upper constructor }
-  Create(TType<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TAbstractBag<T>.Create(const AType: IType<T>; const ACollection: IEnumerable<T>);
+constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
   V: T;
 begin
@@ -611,19 +612,19 @@ begin
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Iterate and add }
   for V in ACollection do
     Add(V);
 end;
 
-constructor TAbstractBag<T>.Create(const AType: IType<T>; const AArray: array of T);
+constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
@@ -632,14 +633,14 @@ begin
   end;
 end;
 
-constructor TAbstractBag<T>.Create(const AType: IType<T>);
+constructor TAbstractBag<T>.Create(const ARules: TRules<T>);
 begin
   { Initialize instance }
-  if (AType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AType');
+  if (ARules = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('ARules');
 
-  InstallType(AType);
-  FDictionary := CreateDictionary(ElementType);
+  InstallType(ARules);
+  FDictionary := CreateDictionary(ElementRules);
 
   FVer := 0;
   FKnownCount := 0;
@@ -648,7 +649,7 @@ end;
 constructor TAbstractBag<T>.Create(const AArray: array of T);
 begin
   { Call upper constructor }
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
 destructor TAbstractBag<T>.Destroy;
@@ -866,13 +867,13 @@ begin
   inherited Create();
 end;
 
-constructor TBag<T>.Create(const AType: IType<T>; const AInitialCapacity: NativeUInt);
+constructor TBag<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
 begin
   FInitialCapacity := AInitialCapacity;
-  inherited Create(AType);
+  inherited Create(ARules);
 end;
 
-function TBag<T>.CreateDictionary(const AType: IType<T>): IDictionary<T, NativeUInt>;
+function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
 var
   Cap: NativeUInt;
 begin
@@ -882,7 +883,7 @@ begin
   else
     Cap := FInitialCapacity;
 
-  Result := TDictionary<T, NativeUInt>.Create(AType, TType<NativeUInt>.Default, Cap);
+  Result := TDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, Cap);
 end;
 
 procedure TBag<T>.DeserializeElement(const AElement: T);
@@ -904,10 +905,10 @@ end;
 
 { TObjectBag<T> }
 
-procedure TObjectBag<T>.InstallType(const AType: IType<T>);
+procedure TObjectBag<T>.InstallType(const ARules: TRules<T>);
 begin
   { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(AType);
+  FWrapperType := TObjectWrapperType<T>.Create(ARules);
 
   { Install overridden type }
   inherited InstallType(FWrapperType);
@@ -922,7 +923,6 @@ procedure TObjectBag<T>.SetOwnsObjects(const Value: Boolean);
 begin
   FWrapperType.AllowCleanup := Value;
 end;
-
 
 { TSortedBag<T> }
 
@@ -940,17 +940,17 @@ begin
   inherited Create(AArray);
 end;
 
-constructor TSortedBag<T>.Create(const AType: IType<T>; const AArray: TFixedArray<T>; const AAscending: Boolean);
+constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
   FAscSort := AAscending;
-  inherited Create(AType, AArray);
+  inherited Create(ARules, AArray);
 end;
 
-function TSortedBag<T>.CreateDictionary(const AType: IType<T>): IDictionary<T, NativeUInt>;
+function TSortedBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
 begin
   { Create a sorted dictionary }
-  Result := TSortedDictionary<T, NativeUInt>.Create(AType, TType<NativeUInt>.Default, FAscSort);
+  Result := TSortedDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, FAscSort);
 end;
 
 procedure TSortedBag<T>.DeserializeElement(const AElement: T);
@@ -975,11 +975,11 @@ begin
   AData.AddValue(SSerAscendingKeys, FAscSort);
 end;
 
-constructor TSortedBag<T>.Create(const AType: IType<T>; const AArray: TDynamicArray<T>; const AAscending: Boolean);
+constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
   FAscSort := AAscending;
-  inherited Create(AType, AArray);
+  inherited Create(ARules, AArray);
 end;
 
 constructor TSortedBag<T>.Create(const AAscending: Boolean);
@@ -996,25 +996,25 @@ begin
   inherited Create(ACollection);
 end;
 
-constructor TSortedBag<T>.Create(const AType: IType<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean);
+constructor TSortedBag<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
   FAscSort := AAscending;
-  inherited Create(AType, ACollection);
+  inherited Create(ARules, ACollection);
 end;
 
-constructor TSortedBag<T>.Create(const AType: IType<T>; const AArray: array of T; const AAscending: Boolean);
+constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean);
 begin
   { Call upper constructor }
   FAscSort := AAscending;
-  inherited Create(AType, AArray);
+  inherited Create(ARules, AArray);
 end;
 
-constructor TSortedBag<T>.Create(const AType: IType<T>; const AAscending: Boolean);
+constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
   FAscSort := AAscending;
-  inherited Create(AType);
+  inherited Create(ARules);
 end;
 
 constructor TSortedBag<T>.Create(const AArray: array of T; const AAscending: Boolean);
@@ -1026,10 +1026,10 @@ end;
 
 { TObjectSortedBag<T> }
 
-procedure TObjectSortedBag<T>.InstallType(const AType: IType<T>);
+procedure TObjectSortedBag<T>.InstallType(const ARules: TRules<T>);
 begin
   { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(AType);
+  FWrapperType := TObjectWrapperType<T>.Create(ARules);
 
   { Install overridden type }
   inherited InstallType(FWrapperType);

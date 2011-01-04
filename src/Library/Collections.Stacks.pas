@@ -25,16 +25,11 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.Defines.inc}
+{$I Collections.inc}
 unit Collections.Stacks;
 interface
 uses SysUtils,
-     DeHL.Base,
-     DeHL.Types,
-     DeHL.Exceptions,
-     DeHL.Arrays,
-     DeHL.Serialization,
-     DeHL.Collections.Base;
+     Collections.Base;
 
 type
   ///  <summary>The generic <c>stack (LIFO)</c> collection.</summary>
@@ -123,40 +118,40 @@ type
     constructor Create(const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the stack.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>); overload;
+    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AInitialCapacity: NativeUInt); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const ACollection: IEnumerable<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: array of T); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TDynamicArray<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TFixedArray<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -351,11 +346,11 @@ type
 
   protected
     ///  <summary>Installs the type object.</summary>
-    ///  <param name="AType">The type object to install.</param>
+    ///  <param name="ARules">The type object to install.</param>
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
     ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    procedure InstallType(const AType: IType<T>); override;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    procedure InstallType(const ARules: TRules<T>); override;
   public
     ///  <summary>Specifies whether this stack owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the stack owns its objects; <c>False</c> otherwise.</returns>
@@ -415,30 +410,30 @@ type
     constructor Create(const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const ACollection: IEnumerable<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: array of T); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TDynamicArray<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AType">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TFixedArray<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
@@ -615,11 +610,11 @@ type
 
   protected
     ///  <summary>Installs the type object.</summary>
-    ///  <param name="AType">The type object to install.</param>
+    ///  <param name="ARules">The type object to install.</param>
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
     ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    procedure InstallType(const AType: IType<T>); override;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    procedure InstallType(const ARules: TRules<T>); override;
 
   public
     ///  <summary>Specifies whether this stack owns the objects stored in it.</summary>
@@ -714,11 +709,11 @@ procedure TStack<T>.Clear;
 var
   I: NativeInt;
 begin
-  if (ElementType <> nil) and (ElementType.Management() = tmManual) and (FLength > 0) then
+  if (ElementRules <> nil) and (ElementRules.Management() = tmManual) and (FLength > 0) then
   begin
     { Should cleanup each element individually }
     for I := 0 to FLength - 1 do
-      ElementType.Cleanup(FArray[I]);
+      ElementRules.Cleanup(FArray[I]);
   end;
 
   { Simply reset all to default }
@@ -738,7 +733,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if ElementType.AreEqual(FArray[I], AValue) then
+    if ElementRules.AreEqual(FArray[I], AValue) then
     begin
       Result := True;
       Exit;
@@ -756,15 +751,15 @@ begin
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Copy all elements safely }
-  &Array<T>.SafeMove(FArray, AArray, 0, AStartIndex, FLength, ElementType);
+  &Array<T>.SafeMove(FArray, AArray, 0, AStartIndex, FLength, ElementRules);
 end;
 
-constructor TStack<T>.Create(const AType: IType<T>; const ACollection: IEnumerable<T>);
+constructor TStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
   V: T;
 begin
   { Call upper constructor }
-  Create(AType, DefaultArrayLength);
+  Create(ARules, DefaultArrayLength);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -777,32 +772,32 @@ end;
 
 constructor TStack<T>.Create;
 begin
-  Create(TType<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
 constructor TStack<T>.Create(const AInitialCapacity: NativeUInt);
 begin
-  Create(TType<T>.Default, AInitialCapacity);
+  Create(TRules<T>.Default, AInitialCapacity);
 end;
 
 constructor TStack<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  Create(TType<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TStack<T>.Create(const AType: IType<T>);
+constructor TStack<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(AType, DefaultArrayLength);
+  Create(ARules, DefaultArrayLength);
 end;
 
-constructor TStack<T>.Create(const AType: IType<T>; const AInitialCapacity: NativeUInt);
+constructor TStack<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
 begin
   { Initialize instance }
-  if (AType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AType');
+  if (ARules = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('ARules');
 
-  InstallType(AType);
+  InstallType(ARules);
 
   FLength := 0;
   FVer := 0;
@@ -857,7 +852,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementType.AreEqual(FArray[I], V) then
+    if not ElementRules.AreEqual(FArray[I], V) then
       Exit(false);
 
     Inc(I);
@@ -947,7 +942,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementType.Compare(FArray[I], Result) > 0 then
+    if ElementRules.Compare(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -963,7 +958,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementType.Compare(FArray[I], Result) < 0 then
+    if ElementRules.Compare(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -1009,7 +1004,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if ElementType.AreEqual(FArray[I], AValue) then
+    if ElementRules.AreEqual(FArray[I], AValue) then
     begin
       FoundIndex := I;
       Break;
@@ -1071,15 +1066,15 @@ end;
 
 constructor TStack<T>.Create(const AArray: array of T);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TStack<T>.Create(const AType: IType<T>; const AArray: array of T);
+constructor TStack<T>.Create(const ARules: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AType, DefaultArrayLength);
+  Create(ARules, DefaultArrayLength);
 
   { Copy array }
   for I := 0 to Length(AArray) - 1 do
@@ -1090,20 +1085,20 @@ end;
 
 constructor TStack<T>.Create(const AArray: TFixedArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
 constructor TStack<T>.Create(const AArray: TDynamicArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TStack<T>.Create(const AType: IType<T>; const AArray: TFixedArray<T>);
+constructor TStack<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1113,12 +1108,12 @@ begin
     end;
 end;
 
-constructor TStack<T>.Create(const AType: IType<T>; const AArray: TDynamicArray<T>);
+constructor TStack<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1168,10 +1163,10 @@ end;
 
 { TObjectStack<T> }
 
-procedure TObjectStack<T>.InstallType(const AType: IType<T>);
+procedure TObjectStack<T>.InstallType(const ARules: TRules<T>);
 begin
   { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(AType);
+  FWrapperType := TObjectWrapperType<T>.Create(ARules);
 
   { Install overridden type }
   inherited InstallType(FWrapperType);
@@ -1233,12 +1228,12 @@ begin
   FList.CopyTo(AArray, AStartIndex);
 end;
 
-constructor TLinkedStack<T>.Create(const AType: IType<T>; const ACollection: IEnumerable<T>);
+constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
   V: T;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -1251,24 +1246,24 @@ end;
 
 constructor TLinkedStack<T>.Create;
 begin
-  Create(TType<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
 constructor TLinkedStack<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  Create(TType<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TLinkedStack<T>.Create(const AType: IType<T>);
+constructor TLinkedStack<T>.Create(const ARules: TRules<T>);
 begin
   { Initialize instance }
-  if (AType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AType');
+  if (ARules = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('ARules');
 
   { Initialize internals }
-  InstallType(AType);
+  InstallType(ARules);
 
-  FList := TLinkedList<T>.Create(ElementType);
+  FList := TLinkedList<T>.Create(ElementRules);
 end;
 
 procedure TLinkedStack<T>.DeserializeElement(const AElement: T);
@@ -1410,15 +1405,15 @@ end;
 
 constructor TLinkedStack<T>.Create(const AArray: array of T);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TLinkedStack<T>.Create(const AType: IType<T>; const AArray: array of T);
+constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy array }
   for I := 0 to Length(AArray) - 1 do
@@ -1429,20 +1424,20 @@ end;
 
 constructor TLinkedStack<T>.Create(const AArray: TFixedArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
 constructor TLinkedStack<T>.Create(const AArray: TDynamicArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TLinkedStack<T>.Create(const AType: IType<T>; const AArray: TFixedArray<T>);
+constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1452,12 +1447,12 @@ begin
     end;
 end;
 
-constructor TLinkedStack<T>.Create(const AType: IType<T>; const AArray: TDynamicArray<T>);
+constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(AType);
+  Create(ARules);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1469,10 +1464,10 @@ end;
 
 { TObjectLinkedStack<T> }
 
-procedure TObjectLinkedStack<T>.InstallType(const AType: IType<T>);
+procedure TObjectLinkedStack<T>.InstallType(const ARules: TRules<T>);
 begin
   { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(AType);
+  FWrapperType := TObjectWrapperType<T>.Create(ARules);
 
   { Install overridden type }
   inherited InstallType(FWrapperType);

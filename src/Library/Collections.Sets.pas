@@ -25,11 +25,10 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.Defines.inc}
+{$I Collections.inc}
 unit Collections.Sets;
 interface
 uses SysUtils,
-     Generics.Defaults,
      Collections.Base;
 
 type
@@ -74,8 +73,8 @@ type
     FVer: NativeUInt;
 
     { Internal }
-    procedure InitializeInternals(const ACapacity: NativeUInt);
-    procedure Insert(const AKey: T; const AShouldAdd: Boolean = true);
+    procedure InitializeInternals(const Capacity: NativeUInt);
+    procedure Insert(const AKey: T; const ShouldAdd: Boolean = true);
     function FindEntry(const AKey: T): NativeInt;
     procedure Resize();
     function Hash(const AKey: T): NativeInt;
@@ -106,28 +105,24 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AEqComparer">The equality comparer that manages the values.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AEqComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AEqComparer: IEqualityComparer<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
-    ///  <param name="AEqComparer">The equality comparer that manages the values.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AEqComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AEqComparer: IEqualityComparer<T>; const AInitialCapacity: NativeUInt); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AEqComparer">The equality comparer that manages the values.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AEqComparer: IEqualityComparer<T>; const ACollection: IEnumerable<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AEqComparer">The equality comparer that manages the values.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AEqComparer: IEqualityComparer<T>; const AArray: array of T); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
@@ -168,7 +163,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the set.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const StartIndex: NativeUInt); overload; override;
 
     ///  <summary>Checks whether the set is empty.</summary>
     ///  <returns><c>True</c> if the set is empty; <c>False</c> otherwise.</returns>
@@ -183,11 +178,10 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
-    ///  <param name="AValue">The value that was removed from the collection.</param>
-    procedure HandleValueRemoved(const AValue: T); virtual;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
   public
-    ///  <summary>Specifies whether the set owns the objects stored in it.</summary>
+    ///  <summary>Specifies whether this set owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the set owns its objects; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the set controls the life-time of the stored objects.</remarks>
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
@@ -275,25 +269,25 @@ type
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
+    ///  <param name="ARules">A type object decribing the elements in the set.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
+    ///  <param name="ARules">A type object decribing the elements in the set.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AEqComparer">The comparer that manages the values.</param>
+    ///  <param name="ARules">A type object decribing the elements in the set.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
@@ -334,7 +328,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the set.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const StartIndex: NativeUInt); overload; override;
 
     ///  <summary>Checks whether the set is empty.</summary>
     ///  <returns><c>True</c> if the set is empty; <c>False</c> otherwise.</returns>
@@ -393,9 +387,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
-    ///  <param name="AValue">The value that was removed from the collection.</param>
-    procedure HandleValueRemoved(const AValue: T); virtual;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
 
   public
     ///  <summary>Specifies whether this set owns the objects stored in it.</summary>
@@ -466,28 +459,24 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AInitialCapacity: NativeUInt); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AArray: array of T); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
@@ -624,7 +613,7 @@ type
     ///  <returns>The element from the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The set is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const Index: NativeUInt): T; override;
+    function ElementAt(const AIndex: NativeUInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
@@ -667,9 +656,9 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
-    ///  <param name="AValue">The value that was removed from the collection.</param>
-    procedure HandleValueRemoved(const AValue: T); virtual;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
+
   public
     ///  <summary>Specifies whether this set owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the set owns its objects; <c>False</c> otherwise.</returns>
@@ -681,7 +670,7 @@ type
 implementation
 
 const
-  CDefaultSetSize = 32;
+  DefaultArrayLength = 32;
 
 { THashSet<T> }
 
@@ -696,21 +685,15 @@ var
   I: NativeInt;
 begin
   if FCount > 0 then
-  begin
     for I := 0 to Length(FBucketArray) - 1 do
       FBucketArray[I] := -1;
-  end;
 
-  { Cleanup each key if necessary }
-  if (Length(FEntryArray) > 0) then
-  begin
-    for I := 0 to Length(FEntryArray) - 1 do
-      if FEntryArray[I].FHashCode >= 0 then
-      begin
-        HandleValueRemoved(FEntryArray[I].FKey);
-        FEntryArray[I].FKey := default(T);
-      end;
-  end;
+  for I := 0 to Length(FEntryArray) - 1 do
+    if FEntryArray[I].FHashCode >= 0 then
+    begin
+      HandleElementRemoved(FEntryArray[I].FKey);
+      FEntryArray[I].FKey := default(T);
+    end;
 
   if Length(FEntryArray) > 0 then
      FillChar(FEntryArray[0], Length(FEntryArray) * SizeOf(TEntry), 0);
@@ -727,18 +710,19 @@ begin
   Result := (FindEntry(AValue) >= 0);
 end;
 
-procedure THashSet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure THashSet<T>.CopyTo(
+  var AArray: array of T; const StartIndex: NativeUInt);
 var
   I, X: NativeInt;
 begin
   { Check for indexes }
-  if AStartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+  if StartIndex >= NativeUInt(Length(AArray)) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
 
-  if (NativeUInt(Length(AArray)) - AStartIndex) < Count then
+  if (NativeUInt(Length(AArray)) - StartIndex) < Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := AStartIndex;
+  X := StartIndex;
 
   for I := 0 to FCount - 1 do
   begin
@@ -752,26 +736,23 @@ end;
 
 constructor THashSet<T>.Create;
 begin
-  Create(TEqualityComparer<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
 constructor THashSet<T>.Create(const AInitialCapacity: NativeUInt);
 begin
-  Create(TEqualityComparer<T>.Default, AInitialCapacity);
+  Create(TRules<T>.Default, AInitialCapacity);
 end;
 
 constructor THashSet<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  Create(TEqualityComparer<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
-constructor THashSet<T>.Create(const AEqComparer: IEqualityComparer<T>; const AInitialCapacity: NativeUInt);
+constructor THashSet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
 begin
-  { Initialize instance }
-  if (AEqComparer = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AEqComparer');
-
-  InstallEqualityComparer(AEqComparer);
+  { Call the upper constructor}
+  inherited Create(ARules);
 
   FVer := 0;
   FCount := 0;
@@ -781,12 +762,12 @@ begin
   InitializeInternals(AInitialCapacity);
 end;
 
-constructor THashSet<T>.Create(const AEqComparer: IEqualityComparer<T>; const ACollection: IEnumerable<T>);
+constructor THashSet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
   V : T;
 begin
   { Call upper constructor }
-  Create(AEqComparer, CDefaultSetSize);
+  Create(ARules, DefaultArrayLength);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
@@ -796,10 +777,10 @@ begin
     Add(V);
 end;
 
-constructor THashSet<T>.Create(const AEqComparer: IEqualityComparer<T>);
+constructor THashSet<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(AEqComparer, CDefaultSetSize);
+  Create(ARules, DefaultArrayLength);
 end;
 
 destructor THashSet<T>.Destroy;
@@ -831,7 +812,7 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = HashCode) and AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = HashCode) and ElementRules.AreEqual(FEntryArray[I].FKey, AKey) then
          begin Result := I; Exit; end;
 
       I := FEntryArray[I].FNext;
@@ -853,17 +834,17 @@ function THashSet<T>.Hash(const AKey: T): NativeInt;
 const
   PositiveMask = not NativeInt(1 shl (SizeOf(NativeInt) * 8 - 1));
 begin
-  Result := PositiveMask and ((PositiveMask and HashCode(AKey)) + 1);
+  Result := PositiveMask and ((PositiveMask and ElementRules.GetHashCode(AKey)) + 1);
 end;
 
-procedure THashSet<T>.InitializeInternals(const ACapacity: NativeUInt);
+procedure THashSet<T>.InitializeInternals(const Capacity: NativeUInt);
 var
   I: NativeInt;
 begin
-  SetLength(FBucketArray, ACapacity);
-  SetLength(FEntryArray, ACapacity);
+  SetLength(FBucketArray, Capacity);
+  SetLength(FEntryArray, Capacity);
 
-  for I := 0 to ACapacity - 1 do
+  for I := 0 to Capacity - 1 do
   begin
     FBucketArray[I] := -1;
     FEntryArray[I].FHashCode := -1;
@@ -872,7 +853,7 @@ begin
   FFreeList := -1;
 end;
 
-procedure THashSet<T>.Insert(const AKey: T; const AShouldAdd: Boolean);
+procedure THashSet<T>.Insert(const AKey: T; const ShouldAdd: Boolean);
 var
   FreeList: NativeInt;
   Index: NativeInt;
@@ -892,9 +873,9 @@ begin
 
   while I >= 0 do
   begin
-    if (FEntryArray[I].FHashCode = HashCode) and AreEqual(FEntryArray[I].FKey, AKey) then
+    if (FEntryArray[I].FHashCode = HashCode) and ElementRules.AreEqual(FEntryArray[I].FKey, AKey) then
     begin
-      if AShouldAdd then
+      if (ShouldAdd) then
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
 
       Exit;
@@ -949,7 +930,7 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = HashCode) and AreEqual(FEntryArray[I].FKey, AValue) then
+      if (FEntryArray[I].FHashCode = HashCode) and ElementRules.AreEqual(FEntryArray[I].FKey, AValue) then
       begin
 
         if RemIndex < 0 then
@@ -980,22 +961,23 @@ end;
 
 procedure THashSet<T>.Resize;
 var
-  LNewCount, I, Index: NativeInt;
+  XPrime, I, Index: NativeInt;
   NArr: TBucketArray;
 begin
-  LNewCount := FCount * 2;
-  SetLength(NArr, LNewCount);
+  XPrime := FCount * 2;
+
+  SetLength(NArr, XPrime);
 
   for I := 0 to Length(NArr) - 1 do
   begin
     NArr[I] := -1;
   end;
 
-  SetLength(FEntryArray, LNewCount);
+  SetLength(FEntryArray, XPrime);
 
   for I := 0 to FCount - 1 do
   begin
-    Index := FEntryArray[I].FHashCode mod LNewCount;
+    Index := FEntryArray[I].FHashCode mod XPrime;
     FEntryArray[I].FNext := NArr[Index];
     NArr[Index] := I;
   end;
@@ -1004,7 +986,6 @@ begin
   FBucketArray := nil;
   FBucketArray := NArr;
 end;
-
 
 { THashSet<T>.TPairEnumerator }
 
@@ -1057,20 +1038,29 @@ end;
 
 constructor THashSet<T>.Create(const AArray: array of T);
 begin
-  Create(TEqualityComparer<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor THashSet<T>.Create(const AEqComparer: IEqualityComparer<T>;
+constructor THashSet<T>.Create(const ARules: TRules<T>;
   const AArray: array of T);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AEqComparer, CDefaultSetSize);
+  Create(ARules, DefaultArrayLength);
 
   { Copy all in }
   for I := 0 to Length(AArray) - 1 do
+  begin
     Add(AArray[I]);
+  end;
+end;
+
+{ TObjectHashSet<T> }
+
+procedure TObjectHashSet<T>.HandleElementRemoved(const AElement: T);
+begin
+  TObject(AElement).Free;
 end;
 
 { TSortedSet<T> }
@@ -1459,19 +1449,19 @@ begin
   Result := FindNodeWithKey(AValue) <> nil;
 end;
 
-procedure TSortedSet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure TSortedSet<T>.CopyTo(var AArray: array of T; const StartIndex: NativeUInt);
 var
   X: NativeInt;
   LNode: TNode;
 begin
   { Check for indexes }
-  if AStartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+  if StartIndex >= NativeUInt(Length(AArray)) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
 
-  if (NativeUInt(Length(AArray)) - AStartIndex) < FCount then
+  if (NativeUInt(Length(AArray)) - StartIndex) < FCount then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := AStartIndex;
+  X := StartIndex;
 
   { Find the left-most node }
   LNode := FindLeftMostNode();
@@ -1491,39 +1481,40 @@ end;
 
 constructor TSortedSet<T>.Create(const AAscending: Boolean);
 begin
-  Create(TComparer<T>.Default, AAscending);
+  Create(TRules<T>.Default, AAscending);
 end;
 
-constructor TSortedSet<T>.Create(const ACollection: IEnumerable<T>; const AAscending: Boolean);
+constructor TSortedSet<T>.Create(const ACollection: IEnumerable<T>;
+  const AAscending: Boolean);
 begin
-  Create(TComparer<T>.Default, ACollection, AAscending);
+  Create(TRules<T>.Default, ACollection, AAscending);
 end;
 
-constructor TSortedSet<T>.Create(const AComparer: IComparer<T>;
+constructor TSortedSet<T>.Create(const ARules: TRules<T>;
   const ACollection: IEnumerable<T>; const AAscending: Boolean);
 var
   V: T;
 begin
   { Call upper constructor }
-  Create(AComparer, AAscending);
+  Create(ARules, AAscending);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Pump in all items }
   for V in ACollection do
+  begin
     Add(V);
+  end;
 end;
 
-constructor TSortedSet<T>.Create(const AComparer: IComparer<T>; const AAscending: Boolean);
+constructor TSortedSet<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
 begin
-  { Initialize instance }
-  if AComparer = nil then
-     ExceptionHelper.Throw_ArgumentNilError('AComparer');
+  { Call the upper constructor }
+  inherited Create(ARules);
 
   FVer := 0;
   FCount := 0;
-  FComparer := AComparer;
 
   if AAscending then
     FSignFix := 1
@@ -1567,7 +1558,7 @@ begin
 
   while LNode <> nil do
   begin
-	  Compare := FComparer.Compare(AValue, LNode.FKey) * FSignFix;
+	  Compare := ElementRules.Compare(AValue, LNode.FKey) * FSignFix;
 
     { Navigate left, right or find! }
     if Compare < 0 then
@@ -1646,7 +1637,7 @@ begin
 
   while true do
   begin
-	  Compare := FComparer.Compare(AValue, LNode.FKey) * FSignFix;
+	  Compare := ElementRules.Compare(AValue, LNode.FKey) * FSignFix;
 
     if Compare < 0 then
     begin
@@ -1977,7 +1968,7 @@ begin
     RecursiveClear(ANode.FRight);
 
   { Cleanup for Key/Value }
-  HandleValueRemoved(ANode.FKey);
+  HandleElementRemoved(ANode.FKey);
 
   { Finally, free the node itself }
   ANode.Free;
@@ -2008,20 +1999,22 @@ end;
 
 constructor TSortedSet<T>.Create(const AArray: array of T; const AAscending: Boolean);
 begin
-  Create(TComparer<T>.Default, AArray, AAscending);
+  Create(TRules<T>.Default, AArray, AAscending);
 end;
 
-constructor TSortedSet<T>.Create(const AComparer: IComparer<T>; const AArray: array of T;
+constructor TSortedSet<T>.Create(const ARules: TRules<T>; const AArray: array of T;
   const AAscending: Boolean);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AComparer, AAscending);
+  Create(ARules, AAscending);
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
+  begin
     Add(AArray[I]);
+  end;
 end;
 
 { TSortedSet<T>.TEnumerator }
@@ -2071,6 +2064,10 @@ end;
 
 { TObjectSortedSet<T> }
 
+procedure TObjectSortedSet<T>.HandleElementRemoved(const AElement: T);
+begin
+  TObject(AElement).Free;
+end;
 
 { TArraySet<T> }
 
@@ -2169,7 +2166,7 @@ var
 begin
   { If we need to cleanup }
   for I := 0 to FLength - 1 do
-    HandleValueRemoved(FArray[I]);
+    HandleElementRemoved(FArray[I]);
 
   { Reset the length }
   FLength := 0;
@@ -2184,7 +2181,7 @@ begin
   { Search for the value }
   if FLength > 0 then
     for I := 0 to FLength - 1 do
-      if AreEqual(FArray[I], AValue) then
+      if ElementRules.AreEqual(FArray[I], AValue) then
       begin
         Result := true;
         Exit;
@@ -2196,44 +2193,44 @@ var
   I: NativeInt;
 begin
   if AStartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
   if (NativeUInt(Length(AArray)) - AStartIndex) < FLength then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  { Copy elements in }
+  { Copy all elements safely }
   for I := 0 to FLength - 1 do
     AArray[AStartIndex + I] := FArray[I];
 end;
 
 constructor TArraySet<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  Create(TComparer<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
 constructor TArraySet<T>.Create(const AInitialCapacity: NativeUInt);
 begin
-  Create(TComparer<T>.Default, AInitialCapacity);
+  Create(TRules<T>.Default, AInitialCapacity);
 end;
 
 constructor TArraySet<T>.Create;
 begin
-  Create(TComparer<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
-constructor TArraySet<T>.Create(const AComparer: IComparer<T>);
+constructor TArraySet<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultSetSize);
+  Create(ARules, DefaultArrayLength);
 end;
 
-constructor TArraySet<T>.Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
   V: T;
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultSetSize);
+  Create(ARules, DefaultArrayLength);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -2244,13 +2241,10 @@ begin
     Add(V);
 end;
 
-constructor TArraySet<T>.Create(const AComparer: IComparer<T>; const AInitialCapacity: NativeUInt);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
 begin
-  { Initialize instance }
-  if (AComparer = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AComparer');
-
-  InstallComparer(AComparer);
+  { Call the upper constructor }
+  inherited Create(ARules);
 
   FLength := 0;
   FVer := 0;
@@ -2265,13 +2259,13 @@ begin
   inherited;
 end;
 
-function TArraySet<T>.ElementAt(const Index: NativeUInt): T;
+function TArraySet<T>.ElementAt(const AIndex: NativeUInt): T;
 begin
   { Simply use the getter }
-  if (Index >= FLength) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('Index');
+  if (AIndex >= FLength) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
-  Result := FArray[Index];
+  Result := FArray[AIndex];
 end;
 
 function TArraySet<T>.ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
@@ -2300,7 +2294,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if AreEqual(FArray[I], V) then
+    if not ElementRules.AreEqual(FArray[I], V) then
       Exit(false);
 
     Inc(I);
@@ -2349,8 +2343,8 @@ end;
 procedure TArraySet<T>.Grow;
 begin
   { Grow the array }
-  if FLength < CDefaultSetSize then
-     SetLength(FArray, FLength + CDefaultSetSize)
+  if FLength < DefaultArrayLength then
+     SetLength(FArray, FLength + DefaultArrayLength)
   else
      SetLength(FArray, FLength * 2);
 end;
@@ -2385,7 +2379,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if Compare(FArray[I], Result) > 0 then
+    if ElementRules.Compare(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -2401,7 +2395,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if Compare(FArray[I], Result) < 0 then
+    if ElementRules.Compare(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -2415,7 +2409,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if AreEqual(FArray[I], AValue) then
+    if ElementRules.AreEqual(FArray[I], AValue) then
     begin
       FoundIndex := I;
       Break;
@@ -2465,21 +2459,24 @@ begin
     Result := FArray[0];
 end;
 
+
 constructor TArraySet<T>.Create(const AArray: array of T);
 begin
-  Create(TComparer<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TArraySet<T>.Create(const AComparer: IComparer<T>; const AArray: array of T);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultSetSize);
+  Create(ARules, DefaultArrayLength);
 
   { Copy array contents }
   for I := 0 to Length(AArray) - 1 do
+  begin
     Add(AArray[I]);
+  end;
 end;
 
 { TArraySet<T>.TEnumerator }
@@ -2520,28 +2517,11 @@ begin
   Inc(FCurrentIndex);
 end;
 
-{ TObjectHashSet<T> }
-
-procedure TObjectHashSet<T>.HandleValueRemoved(const AValue: T);
-begin
-  if FOwnsObjects then
-    TObject(AValue).Free;
-end;
-
-{ TObjectSortedSet<T> }
-
-procedure TObjectSortedSet<T>.HandleValueRemoved(const AValue: T);
-begin
-  if FOwnsObjects then
-    TObject(AValue).Free;
-end;
-
 { TObjectArraySet<T> }
 
-procedure TObjectArraySet<T>.HandleValueRemoved(const AValue: T);
+procedure TObjectArraySet<T>.HandleElementRemoved(const AElement: T);
 begin
-  if FOwnsObjects then
-    TObject(AValue).Free;
+  TObject(AElement).Free;
 end;
 
 end.

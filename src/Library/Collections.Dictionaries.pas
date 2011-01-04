@@ -25,11 +25,10 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.Defines.inc}
+{$I Collections.inc}
 unit Collections.Dictionaries;
 interface
 uses SysUtils,
-     Generics.Defaults,
      Generics.Collections,
      Collections.Base;
 
@@ -117,9 +116,6 @@ type
       { Constructor }
       constructor Create(const ADict: TDictionary<TKey, TValue>);
 
-      { Destructor }
-      destructor Destroy(); override;
-
       { Property }
       property Count: NativeUInt read GetCount;
 
@@ -142,9 +138,6 @@ type
     public
       { Constructor }
       constructor Create(const ADict: TDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
 
       { Property }
       property Count: NativeUInt read GetCount;
@@ -215,29 +208,28 @@ type
     constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyEqComparer">The equality comparer used by the .</param>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyEqComparer: IEqualityComparer<TKey>; const AValueEqComparer: IEqualityComparer<TValue>;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -342,39 +334,25 @@ type
   ///  <remarks>This type uses hashing mechanisms to store its key-value pairs.</remarks>
   TObjectDictionary<TKey, TValue> = class(TDictionary<TKey, TValue>)
   private
-    FKeyWrapperType: TMaybeObjectWrapperType<TKey>;
-    FValueWrapperType: TMaybeObjectWrapperType<TValue>;
-
-    { Getters/Setters for OwnsKeys }
-    function GetOwnsKeys: Boolean;
-    procedure SetOwnsKeys(const Value: Boolean);
-
-    { Getters/Setters for OwnsValues }
-    function GetOwnsValues: Boolean;
-    procedure SetOwnsValues(const Value: Boolean);
-
+    FOwnsKeys, FOwnsValues: Boolean;
   protected
-    ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyEqComparer">The key's type object to install.</param>
-    ///  <param name="AValueEqComparer">The value's type object to install.</param>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request.
-    ///  Make sure to call this method in descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>); override;
+    //TODO: doc me.
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+    //TODO: doc me.
+    procedure HandleValueRemoved(const AValue: TValue); override;
 
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the dictionary controls the life-time of the stored keys. The value of
     ///  this property has effect only if the keys are objects, otherwise it is ignored.</remarks>
-    property OwnsKeys: Boolean read GetOwnsKeys write SetOwnsKeys;
+    property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this dictionary owns the values.</summary>
     ///  <returns><c>True</c> if the dictionary owns the values; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the dictionary controls the life-time of the stored values. The value of
     ///  this property has effect only if the values are objects, otherwise it is ignored.</remarks>
-    property OwnsValues: Boolean read GetOwnsValues write SetOwnsValues;
+    property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
 type
@@ -467,9 +445,6 @@ type
       { Constructor }
       constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
 
-      { Destructor }
-      destructor Destroy(); override;
-
       { Property }
       property Count: NativeUInt read GetCount;
 
@@ -492,9 +467,6 @@ type
     public
       { Constructor }
       constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
 
       { Property }
       property Count: NativeUInt read GetCount;
@@ -530,21 +502,6 @@ type
     { Removal }
     procedure BalanceTreesAfterRemoval(const ANode: TNode);
   protected
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an pair has been deserialized and needs to be inserted into the dictionary.</summary>
-    ///  <param name="AKey">The key that was deserialized.</param>
-    ///  <param name="AValue">The value that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the dictionary.</remarks>
-    procedure DeserializePair(const AKey: TKey; const AValue: TValue); override;
-
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
     function GetCount(): NativeUInt; override;
@@ -583,49 +540,35 @@ type
     constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
+    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AValueRules">The type object describing the values.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: TDynamicArray<TPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: TFixedArray<TPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyEqComparer">The type object describing the keys.</param>
-    ///  <param name="AValueEqComparer">The type object describing the values.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyEqComparer">The type object describing the keys.</param>
-    ///  <param name="AValueEqComparer">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AValueRules">The type object describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyEqComparer">The type object describing the keys.</param>
-    ///  <param name="AValueEqComparer">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AValueRules">The type object describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -740,45 +683,26 @@ type
   ///  <remarks>This type uses an AVL-tree to store its key-value pairs.</remarks>
   TObjectSortedDictionary<TKey, TValue> = class(TSortedDictionary<TKey, TValue>)
   private
-    FKeyWrapperType: TMaybeObjectWrapperType<TKey>;
-    FValueWrapperType: TMaybeObjectWrapperType<TValue>;
-
-    { Getters/Setters for OwnsKeys }
-    function GetOwnsKeys: Boolean;
-    procedure SetOwnsKeys(const Value: Boolean);
-
-    { Getters/Setters for OwnsValues }
-    function GetOwnsValues: Boolean;
-    procedure SetOwnsValues(const Value: Boolean);
-
+    FOwnsKeys, FOwnsValues: Boolean;
   protected
-    ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyEqComparer">The key's type object to install.</param>
-    ///  <param name="AValueEqComparer">The value's type object to install.</param>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request.
-    ///  Make sure to call this method in descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyEqComparer"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueEqComparer"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>); override;
+    //TODO: doc me.
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+    //TODO: doc me.
+    procedure HandleValueRemoved(const AValue: TValue); override;
 
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the dictionary controls the life-time of the stored keys. The value of
     ///  this property has effect only if the keys are objects, otherwise it is ignored.</remarks>
-    property OwnsKeys: Boolean read GetOwnsKeys write SetOwnsKeys;
+    property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this dictionary owns the values.</summary>
     ///  <returns><c>True</c> if the dictionary owns the values; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the dictionary controls the life-time of the stored values. The value of
     ///  this property has effect only if the values are objects, otherwise it is ignored.</remarks>
-    property OwnsValues: Boolean read GetOwnsValues write SetOwnsValues;
+    property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
-
-{$IFNDEF BUG_URW1133}
-type
-  TBugReproducer = TDictionary<TTypeClass, String>;
-{$ENDIF}
 
 implementation
 
@@ -801,45 +725,25 @@ end;
 
 procedure TDictionary<TKey, TValue>.Clear;
 var
-  I, K  : NativeUInt;
-  KC, VC, MKC, MVC: Boolean;
+  I, K: NativeUInt;
 begin
   if FCount > 0 then
-  begin
     for I := 0 to Length(FBucketArray) - 1 do
-        FBucketArray[I] := -1;
-  end;
+      FBucketArray[I] := -1;
 
-  if Length(FEntryArray) > 0 then
+  for I := 0 to Length(FEntryArray) - 1 do
   begin
-    KC := (KeyType.Management() = tmManual);
-    MKC:= (KeyType.Management() = tmCompiler);
-    VC := (ValueType.Management() = tmManual);
-    MVC := (ValueType.Management() = tmCompiler);
-
-    if (KC or MKC or VC or MVC) then
+    if FEntryArray[I].FHashCode >= 0 then
     begin
-      for I := 0 to Length(FEntryArray) - 1 do
-      begin
-        if FEntryArray[I].FHashCode >= 0 then
-        begin
-          { Either manually cleanup or tell compiler/RTL to do so! }
-          if KC then
-            KeyType.Cleanup(FEntryArray[I].FKey)
-          else if MKC then
-            FEntryArray[I].FKey := default(TKey);
+      HandleKeyRemoved(FEntryArray[I].FKey);
+      FEntryArray[I].FKey := default(TKey);
 
-          { Either manually cleanup or tell compiler/RTL to do so! }
-          if VC then
-            ValueType.Cleanup(FEntryArray[I].FValue)
-          else if MVC then
-            FEntryArray[I].FValue := default(TValue);
-        end;
-      end;
+      HandleValueRemoved(FEntryArray[I].FValue);
+      FEntryArray[I].FValue := default(TValue);
     end;
-
-    FillChar(FEntryArray[0], Length(FEntryArray) * SizeOf(TEntry), 0);
   end;
+
+  FillChar(FEntryArray[0], Length(FEntryArray) * SizeOf(TEntry), 0);
 
   FFreeList := -1;
   FCount := 0;
@@ -861,7 +765,7 @@ begin
 
   for I := 0 to FCount - 1 do
   begin
-    if (FEntryArray[I].FHashCode >= 0) and (ValueType.AreEqual(FEntryArray[I].FValue, AValue)) then
+    if (FEntryArray[I].FHashCode >= 0) and (ValueRules.AreEqual(FEntryArray[I].FValue, AValue)) then
        begin Result := True; Exit; end;
 
   end;
@@ -885,7 +789,9 @@ begin
   begin
     if (FEntryArray[I].FHashCode >= 0) then
     begin
-       AArray[X] := TPair.Create<TKey, TValue>(FEntryArray[I].FKey, FEntryArray[I].FValue);
+       AArray[X].Key := FEntryArray[I].FKey;
+       AArray[X].Value := FEntryArray[I].FValue;
+
        Inc(X);
     end;
   end;
@@ -893,35 +799,26 @@ end;
 
 constructor TDictionary<TKey, TValue>.Create;
 begin
-  Create(TType<TKey>.Default, TType<TValue>.Default);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeUInt);
 begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AInitialCapacity);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, AInitialCapacity);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
   const ACollection: IEnumerable<TPair<TKey, TValue>>);
 begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, ACollection);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>; const AInitialCapacity: NativeUInt);
+  const AKeyRules: TRules<TKey>;
+  const AValueRules: TRules<TValue>; const AInitialCapacity: NativeUInt);
 begin
-  inherited Create();
-
-  { Initialize instance }
-  if (AKeyEqComparer = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AKeyEqComparer');
-
-  if (AValueEqComparer = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AValueEqComparer');
-
-  { Install types }
-  InstallTypes(AKeyEqComparer, AValueEqComparer);
+  { Call the upper constructor }
+  inherited Create(AKeyRules, AValueRules);
 
   FKeyCollection := TKeyCollection.Create(Self);
   FValueCollection := TValueCollection.Create(Self);
@@ -934,14 +831,14 @@ begin
   InitializeInternals(AInitialCapacity);
 end;
 
-constructor TDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>;
+constructor TDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
+  const AValueRules: TRules<TValue>;
   const ACollection: IEnumerable<TPair<TKey, TValue>>);
 var
   V: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
+  Create(AKeyRules, AValueRules, DefaultArrayLength);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
@@ -958,17 +855,11 @@ begin
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>);
+  const AKeyRules: TRules<TKey>;
+  const AValueRules: TRules<TValue>);
 begin
   { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
-end;
-
-procedure TDictionary<TKey, TValue>.DeserializePair(const AKey: TKey; const AValue: TValue);
-begin
-  { Simple as hell ... }
-  Add(AKey, AValue);
+  Create(AKeyRules, AValueRules, DefaultArrayLength);
 end;
 
 destructor TDictionary<TKey, TValue>.Destroy;
@@ -995,7 +886,7 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = HashCode) and KeyType.AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = HashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
          begin Result := I; Exit; end;
 
       I := FEntryArray[I].FNext;
@@ -1016,28 +907,25 @@ end;
 function TDictionary<TKey, TValue>.GetItem(const AKey: TKey): TValue;
 begin
   if not TryGetValue(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError(KeyType.GetString(AKey));
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
 function TDictionary<TKey, TValue>.Hash(const AKey: TKey): NativeInt;
 const
   PositiveMask = not NativeInt(1 shl (SizeOf(NativeInt) * 8 - 1));
 begin
-  Result := PositiveMask and ((PositiveMask and KeyType.GenerateHashCode(AKey)) + 1);
+  Result := PositiveMask and ((PositiveMask and KeyRules.GetHashCode(AKey)) + 1);
 end;
 
 procedure TDictionary<TKey, TValue>.InitializeInternals(
   const Capacity: NativeUInt);
 var
-  XPrime: NativeInt;
-  I    : NativeInt;
+  I: NativeInt;
 begin
-  XPrime := Prime.GetNearestProgressionPositive(Capacity);
+  SetLength(FBucketArray, Capacity);
+  SetLength(FEntryArray, Capacity);
 
-  SetLength(FBucketArray, XPrime);
-  SetLength(FEntryArray, XPrime);
-
-  for I := 0 to XPrime - 1 do
+  for I := 0 to Capacity - 1 do
   begin
     FBucketArray[I] := -1;
     FEntryArray[I].FHashCode := -1;
@@ -1049,10 +937,8 @@ end;
 procedure TDictionary<TKey, TValue>.Insert(const AKey: TKey;
   const AValue: TValue; const ShouldAdd: Boolean);
 var
-  FreeList: NativeInt;
-  Index   : NativeInt;
-  HashCode: NativeInt;
-  I       : NativeInt;
+  FreeList, Index,
+    HashCode, I: NativeInt;
 begin
   FreeList := 0;
 
@@ -1067,7 +953,7 @@ begin
 
   while I >= 0 do
   begin
-    if (FEntryArray[I].FHashCode = HashCode) and KeyType.AreEqual(FEntryArray[I].FKey, AKey) then
+    if (FEntryArray[I].FHashCode = HashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
     begin
       if (ShouldAdd) then
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
@@ -1115,7 +1001,7 @@ function TDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: T
 var
   LValue: TValue;
 begin
-  Result := TryGetValue(AKey, LValue) and ValueType.AreEqual(LValue, AValue);
+  Result := TryGetValue(AKey, LValue) and ValueRules.AreEqual(LValue, AValue);
 end;
 
 procedure TDictionary<TKey, TValue>.Remove(const AKey: TKey);
@@ -1137,20 +1023,16 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = HashCode) and KeyType.AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = HashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
       begin
 
         if RemIndex < 0 then
-        begin
-          FBucketArray[Index] := FEntryArray[I].FNext;
-        end else
-        begin
+          FBucketArray[Index] := FEntryArray[I].FNext
+        else
           FEntryArray[RemIndex].FNext := FEntryArray[I].FNext;
-        end;
 
         { Cleanup required? }
-        if ValueType.Management() = tmManual then
-           ValueType.Cleanup(FEntryArray[I].FValue);
+        HandleValueRemoved(FEntryArray[I].FValue);
 
         FEntryArray[I].FHashCode := -1;
         FEntryArray[I].FNext := FFreeList;
@@ -1173,12 +1055,11 @@ end;
 
 procedure TDictionary<TKey, TValue>.Resize;
 var
-  XPrime: NativeInt;
-  I     : NativeInt;
-  Index : NativeInt;
+  XPrime, I, Index: NativeInt;
   NArr  : TBucketArray;
 begin
-  XPrime := Prime.GetNearestProgressionPositive(FCount * 2);
+//TODO: redo
+  XPrime := FCount * 2;
 
   SetLength(NArr, XPrime);
   for I := 0 to Length(NArr) - 1 do
@@ -1214,16 +1095,6 @@ begin
   Insert(AKey, Value, false);
 end;
 
-procedure TDictionary<TKey, TValue>.StartDeserializing(const AData: TDeserializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
-end;
-
-procedure TDictionary<TKey, TValue>.StartSerializing(const AData: TSerializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
-end;
-
 function TDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
 var
   Index: NativeInt;
@@ -1249,78 +1120,24 @@ end;
 constructor TDictionary<TKey, TValue>.Create(
   const AArray: array of TPair<TKey, TValue>);
 begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AArray);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(
-  const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>;
+  const AKeyRules: TRules<TKey>;
+  const AValueRules: TRules<TValue>;
   const AArray: array of TPair<TKey, TValue>);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
+  Create(AKeyRules, AValueRules, DefaultArrayLength);
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
   begin
     Add(AArray[I]);
   end;
-end;
-
-constructor TDictionary<TKey, TValue>.Create(
-  const AArray: TDynamicArray<TPair<TKey, TValue>>);
-begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AArray);
-end;
-
-constructor TDictionary<TKey, TValue>.Create(
-  const AArray: TFixedArray<TPair<TKey, TValue>>);
-begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AArray);
-end;
-
-constructor TDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>;
-  const AArray: TDynamicArray<TPair<TKey, TValue>>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-      Add(AArray[I]);
-{$ELSE}
-      Add(AArray[I].Key, AArray[I].Value);
-{$ENDIF}
-    end;
-end;
-
-constructor TDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>;
-  const AArray: TFixedArray<TPair<TKey, TValue>>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, DefaultArrayLength);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-      Add(AArray[I]);
-{$ELSE}
-      Add(AArray[I].Key, AArray[I].Value);
-{$ENDIF}
-    end;
 end;
 
 { TDictionary<TKey, TValue>.TPairEnumerator }
@@ -1358,8 +1175,8 @@ begin
   begin
     if FDict.FEntryArray[FCurrentIndex].FHashCode >= 0 then
     begin
-      FValue := TPair.Create<TKey, TValue>(FDict.FEntryArray[FCurrentIndex].FKey,
-                  FDict.FEntryArray[FCurrentIndex].FValue);
+      FValue.Key := FDict.FEntryArray[FCurrentIndex].FKey;
+      FValue.Value := FDict.FEntryArray[FCurrentIndex].FValue;
 
       Inc(FCurrentIndex);
       Result := True;
@@ -1477,16 +1294,11 @@ end;
 
 constructor TDictionary<TKey, TValue>.TKeyCollection.Create(const ADict: TDictionary<TKey, TValue>);
 begin
+  { Call the upper constructor }
+  inherited Create(ADict.KeyRules);
+
   { Initialize }
   FDict := ADict;
-
-  { Install key type }
-  InstallType(FDict.KeyType);
-end;
-
-destructor TDictionary<TKey, TValue>.TKeyCollection.Destroy;
-begin
-  inherited;
 end;
 
 function TDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeUInt;
@@ -1527,16 +1339,11 @@ end;
 
 constructor TDictionary<TKey, TValue>.TValueCollection.Create(const ADict: TDictionary<TKey, TValue>);
 begin
+  { Call the upper constructor }
+  inherited Create(ADict.ValueRules);
+
   { Initialize }
   FDict := ADict;
-
-  { Install key type }
-  InstallType(FDict.ValueType);
-end;
-
-destructor TDictionary<TKey, TValue>.TValueCollection.Destroy;
-begin
-  inherited;
 end;
 
 function TDictionary<TKey, TValue>.TValueCollection.GetCount: NativeUInt;
@@ -1573,39 +1380,17 @@ begin
   end;
 end;
 
-
 { TObjectDictionary<TKey, TValue> }
 
-function TObjectDictionary<TKey, TValue>.GetOwnsKeys: Boolean;
+procedure TObjectDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  Result := FKeyWrapperType.AllowCleanup;
+  TObject(AKey).Free;
 end;
 
-function TObjectDictionary<TKey, TValue>.GetOwnsValues: Boolean;
+procedure TObjectDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  Result := FValueWrapperType.AllowCleanup;
+  TObject(AValue).Free;
 end;
-
-procedure TObjectDictionary<TKey, TValue>.InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>);
-begin
-  { Create a wrapper over the real type class and switch it }
-  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyEqComparer);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueEqComparer);
-
-  { Install overridden type }
-  inherited InstallTypes(FKeyWrapperType, FValueWrapperType);
-end;
-
-procedure TObjectDictionary<TKey, TValue>.SetOwnsKeys(const Value: Boolean);
-begin
-  FKeyWrapperType.AllowCleanup := Value;
-end;
-
-procedure TObjectDictionary<TKey, TValue>.SetOwnsValues(const Value: Boolean);
-begin
-  FValueWrapperType.AllowCleanup := Value;
-end;
-
 
 { TSortedDictionary<TKey, TValue> }
 
@@ -2011,7 +1796,7 @@ begin
   while (LNode <> nil) do
   begin
     { Verify existance }
-    if ValueType.AreEqual(LNode.FValue, AValue) then
+    if ValueRules.AreEqual(LNode.FValue, AValue) then
       Exit(true);
 
     { Navigate further in the tree }
@@ -2041,7 +1826,8 @@ begin
   while (LNode <> nil) do
   begin
     { Get the key }
-    AArray[X] := TPair.Create<TKey, TValue>(LNode.FKey, LNode.FValue);
+    AArray[X].Key := LNode.FKey;
+    AArray[X].Value := LNode.FValue;
 
     { Navigate further in the tree }
     LNode := WalkToTheRight(LNode);
@@ -2053,22 +1839,22 @@ end;
 
 constructor TSortedDictionary<TKey, TValue>.Create(const AAscending: Boolean);
 begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AAscending);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, AAscending);
 end;
 
 constructor TSortedDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>;
   const AAscending: Boolean);
 begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, ACollection, AAscending);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection, AAscending);
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
   const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean);
 var
   V: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, AAscending);
+  Create(AKeyRules, AValueRules, AAscending);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
@@ -2084,18 +1870,11 @@ begin
   end;
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>; const AAscending: Boolean);
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
+  const AValueRules: TRules<TValue>; const AAscending: Boolean);
 begin
-  { Initialize instance }
-  if (AKeyEqComparer = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AKeyEqComparer');
-
-  if (AValueEqComparer = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AValueEqComparer');
-
-  { Install types }
-  InstallTypes(AKeyEqComparer, AValueEqComparer);
+  { Call the upper constructor }
+  inherited Create(AKeyRules, AValueRules);
 
   FKeyCollection := TKeyCollection.Create(Self);
   FValueCollection := TValueCollection.Create(Self);
@@ -2107,12 +1886,6 @@ begin
     FSignFix := 1
   else
     FSignFix := -1;
-end;
-
-procedure TSortedDictionary<TKey, TValue>.DeserializePair(const AKey: TKey; const AValue: TValue);
-begin
-  { Simple as hell ... }
-  Add(AKey, AValue);
 end;
 
 destructor TSortedDictionary<TKey, TValue>.Destroy;
@@ -2147,7 +1920,7 @@ begin
 
   while LNode <> nil do
   begin
-	  Compare := KeyType.Compare(AKey, LNode.FKey) * FSignFix;
+	  Compare := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
 
     { Navigate left, right or find! }
     if Compare < 0 then
@@ -2188,7 +1961,7 @@ end;
 function TSortedDictionary<TKey, TValue>.GetItem(const AKey: TKey): TValue;
 begin
   if not TryGetValue(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError(KeyType.GetString(AKey));
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
 function TSortedDictionary<TKey, TValue>.Insert(const AKey: TKey; const AValue: TValue; const ChangeOrFail: Boolean): Boolean;
@@ -2214,7 +1987,7 @@ begin
 
   while true do
   begin
-	  Compare := KeyType.Compare(AKey, LNode.FKey) * FSignFix;
+	  Compare := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
 
     if Compare < 0 then
     begin
@@ -2248,8 +2021,7 @@ begin
         Exit(false);
 
       { Cleanup the value if required }
-      if ValueType.Management = tmManual then
-        ValueType.Cleanup(LNode.FValue);
+      HandleValueRemoved(LNode.FValue);
 
       { Change the node value }
       LNode.FValue := AValue;
@@ -2275,7 +2047,7 @@ function TSortedDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AVa
 var
   LValue: TValue;
 begin
-  Result := TryGetValue(AKey, LValue) and ValueType.AreEqual(LValue, AValue);
+  Result := TryGetValue(AKey, LValue) and ValueRules.AreEqual(LValue, AValue);
 end;
 
 function TSortedDictionary<TKey, TValue>.MakeNode(const AKey: TKey; const AValue: TValue; const ARoot: TNode): TNode;
@@ -2509,8 +2281,7 @@ begin
   BalanceTreesAfterRemoval(LNode);
 
   { Kill the stored value }
-  if ValueType.Management = tmManual then
-    ValueType.Cleanup(LNode.FValue);
+  HandleValueRemoved(LNode.FValue);
 
   { Kill the node }
   LNode.Free;
@@ -2528,11 +2299,8 @@ begin
     RecursiveClear(ANode.FRight);
 
   { Cleanup for AKey/Value }
-  if KeyType.Management = tmManual then
-    KeyType.Cleanup(ANode.FKey);
-
-  if ValueType.Management = tmManual then
-    ValueType.Cleanup(ANode.FValue);
+  HandleKeyRemoved(ANode.FKey);
+  HandleValueRemoved(ANode.FValue);
 
   { Finally, free the node itself }
   ANode.Free;
@@ -2552,22 +2320,6 @@ procedure TSortedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value:
 begin
   { Allow inserting and adding values }
   Insert(AKey, Value, true);
-end;
-
-procedure TSortedDictionary<TKey, TValue>.StartDeserializing(const AData: TDeserializationData);
-var
-  LAsc: Boolean;
-begin
-  AData.GetValue(SSerAscendingKeys, LAsc);
-
-  { Call the constructor in this instance to initialize myself first }
-  Create(LAsc);
-end;
-
-procedure TSortedDictionary<TKey, TValue>.StartSerializing(const AData: TSerializationData);
-begin
-  { Write the AAscending sign }
-  AData.AddValue(SSerAscendingKeys, (FSignFix = 1));
 end;
 
 function TSortedDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
@@ -2618,79 +2370,25 @@ end;
 constructor TSortedDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>;
   const AAscending: Boolean);
 begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AArray, AAscending);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray, AAscending);
 end;
 
 constructor TSortedDictionary<TKey, TValue>.Create(
-  const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>;
+  const AKeyRules: TRules<TKey>;
+  const AValueRules: TRules<TValue>;
   const AArray: array of TPair<TKey, TValue>;
   const AAscending: Boolean);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, AAscending);
+  Create(AKeyRules, AValueRules, AAscending);
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
   begin
     Add(AArray[I]);
   end;
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const AArray: TDynamicArray<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AArray, AAscending);
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const AArray: TFixedArray<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-begin
-  Create(TType<TKey>.Default, TType<TValue>.Default, AArray, AAscending);
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>;
-  const AArray: TDynamicArray<TPair<TKey, TValue>>; const AAscending: Boolean);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, AAscending);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-      Add(AArray[I]);
-{$ELSE}
-      Add(AArray[I].Key, AArray[I].Value);
-{$ENDIF}
-    end;
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyEqComparer: IType<TKey>;
-  const AValueEqComparer: IType<TValue>;
-  const AArray: TFixedArray<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(AKeyEqComparer, AValueEqComparer, AAscending);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-      Add(AArray[I]);
-{$ELSE}
-      Add(AArray[I].Key, AArray[I].Value);
-{$ENDIF}
-    end;
 end;
 
 { TSortedDictionary<TKey, TValue>.TPairEnumerator }
@@ -2702,7 +2400,6 @@ begin
   KeepObjectAlive(FDict);
 
   FNext := ADict.FindLeftMostNode();
-
   FVer := ADict.FVer;
 end;
 
@@ -2730,7 +2427,8 @@ begin
     Exit(false);
 
   { Get the current value }
-  FValue := TPair.Create<TKey, TValue>(FNext.FKey, FNext.FValue);
+  FValue.Key := FNext.FKey;
+  FValue.Value := FNext.FValue;
 
   { Navigate further in the tree }
   FNext := FDict.WalkToTheRight(FNext);
@@ -2833,15 +2531,11 @@ end;
 
 constructor TSortedDictionary<TKey, TValue>.TKeyCollection.Create(const ADict: TSortedDictionary<TKey, TValue>);
 begin
+  { Call the upper constructor }
+  inherited Create(ADict.KeyRules);
+
   { Initialize }
   FDict := ADict;
-
-  InstallType(ADict.KeyType);
-end;
-
-destructor TSortedDictionary<TKey, TValue>.TKeyCollection.Destroy;
-begin
-  inherited;
 end;
 
 function TSortedDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeUInt;
@@ -2889,15 +2583,11 @@ end;
 
 constructor TSortedDictionary<TKey, TValue>.TValueCollection.Create(const ADict: TSortedDictionary<TKey, TValue>);
 begin
+  { Call the upper constructor }
+  inherited Create(ADict.ValueRules);
+
   { Initialize }
   FDict := ADict;
-
-  InstallType(ADict.ValueType);
-end;
-
-destructor TSortedDictionary<TKey, TValue>.TValueCollection.Destroy;
-begin
-  inherited;
 end;
 
 function TSortedDictionary<TKey, TValue>.TValueCollection.GetCount: NativeUInt;
@@ -2943,34 +2633,14 @@ end;
 
 { TObjectSortedDictionary<TKey, TValue> }
 
-procedure TObjectSortedDictionary<TKey, TValue>.InstallTypes(const AKeyEqComparer: IType<TKey>; const AValueEqComparer: IType<TValue>);
+procedure TObjectSortedDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  { Create  wrapper over the real type class and switch it }
-  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyEqComparer);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueEqComparer);
-
-  { Install overridden type }
-  inherited InstallTypes(FKeyWrapperType, FValueWrapperType);
+  TObject(AKey).Free;
 end;
 
-function TObjectSortedDictionary<TKey, TValue>.GetOwnsKeys: Boolean;
+procedure TObjectSortedDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  Result := FKeyWrapperType.AllowCleanup;
-end;
-
-function TObjectSortedDictionary<TKey, TValue>.GetOwnsValues: Boolean;
-begin
-  Result := FValueWrapperType.AllowCleanup;
-end;
-
-procedure TObjectSortedDictionary<TKey, TValue>.SetOwnsKeys(const Value: Boolean);
-begin
-  FKeyWrapperType.AllowCleanup := Value;
-end;
-
-procedure TObjectSortedDictionary<TKey, TValue>.SetOwnsValues(const Value: Boolean);
-begin
-  FValueWrapperType.AllowCleanup := Value;
+  TObject(AValue).Free;
 end;
 
 end.

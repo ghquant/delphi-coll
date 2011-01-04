@@ -25,16 +25,11 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.Defines.inc}
+{$I Collections.inc}
 unit Collections.Queues;
 interface
 uses SysUtils,
-     DeHL.Base,
-     DeHL.Types,
-     DeHL.Exceptions,
-     DeHL.Arrays,
-     DeHL.Serialization,
-     DeHL.Collections.Base;
+     Collections.Base;
 
 type
   ///  <summary>The generic <c>queue (FIFO)</c> collection.</summary>
@@ -127,34 +122,34 @@ type
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>); overload;
+    constructor Create(const AType: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AType: TRules<T>; const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const ACollection: IEnumerable<T>); overload;
+    constructor Create(const AType: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: array of T); overload;
+    constructor Create(const AType: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TDynamicArray<T>); overload;
+    constructor Create(const AType: TRules<T>; const AArray: TDynamicArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AType">A type object decribing the elements in the queue.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TFixedArray<T>); overload;
+    constructor Create(const AType: TRules<T>; const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
@@ -349,7 +344,7 @@ type
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
     ///  descendant classes.</remarks>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    procedure InstallType(const AType: IType<T>); override;
+    procedure InstallType(const AType: TRules<T>); override;
 
   public
     ///  <summary>Specifies whether this queue owns the objects stored in it.</summary>
@@ -411,29 +406,29 @@ type
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>); overload;
+    constructor Create(const AType: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const ACollection: IEnumerable<T>); overload;
+    constructor Create(const AType: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: array of T); overload;
+    constructor Create(const AType: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TDynamicArray<T>); overload;
+    constructor Create(const AType: TRules<T>; const AArray: TDynamicArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AType">A type object decribing the elements in the queue.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    constructor Create(const AType: IType<T>; const AArray: TFixedArray<T>); overload;
+    constructor Create(const AType: TRules<T>; const AArray: TFixedArray<T>); overload;
 
    ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
@@ -610,7 +605,7 @@ type
     ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
     ///  descendant classes.</remarks>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AType"/> is <c>nil</c>.</exception>
-    procedure InstallType(const AType: IType<T>); override;
+    procedure InstallType(const AType: TRules<T>); override;
 
   public
     ///  <summary>Specifies whether this queue owns the objects stored in it.</summary>
@@ -692,22 +687,22 @@ type
     //TODO: doc me
     constructor Create(const AArray: TFixedArray<KVPair<TPriority, TValue>>; const Ascending: Boolean = true); overload;
 
-    constructor Create(const APriorityType: IType<TPriority>; const AValueType: IType<TValue>;
+    constructor Create(const APriorityType: IType<TPriority>; const AValueRules: IType<TValue>;
       const Ascending: Boolean = true); overload;
       //TODO: doc me
-    constructor Create(const APriorityType: IType<TPriority>; const AValueType: IType<TValue>;
+    constructor Create(const APriorityType: IType<TPriority>; const AValueRules: IType<TValue>;
       const InitialCapacity: NativeUInt; const Ascending: Boolean = true); overload;
       //TODO: doc me
-    constructor Create(const APriorityType: IType<TPriority>; const AValueType: IType<TValue>;
+    constructor Create(const APriorityType: IType<TPriority>; const AValueRules: IType<TValue>;
       const AEnumerable: IEnumerable<KVPair<TPriority, TValue>>; const Ascending: Boolean = true); overload;
       //TODO: doc me
-    constructor Create(const APriorityType: IType<TPriority>; const AValueType: IType<TValue>;
+    constructor Create(const APriorityType: IType<TPriority>; const AValueRules: IType<TValue>;
       const AArray: array of KVPair<TPriority, TValue>; const Ascending: Boolean = true); overload;
       //TODO: doc me
-    constructor Create(const APriorityType: IType<TPriority>; const AValueType: IType<TValue>;
+    constructor Create(const APriorityType: IType<TPriority>; const AValueRules: IType<TValue>;
       const AArray: TDynamicArray<KVPair<TPriority, TValue>>; const Ascending: Boolean = true); overload;
       //TODO: doc me
-    constructor Create(const APriorityType: IType<TPriority>; const AValueType: IType<TValue>;
+    constructor Create(const APriorityType: IType<TPriority>; const AValueRules: IType<TValue>;
       const AArray: TFixedArray<KVPair<TPriority, TValue>>; const Ascending: Boolean = true); overload;
 
     { Destructor }
@@ -772,7 +767,7 @@ type
   protected
     { Override in descendants to support proper stuff }
     //TODO: doc me
-    procedure InstallTypes(const AKeyType: IType<TPriority>; const AValueType: IType<TValue>); override;
+    procedure InstallTypes(const AKeyRules: IType<TPriority>; const AValueRules: IType<TValue>); override;
 
   public
     { Object owning }
@@ -891,13 +886,13 @@ procedure TQueue<T>.Clear;
 var
   Element: T;
 begin
-  if (ElementType <> nil) and (ElementType.Management() = tmManual) then
+  if (ElementRules <> nil) and (ElementRules.Management() = tmManual) then
   begin
     { If must cleanup, use the dequeue method }
     while Count > 0 do
     begin
       Element := Dequeue();
-      ElementType.Cleanup(Element);
+      ElementRules.Cleanup(Element);
     end;
   end else
   begin
@@ -923,7 +918,7 @@ begin
 
   while I <> FTail do
   begin
-    if ElementType.AreEqual(FArray[I], AValue) then
+    if ElementRules.AreEqual(FArray[I], AValue) then
     begin
       Result := True;
       Break;
@@ -963,7 +958,7 @@ begin
   end;
 end;
 
-constructor TQueue<T>.Create(const AType: IType<T>;
+constructor TQueue<T>.Create(const AType: TRules<T>;
   const ACollection: IEnumerable<T>);
 var
   V: T;
@@ -985,20 +980,20 @@ end;
 
 constructor TQueue<T>.Create;
 begin
-  Create(TType<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
 constructor TQueue<T>.Create(const AInitialCapacity: NativeUInt);
 begin
-  Create(TType<T>.Default, AInitialCapacity);
+  Create(TRules<T>.Default, AInitialCapacity);
 end;
 
 constructor TQueue<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  Create(TType<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TQueue<T>.Create(const AType: IType<T>;
+constructor TQueue<T>.Create(const AType: TRules<T>;
   const AInitialCapacity: NativeUInt);
 begin
   { Initialize instance }
@@ -1014,7 +1009,7 @@ begin
   SetLength(FArray, AInitialCapacity);
 end;
 
-constructor TQueue<T>.Create(const AType: IType<T>);
+constructor TQueue<T>.Create(const AType: TRules<T>);
 begin
   { Call upper constructor }
   Create(AType, DefaultArrayLength);
@@ -1083,7 +1078,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementType.AreEqual(FArray[H], V) then
+    if not ElementRules.AreEqual(FArray[H], V) then
       Exit(false);
 
     H := (H + 1) mod NativeUInt(Length(FArray));
@@ -1216,7 +1211,7 @@ begin
 
   for I := 1 to FLength - 1 do
   begin
-    if ElementType.Compare(FArray[H], Result) > 0 then
+    if ElementRules.Compare(FArray[H], Result) > 0 then
       Result := FArray[I];
 
     { Circulate Head }
@@ -1240,7 +1235,7 @@ begin
 
   for I := 1 to FLength - 1 do
   begin
-    if ElementType.Compare(FArray[H], Result) < 0 then
+    if ElementRules.Compare(FArray[H], Result) < 0 then
       Result := FArray[I];
 
     { Circulate Head }
@@ -1326,10 +1321,10 @@ end;
 
 constructor TQueue<T>.Create(const AArray: array of T);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TQueue<T>.Create(const AType: IType<T>; const AArray: array of T);
+constructor TQueue<T>.Create(const AType: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
@@ -1345,15 +1340,15 @@ end;
 
 constructor TQueue<T>.Create(const AArray: TFixedArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
 constructor TQueue<T>.Create(const AArray: TDynamicArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TQueue<T>.Create(const AType: IType<T>; const AArray: TFixedArray<T>);
+constructor TQueue<T>.Create(const AType: TRules<T>; const AArray: TFixedArray<T>);
 var
   I: NativeUInt;
 begin
@@ -1368,7 +1363,7 @@ begin
     end;
 end;
 
-constructor TQueue<T>.Create(const AType: IType<T>; const AArray: TDynamicArray<T>);
+constructor TQueue<T>.Create(const AType: TRules<T>; const AArray: TDynamicArray<T>);
 var
   I: NativeUInt;
 begin
@@ -1430,7 +1425,7 @@ end;
 
 { TObjectQueue<T> }
 
-procedure TObjectQueue<T>.InstallType(const AType: IType<T>);
+procedure TObjectQueue<T>.InstallType(const AType: TRules<T>);
 begin
   { Create a wrapper over the real type class and switch it }
   FWrapperType := TObjectWrapperType<T>.Create(AType);
@@ -1495,7 +1490,7 @@ begin
   FList.CopyTo(AArray, AStartIndex);
 end;
 
-constructor TLinkedQueue<T>.Create(const AType: IType<T>; const ACollection: IEnumerable<T>);
+constructor TLinkedQueue<T>.Create(const AType: TRules<T>; const ACollection: IEnumerable<T>);
 var
   V: T;
 begin
@@ -1513,15 +1508,15 @@ end;
 
 constructor TLinkedQueue<T>.Create;
 begin
-  Create(TType<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
 constructor TLinkedQueue<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  Create(TType<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TLinkedQueue<T>.Create(const AType: IType<T>);
+constructor TLinkedQueue<T>.Create(const AType: TRules<T>);
 begin
   { Initialize instance }
   if (AType = nil) then
@@ -1530,7 +1525,7 @@ begin
   { Initialize internals }
   InstallType(AType);
 
-  FList := TLinkedList<T>.Create(ElementType);
+  FList := TLinkedList<T>.Create(ElementRules);
 end;
 
 function TLinkedQueue<T>.ElementAt(const Index: NativeUInt): T;
@@ -1662,10 +1657,10 @@ end;
 
 constructor TLinkedQueue<T>.Create(const AArray: array of T);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TLinkedQueue<T>.Create(const AType: IType<T>; const AArray: array of T);
+constructor TLinkedQueue<T>.Create(const AType: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
@@ -1681,15 +1676,15 @@ end;
 
 constructor TLinkedQueue<T>.Create(const AArray: TFixedArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
 constructor TLinkedQueue<T>.Create(const AArray: TDynamicArray<T>);
 begin
-  Create(TType<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TLinkedQueue<T>.Create(const AType: IType<T>; const AArray: TFixedArray<T>);
+constructor TLinkedQueue<T>.Create(const AType: TRules<T>; const AArray: TFixedArray<T>);
 var
   I: NativeUInt;
 begin
@@ -1704,7 +1699,7 @@ begin
     end;
 end;
 
-constructor TLinkedQueue<T>.Create(const AType: IType<T>; const AArray: TDynamicArray<T>);
+constructor TLinkedQueue<T>.Create(const AType: TRules<T>; const AArray: TDynamicArray<T>);
 var
   I: NativeUInt;
 begin
@@ -1721,7 +1716,7 @@ end;
 
 { TObjectLinkedQueue<T> }
 
-procedure TObjectLinkedQueue<T>.InstallType(const AType: IType<T>);
+procedure TObjectLinkedQueue<T>.InstallType(const AType: TRules<T>);
 begin
   { Create a wrapper over the real type class and switch it }
   FWrapperType := TObjectWrapperType<T>.Create(AType);
@@ -1751,18 +1746,18 @@ var
   I: NativeUInt;
   PC, VC: Boolean;
 begin
-  PC := (KeyType <> nil) and (KeyType.Management = tmManual);
-  VC := (ValueType <> nil) and (ValueType.Management = tmManual);
+  PC := (KeyRules <> nil) and (KeyRules.Management = tmManual);
+  VC := (ValueRules <> nil) and (ValueRules.Management = tmManual);
 
   { Cleanup the array }
   if (Length(FArray) > 0) and (PC or VC) then
     for I := 0 to Length(FArray) - 1 do
     begin
       if PC then
-        KeyType.Cleanup(FArray[I].FPriority);
+        KeyRules.Cleanup(FArray[I].FPriority);
 
       if VC then
-        ValueType.Cleanup(FArray[I].FValue);
+        ValueRules.Cleanup(FArray[I].FValue);
     end;
 
   { Dispose of all the stuff }
@@ -1777,14 +1772,14 @@ begin
   { Check whether the thing contains what we need }
   if FCount > 0 then
     for I := 0 to FCount - 1 do
-      if ValueType.AreEqual(FArray[I].FValue, AValue) then
+      if ValueRules.AreEqual(FArray[I].FValue, AValue) then
         Exit(true);
 
   { Nope ... }
   Result := false;
 end;
 
-procedure TPriorityQueue<TPriority, TValue>.CopyTo(var AArray: array of KVPair<TPriority, TValue>; const StartIndex: NativeUInt);
+procedure TPriorityQueue<TPriority, TValue>.CopyTo(var AArray: array of TPair<TPriority, TValue>; const StartIndex: NativeUInt);
 var
   I: NativeUInt;
 begin
@@ -1797,46 +1792,46 @@ begin
 
   { Copy the stuff in }
   for I := 0 to FCount - 1 do
-    AArray[StartIndex + I] := KVPair.Create<TPriority, TValue>(FArray[I].FPriority, FArray[I].FValue);
+    AArray[StartIndex + I] := TPair.Create<TPriority, TValue>(FArray[I].FPriority, FArray[I].FValue);
 end;
 
-constructor TPriorityQueue<TPriority, TValue>.Create(const AArray: array of KVPair<TPriority, TValue>;
+constructor TPriorityQueue<TPriority, TValue>.Create(const AArray: array of TPair<TPriority, TValue>;
   const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(TType<TPriority>.Default, TType<TValue>.Default, AArray, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AArray, Ascending);
 end;
 
-constructor TPriorityQueue<TPriority, TValue>.Create(const AEnumerable: IEnumerable<KVPair<TPriority, TValue>>;
+constructor TPriorityQueue<TPriority, TValue>.Create(const AEnumerable: IEnumerable<TPair<TPriority, TValue>>;
   const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(TType<TPriority>.Default, TType<TValue>.Default, AEnumerable, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AEnumerable, Ascending);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(TType<TPriority>.Default, TType<TValue>.Default, DefaultArrayLength, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, DefaultArrayLength, Ascending);
 end;
 
-constructor TPriorityQueue<TPriority, TValue>.Create(const AArray: TDynamicArray<KVPair<TPriority, TValue>>;
+constructor TPriorityQueue<TPriority, TValue>.Create(const AArray: TDynamicArray<TPair<TPriority, TValue>>;
   const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(TType<TPriority>.Default, TType<TValue>.Default, AArray, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AArray, Ascending);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
   const APriorityType: IType<TPriority>;
-  const AValueType: IType<TValue>;
-  const AArray: array of KVPair<TPriority, TValue>;
+  const AValueRules: IType<TValue>;
+  const AArray: array of TPair<TPriority, TValue>;
   const Ascending: Boolean);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueType, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
 
   { Copy all items in }
   if Length(AArray) > 0 then
@@ -1846,14 +1841,14 @@ end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
   const APriorityType: IType<TPriority>;
-  const AValueType: IType<TValue>;
-  const AArray: TDynamicArray<KVPair<TPriority, TValue>>;
+  const AValueRules: IType<TValue>;
+  const AArray: TDynamicArray<TPair<TPriority, TValue>>;
   const Ascending: Boolean);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueType, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1863,14 +1858,14 @@ end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
   const APriorityType: IType<TPriority>;
-  const AValueType: IType<TValue>;
-  const AArray: TFixedArray<KVPair<TPriority, TValue>>;
+  const AValueRules: IType<TValue>;
+  const AArray: TFixedArray<TPair<TPriority, TValue>>;
   const Ascending: Boolean);
 var
   I: NativeUInt;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueType, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
 
   { Copy all items in }
   if AArray.Length > 0 then
@@ -1880,7 +1875,7 @@ end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
   const APriorityType: IType<TPriority>;
-  const AValueType: IType<TValue>;
+  const AValueRules: IType<TValue>;
   const InitialCapacity: NativeUInt;
   const Ascending: Boolean);
 begin
@@ -1888,11 +1883,11 @@ begin
   if (APriorityType = nil) then
      ExceptionHelper.Throw_ArgumentNilError('APriorityType');
 
-  if (AValueType = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AValueType');
+  if (AValueRules = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('AValueRules');
 
   { Install types }
-  InstallTypes(APriorityType, AValueType);
+  InstallTypes(APriorityType, AValueRules);
 
   SetLength(FArray, InitialCapacity);
   FVer := 0;
@@ -1908,19 +1903,19 @@ constructor TPriorityQueue<TPriority, TValue>.Create(const InitialCapacity: Nati
   const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(TType<TPriority>.Default, TType<TValue>.Default, InitialCapacity, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, InitialCapacity, Ascending);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
   const APriorityType: IType<TPriority>;
-  const AValueType: IType<TValue>;
-  const AEnumerable: IEnumerable<KVPair<TPriority, TValue>>;
+  const AValueRules: IType<TValue>;
+  const AEnumerable: IEnumerable<TPair<TPriority, TValue>>;
   const Ascending: Boolean);
 var
-  V: KVPair<TPriority, TValue>;
+  V: TPair<TPriority, TValue>;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueType, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
 
   if (AEnumerable = nil) then
      ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
@@ -1932,18 +1927,18 @@ end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
   const APriorityType: IType<TPriority>;
-  const AValueType: IType<TValue>;
+  const AValueRules: IType<TValue>;
   const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueType, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
 end;
 
-constructor TPriorityQueue<TPriority, TValue>.Create(const AArray: TFixedArray<KVPair<TPriority, TValue>>;
+constructor TPriorityQueue<TPriority, TValue>.Create(const AArray: TFixedArray<TPair<TPriority, TValue>>;
   const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(TType<TPriority>.Default, TType<TValue>.Default, AArray, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AArray, Ascending);
 end;
 
 function TPriorityQueue<TPriority, TValue>.Dequeue: TValue;
@@ -1957,8 +1952,8 @@ begin
   LPair := RemoveAt(0);
 
   { CLeanup the priority element }
-  if KeyType.Management = tmManual then
-    KeyType.Cleanup(LPair.FPriority);
+  if KeyRules.Management = tmManual then
+    KeyRules.Cleanup(LPair.FPriority);
 
   { And return the value }
   Result := LPair.FValue;
@@ -1999,7 +1994,7 @@ begin
       X := 0;
 
     { Check for exit }
-    if (I = 0) or ((KeyType.Compare(FArray[X].FPriority, APriority) * FSign) > 0) then
+    if (I = 0) or ((KeyRules.Compare(FArray[X].FPriority, APriority) * FSign) > 0) then
       break;
 
     FArray[I] := FArray[X];
@@ -2030,7 +2025,7 @@ begin
   Result := FCount;
 end;
 
-function TPriorityQueue<TPriority, TValue>.GetEnumerator: IEnumerator<KVPair<TPriority, TValue>>;
+function TPriorityQueue<TPriority, TValue>.GetEnumerator: IEnumerator<TPair<TPriority, TValue>>;
 begin
   { Create an enumerator }
   Result := TPairEnumerator.Create(Self);
@@ -2088,7 +2083,7 @@ begin
   else
     LStart := 0;
 
-  while ((KeyType.Compare(LTemp.FPriority, FArray[LStart].FPriority) * FSign) > 0) do
+  while ((KeyRules.Compare(LTemp.FPriority, FArray[LStart].FPriority) * FSign) > 0) do
   begin
     FArray[I] := FArray[LStart];
     I := LStart;
@@ -2105,10 +2100,10 @@ begin
     begin
       X := (I * 2) + 1;
 
-      if ((X < FCount - 1) and ((KeyType.Compare(FArray[X].FPriority, FArray[X + 1].FPriority) * FSign) < 0)) then
+      if ((X < FCount - 1) and ((KeyRules.Compare(FArray[X].FPriority, FArray[X + 1].FPriority) * FSign) < 0)) then
         Inc(X);
 
-      if ((KeyType.Compare(FArray[X].FPriority, LTemp.FPriority) * FSign) <= 0) then
+      if ((KeyRules.Compare(FArray[X].FPriority, LTemp.FPriority) * FSign) <= 0) then
           break;
 
       FArray[I] := FArray[X];
@@ -2160,16 +2155,16 @@ begin
   inherited;
 end;
 
-function TPriorityQueue<TPriority, TValue>.TPairEnumerator.GetCurrent: KVPair<TPriority, TValue>;
+function TPriorityQueue<TPriority, TValue>.TPairEnumerator.GetCurrent: TPair<TPriority, TValue>;
 begin
   if FVer <> FQueue.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
   if FCurrentIndex > 0 then
-    Result := KVPair.Create<TPriority, TValue>(
+    Result := TPair.Create<TPriority, TValue>(
       FQueue.FArray[FCurrentIndex - 1].FPriority, FQueue.FArray[FCurrentIndex - 1].FValue)
   else
-    Result := default(KVPair<TPriority, TValue>);
+    Result := default(TPair<TPriority, TValue>);
 end;
 
 function TPriorityQueue<TPriority, TValue>.TPairEnumerator.MoveNext: Boolean;
@@ -2183,11 +2178,11 @@ end;
 
 { TObjectPriorityQueue<TPriority, TValue> }
 
-procedure TObjectPriorityQueue<TPriority, TValue>.InstallTypes(const AKeyType: IType<TPriority>; const AValueType: IType<TValue>);
+procedure TObjectPriorityQueue<TPriority, TValue>.InstallTypes(const AKeyRules: TRules<TPriority>; const AValueRules: TRules<TValue>);
 begin
   { Create a wrapper over the real type class and switch it }
-  FPriorityWrapperType := TMaybeObjectWrapperType<TPriority>.Create(AKeyType);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueType);
+  FPriorityWrapperType := TMaybeObjectWrapperType<TPriority>.Create(AKeyRules);
+  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueRules);
 
   { Install overridden type }
   inherited InstallTypes(FPriorityWrapperType, FValueWrapperType);

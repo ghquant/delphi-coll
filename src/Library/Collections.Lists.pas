@@ -25,21 +25,20 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.Defines.inc}
+{$I Collections.inc}
 unit Collections.Lists;
 interface
 uses SysUtils,
      Generics.Defaults,
      Collections.Base;
 
-
 type
+
   ///  <summary>The generic <c>list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
   TList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IUnorderedList<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
-
 {$IFDEF OPTIMIZED_SORT}
     { Stack entry }
     TStackEntry = record
@@ -120,28 +119,24 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
     ///  <param name="AInitialCapacity">The list's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AInitialCapacity: NativeUInt); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AArray: array of T); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -470,11 +465,9 @@ type
   TObjectList<T: class> = class(TList<T>)
   private
     FOwnsObjects: Boolean;
-
   protected
-    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
-    ///  <param name="AValue">The value that was removed from the collection.</param>
-    procedure HandleValueRemoved(const AValue: T); virtual;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
 
   public
     ///  <summary>Specifies whether this list owns the objects stored in it.</summary>
@@ -516,6 +509,7 @@ type
 
      { Internal insertion }
      procedure Insert(const AIndex: NativeUInt; const AValue: T);
+
      function BinarySearch(const AElement: T; const AStartIndex, ACount: NativeUInt; AAscending: Boolean): NativeInt;
   protected
     ///  <summary>Returns the item from a given index.</summary>
@@ -560,32 +554,32 @@ type
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
+    ///  <param name="ARules">A type object decribing the elements in the list.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
+    ///  <param name="ARules">A type object decribing the elements in the list.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <param name="AInitialiCapacity">Specifies the initial capacity of the list.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AInitialCapacity: NativeUInt; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
+    ///  <param name="ARules">A type object decribing the elements in the list.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AComparer">The comparer that manages the values.</param>
+    ///  <param name="ARules">A type object decribing the elements in the list.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AComparer"/> is <c>nil</c>.</exception>
-    constructor Create(const AComparer: IComparer<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -849,9 +843,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
-    ///  <param name="AValue">The value that was removed from the collection.</param>
-    procedure HandleValueRemoved(const AValue: T); virtual;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
 
   public
     ///  <summary>Specifies whether this list owns the objects stored in it.</summary>
@@ -866,7 +859,7 @@ type
 
   { Generic Linked List Node }
   //TODO: doc me
-  TLinkedListNode<T> = class sealed
+  TLinkedListNode<T> = class
   private
     FRemoved: Boolean;
     FData: T;
@@ -922,7 +915,6 @@ type
     FCount: NativeUInt;
     FVer : NativeUInt;
   protected
-    { Hidden ICollection support }
     //TODO: doc me
     function GetCount(): NativeUInt; override;
   public
@@ -930,15 +922,16 @@ type
     //TODO: doc me
     constructor Create(); overload;
     //TODO: doc me
-    constructor Create(const ACollection: IEnumerable<T>); overload;
+    constructor Create(const AEnumerable: IEnumerable<T>); overload;
     //TODO: doc me
     constructor Create(const AArray: array of T); overload;
+
     //TODO: doc me
-    constructor Create(const AComparer: IComparer<T>); overload;
+    constructor Create(const ARules: TRules<T>); overload;
     //TODO: doc me
-    constructor Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>); overload;
+    constructor Create(const ARules: TRules<T>; const AEnumerable: IEnumerable<T>); overload;
     //TODO: doc me
-    constructor Create(const AComparer: IComparer<T>; const AArray: array of T); overload;
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     { Destructors }
     //TODO: doc me
@@ -1051,10 +1044,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Called automatically when a value is "lost" and additional cleanup might be needed.</summary>
-    ///  <param name="AValue">The value that was removed from the collection.</param>
-    procedure HandleValueRemoved(const AValue: T); virtual;
-
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
   public
     { Object owning }
     //TODO: doc me
@@ -1064,7 +1055,7 @@ type
 implementation
 
 const
-  CDefaultListSize = 32;
+  DefaultArrayLength = 32;
 
 { TList<T> }
 
@@ -1160,7 +1151,7 @@ var
 begin
   { Should cleanup each element individually }
   for I := 0 to FLength - 1 do
-    HandleValueRemoved(FArray[I]);
+    HandleElementRemoved(FArray[I]);
 
   { Reset the length }
   FLength := 0;
@@ -1180,13 +1171,14 @@ end;
 
 function TList<T>.Copy(const AStartIndex, ACount: NativeUInt): TList<T>;
 var
-  LNewList: TList<T>;
+  NewList: TList<T>;
   I: NativeInt;
 begin
+//TODO: redo this function
   { Check for zero elements }
   if (FLength = 0) then
   begin
-    Result := TList<T>.Create(Comparer);
+    Result := TList<T>.Create(ElementRules);
     Exit;
   end;
   
@@ -1199,15 +1191,15 @@ begin
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new list }
-  LNewList := TList<T>.Create(Comparer, ACount);
+  NewList := TList<T>.Create(ElementRules, ACount);
 
-  { Copy elements over }
+  { Copy all elements safely }
   for I := 0 to ACount - 1 do
-    LNewList.FArray[I] := FArray[AStartIndex + I];
+    NewList.FArray[I] := FArray[AStartIndex + I];
 
   { Set new count }
-  LNewList.FLength := ACount;
-  Result := LNewList;
+  NewList.FLength := ACount;
+  Result := NewList;
 end;
 
 procedure TList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
@@ -1221,23 +1213,24 @@ begin
   if (NativeUInt(Length(AArray)) - AStartIndex) < Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  { Copy elements over }
+  { Copy all elements safely }
   for I := 0 to FLength - 1 do
-   AArray[AStartIndex + I] := FArray[I];
+    AArray[AStartIndex + I] := FArray[I];
 end;
 
-constructor TList<T>.Create(const AComparer: IComparer<T>);
+constructor TList<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultListSize);
+  Create(ARules, DefaultArrayLength);
 end;
 
-constructor TList<T>.Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>);
+constructor TList<T>.Create(const ARules: TRules<T>;
+  const ACollection: IEnumerable<T>);
 var
   V: T;
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultListSize);
+  Create(ARules, DefaultArrayLength);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -1248,27 +1241,24 @@ end;
 
 constructor TList<T>.Create;
 begin
-  Create(TComparer<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
 constructor TList<T>.Create(const AInitialCapacity: NativeUInt);
 begin
-  Create(TComparer<T>.Default, AInitialCapacity);
+  Create(TRules<T>.Default, AInitialCapacity);
 end;
 
 constructor TList<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  Create(TComparer<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TList<T>.Create(const AComparer: IComparer<T>; const AInitialCapacity: NativeUInt);
+constructor TList<T>.Create(const ARules: TRules<T>;
+  const AInitialCapacity: NativeUInt);
 begin
-  { Initialize instance }
-  if AComparer = nil then
-     ExceptionHelper.Throw_ArgumentNilError('AComparer');
-
-  { Install the type }
-  InstallComparer(AComparer);
+  { Call the upper constructor }
+  inherited Create(ARules);
 
   FLength := 0;
   FVer := 0;
@@ -1315,7 +1305,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not AreEqual(FArray[I], V) then
+    if not ElementRules.AreEqual(FArray[I], V) then
       Exit(false);
 
     Inc(I);
@@ -1374,8 +1364,8 @@ end;
 procedure TList<T>.Grow;
 begin
   { Grow the array }
-  if FLength < CDefaultListSize then
-     SetLength(FArray, FLength + CDefaultListSize)
+  if FLength < DefaultArrayLength then
+     SetLength(FArray, FLength + DefaultArrayLength)
   else
      SetLength(FArray, FLength * 2);
 end;
@@ -1413,7 +1403,7 @@ begin
 
   { Search for the AValue }
   for I := AStartIndex to ((AStartIndex + ACount) - 1) do
-      if AreEqual(FArray[I], AValue) then
+      if ElementRules.AreEqual(FArray[I], AValue) then
       begin
         Result := I;
         Exit;
@@ -1508,7 +1498,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if Compare(FArray[I], Result) > 0 then
+    if ElementRules.Compare(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -1524,7 +1514,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if Compare(FArray[I], Result) < 0 then
+    if ElementRules.Compare(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -1534,13 +1524,13 @@ begin
     QuickSort(ALeft, ARight,
       function(const ALeft, ARight: T): Integer
       begin
-        Exit(Compare(ALeft, ARight));
+        Exit(ElementRules.Compare(ALeft, ARight));
       end
     ) else                        { Descending sort }
     QuickSort(ALeft, ARight,
       function(const ALeft, ARight: T): Integer
       begin
-        Exit(-Compare(ALeft, ARight));
+        Exit(-ElementRules.Compare(ALeft, ARight));
       end
     )
 end;
@@ -1663,7 +1653,7 @@ begin
 
   { Search for the AValue }
   for I := ((AStartIndex + ACount) - 1) downto AStartIndex do
-      if AreEqual(FArray[I], AValue) then
+      if ElementRules.AreEqual(FArray[I], AValue) then
       begin
         Result := I;
         Exit;
@@ -1680,7 +1670,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if AreEqual(FArray[I], AValue) then
+    if ElementRules.AreEqual(FArray[I], AValue) then
     begin
       FoundIndex := I;
       Break;
@@ -1708,7 +1698,8 @@ begin
 
   if (FLength = 0) then Exit;
 
-  HandleValueRemoved(FArray[AIndex]);
+  { Cleanup the element at the specified AIndex if required }
+  HandleElementRemoved(FArray[AIndex]);
 
   { Move the list }
   if FLength > 1 then
@@ -1724,29 +1715,31 @@ var
   I: NativeUInt;
   V: T;
 begin
+  if ACount < 2 then
+    Exit;
+
   { Check for indexes }
   if ((AStartIndex + ACount) > FLength) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex/ACount');
-
-  if Count < 2 then
-     Exit;
 
   { Reverse the array }
   for I := 0 to (ACount div 2) - 1 do
   begin
     V := FArray[AStartIndex + I];
-    FArray[AStartIndex + I] := FArray[AStartIndex + Count - I - 1];
-    FArray[AStartIndex + Count - I - 1] := V;
+    FArray[AStartIndex + I] := FArray[AStartIndex + ACount - I - 1];
+    FArray[AStartIndex + ACount - I - 1] := V;
   end;
 end;
 
 procedure TList<T>.Reverse(const AStartIndex: NativeUInt);
 begin
+  { Call the complete method }
   Reverse(AStartIndex, FLength - AStartIndex);
 end;
 
 procedure TList<T>.Reverse;
 begin
+  { Call the complete method }
   Reverse(0, FLength);
 end;
 
@@ -1824,7 +1817,7 @@ begin
   if (AStartIndex > FLength) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  QuickSort(AStartIndex, (FLength - AStartIndex), ASortProc);
+  QuickSort(AStartIndex, (FLength - AStartIndex), ASortProc)
 end;
 
 procedure TList<T>.Sort(const ASortProc: TComparison<T>);
@@ -1845,15 +1838,15 @@ end;
 
 constructor TList<T>.Create(const AArray: array of T);
 begin
-  Create(TComparer<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TList<T>.Create(const AComparer: IComparer<T>; const AArray: array of T);
+constructor TList<T>.Create(const ARules: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultListSize);
+  Create(ARules, DefaultArrayLength);
 
   { Copy from array }
   for I := 0 to Length(AArray) - 1 do
@@ -1898,6 +1891,13 @@ begin
 
   Result := FCurrentIndex < FList.FLength;
   Inc(FCurrentIndex);
+end;
+
+{ TObjectList<T> }
+
+procedure TObjectList<T>.HandleElementRemoved(const AElement: T);
+begin
+  TObject(AElement).Free;
 end;
 
 { TSortedList<T> }
@@ -2011,42 +2011,6 @@ begin
   Result := false;
 end;
 
-function TSortedList<T>.BinarySearch(const AElement: T; const AStartIndex, ACount: NativeUInt; AAscending: Boolean): NativeInt;
-var
-  LLeft, LRight, LMiddle: NativeInt;
-  LCompareResult: NativeInt;
-begin
-  { Do not search for 0 count }
-  if ACount = 0 then
-  begin
-    Result := -1;
-    Exit;
-  end;
-
-  { Check for valid type support }
-  LLeft := AStartIndex;
-  LRight := NativeUInt(LLeft) + Count - 1;
-
-  while (LLeft <= LRight) do
-  begin
-    LMiddle := (LLeft + LRight) div 2;
-    LCompareResult := Compare(FArray[LMiddle], AElement);
-
-    if not AAscending then
-       LCompareResult := LCompareResult * -1;
-
-    if LCompareResult > 0 then
-      LRight := LMiddle - 1
-    else if LCompareResult < 0 then
-       LLeft := LMiddle + 1
-    else
-       begin Result := NativeUInt(LMiddle) - AStartIndex; Exit; end;
-  end;
-
-  Result := -1;
-end;
-
-
 procedure TSortedList<T>.Add(const AValue: T);
 var
   I: NativeUInt;
@@ -2062,7 +2026,7 @@ begin
 
   while I < FLength do
   begin
-    if ((Compare(AValue, FArray[I]) * Sign) < 0) then
+    if ((ElementRules.Compare(AValue, FArray[I]) * Sign) < 0) then
        Break;
 
     Inc(I);
@@ -2075,8 +2039,9 @@ procedure TSortedList<T>.Clear;
 var
   I: NativeInt;
 begin
+  { Should cleanup each element individually }
   for I := 0 to FLength - 1 do
-    HandleValueRemoved(FArray[I]);
+    HandleElementRemoved(FArray[I]);
 
   { Reset the length }
   FLength := 0;
@@ -2096,13 +2061,14 @@ end;
 
 function TSortedList<T>.Copy(const AStartIndex, ACount: NativeUInt): TSortedList<T>;
 var
-  LNewList: TSortedList<T>;
+  NewList: TSortedList<T>;
   I: NativeInt;
 begin
+  //TODO: remake;
   { Check for zero elements }
   if (FLength = 0) then
   begin
-    Result := TSortedList<T>.Create(Comparer);
+    Result := TSortedList<T>.Create(ElementRules);
     Exit;
   end;
 
@@ -2115,15 +2081,22 @@ begin
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new list }
-  LNewList := TSortedList<T>.Create(Comparer, ACount);
+  NewList := TSortedList<T>.Create(ElementRules, ACount);
 
-  { Copy elements over }
+  { Copy all elements safely }
   for I := 0 to ACount - 1 do
-    LNewList.FArray[I] := FArray[AStartIndex + I];
+    NewList.FArray[I] := FArray[AStartIndex + I];
 
   { Set new count }
-  LNewList.FLength := ACount;
-  Result := LNewList;
+  NewList.FLength := ACount;
+
+  Result := NewList;
+end;
+
+function TSortedList<T>.Copy: TSortedList<T>;
+begin
+  { Pass the call down to the more generic function }
+  Copy(0, FLength);
 end;
 
 procedure TSortedList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
@@ -2137,24 +2110,24 @@ begin
   if (NativeUInt(Length(AArray)) - AStartIndex) < FLength then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  { Copy elements over }
+  { Copy all elements safely }
   for I := 0 to FLength - 1 do
-    AArray[I + AStartIndex] := FArray[I];
+    AArray[AStartIndex + I] := FArray[I];
 end;
 
-constructor TSortedList<T>.Create(const AComparer: IComparer<T>; const AAscending: Boolean);
+constructor TSortedList<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultListSize, AAscending);
+  Create(ARules, DefaultArrayLength, AAscending);
 end;
 
-constructor TSortedList<T>.Create(const AComparer: IComparer<T>;
+constructor TSortedList<T>.Create(const ARules: TRules<T>;
   const ACollection: IEnumerable<T>; const AAscending: Boolean);
 var
   V: T;
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultListSize, AAscending);
+  Create(ARules, DefaultArrayLength, AAscending);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -2170,27 +2143,24 @@ end;
 
 constructor TSortedList<T>.Create(const AAscending: Boolean);
 begin
-  Create(TComparer<T>.Default, AAscending);
+  Create(TRules<T>.Default, AAscending);
 end;
 
 constructor TSortedList<T>.Create(const AInitialCapacity: NativeUInt; const AAscending: Boolean);
 begin
-  Create(TComparer<T>.Default, AInitialCapacity, AAscending);
+  Create(TRules<T>.Default, AInitialCapacity, AAscending);
 end;
 
 constructor TSortedList<T>.Create(const ACollection: IEnumerable<T>; const AAscending: Boolean);
 begin
-  Create(TComparer<T>.Default, ACollection, AAscending);
+  Create(TRules<T>.Default, ACollection, AAscending);
 end;
 
-constructor TSortedList<T>.Create(const AComparer: IComparer<T>;
+constructor TSortedList<T>.Create(const ARules: TRules<T>;
   const AInitialCapacity: NativeUInt; const AAscending: Boolean);
 begin
-  { Initialize instance }
-  if AComparer = nil then
-     ExceptionHelper.Throw_ArgumentNilError('AComparer');
-
-  InstallComparer(AComparer);
+  { Call the upper constructor }
+  inherited Create(ARules);
 
   FLength := 0;
   FVer := 0;
@@ -2239,7 +2209,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not AreEqual(FArray[I], V) then
+    if not ElementRules.AreEqual(FArray[I], V) then
       Exit(false);
 
     Inc(I);
@@ -2298,8 +2268,8 @@ end;
 procedure TSortedList<T>.Grow;
 begin
   { Grow the array }
-  if FLength < CDefaultListSize then
-     SetLength(FArray, FLength + CDefaultListSize)
+  if FLength < DefaultArrayLength then
+     SetLength(FArray, FLength + DefaultArrayLength)
   else
      SetLength(FArray, FLength * 2);
 end;
@@ -2317,7 +2287,43 @@ begin
   Result := IndexOf(AValue, AStartIndex, (FLength - AStartIndex));
 end;
 
-function TSortedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeUInt): NativeInt;
+function TSortedList<T>.BinarySearch(const AElement: T; const AStartIndex, ACount: NativeUInt; AAscending: Boolean): NativeInt;
+var
+  LLeft, LRight, LMiddle: NativeInt;
+  LCompareResult: NativeInt;
+begin
+  { Do not search for 0 count }
+  if ACount = 0 then
+  begin
+    Result := -1;
+    Exit;
+  end;
+
+  { Check for valid type support }
+  LLeft := AStartIndex;
+  LRight := NativeUInt(LLeft) + Count - 1;
+
+  while (LLeft <= LRight) do
+  begin
+    LMiddle := (LLeft + LRight) div 2;
+    LCompareResult := ElementRules.Compare(FArray[LMiddle], AElement);
+
+    if not AAscending then
+       LCompareResult := LCompareResult * -1;
+
+    if LCompareResult > 0 then
+      LRight := LMiddle - 1
+    else if LCompareResult < 0 then
+       LLeft := LMiddle + 1
+    else
+       begin Result := NativeUInt(LMiddle) - AStartIndex; Exit; end;
+  end;
+
+  Result := -1;
+end;
+
+function TSortedList<T>.IndexOf(const AValue: T; const AStartIndex,
+  ACount: NativeUInt): NativeInt;
 var
   I, J: NativeInt;
 begin
@@ -2343,7 +2349,7 @@ begin
     Inc(J, AStartIndex);
 
   for I := J - 1 downto AStartIndex do
-      if not AreEqual(AValue, FArray[I]) then
+      if not ElementRules.AreEqual(AValue, FArray[I]) then
       begin
         Result := I + 1;
         Exit;
@@ -2394,7 +2400,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if Compare(FArray[I], Result) > 0 then
+    if ElementRules.Compare(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -2410,7 +2416,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if Compare(FArray[I], Result) < 0 then
+    if ElementRules.Compare(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -2441,7 +2447,7 @@ begin
     Inc(J, AStartIndex);
 
   for I := J + 1 to AStartIndex + ACount - 1 do
-    if not AreEqual(AValue, FArray[I]) then
+    if not ElementRules.AreEqual(AValue, FArray[I]) then
     begin
       Result := I - 1;
       Exit;
@@ -2460,7 +2466,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if AreEqual(FArray[I], AValue) then
+    if ElementRules.AreEqual(FArray[I], AValue) then
     begin
       FoundIndex := I;
       Break;
@@ -2488,7 +2494,8 @@ begin
 
   if (FLength = 0) then Exit;
 
-  HandleValueRemoved(FArray[AIndex]);
+  { Clanup the element at the specified AIndex if required }
+  HandleElementRemoved(FArray[AIndex]);
 
   { Move the list }
   if FLength > 1 then
@@ -2530,23 +2537,17 @@ begin
     Result := FArray[0];
 end;
 
-function TSortedList<T>.Copy: TSortedList<T>;
-begin
-  { Call a more generic function }
-  Result := Copy(0, FLength);
-end;
-
 constructor TSortedList<T>.Create(const AArray: array of T; const AAscending: Boolean);
 begin
-  Create(TComparer<T>.Default, AArray, AAscending);
+  Create(TRules<T>.Default, AArray, AAscending);
 end;
 
-constructor TSortedList<T>.Create(const AComparer: IComparer<T>; const AArray: array of T; const AAscending: Boolean);
+constructor TSortedList<T>.Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AComparer, CDefaultListSize, AAscending);
+  Create(ARules, DefaultArrayLength, AAscending);
 
   { Copy from array }
   for I := 0 to Length(AArray) - 1 do
@@ -2593,7 +2594,14 @@ begin
   Inc(FCurrentIndex);
 end;
 
-{ TLinkedListNode<T> }
+{ TObjectSortedList<T> }
+
+procedure TObjectSortedList<T>.HandleElementRemoved(const AElement: T);
+begin
+  TObject(AElement).Free;
+end;
+
+{ TSimpleLinkedListNode<T> }
 
 constructor TLinkedListNode<T>.Create(Value: T);
 begin
@@ -2633,7 +2641,7 @@ begin
   begin
     { Clean myself up }
     if not FRemoved then
-      FList.HandleValueRemoved(FData);
+      FList.HandleElementRemoved(FData);
 
     Dec(FList.FCount);
     Inc(FList.FVer);
@@ -2958,22 +2966,18 @@ end;
 
 constructor TLinkedList<T>.Create;
 begin
-  Create(TComparer<T>.Default);
+  Create(TRules<T>.Default);
 end;
 
-constructor TLinkedList<T>.Create(const ACollection: IEnumerable<T>);
+constructor TLinkedList<T>.Create(const AEnumerable: IEnumerable<T>);
 begin
-  Create(TComparer<T>.Default, ACollection);
+  Create(TRules<T>.Default, AEnumerable);
 end;
 
-constructor TLinkedList<T>.Create(const AComparer: IComparer<T>);
+constructor TLinkedList<T>.Create(const ARules: TRules<T>);
 begin
-  { Initialize instance }
-  if AComparer = nil then
-    ExceptionHelper.Throw_ArgumentNilError('AComparer');
-
-  { Install the type }
-  InstallComparer(AComparer);
+  { Call the upper constructor }
+  inherited Create(ARules);
 
   FFirst := nil;
   FLast := nil;
@@ -2981,18 +2985,19 @@ begin
   FVer := 0;
 end;
 
-constructor TLinkedList<T>.Create(const AComparer: IComparer<T>; const ACollection: IEnumerable<T>);
+constructor TLinkedList<T>.Create(const ARules: TRules<T>;
+  const AEnumerable: IEnumerable<T>);
 var
   V: T;
 begin
   { Call upper constructor }
-  Create(AComparer);
+  Create(ARules);
 
-  if (ACollection = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
+  if (AEnumerable = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Try to copy the given Enumerable }
-  for V in ACollection do
+  for V in AEnumerable do
   begin
     { Perform a simple copy }
     AddLast(V);
@@ -3046,7 +3051,7 @@ begin
     if Node = nil then
       Exit;
 
-    if Compare(Node.FData, Result) > 0 then
+    if ElementRules.Compare(Node.FData, Result) > 0 then
       Result := Node.FData;
   end;
 end;
@@ -3070,7 +3075,7 @@ begin
     if Node = nil then
       Exit;
 
-    if Compare(Node.FData, Result) < 0 then
+    if ElementRules.Compare(Node.FData, Result) < 0 then
       Result := Node.FData;
   end;
 end;
@@ -3142,7 +3147,7 @@ begin
     if Node = nil then
       Exit(false);
 
-    if not AreEqual(Node.FData, V) then
+    if not ElementRules.AreEqual(Node.FData, V) then
       Exit(false);
 
     Node := Node.FNext;
@@ -3168,7 +3173,8 @@ begin
 
   while Current <> nil do
   begin
-    if AreEqual(Current.FData, AValue) then
+
+    if ElementRules.AreEqual(Current.FData, AValue) then
     begin
       Result := Current;
       exit;
@@ -3193,7 +3199,8 @@ begin
 
   while Current <> nil do
   begin
-    if AreEqual(Current.FData, AValue) then
+
+    if ElementRules.AreEqual(Current.FData, AValue) then
     begin
       Result := Current;
       exit;
@@ -3327,15 +3334,15 @@ end;
 
 constructor TLinkedList<T>.Create(const AArray: array of T);
 begin
-  Create(TComparer<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray);
 end;
 
-constructor TLinkedList<T>.Create(const AComparer: IComparer<T>; const AArray: array of T);
+constructor TLinkedList<T>.Create(const ARules: TRules<T>; const AArray: array of T);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AComparer);
+  Create(ARules);
 
   { Copy from array }
   for I := 0 to Length(AArray) - 1 do
@@ -3386,28 +3393,11 @@ begin
   Result := (FCurrentNode <> nil);
 end;
 
-{ TObjectList<T> }
-
-procedure TObjectList<T>.HandleValueRemoved(const AValue: T);
-begin
-  if FOwnsObjects then
-    TObject(AValue).Free;
-end;
-
-{ TObjectSortedList<T> }
-
-procedure TObjectSortedList<T>.HandleValueRemoved(const AValue: T);
-begin
-  if FOwnsObjects then
-    TObject(AValue).Free;
-end;
-
 { TObjectLinkedList<T> }
 
-procedure TObjectLinkedList<T>.HandleValueRemoved(const AValue: T);
+procedure TObjectLinkedList<T>.HandleElementRemoved(const AElement: T);
 begin
-  if FOwnsObjects then
-    TObject(AValue).Free;
+  TObject(AElement).Free;
 end;
 
 end.
