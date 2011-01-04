@@ -29,6 +29,7 @@
 unit Collections.Stacks;
 interface
 uses SysUtils,
+     Collections.Lists,
      Collections.Base;
 
 type
@@ -40,9 +41,9 @@ type
     { Generic Stack List Enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FStack: TStack<T>;
-      FCurrentIndex: NativeUInt;
+      FCurrentIndex: NativeInt;
 
     public
       { Constructor }
@@ -58,34 +59,20 @@ type
 
   private var
     FArray: TArray<T>;
-    FLength: NativeUInt;
-    FVer: NativeUInt;
+    FLength: NativeInt;
+    FVer: NativeInt;
 
   protected
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an element has been deserialized and needs to be inserted into the stack.</summary>
-    ///  <param name="AElement">The element that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the stack.</remarks>
-    procedure DeserializeElement(const AElement: T); override;
-
     ///  <summary>Returns the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the stack can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this method is greater or equal to the amount of elements in the stack. If this value
     ///  is greater then the number of elements, it means that the stack has some extra capacity to operate upon.</remarks>
-    function GetCapacity(): NativeUInt;
+    function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default type object is requested.</remarks>
@@ -94,7 +81,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -108,16 +95,6 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TDynamicArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TFixedArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>); overload;
@@ -126,7 +103,7 @@ type
     ///  <param name="ARules">A type object decribing the elements in the stack.</param>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A type object decribing the elements in the stack.</param>
@@ -140,18 +117,6 @@ type
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -188,14 +153,14 @@ type
 
     ///  <summary>Specifies the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
-    property Count: NativeUInt read FLength;
+    property Count: NativeInt read FLength;
 
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the stack can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this property is greater or equal to the amount of elements in the stack. If this value
     ///  if greater then the number of elements, it means that the stack has some extra capacity to operate upon.</remarks>
-    property Capacity: NativeUInt read GetCapacity;
+    property Capacity: NativeInt read GetCapacity;
 
     ///  <summary>Removes the excess capacity from the stack.</summary>
     ///  <remarks>This method can be called manually to force the stack to drop the extra capacity it might hold. For example,
@@ -220,7 +185,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the stack.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the stack is empty.</summary>
     ///  <returns><c>True</c> if the stack is empty; <c>False</c> otherwise.</returns>
@@ -298,14 +263,14 @@ type
     ///  <returns>The element from the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const Index: NativeUInt): T; override;
+    function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the stack is empty.</param>
     ///  <returns>The element from the specified position if the stack is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
-    function ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
     ///  <summary>Check whether at least one element in the stack satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -338,24 +303,17 @@ type
   ///  <remarks>This type uses an internal array to store its objects.</remarks>
   TObjectStack<T: class> = class(TStack<T>)
   private
-    FWrapperType: TObjectWrapperType<T>;
-
-    { Getters/Setters for OwnsObjects }
-    function GetOwnsObjects: Boolean;
-    procedure SetOwnsObjects(const Value: Boolean);
+    FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Installs the type object.</summary>
-    ///  <param name="ARules">The type object to install.</param>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
-    ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    procedure InstallType(const ARules: TRules<T>); override;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
+
   public
     ///  <summary>Specifies whether this stack owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the stack owns its objects; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the stack controls the life-time of the stored objects.</remarks>
-    property OwnsObjects: Boolean read GetOwnsObjects write SetOwnsObjects;
+    property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
 type
@@ -366,23 +324,9 @@ type
     FList: TLinkedList<T>;
 
   protected
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an element has been deserialized and needs to be inserted into the stack.</summary>
-    ///  <param name="AElement">The element that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the stack.</remarks>
-    procedure DeserializeElement(const AElement: T); override;
-
     ///  <summary>Returns the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default type object is requested.</remarks>
@@ -400,16 +344,6 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TDynamicArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TFixedArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>); overload;
 
@@ -423,17 +357,6 @@ type
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
@@ -470,7 +393,7 @@ type
 
     ///  <summary>Specifies the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
-    property Count: NativeUInt read GetCount;
+    property Count: NativeInt read GetCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this stack.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -484,7 +407,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the stack.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the stack is empty.</summary>
     ///  <returns><c>True</c> if the stack is empty; <c>False</c> otherwise.</returns>
@@ -562,14 +485,14 @@ type
     ///  <returns>The element from the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const Index: NativeUInt): T; override;
+    function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the stack is empty.</param>
     ///  <returns>The element from the specified position if the stack is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
-    function ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
     ///  <summary>Check whether at least one element in the stack satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -602,25 +525,17 @@ type
   ///  <remarks>This type uses a linked list to store its objects.</remarks>
   TObjectLinkedStack<T: class> = class(TLinkedStack<T>)
   private
-    FWrapperType: TObjectWrapperType<T>;
-
-    { Getters/Setters for OwnsObjects }
-    function GetOwnsObjects: Boolean;
-    procedure SetOwnsObjects(const Value: Boolean);
+    FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Installs the type object.</summary>
-    ///  <param name="ARules">The type object to install.</param>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
-    ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    procedure InstallType(const ARules: TRules<T>); override;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
 
   public
     ///  <summary>Specifies whether this stack owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the stack owns its objects; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the stack controls the life-time of the stored objects.</remarks>
-    property OwnsObjects: Boolean read GetOwnsObjects write SetOwnsObjects;
+    property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
 
@@ -633,7 +548,7 @@ const
 
 function TStack<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -655,7 +570,7 @@ end;
 
 function TStack<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -677,7 +592,7 @@ end;
 
 function TStack<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -692,7 +607,7 @@ end;
 
 function TStack<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -709,12 +624,8 @@ procedure TStack<T>.Clear;
 var
   I: NativeInt;
 begin
-  if (ElementRules <> nil) and (ElementRules.Management() = tmManual) and (FLength > 0) then
-  begin
-    { Should cleanup each element individually }
-    for I := 0 to FLength - 1 do
-      ElementRules.Cleanup(FArray[I]);
-  end;
+  for I := 0 to FLength - 1 do
+    HandleElementRemoved(FArray[I]);
 
   { Simply reset all to default }
   SetLength(FArray, DefaultArrayLength);
@@ -741,17 +652,20 @@ begin
   end;
 end;
 
-procedure TStack<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure TStack<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+var
+  I: NativeInt;
 begin
   { Check for indexes }
-  if AStartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - AStartIndex) < FLength then
+  if (Length(AArray) - AStartIndex) < FLength then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Copy all elements safely }
-  &Array<T>.SafeMove(FArray, AArray, 0, AStartIndex, FLength, ElementRules);
+  for I := 0 to FLength - 1 do
+    AArray[AStartIndex + I] := FArray[I];
 end;
 
 constructor TStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
@@ -775,7 +689,7 @@ begin
   Create(TRules<T>.Default);
 end;
 
-constructor TStack<T>.Create(const AInitialCapacity: NativeUInt);
+constructor TStack<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
 end;
@@ -791,23 +705,14 @@ begin
   Create(ARules, DefaultArrayLength);
 end;
 
-constructor TStack<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
+constructor TStack<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   { Initialize instance }
-  if (ARules = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('ARules');
-
-  InstallType(ARules);
+  inherited Create(ARules);
 
   FLength := 0;
   FVer := 0;
   SetLength(FArray, AInitialCapacity);
-end;
-
-procedure TStack<T>.DeserializeElement(const AElement: T);
-begin
-  { Simple as hell ... }
-  Push(AElement);
 end;
 
 destructor TStack<T>.Destroy;
@@ -818,15 +723,15 @@ begin
   inherited;
 end;
 
-function TStack<T>.ElementAt(const Index: NativeUInt): T;
+function TStack<T>.ElementAt(const AIndex: NativeInt): T;
 begin
-  if (Index >= FLength) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('Index');
+  if (AIndex >= FLength) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
-  Result := FArray[Index];
+  Result := FArray[AIndex];
 end;
 
-function TStack<T>.ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
+function TStack<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   { Check range }
   if (AIndex >= FLength) then
@@ -843,7 +748,7 @@ end;
 function TStack<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
   V: T;
-  I: NativeUInt;
+  I: NativeInt;
 begin
   I := 0;
 
@@ -882,12 +787,12 @@ begin
     Result := FArray[0];
 end;
 
-function TStack<T>.GetCapacity: NativeUInt;
+function TStack<T>.GetCapacity: NativeInt;
 begin
   Result := Length(FArray);
 end;
 
-function TStack<T>.GetCount: NativeUInt;
+function TStack<T>.GetCount: NativeInt;
 begin
   { Use the variable }
   Result := FLength;
@@ -900,7 +805,7 @@ end;
 
 procedure TStack<T>.Grow;
 var
-  ListLength: NativeUInt;
+  ListLength: NativeInt;
 begin
   ListLength := Capacity;
 
@@ -932,7 +837,7 @@ end;
 
 function TStack<T>.Max: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
@@ -948,7 +853,7 @@ end;
 
 function TStack<T>.Min: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
@@ -1054,16 +959,6 @@ begin
     Result := FArray[0];
 end;
 
-procedure TStack<T>.StartDeserializing(const AData: TDeserializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
-end;
-
-procedure TStack<T>.StartSerializing(const AData: TSerializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
-end;
-
 constructor TStack<T>.Create(const AArray: array of T);
 begin
   Create(TRules<T>.Default, AArray);
@@ -1081,46 +976,6 @@ begin
   begin
     Push(AArray[I]);
   end;
-end;
-
-constructor TStack<T>.Create(const AArray: TFixedArray<T>);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TStack<T>.Create(const AArray: TDynamicArray<T>);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TStack<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-      Push(AArray[I]);
-    end;
-end;
-
-constructor TStack<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-      Push(AArray[I]);
-    end;
 end;
 
 { TStack<T>.TEnumerator }
@@ -1163,25 +1018,10 @@ end;
 
 { TObjectStack<T> }
 
-procedure TObjectStack<T>.InstallType(const ARules: TRules<T>);
+procedure TObjectStack<T>.HandleElementRemoved(const AElement: T);
 begin
-  { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(ARules);
-
-  { Install overridden type }
-  inherited InstallType(FWrapperType);
+  TObject(AElement).Free;
 end;
-
-function TObjectStack<T>.GetOwnsObjects: Boolean;
-begin
-  Result := FWrapperType.AllowCleanup;
-end;
-
-procedure TObjectStack<T>.SetOwnsObjects(const Value: Boolean);
-begin
-  FWrapperType.AllowCleanup := Value;
-end;
-
 
 { TLinkedStack<T> }
 
@@ -1222,7 +1062,7 @@ begin
   Result := FList.Contains(AValue);
 end;
 
-procedure TLinkedStack<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure TLinkedStack<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 begin
   { Invoke the copy-to from the list below }
   FList.CopyTo(AArray, AStartIndex);
@@ -1257,19 +1097,9 @@ end;
 constructor TLinkedStack<T>.Create(const ARules: TRules<T>);
 begin
   { Initialize instance }
-  if (ARules = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('ARules');
-
-  { Initialize internals }
-  InstallType(ARules);
+  inherited Create(ARules);
 
   FList := TLinkedList<T>.Create(ElementRules);
-end;
-
-procedure TLinkedStack<T>.DeserializeElement(const AElement: T);
-begin
-  { Simple as hell ... }
-  Push(AElement);
 end;
 
 destructor TLinkedStack<T>.Destroy;
@@ -1283,13 +1113,13 @@ begin
   inherited;
 end;
 
-function TLinkedStack<T>.ElementAt(const Index: NativeUInt): T;
+function TLinkedStack<T>.ElementAt(const AIndex: NativeInt): T;
 begin
   { Call the one from the list }
-  Result := FList.ElementAt(Index);
+  Result := FList.ElementAt(AIndex);
 end;
 
-function TLinkedStack<T>.ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
+function TLinkedStack<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   { Call the one from the list }
   Result := FList.ElementAtOrDefault(AIndex, ADefault);
@@ -1319,7 +1149,7 @@ begin
   Result := FList.FirstOrDefault(ADefault);
 end;
 
-function TLinkedStack<T>.GetCount: NativeUInt;
+function TLinkedStack<T>.GetCount: NativeInt;
 begin
   { Use the variable }
   Result := FList.Count;
@@ -1393,16 +1223,6 @@ begin
   Result := FList.SingleOrDefault(ADefault);
 end;
 
-procedure TLinkedStack<T>.StartDeserializing(const AData: TDeserializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
-end;
-
-procedure TLinkedStack<T>.StartSerializing(const AData: TSerializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
-end;
-
 constructor TLinkedStack<T>.Create(const AArray: array of T);
 begin
   Create(TRules<T>.Default, AArray);
@@ -1422,65 +1242,11 @@ begin
   end;
 end;
 
-constructor TLinkedStack<T>.Create(const AArray: TFixedArray<T>);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TLinkedStack<T>.Create(const AArray: TDynamicArray<T>);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-      Push(AArray[I]);
-    end;
-end;
-
-constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-      Push(AArray[I]);
-    end;
-end;
-
 { TObjectLinkedStack<T> }
 
-procedure TObjectLinkedStack<T>.InstallType(const ARules: TRules<T>);
+procedure TObjectLinkedStack<T>.HandleElementRemoved(const AElement: T);
 begin
-  { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(ARules);
-
-  { Install overridden type }
-  inherited InstallType(FWrapperType);
-end;
-
-function TObjectLinkedStack<T>.GetOwnsObjects: Boolean;
-begin
-  Result := FWrapperType.AllowCleanup;
-end;
-
-procedure TObjectLinkedStack<T>.SetOwnsObjects(const Value: Boolean);
-begin
-  FWrapperType.AllowCleanup := Value;
+  TObject(AElement).Free;
 end;
 
 end.

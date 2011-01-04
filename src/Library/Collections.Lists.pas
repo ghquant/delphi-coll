@@ -51,9 +51,9 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FList: TList<T>;
-      FCurrentIndex: NativeUInt;
+      FCurrentIndex: NativeInt;
 
     public
       { Constructor }
@@ -69,8 +69,8 @@ type
 
   private var
     FArray: TArray<T>;
-    FLength: NativeUInt;
-    FVer: NativeUInt;
+    FLength: NativeInt;
+    FVer: NativeInt;
 
     procedure QuickSort(ALeft, ARight: NativeInt; const ASortProc: TComparison<T>); overload;
     procedure QuickSort(ALeft, ARight: NativeInt; const AAscending: Boolean); overload;
@@ -79,24 +79,24 @@ type
     ///  <param name="AIndex">The index in the list.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function GetItem(const AIndex: NativeUInt): T;
+    function GetItem(const AIndex: NativeInt): T;
 
     ///  <summary>Sets the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
     ///  <param name="AValue">The new value.</param>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure SetItem(const AIndex: NativeUInt; const AValue: T);
+    procedure SetItem(const AIndex: NativeInt; const AValue: T);
 
     ///  <summary>Returns the number of elements in the list.</summary>
     ///  <returns>A positive value specifying the number of elements in the list.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this method is greater or equal to the amount of elements in the list. If this value
     ///  is greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
-    function GetCapacity(): NativeUInt;
+    function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default type object is requested.</remarks>
@@ -105,7 +105,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The list's initial capacity.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -125,7 +125,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The list's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -161,7 +161,7 @@ type
     ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
     ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure Insert(const AIndex: NativeUInt; const AValue: T); overload;
+    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
 
     ///  <summary>Inserts the elements of a collection into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
@@ -170,7 +170,7 @@ type
     ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Insert(const AIndex: NativeUInt; const ACollection: IEnumerable<T>); overload;
+    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Removes a given value from the list.</summary>
     ///  <param name="AValue">The value to remove.</param>
@@ -181,7 +181,7 @@ type
     ///  <param name="AIndex">The index from which to remove the element.</param>
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure RemoveAt(const AIndex: NativeUInt);
+    procedure RemoveAt(const AIndex: NativeInt);
 
     ///  <summary>Reverses the elements in this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
@@ -189,13 +189,13 @@ type
     ///  <remarks>This method reverses <paramref name="ACount"/> number of elements in
     ///  the the list, starting with <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    procedure Reverse(const AStartIndex, ACount: NativeUInt); overload;
+    procedure Reverse(const AStartIndex, ACount: NativeInt); overload;
 
     ///  <summary>Reverses the elements in this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
     ///  <remarks>This method reverses all elements in the list, starting with <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    procedure Reverse(const AStartIndex: NativeUInt); overload;
+    procedure Reverse(const AStartIndex: NativeInt); overload;
 
     ///  <summary>Reverses the elements in this list.</summary>
     procedure Reverse(); overload;
@@ -207,14 +207,14 @@ type
     ///  <remarks>This method sorts <paramref name="ACount"/> number of elements in
     ///  the list, starting with <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    procedure Sort(const AStartIndex, ACount: NativeUInt; const AAscending: Boolean = true); overload;
+    procedure Sort(const AStartIndex, ACount: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Sorts the contents of this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
     ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. Default is <c>True</c>.</param>
     ///  <remarks>This method sorts all elements in the list, starting with <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    procedure Sort(const AStartIndex: NativeUInt; const AAscending: Boolean = true); overload;
+    procedure Sort(const AStartIndex: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Sorts the contents of this list.</summary>
     ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. Default is <c>True</c>.</param>
@@ -228,7 +228,7 @@ type
     ///  the list, starting with <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
-    procedure Sort(const AStartIndex, ACount: NativeUInt; const ASortProc: TComparison<T>); overload;
+    procedure Sort(const AStartIndex, ACount: NativeInt; const ASortProc: TComparison<T>); overload;
 
     ///  <summary>Sorts the contents of this list using a given comparison method.</summary>
     ///  <param name="AStartIndex">The start index.</param>
@@ -236,7 +236,7 @@ type
     ///  <remarks>This method sorts all elements in the list, starting with <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
-    procedure Sort(const AStartIndex: NativeUInt; const ASortProc: TComparison<T>); overload;
+    procedure Sort(const AStartIndex: NativeInt; const ASortProc: TComparison<T>); overload;
 
     ///  <summary>Sorts the contents of this list using a given comparison method.</summary>
     ///  <param name="ASortProc">The method used to compare elements.</param>
@@ -255,14 +255,14 @@ type
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeUInt): NativeInt; overload;
+    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function IndexOf(const AValue: T; const AStartIndex: NativeUInt): NativeInt; overload;
+    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -275,14 +275,14 @@ type
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeUInt): NativeInt; overload;
+    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex: NativeUInt): NativeInt; overload;
+    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -291,20 +291,20 @@ type
 
     ///  <summary>Specifies the number of elements in the list.</summary>
     ///  <returns>A positive value specifying the number of elements in the list.</returns>
-    property Count: NativeUInt read FLength;
+    property Count: NativeInt read FLength;
 
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this property is greater or equal to the amount of elements in the list. If this value
     ///  if greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
-    property Capacity: NativeUInt read GetCapacity;
+    property Capacity: NativeInt read GetCapacity;
 
     ///  <summary>Returns the item from a given index.</summary>
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    property Items[const AIndex: NativeUInt]: T read GetItem; default;
+    property Items[const AIndex: NativeInt]: T read GetItem; default;
 
     ///  <summary>Returns a new enumerator object used to enumerate this list.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -328,13 +328,13 @@ type
     ///  <param name="ACount">The number of elements to copy.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is invalid.</exception>
-    function Copy(const AStartIndex: NativeUInt; const ACount: NativeUInt): TList<T>; overload;
+    function Copy(const AStartIndex: NativeInt; const ACount: NativeInt): TList<T>; overload;
 
     ///  <summary>Copies the specified elements into a new list.</summary>
     ///  <param name="AStartIndex">The index to from which the copy starts.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function Copy(const AStartIndex: NativeUInt): TList<T>; overload;
+    function Copy(const AStartIndex: NativeInt): TList<T>; overload;
 
     ///  <summary>Creates a copy of this list.</summary>
     ///  <returns>A new list containing the copied elements.</returns>
@@ -346,7 +346,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the list.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the list is empty.</summary>
     ///  <returns><c>True</c> if the list is empty; <c>False</c> otherwise.</returns>
@@ -424,14 +424,14 @@ type
     ///  <returns>The element from the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const AIndex: NativeUInt): T; override;
+    function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
     ///  <returns>The element from the specified position if the list is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
-    function ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
     ///  <summary>Check whether at least one element in the list satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -485,9 +485,9 @@ type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FList: TSortedList<T>;
-      FCurrentIndex: NativeUInt;
+      FCurrentIndex: NativeInt;
 
     public
       { Constructor }
@@ -503,31 +503,31 @@ type
 
   private var
     FArray: TArray<T>;
-    FLength: NativeUInt;
-    FVer: NativeUInt;
+    FLength: NativeInt;
+    FVer: NativeInt;
     FAscending: Boolean;
 
      { Internal insertion }
-     procedure Insert(const AIndex: NativeUInt; const AValue: T);
-
-     function BinarySearch(const AElement: T; const AStartIndex, ACount: NativeUInt; AAscending: Boolean): NativeInt;
+     procedure Insert(const AIndex: NativeInt; const AValue: T);
+     function BinarySearch(const AElement: T; const AStartIndex, ACount: NativeInt;
+       const AAscending: Boolean): NativeInt;
   protected
     ///  <summary>Returns the item from a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function GetItem(const AIndex: NativeUInt): T;
+    function GetItem(const AIndex: NativeInt): T;
 
     ///  <summary>Returns the number of elements in the list.</summary>
     ///  <returns>A positive value specifying the number of elements in the list.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this method is greater or equal to the amount of elements in the list. If this value
     ///  is greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
-    function GetCapacity(): NativeUInt;
+    function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
@@ -538,7 +538,7 @@ type
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <param name="AInitialiCapacity">Specifies the initial capacity of the list.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt; const AAscending: Boolean = true); overload;
+    constructor Create(const AInitialCapacity: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -564,7 +564,7 @@ type
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <param name="AInitialiCapacity">Specifies the initial capacity of the list.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt; const AAscending: Boolean = true); overload;
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A type object decribing the elements in the list.</param>
@@ -611,7 +611,7 @@ type
     ///  <param name="AIndex">The index from which to remove the element.</param>
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure RemoveAt(const AIndex: NativeUInt);
+    procedure RemoveAt(const AIndex: NativeInt);
 
     ///  <summary>Checks whether the list contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
@@ -626,7 +626,7 @@ type
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeUInt): NativeInt; overload;
+    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -634,7 +634,7 @@ type
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function IndexOf(const AValue: T; const AStartIndex: NativeUInt): NativeInt; overload;
+    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -649,7 +649,7 @@ type
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeUInt): NativeInt; overload;
+    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -657,7 +657,7 @@ type
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex: NativeUInt): NativeInt; overload;
+    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -667,20 +667,20 @@ type
 
     ///  <summary>Specifies the number of elements in the list.</summary>
     ///  <returns>A positive value specifying the number of elements in the list.</returns>
-    property Count: NativeUInt read FLength;
+    property Count: NativeInt read FLength;
 
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this property is greater or equal to the amount of elements in the list. If this value
     ///  if greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
-    property Capacity: NativeUInt read GetCapacity;
+    property Capacity: NativeInt read GetCapacity;
 
     ///  <summary>Returns the item from a given index.</summary>
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    property Items[const AIndex: NativeUInt]: T read GetItem; default;
+    property Items[const AIndex: NativeInt]: T read GetItem; default;
 
     ///  <summary>Returns a new enumerator object used to enumerate this list.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -704,13 +704,13 @@ type
     ///  <param name="ACount">The number of elements to copy.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is invalid.</exception>
-    function Copy(const AStartIndex: NativeUInt; const ACount: NativeUInt): TSortedList<T>; overload;
+    function Copy(const AStartIndex: NativeInt; const ACount: NativeInt): TSortedList<T>; overload;
 
     ///  <summary>Copies the specified elements into a new list.</summary>
     ///  <param name="AStartIndex">The index to from which the copy starts.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function Copy(const AStartIndex: NativeUInt): TSortedList<T>; overload;
+    function Copy(const AStartIndex: NativeInt): TSortedList<T>; overload;
 
     ///  <summary>Creates a copy of this list.</summary>
     ///  <returns>A new list containing the copied elements.</returns>
@@ -722,7 +722,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the list.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the list is empty.</summary>
     ///  <returns><c>True</c> if the list is empty; <c>False</c> otherwise.</returns>
@@ -800,14 +800,14 @@ type
     ///  <returns>The element from the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const AIndex: NativeUInt): T; override;
+    function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
     ///  <returns>The element from the specified position if the list is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
-    function ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
     ///  <summary>Check whether at least one element in the list satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -894,7 +894,7 @@ type
     { Generic Linked List Enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FLinkedList: TLinkedList<T>;
       FCurrentNode: TLinkedListNode<T>;
 
@@ -912,11 +912,11 @@ type
   var
     FFirst: TLinkedListNode<T>;
     FLast: TLinkedListNode<T>;
-    FCount: NativeUInt;
-    FVer : NativeUInt;
+    FCount: NativeInt;
+    FVer : NativeInt;
   protected
     //TODO: doc me
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
   public
     { Constructors }
     //TODO: doc me
@@ -989,7 +989,7 @@ type
 
     { Properties }
     //TODO: doc me
-    property Count: NativeUInt read FCount;
+    property Count: NativeInt read FCount;
     //TODO: doc me
     property FirstNode: TLinkedListNode<T> read FFirst;
     //TODO: doc me
@@ -997,7 +997,7 @@ type
 
     { ICollection/IEnumerable Support  }
     //TODO: doc me
-    procedure CopyTo(var AArray: array of T; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     //TODO: doc me
     function GetEnumerator(): IEnumerator<T>; override;
@@ -1026,9 +1026,9 @@ type
     //TODO: doc me
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
     //TODO: doc me
-    function ElementAt(const Index: NativeUInt): T; override;
+    function ElementAt(const AIndex: NativeInt): T; override;
     //TODO: doc me
-    function ElementAtOrDefault(const Index: NativeUInt; const ADefault: T): T; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
     //TODO: doc me
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
     //TODO: doc me
@@ -1067,7 +1067,7 @@ end;
 
 function TList<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -1089,7 +1089,7 @@ end;
 
 function TList<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -1111,7 +1111,7 @@ end;
 
 function TList<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -1126,7 +1126,7 @@ end;
 
 function TList<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -1163,13 +1163,13 @@ begin
   Result := (IndexOf(AValue) > -1);
 end;
 
-function TList<T>.Copy(const AStartIndex: NativeUInt): TList<T>;
+function TList<T>.Copy(const AStartIndex: NativeInt): TList<T>;
 begin
   { Pass the call down to the more generic function }
   Copy(AStartIndex, (FLength - AStartIndex));
 end;
 
-function TList<T>.Copy(const AStartIndex, ACount: NativeUInt): TList<T>;
+function TList<T>.Copy(const AStartIndex, ACount: NativeInt): TList<T>;
 var
   NewList: TList<T>;
   I: NativeInt;
@@ -1183,11 +1183,11 @@ begin
   end;
   
   { Check for indexes }
-  if (AStartIndex >= FLength) then
+  if (AStartIndex >= FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) then
+  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new list }
@@ -1202,15 +1202,15 @@ begin
   Result := NewList;
 end;
 
-procedure TList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure TList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   I: NativeInt;
 begin
   { Check for indexes }
-  if AStartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - AStartIndex) < Count then
+  if (Length(AArray) - AStartIndex) < Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Copy all elements safely }
@@ -1244,7 +1244,7 @@ begin
   Create(TRules<T>.Default);
 end;
 
-constructor TList<T>.Create(const AInitialCapacity: NativeUInt);
+constructor TList<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
 end;
@@ -1254,8 +1254,7 @@ begin
   Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TList<T>.Create(const ARules: TRules<T>;
-  const AInitialCapacity: NativeUInt);
+constructor TList<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   { Call the upper constructor }
   inherited Create(ARules);
@@ -1273,13 +1272,13 @@ begin
   inherited;
 end;
 
-function TList<T>.ElementAt(const AIndex: NativeUInt): T;
+function TList<T>.ElementAt(const AIndex: NativeInt): T;
 begin
   { Simply use the getter }
   Result := GetItem(AIndex);
 end;
 
-function TList<T>.ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
+function TList<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   { Check range }
   if (AIndex >= FLength) then
@@ -1296,7 +1295,7 @@ end;
 function TList<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
   V: T;
-  I: NativeUInt;
+  I: NativeInt;
 begin
   I := 0;
 
@@ -1335,12 +1334,12 @@ begin
     Result := FArray[0];
 end;
 
-function TList<T>.GetCapacity: NativeUInt;
+function TList<T>.GetCapacity: NativeInt;
 begin
   Result := Length(FArray);
 end;
 
-function TList<T>.GetCount: NativeUInt;
+function TList<T>.GetCount: NativeInt;
 begin
   Result := FLength;
 end;
@@ -1351,7 +1350,7 @@ begin
   Result := TEnumerator.Create(Self);
 end;
 
-function TList<T>.GetItem(const AIndex: NativeUInt): T;
+function TList<T>.GetItem(const AIndex: NativeInt): T;
 begin
   { Check range }
   if (AIndex >= FLength) then
@@ -1376,15 +1375,13 @@ begin
   Result := IndexOf(AValue, 0, FLength);
 end;
 
-function TList<T>.IndexOf(const AValue: T;
-  const AStartIndex: NativeUInt): NativeInt;
+function TList<T>.IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt;
 begin
   { Call more generic function }
   Result := IndexOf(AValue, AStartIndex, (FLength - AStartIndex));
 end;
 
-function TList<T>.IndexOf(const AValue: T; const AStartIndex,
-  ACount: NativeUInt): NativeInt;
+function TList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
 var
   I: NativeInt;
 begin
@@ -1394,37 +1391,36 @@ begin
      Exit;
   
   { Check for indexes }
-  if (AStartIndex >= FLength) then
+  if (AStartIndex >= FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) then
+  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Search for the AValue }
   for I := AStartIndex to ((AStartIndex + ACount) - 1) do
-      if ElementRules.AreEqual(FArray[I], AValue) then
-      begin
-        Result := I;
-        Exit;
-      end;       
+    if ElementRules.AreEqual(FArray[I], AValue) then
+    begin
+      Result := I;
+      Exit;
+    end;
 end;
 
-procedure TList<T>.Insert(const AIndex: NativeUInt; const AValue: T);
+procedure TList<T>.Insert(const AIndex: NativeInt; const AValue: T);
 var
-  I  : NativeInt;
-  Cap: NativeUInt;
+  I, Cap: NativeInt;
 begin
-  if AIndex > FLength then
+  if (AIndex > FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
-  if FLength = NativeUInt(Length(FArray)) then
+  if FLength = Length(FArray) then
     Grow();
 
   { Move the array to the right }
   if AIndex < FLength then
-     for I := FLength downto (AIndex + 1) do
-         FArray[I] := FArray[I - 1];
+    for I := FLength downto (AIndex + 1) do
+      FArray[I] := FArray[I - 1];
 
   Inc(FLength);
 
@@ -1433,13 +1429,12 @@ begin
   Inc(FVer);
 end;
 
-procedure TList<T>.Insert(const AIndex: NativeUInt;
-  const ACollection: IEnumerable<T>);
+procedure TList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 var
   V: T;
   I: NativeInt;
 begin
-  if AIndex > FLength then
+  if (AIndex > FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   if (ACollection = nil) then
@@ -1455,8 +1450,7 @@ begin
   end;
 end;
 
-function TList<T>.LastIndexOf(const AValue: T;
-  const AStartIndex: NativeUInt): NativeInt;
+function TList<T>.LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt;
 begin
   { Call more generic function }
   Result := LastIndexOf(AValue, AStartIndex, (FLength - AStartIndex));
@@ -1488,7 +1482,7 @@ end;
 
 function TList<T>.Max: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
@@ -1504,7 +1498,7 @@ end;
 
 function TList<T>.Min: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
@@ -1633,8 +1627,7 @@ begin
 end;
 {$ENDIF}
 
-function TList<T>.LastIndexOf(const AValue: T; const AStartIndex,
-  ACount: NativeUInt): NativeInt;
+function TList<T>.LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
 var
   I: NativeInt;
 begin
@@ -1644,20 +1637,20 @@ begin
      Exit;
 
   { Check for indexes }
-  if (AStartIndex >= FLength) then
+  if (AStartIndex >= FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) then
+  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Search for the AValue }
   for I := ((AStartIndex + ACount) - 1) downto AStartIndex do
-      if ElementRules.AreEqual(FArray[I], AValue) then
-      begin
-        Result := I;
-        Exit;
-      end;       
+    if ElementRules.AreEqual(FArray[I], AValue) then
+    begin
+      Result := I;
+      Exit;
+    end;
 end;
 
 procedure TList<T>.Remove(const AValue: T);
@@ -1689,11 +1682,11 @@ begin
   end;
 end;
 
-procedure TList<T>.RemoveAt(const AIndex: NativeUInt);
+procedure TList<T>.RemoveAt(const AIndex: NativeInt);
 var
   I: NativeInt;
 begin
-  if AIndex >= FLength then
+  if (AIndex >= FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   if (FLength = 0) then Exit;
@@ -1710,17 +1703,23 @@ begin
   Inc(FVer);
 end;
 
-procedure TList<T>.Reverse(const AStartIndex, ACount: NativeUInt);
+procedure TList<T>.Reverse(const AStartIndex, ACount: NativeInt);
 var
-  I: NativeUInt;
+  I: NativeInt;
   V: T;
 begin
-  if ACount < 2 then
-    Exit;
-
   { Check for indexes }
+  if AStartIndex < 0 then
+     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if ACount < 0 then
+     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
+
   if ((AStartIndex + ACount) > FLength) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex/ACount');
+
+  if ACount < 2 then
+    Exit;
 
   { Reverse the array }
   for I := 0 to (ACount div 2) - 1 do
@@ -1731,7 +1730,7 @@ begin
   end;
 end;
 
-procedure TList<T>.Reverse(const AStartIndex: NativeUInt);
+procedure TList<T>.Reverse(const AStartIndex: NativeInt);
 begin
   { Call the complete method }
   Reverse(AStartIndex, FLength - AStartIndex);
@@ -1743,28 +1742,34 @@ begin
   Reverse(0, FLength);
 end;
 
-procedure TList<T>.Sort(const AStartIndex, ACount: NativeUInt; const AAscending: Boolean);
+procedure TList<T>.Sort(const AStartIndex, ACount: NativeInt; const AAscending: Boolean);
 begin
   { Check for indexes }
+  if AStartIndex < 0 then
+     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if ACount < 0 then
+     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
+
   if ((AStartIndex + ACount) > FLength) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex/ACount');
 
   QuickSort(AStartIndex, (AStartIndex + ACount) - 1, AAscending);
 end;
 
-procedure TList<T>.Sort(const AStartIndex: NativeUInt; const AAscending: Boolean);
+procedure TList<T>.Sort(const AStartIndex: NativeInt; const AAscending: Boolean);
 begin
   { Check for indexes }
-  if (AStartIndex > FLength) then
+  if (AStartIndex > FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   QuickSort(AStartIndex, (FLength - AStartIndex), AAscending);
 end;
 
-procedure TList<T>.SetItem(const AIndex: NativeUInt; const AValue: T);
+procedure TList<T>.SetItem(const AIndex: NativeInt; const AValue: T);
 begin
   { Check range }
-  if (AIndex >= FLength) then
+  if (AIndex >= FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   { Get AValue }
@@ -1802,19 +1807,25 @@ begin
     Result := FArray[0];
 end;
 
-procedure TList<T>.Sort(const AStartIndex, ACount: NativeUInt; const ASortProc: TComparison<T>);
+procedure TList<T>.Sort(const AStartIndex, ACount: NativeInt; const ASortProc: TComparison<T>);
 begin
   { Check for indexes }
+  if AStartIndex < 0 then
+     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if ACount < 0 then
+     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
+
   if ((AStartIndex + ACount) > FLength) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex/ACount');
 
   QuickSort(AStartIndex, ACount, ASortProc);
 end;
 
-procedure TList<T>.Sort(const AStartIndex: NativeUInt; const ASortProc: TComparison<T>);
+procedure TList<T>.Sort(const AStartIndex: NativeInt; const ASortProc: TComparison<T>);
 begin
   { Check for indexes }
-  if (AStartIndex > FLength) then
+  if (AStartIndex > FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   QuickSort(AStartIndex, (FLength - AStartIndex), ASortProc)
@@ -1902,15 +1913,14 @@ end;
 
 { TSortedList<T> }
 
-procedure TSortedList<T>.Insert(const AIndex: NativeUInt; const AValue: T);
+procedure TSortedList<T>.Insert(const AIndex: NativeInt; const AValue: T);
 var
-  I  : NativeInt;
-  Cap: NativeUInt;
+  I, Cap: NativeInt;
 begin
-  if AIndex > FLength then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+  if (AIndex > FLength) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
-  if FLength = NativeUInt(Length(FArray)) then
+  if FLength = Length(FArray) then
     Grow();
 
   { Move the array to the right }
@@ -1939,7 +1949,7 @@ end;
 
 function TSortedList<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -1961,7 +1971,7 @@ end;
 
 function TSortedList<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -1983,7 +1993,7 @@ end;
 
 function TSortedList<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -1998,7 +2008,7 @@ end;
 
 function TSortedList<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -2013,10 +2023,8 @@ end;
 
 procedure TSortedList<T>.Add(const AValue: T);
 var
-  I: NativeUInt;
-  Sign: NativeInt;
+  I, Sign: NativeInt;
 begin
-
   if FAscending then
      Sign := 1
   else
@@ -2053,13 +2061,13 @@ begin
   Result := (IndexOf(AValue) > -1);
 end;
 
-function TSortedList<T>.Copy(const AStartIndex: NativeUInt): TSortedList<T>;
+function TSortedList<T>.Copy(const AStartIndex: NativeInt): TSortedList<T>;
 begin
   { Pass the call down to the more generic function }
   Copy(AStartIndex, (FLength - AStartIndex));
 end;
 
-function TSortedList<T>.Copy(const AStartIndex, ACount: NativeUInt): TSortedList<T>;
+function TSortedList<T>.Copy(const AStartIndex, ACount: NativeInt): TSortedList<T>;
 var
   NewList: TSortedList<T>;
   I: NativeInt;
@@ -2073,11 +2081,11 @@ begin
   end;
 
   { Check for indexes }
-  if (AStartIndex >= FLength) then
+  if (AStartIndex >= FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) then
+  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new list }
@@ -2099,15 +2107,15 @@ begin
   Copy(0, FLength);
 end;
 
-procedure TSortedList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure TSortedList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   I: NativeInt;
 begin
   { Check for indexes }
-  if AStartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - AStartIndex) < FLength then
+  if (Length(AArray) - AStartIndex) < FLength then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Copy all elements safely }
@@ -2146,7 +2154,7 @@ begin
   Create(TRules<T>.Default, AAscending);
 end;
 
-constructor TSortedList<T>.Create(const AInitialCapacity: NativeUInt; const AAscending: Boolean);
+constructor TSortedList<T>.Create(const AInitialCapacity: NativeInt; const AAscending: Boolean);
 begin
   Create(TRules<T>.Default, AInitialCapacity, AAscending);
 end;
@@ -2157,7 +2165,7 @@ begin
 end;
 
 constructor TSortedList<T>.Create(const ARules: TRules<T>;
-  const AInitialCapacity: NativeUInt; const AAscending: Boolean);
+  const AInitialCapacity: NativeInt; const AAscending: Boolean);
 begin
   { Call the upper constructor }
   inherited Create(ARules);
@@ -2177,16 +2185,16 @@ begin
   inherited;
 end;
 
-function TSortedList<T>.ElementAt(const AIndex: NativeUInt): T;
+function TSortedList<T>.ElementAt(const AIndex: NativeInt): T;
 begin
   { Simply use the getter }
   Result := GetItem(AIndex);
 end;
 
-function TSortedList<T>.ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
+function TSortedList<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   { Check range }
-  if (AIndex >= FLength) then
+  if (AIndex >= FLength) or (AIndex < 0) then
      Result := ADefault
   else
     Result := FArray[AIndex];
@@ -2200,7 +2208,7 @@ end;
 function TSortedList<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
   V: T;
-  I: NativeUInt;
+  I: NativeInt;
 begin
   I := 0;
 
@@ -2239,12 +2247,12 @@ begin
     Result := FArray[0];
 end;
 
-function TSortedList<T>.GetCapacity: NativeUInt;
+function TSortedList<T>.GetCapacity: NativeInt;
 begin
   Result := Length(FArray);
 end;
 
-function TSortedList<T>.GetCount: NativeUInt;
+function TSortedList<T>.GetCount: NativeInt;
 begin
   Result := FLength;
 end;
@@ -2255,10 +2263,10 @@ begin
   Result := TEnumerator.Create(Self);
 end;
 
-function TSortedList<T>.GetItem(const AIndex: NativeUInt): T;
+function TSortedList<T>.GetItem(const AIndex: NativeInt): T;
 begin
   { Check range }
-  if (AIndex >= FLength) then
+  if (AIndex >= FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   { Get value }
@@ -2280,14 +2288,14 @@ begin
   Result := IndexOf(AValue, 0, FLength);
 end;
 
-function TSortedList<T>.IndexOf(const AValue: T;
-  const AStartIndex: NativeUInt): NativeInt;
+function TSortedList<T>.IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt;
 begin
   { Call more generic function }
   Result := IndexOf(AValue, AStartIndex, (FLength - AStartIndex));
 end;
 
-function TSortedList<T>.BinarySearch(const AElement: T; const AStartIndex, ACount: NativeUInt; AAscending: Boolean): NativeInt;
+function TSortedList<T>.BinarySearch(const AElement: T; const AStartIndex, ACount: NativeInt;
+  const AAscending: Boolean): NativeInt;
 var
   LLeft, LRight, LMiddle: NativeInt;
   LCompareResult: NativeInt;
@@ -2301,7 +2309,7 @@ begin
 
   { Check for valid type support }
   LLeft := AStartIndex;
-  LRight := NativeUInt(LLeft) + Count - 1;
+  LRight := LLeft + ACount - 1;
 
   while (LLeft <= LRight) do
   begin
@@ -2316,29 +2324,28 @@ begin
     else if LCompareResult < 0 then
        LLeft := LMiddle + 1
     else
-       begin Result := NativeUInt(LMiddle) - AStartIndex; Exit; end;
+       begin Result := LMiddle - AStartIndex; Exit; end;
   end;
 
   Result := -1;
 end;
 
-function TSortedList<T>.IndexOf(const AValue: T; const AStartIndex,
-  ACount: NativeUInt): NativeInt;
+function TSortedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
 var
   I, J: NativeInt;
 begin
   Result := -1;
 
-  if FLength = 0 then
-     Exit;
-
   { Check for indexes }
-  if (AStartIndex >= FLength) then
+  if (AStartIndex >= FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) then
+  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
+
+  if FLength = 0 then
+     Exit;
 
   { Search for the value }
   J := BinarySearch(AValue, AStartIndex, ACount, FAscending);
@@ -2357,8 +2364,7 @@ begin
   Result := J;
 end;
 
-function TSortedList<T>.LastIndexOf(const AValue: T;
-  const AStartIndex: NativeUInt): NativeInt;
+function TSortedList<T>.LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt;
 begin
   { Call more generic function }
   Result := LastIndexOf(AValue, AStartIndex, (FLength - AStartIndex));
@@ -2390,7 +2396,7 @@ end;
 
 function TSortedList<T>.Max: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
@@ -2406,7 +2412,7 @@ end;
 
 function TSortedList<T>.Min: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
@@ -2420,8 +2426,7 @@ begin
       Result := FArray[I];
 end;
 
-function TSortedList<T>.LastIndexOf(const AValue: T; const AStartIndex,
-  ACount: NativeUInt): NativeInt;
+function TSortedList<T>.LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
 var
   I, J: NativeInt;
 begin
@@ -2431,11 +2436,11 @@ begin
      Exit;
 
   { Check for indexes }
-  if (AStartIndex >= FLength) then
+  if (AStartIndex >= FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) then
+  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Search for the value }
@@ -2485,11 +2490,11 @@ begin
   end;
 end;
 
-procedure TSortedList<T>.RemoveAt(const AIndex: NativeUInt);
+procedure TSortedList<T>.RemoveAt(const AIndex: NativeInt);
 var
   I: NativeInt;
 begin
-  if AIndex >= FLength then
+  if (AIndex >= FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   if (FLength = 0) then Exit;
@@ -2937,16 +2942,15 @@ begin
   Result := (Find(AValue) <> nil);
 end;
 
-procedure TLinkedList<T>.CopyTo(var AArray: array of T;
-  const StartIndex: NativeUInt);
+procedure TLinkedList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   Current: TLinkedListNode<T>;
-  Index  : NativeUInt;
+  Index: NativeInt;
 begin
-  if StartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < FCount then
+  if (Length(AArray) - AStartIndex) < FCount then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Test for immediate value }
@@ -2954,7 +2958,7 @@ begin
 
   { Start value }
   Current := FFirst;
-  Index := StartIndex;
+  Index := AStartIndex;
 
   while Current <> nil do
   begin
@@ -3004,7 +3008,7 @@ begin
   end;
 end;
 
-function TLinkedList<T>.GetCount: NativeUInt;
+function TLinkedList<T>.GetCount: NativeInt;
 begin
   Result := FCount;
 end;
@@ -3088,10 +3092,10 @@ begin
   inherited;
 end;
 
-function TLinkedList<T>.ElementAt(const Index: NativeUInt): T;
+function TLinkedList<T>.ElementAt(const AIndex: NativeInt): T;
 var
   Node: TLinkedListNode<T>;
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Default one }
   Node := FFirst;
@@ -3099,20 +3103,20 @@ begin
 
   while Node <> nil do
   begin
-    if I = Index then
+    if I = AIndex then
       Exit(Node.FData);
 
     Node := Node.FNext;
     Inc(I);
   end;
 
-  ExceptionHelper.Throw_ArgumentOutOfRangeError('Index');
+  ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
-function TLinkedList<T>.ElementAtOrDefault(const Index: NativeUInt; const ADefault: T): T;
+function TLinkedList<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 var
   Node: TLinkedListNode<T>;
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Default one }
   Node := FFirst;
@@ -3120,7 +3124,7 @@ begin
 
   while Node <> nil do
   begin
-    if I = Index then
+    if I = AIndex then
       Exit(Node.FData);
 
     Node := Node.FNext;

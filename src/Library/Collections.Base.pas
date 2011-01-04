@@ -45,10 +45,12 @@ type
     FInConstruction: Boolean;
 
   protected
-    { Life-time }
+    //TODO: doc me
     procedure KeepObjectAlive(const AObject: TRefCountedObject);
-    procedure ReleaseObject(const AObject: TRefCountedObject; const FreeObject:
-      Boolean = false);
+
+    //TODO: doc me
+    procedure ReleaseObject(const AObject: TRefCountedObject;
+      const AFreeObject: Boolean = false);
 
     ///  <summary>Extract an interafce reference for this object.</summary>
     ///  <remarks>If the reference count is zero, then no reference is extracted.</remarks>
@@ -144,7 +146,7 @@ type
     ///  <remarks>For associative collections such a dictionaries or multimaps, this value represents the
     ///  number of key-value pairs stored in the collection. A call to this method can be costly because some
     ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
-    function GetCount(): NativeUInt;
+    function GetCount(): NativeInt;
 
     ///  <summary>Checks whether the collection is empty.</summary>
     ///  <returns><c>True</c> if the collection is empty; <c>False</c> otherwise.</returns>
@@ -178,7 +180,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the collection.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload;
 
     ///  <summary>Creates a new Delphi array with the contents of the collection.</summary>
     ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
@@ -189,7 +191,7 @@ type
     ///  <remarks>For associative collections such a dictionaries or multimaps, this value represents the
     ///  number of key-value pairs stored in the collection. Accesing this property can be costly because some
     ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
-    property Count: NativeUInt read GetCount;
+    property Count: NativeInt read GetCount;
   end;
 
   { Pre-declarations }
@@ -236,16 +238,6 @@ type
     ///  "TMyObject" instances.</remarks>
     ///  <exception cref="DeHL.Exceptions|ETypeException">The collection's elements are not objects.</exception>
     function Select<TOut: class>(): IEnexCollection<TOut>; overload;
-
-    ///  <summary>Represents a cast operation.</summary>
-    ///  <returns>A new collection containing the casted values.</returns>
-    ///  <remarks>This method converts each element from the input collection to an element in the output collection. For example,
-    ///  given a list of integers "AList", the operation <c>AList.Op.Cast&lt;string&gt;</c> results in a new collction that contains
-    ///  the string representations of the integer values. This method uses the
-    ///  <see cref="DeHL.Conversion|TConverter&lt;TIn, TOut&gt;">DeHL.Conversion.TConverter&lt;TIn, TOut&gt;</see> class to convert each element
-    ///  from the input collection to an element in the output collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ETypeConversionNotSupported">Cannot convert an element from the input collection.</exception>
-    function Cast<TOut>(): IEnexCollection<TOut>; overload;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
@@ -439,7 +431,7 @@ type
     ///  <remarks>This method is slow for collections that cannot reference their elements by indexes; for example: linked lists</remarks>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const AIndex: NativeUInt): T;
+    function ElementAt(const AIndex: NativeInt): T;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
@@ -447,7 +439,7 @@ type
     ///  <returns>The element from the specified position if the collection is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
     ///  <remarks>This method is slow for collections that cannot reference their elements by indexes; for example: linked lists</remarks>
-    function ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 
     ///  <summary>Check whether at least one element in the collection satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -557,13 +549,13 @@ type
     ///  <returns>A new collection that contains the elements whose indexes in this collection are locate between <paramref name="AStart"/>
     ///  and <paramref name="AEnd"/>. Note that this method does not check the indexes. This means that a bad combination of parameters will
     ///  simply result in an empty or incorrect result.</returns>
-    function Range(const AStart, AEnd: NativeUInt): IEnexCollection<T>;
+    function Range(const AStart, AEnd: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Selects only a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to select.</param>
     ///  <returns>A new collection that contains only the first <paramref name="ACount"/> elements.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Take(const ACount: NativeUInt): IEnexCollection<T>;
+    function Take(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
@@ -610,7 +602,7 @@ type
     ///  <param name="ACount">The number of elements to skip.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Skip(const ACount: NativeUInt): IEnexCollection<T>;
+    function Skip(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
@@ -659,13 +651,13 @@ type
     ///  <remarks>This method is similar to <c>ElementAt</c>. The only difference is that this method is guaranteed
     ///  to provide the fastest lookup (normally <c>ElementAt</c> should also use the same method in indexed collections).</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function GetItem(const AIndex: NativeUInt): T;
+    function GetItem(const AIndex: NativeInt): T;
 
     ///  <summary>Returns the item from a given index.</summary>
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    property Items[const AIndex: NativeUInt]: T read GetItem; default;
+    property Items[const AIndex: NativeInt]: T read GetItem; default;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific associative collection interfaces.</summary>
@@ -940,14 +932,14 @@ type
     ///  <param name="AWeight">The weight of the element.</param>
     ///  <remarks>If the bag already contains the given value, it's stored weight is incremented to by <paramref name="AWeight"/>.
     ///  If the value of <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Add(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure Add(const AValue: T; const AWeight: NativeInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <param name="AWeight">The weight to remove.</param>
     ///  <remarks>This method decreses the weight of the stored item by <paramref name="AWeight"/>. If the resulting weight is less
     ///  than zero or zero, the element is removed for the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Remove(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure Remove(const AValue: T; const AWeight: NativeInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
@@ -961,26 +953,26 @@ type
     ///  <returns><c>True</c> if the condition is met; <c>False</c> otherwise.</returns>
     ///  <remarks>This method checks whether the bag contains the given value and that the contained value has at least the
     ///  given weight.</remarks>
-    function Contains(const AValue: T; const AWeight: NativeUInt = 1): Boolean;
+    function Contains(const AValue: T; const AWeight: NativeInt = 1): Boolean;
 
     ///  <summary>Returns the weight of an element.</param>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns>The weight of the value.</returns>
     ///  <remarks>If the value is not found in the bag, zero is returned.</remarks>
-    function GetWeight(const AValue: T): NativeUInt;
+    function GetWeight(const AValue: T): NativeInt;
 
     ///  <summary>Sets the weight of an element.</param>
     ///  <param name="AValue">The value to set the weight for.</param>
     ///  <param name="AWeight">The new weight.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    procedure SetWeight(const AValue: T; const AWeight: NativeUInt);
+    procedure SetWeight(const AValue: T; const AWeight: NativeInt);
 
     ///  <summary>Sets or gets the weight of an item in the bag.</summary>
     ///  <param name="AValue">The value.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    property Weights[const AValue: T]: NativeUInt read GetWeight write SetWeight; default;
+    property Weights[const AValue: T]: NativeInt read GetWeight write SetWeight; default;
   end;
 
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections.</summary>
@@ -1237,7 +1229,7 @@ type
     ///  <param name="AIndex">The index from which to remove the element.</param>
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure RemoveAt(const AIndex: NativeUInt);
+    procedure RemoveAt(const AIndex: NativeInt);
 
     ///  <summary>Removes a given value from the list.</summary>
     ///  <param name="AValue">The value to remove.</param>
@@ -1250,14 +1242,14 @@ type
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeUInt): NativeInt; overload;
+    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function IndexOf(const AValue: T; const AStartIndex: NativeUInt): NativeInt; overload;
+    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -1270,14 +1262,14 @@ type
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeUInt): NativeInt; overload;
+    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex: NativeUInt): NativeInt; overload;
+    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -1294,7 +1286,7 @@ type
     ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
     ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure Insert(const AIndex: NativeUInt; const AValue: T); overload;
+    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
 
     ///  <summary>Inserts the elements of a collection into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
@@ -1303,7 +1295,7 @@ type
     ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Insert(const AIndex: NativeUInt; const ACollection: IEnumerable<T>); overload;
+    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>sorted list</c>.</summary>
@@ -1332,7 +1324,7 @@ type
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this method is greater or equal to the amount of elements in the collection. If this value
     ///  if greater then the number of elements, it means that the collection has some extra capacity to operate upon.</remarks>
-    function GetCapacity(): NativeUInt;
+    function GetCapacity(): NativeInt;
 
     ///  <summary>Removes the excess capacity from the collection.</summary>
     ///  <remarks>This method can be called manually to force the collection to drop the extra capacity it might hold. For example,
@@ -1351,7 +1343,7 @@ type
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this property is greater or equal to the amount of elements in the collection. If this value
     ///  if greater then the number of elements, it means that the collection has some extra capacity to operate upon.</remarks>
-    property Capacity: NativeUInt read GetCapacity;
+    property Capacity: NativeInt read GetCapacity;
   end;
 {$ENDREGION}
 
@@ -1391,7 +1383,7 @@ type
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>A call to this method can be costly because some
     ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
-    function GetCount(): NativeUInt; virtual;
+    function GetCount(): NativeInt; virtual;
   public
     ///  <summary>Checks whether the collection is empty.</summary>
     ///  <returns><c>True</c> if the collection is empty; <c>False</c> otherwise.</returns>
@@ -1425,7 +1417,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the collection.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; virtual;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; virtual;
 
     ///  <summary>Creates a new Delphi array with the contents of the collection.</summary>
     ///  <remarks>The length of the new array is equal to the value of <c>Count</c> property.</remarks>
@@ -1444,7 +1436,7 @@ type
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>Accesing this property can be costly because some
     ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
-    property Count: NativeUInt read GetCount;
+    property Count: NativeInt read GetCount;
   end;
 
   ///  <summary>Base class for all non-associative Enex collections.</summary>
@@ -1634,7 +1626,7 @@ type
     ///  <remarks>This method is slow for collections that cannot reference their elements by indexes; for example: linked lists</remarks>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const AIndex: NativeUInt): T; virtual;
+    function ElementAt(const AIndex: NativeInt): T; virtual;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
@@ -1642,7 +1634,7 @@ type
     ///  <returns>The element from the specified position if the collection is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
     ///  <remarks>This method is slow for collections that cannot reference their elements by indexes; for example: linked lists</remarks>
-    function ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T; virtual;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; virtual;
 
     ///  <summary>Check whether at least one element in the collection satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -1762,13 +1754,13 @@ type
     ///  <returns>A new collection that contains the elements whose indexes in this collection are locate between <paramref name="AStart"/>
     ///  and <paramref name="AEnd"/>. Note that this method does not check the indexes. This means that a bad combination of parameters will
     ///  simply result in an empty or incorrect result.</returns>
-    function Range(const AStart, AEnd: NativeUInt): IEnexCollection<T>;
+    function Range(const AStart, AEnd: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Selects only a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to select.</param>
     ///  <returns>A new collection that contains only the first <paramref name="ACount"/> elements.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Take(const ACount: NativeUInt): IEnexCollection<T>;
+    function Take(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
@@ -1815,7 +1807,7 @@ type
     ///  <param name="ACount">The number of elements to skip.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Skip(const ACount: NativeUInt): IEnexCollection<T>;
+    function Skip(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
@@ -2055,18 +2047,10 @@ type
     ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AElement"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    class function Fill<T>(const AElement: T; const ACount: NativeUInt; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
+    class function Fill<T>(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
 
     //TODO: doc me
-    class function Fill<T>(const AElement: T; const ACount: NativeUInt): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd, AIncrement: T; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd, AIncrement: T): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd: T; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
-    //TODO: doc me
-    class function Interval<T>(const AStart, AEnd: T): IEnexCollection<T>; overload; static;
+    class function Fill<T>(const AElement: T; const ACount: NativeInt): IEnexCollection<T>; overload; static;
   end;
 
   ///  <summary>A static class that offers methods for throwing DeHL exceptions.</summary>
@@ -2207,18 +2191,16 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexCollection<T>;
     FSelector: TFunc<T, TOut>;
 
   protected
     { Enex: Defaults }
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2231,7 +2213,7 @@ type
     function First(): TOut; override;
     function Last(): TOut; override;
     function Single(): TOut; override;
-    function ElementAt(const Index: NativeUInt): TOut; override;
+    function ElementAt(const AIndex: NativeInt): TOut; override;
   end;
 
   { The "Select Class" collection }
@@ -2257,13 +2239,11 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexCollection<T>;
 
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const ARules: TRules<TOut>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ARules: TRules<TOut>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2296,25 +2276,13 @@ type
   var
     FEnum1: TEnexCollection<T>;
     FEnum2: TEnexCollection<T>;
-    FDeleteEnum1,
-      FDeleteEnum2: Boolean;
   protected
     { ICollection support/hidden }
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const ARules: TRules<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2353,21 +2321,9 @@ type
   var
     FEnum1: TEnexCollection<T>;
     FEnum2: TEnexCollection<T>;
-    FDeleteEnum1,
-      FDeleteEnum2: Boolean;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const ARules: TRules<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2401,22 +2357,9 @@ type
   var
     FEnum1: TEnexCollection<T>;
     FEnum2: TEnexCollection<T>;
-    FDeleteEnum1,
-      FDeleteEnum2: Boolean;
-
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const ARules: TRules<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2450,22 +2393,9 @@ type
   var
     FEnum1: TEnexCollection<T>;
     FEnum2: TEnexCollection<T>;
-    FDeleteEnum1,
-      FDeleteEnum2: Boolean;
-
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: TEnexCollection<T>); overload;
-
-    constructor CreateIntf(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf2(const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>); overload;
-
-    constructor CreateIntf1(const AEnumerable1: IEnumerable<T>;
-      const AEnumerable2: TEnexCollection<T>; const ARules: TRules<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2498,12 +2428,10 @@ type
 
   var
     FEnum: TEnexCollection<T>;
-    FDeleteEnum: Boolean;
 
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ARules: TRules<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2521,7 +2449,7 @@ type
     private
       FEnum: TEnexRangeCollection<T>;
       FIter: IEnumerator<T>;
-      FIdx: NativeUInt;
+      FIdx: NativeInt;
     public
       { Constructor }
       constructor Create(const AEnum: TEnexRangeCollection<T>);
@@ -2534,14 +2462,12 @@ type
     end;
 
   var
-    FStart, FEnd: NativeUInt;
+    FStart, FEnd: NativeInt;
     FEnum: TEnexCollection<T>;
-    FDeleteEnum: Boolean;
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const AStart, AEnd: NativeUInt); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const AStart, AEnd: NativeUInt; const ARules: TRules<T>); overload;
+    constructor Create(const AEnumerable: TEnexCollection<T>; const AStart, AEnd: NativeInt); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2559,7 +2485,7 @@ type
     private
       FEnum: TEnexSkipCollection<T>;
       FIter: IEnumerator<T>;
-      FIdx: NativeUInt;
+      FIdx: NativeInt;
     public
       { Constructor }
       constructor Create(const AEnum: TEnexSkipCollection<T>);
@@ -2572,14 +2498,12 @@ type
     end;
 
   var
-    FCount: NativeUInt;
+    FCount: NativeInt;
     FEnum: TEnexCollection<T>;
-    FDeleteEnum: Boolean;
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeUInt); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ACount: NativeUInt; const ARules: TRules<T>); overload;
+    constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2597,7 +2521,7 @@ type
     private
       FEnum: TEnexTakeCollection<T>;
       FIter: IEnumerator<T>;
-      FIdx: NativeUInt;
+      FIdx: NativeInt;
 
     public
       { Constructor }
@@ -2611,14 +2535,12 @@ type
     end;
 
   var
-    FCount: NativeUInt;
+    FCount: NativeInt;
     FEnum: TEnexCollection<T>;
-    FDeleteEnum: Boolean;
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeUInt); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const ACount: NativeUInt; const ARules: TRules<T>); overload;
+    constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2635,7 +2557,7 @@ type
     TEnumerator = class(TEnumerator<T>)
     private
       FEnum: TEnexFillCollection<T>;
-      FCount: NativeUInt;
+      FCount: NativeInt;
     public
       { Constructor }
       constructor Create(const AEnum: TEnexFillCollection<T>);
@@ -2649,14 +2571,15 @@ type
 
   var
     FElement: T;
-    FCount: NativeUInt;
+    FCount: NativeInt;
 
   protected
     { Enex: Defaults }
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
+
   public
     { Constructors }
-    constructor Create(const AElement: T; const Count: NativeUInt; const ARules: TRules<T>);
+    constructor Create(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>);
 
     { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
@@ -2673,49 +2596,11 @@ type
     function SingleOrDefault(const ADefault: T): T; override;
     function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
-    function ElementAt(const Index: NativeUInt): T; override;
-    function ElementAtOrDefault(const Index: NativeUInt; const ADefault: T): T; override;
+    function ElementAt(const AIndex: NativeInt): T; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
     function EqualsTo(const AEnumerable: IEnumerable<T>): Boolean; override;
-  end;
-
-  { The "Interval" collection }
-  TEnexIntervalCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Interval" enumerator }
-    TEnumerator = class(TEnumerator<T>)
-    private
-      FEnum: TEnexIntervalCollection<T>;
-      FNow: T;
-      FNowVariant: Variant;
-    public
-      { Constructor }
-      constructor Create(const AEnum: TEnexIntervalCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-  var
-    FLower, FHigher, FIncrement: T;
-
-  public
-    { Constructors }
-    constructor Create(const ALower, AHigher, AIncrement: T; const ARules: TRules<T>);
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<T>; override;
-
-    { Enex Overrides }
-    function Empty(): Boolean; override;
-    function Min(): T; override;
-    function First(): T; override;
-    function FirstOrDefault(const ADefault: T): T; override;
   end;
 
   { The "Take While" collection }
@@ -2740,14 +2625,12 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexCollection<T>;
     FPredicate: TFunc<T, Boolean>;
 
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const APredicate: TFunc<T, Boolean>; const ARules: TRules<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2778,14 +2661,12 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexCollection<T>;
     FPredicate: TFunc<T, Boolean>;
 
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<T>; const APredicate: TFunc<T, Boolean>; const ARules: TRules<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2845,17 +2726,14 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexAssociativeCollection<TKey, TValue>;
 
   protected
     { Enex: Defaults }
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-      const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2887,17 +2765,14 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexAssociativeCollection<TKey, TValue>;
 
   protected
     { Enex: Defaults }
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
-    constructor CreateIntf(const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-      const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2929,7 +2804,6 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexAssociativeCollection<TKey, TValue>;
     FPredicate: TFunc<TKey, TValue, Boolean>;
     FInvertResult: Boolean;
@@ -2937,10 +2811,6 @@ type
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>;
         const APredicate: TFunc<TKey, TValue, Boolean>; const AInvertResult: Boolean); overload;
-
-    constructor CreateIntf(const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-      const APredicate: TFunc<TKey, TValue, Boolean>;
-      const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInvertResult: Boolean); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2972,15 +2842,11 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexAssociativeCollection<TKey, TValue>;
 
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
-
-    constructor CreateIntf(const AEnumerable: IEnumerable<TPair<TKey, TValue>>; const AKeyRules: TRules<TKey>;
-      const AValueRules: TRules<TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -3012,15 +2878,11 @@ type
     end;
 
   var
-    FDeleteEnum: Boolean;
     FEnum: TEnexAssociativeCollection<TKey, TValue>;
 
   public
     { Constructors }
     constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
-
-    constructor CreateIntf(const AEnumerable: IEnumerable<TPair<TKey, TValue>>; const AKeyRules: TRules<TKey>;
-      const AValueRules: TRules<TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -3069,17 +2931,17 @@ begin
   CopyTo(AArray, 0);
 end;
 
-procedure TCollection<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure TCollection<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   Enum: IEnumerator<T>;
-  L, I: NativeUInt;
+  L, I: NativeInt;
 begin
-  if AStartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Retrieve the enumerator object }
   Enum := GetEnumerator();
-  L := NativeUInt(Length(AArray));
+  L := Length(AArray);
   I := AStartIndex;
 
   { Iterate until ANY element supports the predicate }
@@ -3104,7 +2966,7 @@ begin
   Result := (not Enum.MoveNext());
 end;
 
-function TCollection<T>.GetCount: NativeUInt;
+function TCollection<T>.GetCount: NativeInt;
 var
   Enum: IEnumerator<T>;
 begin
@@ -3154,7 +3016,7 @@ end;
 
 function TCollection<T>.ToArray: TArray<T>;
 var
-  LCount: NativeUInt;
+  LCount: NativeInt;
   LResult: TArray<T>;
 begin
   LCount := Count;
@@ -3321,7 +3183,8 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexConcatCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
+  //TODO: fix me
+//  Result := TEnexConcatCollection<T>.Create(Self, ACollection, ElementRules);
 end;
 
 constructor TEnexCollection<T>.Create(const ARules: TRules<T>);
@@ -3340,10 +3203,10 @@ begin
   Result := TEnexDistinctCollection<T>.Create(Self);
 end;
 
-function TEnexCollection<T>.ElementAt(const AIndex: NativeUInt): T;
+function TEnexCollection<T>.ElementAt(const AIndex: NativeInt): T;
 var
   Enum: IEnumerator<T>;
-  Count: NativeUInt;
+  Count: NativeInt;
 begin
   { Retrieve the enumerator object }
   Enum := GetEnumerator();
@@ -3362,10 +3225,10 @@ begin
   ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
-function TEnexCollection<T>.ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
+function TEnexCollection<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 var
   Enum: IEnumerator<T>;
-  Count: NativeUInt;
+  Count: NativeInt;
 begin
   { Retrieve the enumerator object }
   Enum := GetEnumerator();
@@ -3437,7 +3300,8 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexExclusionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
+  //TODO: fix me
+//  Result := TEnexExclusionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
 end;
 
 function TEnexCollection<T>.First: T;
@@ -3742,7 +3606,8 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexIntersectionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
+  //TODO: fix me
+//  Result := TEnexIntersectionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
 end;
 
 function TEnexCollection<T>.Last: T;
@@ -3853,7 +3718,7 @@ begin
   Result.FRules := FElementRules;
 end;
 
-function TEnexCollection<T>.Range(const AStart, AEnd: NativeUInt): IEnexCollection<T>;
+function TEnexCollection<T>.Range(const AStart, AEnd: NativeInt): IEnexCollection<T>;
 begin
   { Create a new Enex collection }
   Result := TEnexRangeCollection<T>.Create(Self, AStart, AEnd);
@@ -3871,7 +3736,7 @@ begin
   Result := List;
 end;
 
-function TEnexCollection<T>.Skip(const ACount: NativeUInt): IEnexCollection<T>;
+function TEnexCollection<T>.Skip(const ACount: NativeInt): IEnexCollection<T>;
 begin
   { Check parameters }
   if ACount = 0 then
@@ -4006,7 +3871,7 @@ begin
   Result := List;
 end;
 
-function TEnexCollection<T>.Take(const ACount: NativeUInt): IEnexCollection<T>;
+function TEnexCollection<T>.Take(const ACount: NativeInt): IEnexCollection<T>;
 begin
   { Check parameters }
   if ACount = 0 then
@@ -4136,7 +4001,8 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexUnionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
+  //TODO: fix me
+//  Result := TEnexUnionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
 end;
 
 function TEnexCollection<T>.Where(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
@@ -4258,6 +4124,11 @@ begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default);
 end;
 
+constructor TEnexAssociativeCollection<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+begin
+//TODO: implement me
+end;
+
 function TEnexAssociativeCollection<TKey, TValue>.DistinctByKeys: IEnexAssociativeCollection<TKey, TValue>;
 begin
   Result := TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.Create(Self);
@@ -4266,6 +4137,16 @@ end;
 function TEnexAssociativeCollection<TKey, TValue>.DistinctByValues: IEnexAssociativeCollection<TKey, TValue>;
 begin
   Result := TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Create(Self);
+end;
+
+procedure TEnexAssociativeCollection<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
+begin
+  // Nothing!
+end;
+
+procedure TEnexAssociativeCollection<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
+begin
+  // Nothing!
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.Includes(const AEnumerable: IEnumerable<TPair<TKey, TValue>>): Boolean;
@@ -4681,35 +4562,20 @@ begin
   if not Assigned(AEnumerable) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
-  { Installing the element type }
-  InstallType(AEnumerable.ElementRules);
+  inherited Create(AEnumerable.ElementRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
-  FDeleteEnum := false;
   FInvertResult := AInvertResult;
-end;
-
-constructor TEnexWhereCollection<T>.CreateIntf(
-  const AEnumerable: IEnumerable<T>;
-  const APredicate: TFunc<T, Boolean>;
-  const ARules: TRules<T>;
-  const AInvertResult: Boolean);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, ARules), APredicate, AInvertResult);
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexWhereCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -4773,43 +4639,27 @@ begin
   if not Assigned(AEnumerable) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
-  if not Assigned(ARules) then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
-
-  { Installing the element type }
-  InstallType(ARules);
+  { Rules ... }
+  inherited Create(ARules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
 
   FSelector := ASelector;
-  FDeleteEnum := false;
-end;
-
-constructor TEnexSelectCollection<T, TOut>.CreateIntf(
-  const AEnumerable: IEnumerable<T>;
-  const ASelector: TFunc<T, TOut>;
-  const ARules: TRules<TOut>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, TRules<T>.Default), ASelector, ARules);
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexSelectCollection<T, TOut>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
 
-function TEnexSelectCollection<T, TOut>.ElementAt(const Index: NativeUInt): TOut;
+function TEnexSelectCollection<T, TOut>.ElementAt(const AIndex: NativeInt): TOut;
 begin
-  Result := FSelector(FEnum.ElementAt(Index));
+  Result := FSelector(FEnum.ElementAt(AIndex));
 end;
 
 function TEnexSelectCollection<T, TOut>.Empty: Boolean;
@@ -4822,7 +4672,7 @@ begin
   Result := FSelector(FEnum.First);
 end;
 
-function TEnexSelectCollection<T, TOut>.GetCount: NativeUInt;
+function TEnexSelectCollection<T, TOut>.GetCount: NativeInt;
 begin
   Result := FEnum.GetCount();
 end;
@@ -4882,30 +4732,6 @@ end;
 
 { TEnexConcatCollection<T> }
 
-constructor TEnexConcatCollection<T>.CreateIntf2(
-      const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(AEnumerable1, TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum2 := true;
-end;
-
-constructor TEnexConcatCollection<T>.CreateIntf(
-  const AEnumerable1, AEnumerable2: IEnumerable<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules),
-         TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
-  FDeleteEnum2 := true;
-end;
-
 function TEnexConcatCollection<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 begin
   Result := FEnum1.All(APredicate) and FEnum2.All(APredicate);
@@ -4926,8 +4752,8 @@ begin
   if not Assigned(AEnumerable2) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
 
-  { Installing the element type }
-  InstallType(AEnumerable1.ElementRules);
+  { Rules ... }
+  inherited Create(AEnumerable1.ElementRules);
 
   { Assign internals }
   FEnum1 := AEnumerable1;
@@ -4935,28 +4761,13 @@ begin
 
   FEnum2 := AEnumerable2;
   KeepObjectAlive(FEnum2);
-
-  FDeleteEnum1 := false;
-  FDeleteEnum2 := false;
-end;
-
-constructor TEnexConcatCollection<T>.CreateIntf1(
-  const AEnumerable1: IEnumerable<T>;
-  const AEnumerable2: TEnexCollection<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules), AEnumerable2);
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
 end;
 
 destructor TEnexConcatCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, FDeleteEnum1);
-  ReleaseObject(FEnum2, FDeleteEnum2);
+  ReleaseObject(FEnum1, false);
+  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -4966,7 +4777,7 @@ begin
   Result := (GetCount = 0);
 end;
 
-function TEnexConcatCollection<T>.GetCount: NativeUInt;
+function TEnexConcatCollection<T>.GetCount: NativeInt;
 begin
   Result := FEnum1.GetCount() + FEnum2.GetCount();
 end;
@@ -5025,30 +4836,6 @@ end;
 
 { TEnexUnionCollection<T> }
 
-constructor TEnexUnionCollection<T>.CreateIntf2(
-      const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(AEnumerable1, TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum2 := true;
-end;
-
-constructor TEnexUnionCollection<T>.CreateIntf(
-  const AEnumerable1, AEnumerable2: IEnumerable<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules),
-         TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
-  FDeleteEnum2 := true;
-end;
-
 constructor TEnexUnionCollection<T>.Create(
   const AEnumerable1, AEnumerable2: TEnexCollection<T>);
 begin
@@ -5059,8 +4846,8 @@ begin
   if not Assigned(AEnumerable2) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
 
-  { Installing the element type }
-  InstallType(AEnumerable1.ElementRules);
+  { Rules ... }
+  inherited Create(AEnumerable1.ElementRules);
 
   { Assign internals }
   FEnum1 := AEnumerable1;
@@ -5068,28 +4855,13 @@ begin
 
   FEnum2 := AEnumerable2;
   KeepObjectAlive(FEnum2);
-
-  FDeleteEnum1 := false;
-  FDeleteEnum2 := false;
-end;
-
-constructor TEnexUnionCollection<T>.CreateIntf1(
-  const AEnumerable1: IEnumerable<T>;
-  const AEnumerable2: TEnexCollection<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules), AEnumerable2);
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
 end;
 
 destructor TEnexUnionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, FDeleteEnum1);
-  ReleaseObject(FEnum2, FDeleteEnum2);
+  ReleaseObject(FEnum1, false);
+  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -5112,7 +4884,7 @@ begin
   FIter2 := AEnum.FEnum2.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(TSuppressedWrapperType<T>.Create(AEnum.FEnum1.ElementRules));
+  FSet := THashSet<T>.Create(AEnum.FEnum1.ElementRules);
 end;
 
 destructor TEnexUnionCollection<T>.TEnumerator .Destroy;
@@ -5170,30 +4942,6 @@ end;
 
 { TEnexExclusionCollection<T> }
 
-constructor TEnexExclusionCollection<T>.CreateIntf2(
-      const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(AEnumerable1, TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum2 := true;
-end;
-
-constructor TEnexExclusionCollection<T>.CreateIntf(
-  const AEnumerable1, AEnumerable2: IEnumerable<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules),
-         TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
-  FDeleteEnum2 := true;
-end;
-
 constructor TEnexExclusionCollection<T>.Create(
   const AEnumerable1, AEnumerable2: TEnexCollection<T>);
 begin
@@ -5204,8 +4952,8 @@ begin
   if not Assigned(AEnumerable2) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
 
-  { Installing the element type }
-  InstallType(AEnumerable1.ElementRules);
+  { Rules ... }
+  inherited Create(AEnumerable1.ElementRules);
 
   { Assign internals }
   FEnum1 := AEnumerable1;
@@ -5213,28 +4961,13 @@ begin
 
   FEnum2 := AEnumerable2;
   KeepObjectAlive(FEnum2);
-
-  FDeleteEnum1 := false;
-  FDeleteEnum2 := false;
-end;
-
-constructor TEnexExclusionCollection<T>.CreateIntf1(
-  const AEnumerable1: IEnumerable<T>;
-  const AEnumerable2: TEnexCollection<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules), AEnumerable2);
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
 end;
 
 destructor TEnexExclusionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, FDeleteEnum1);
-  ReleaseObject(FEnum2, FDeleteEnum2);
+  ReleaseObject(FEnum1, false);
+  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -5256,7 +4989,7 @@ begin
   FIter := AEnum.FEnum1.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(TSuppressedWrapperType<T>.Create(AEnum.FEnum1.ElementRules), AEnum.FEnum2);
+  FSet := THashSet<T>.Create(AEnum.FEnum1.ElementRules, AEnum.FEnum2);
 end;
 
 destructor TEnexExclusionCollection<T>.TEnumerator .Destroy;
@@ -5292,30 +5025,6 @@ end;
 
 { TEnexIntersectionCollection<T> }
 
-constructor TEnexIntersectionCollection<T>.CreateIntf2(
-      const AEnumerable1: TEnexCollection<T>;
-      const AEnumerable2: IEnumerable<T>; const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(AEnumerable1, TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum2 := true;
-end;
-
-constructor TEnexIntersectionCollection<T>.CreateIntf(
-  const AEnumerable1, AEnumerable2: IEnumerable<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules),
-         TEnexWrapCollection<T>.Create(AEnumerable2, ARules));
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
-  FDeleteEnum2 := true;
-end;
-
 constructor TEnexIntersectionCollection<T>.Create(
   const AEnumerable1, AEnumerable2: TEnexCollection<T>);
 begin
@@ -5326,8 +5035,8 @@ begin
   if not Assigned(AEnumerable2) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
 
-  { Installing the element type }
-  InstallType(AEnumerable1.ElementRules);
+  { Rules ... }
+  inherited Create(AEnumerable1.ElementRules);
 
   { Assign internals }
   FEnum1 := AEnumerable1;
@@ -5335,28 +5044,13 @@ begin
 
   FEnum2 := AEnumerable2;
   KeepObjectAlive(FEnum2);
-
-  FDeleteEnum1 := false;
-  FDeleteEnum2 := false;
-end;
-
-constructor TEnexIntersectionCollection<T>.CreateIntf1(
-  const AEnumerable1: IEnumerable<T>;
-  const AEnumerable2: TEnexCollection<T>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable1, ARules), AEnumerable2);
-
-  { Mark enumerables to be deleted }
-  FDeleteEnum1 := true;
 end;
 
 destructor TEnexIntersectionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, FDeleteEnum1);
-  ReleaseObject(FEnum2, FDeleteEnum2);
+  ReleaseObject(FEnum1, false);
+  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -5378,7 +5072,7 @@ begin
   FIter := AEnum.FEnum1.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(TSuppressedWrapperType<T>.Create(AEnum.FEnum1.ElementRules), AEnum.FEnum2);
+  FSet := THashSet<T>.Create(AEnum.FEnum1.ElementRules, AEnum.FEnum2);
 end;
 
 destructor TEnexIntersectionCollection<T>.TEnumerator .Destroy;
@@ -5413,16 +5107,20 @@ end;
 
 { TEnexRangeCollection<T> }
 
-constructor TEnexRangeCollection<T>.Create(
-  const AEnumerable: TEnexCollection<T>; const AStart,
-  AEnd: NativeUInt);
+constructor TEnexRangeCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const AStart, AEnd: NativeInt);
 begin
+  if AStart < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStart');
+
+  if AEnd < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AEnd');
+
   { Check arguments }
   if not Assigned(AEnumerable) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
-  { Installing the element type }
-  InstallType(AEnumerable.ElementRules);
+  { Rules ... }
+  inherited Create(AEnumerable.ElementRules);
 
   { Assign internals }
   FEnum := AEnumerable;
@@ -5430,24 +5128,12 @@ begin
 
   FStart := AStart;
   FEnd := AEnd;
-  FDeleteEnum := false;
-end;
-
-constructor TEnexRangeCollection<T>.CreateIntf(
-  const AEnumerable: IEnumerable<T>; const AStart,
-  AEnd: NativeUInt; const ARules: TRules<T>);
-begin
-  { Call upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, ARules), AStart, AEnd);
-
-  { Mark for destruction }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexRangeCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -5517,11 +5203,8 @@ begin
   if not Assigned(AEnumerable) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
-  if not Assigned(ARules) then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
-
-  { Install the type }
-  InstallType(ARules);
+  { Rules ... }
+  inherited Create(ARules);
 
   { Assign internals }
   FEnum := AEnumerable;
@@ -5541,29 +5224,17 @@ begin
   if not Assigned(AEnumerable) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
-  { Installing the element type }
-  InstallType(AEnumerable.ElementRules);
+  inherited Create(AEnumerable.ElementRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
-
-  FDeleteEnum := false;
-end;
-
-constructor TEnexDistinctCollection<T>.CreateIntf(const AEnumerable: IEnumerable<T>; const ARules: TRules<T>);
-begin
-  { Call the higher constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, ARules));
-
-  { Mark for deletion }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexDistinctCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -5585,7 +5256,7 @@ begin
   FIter := AEnum.FEnum.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(TSuppressedWrapperType<T>.Create(AEnum.FEnum.ElementRules));
+  FSet := THashSet<T>.Create(AEnum.FEnum.ElementRules);
 end;
 
 destructor TEnexDistinctCollection<T>.TEnumerator.Destroy;
@@ -5623,7 +5294,7 @@ end;
 
 function TEnexFillCollection<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -5645,7 +5316,7 @@ end;
 
 function TEnexFillCollection<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -5687,33 +5358,30 @@ begin
     Result := false;
 end;
 
-constructor TEnexFillCollection<T>.Create(const AElement: T; const Count: NativeUInt; const ARules: TRules<T>);
+constructor TEnexFillCollection<T>.Create(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>);
 begin
-  if Count = 0 then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('Count');
-
-  if ARules = nil then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
+  if ACount <= 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Install the type }
-  InstallType(ARules);
+  inherited Create(ARules);
 
   { Copy values in }
-  FCount := Count;
+  FCount := ACount;
   FElement := AElement;
 end;
 
-function TEnexFillCollection<T>.ElementAt(const Index: NativeUInt): T;
+function TEnexFillCollection<T>.ElementAt(const AIndex: NativeInt): T;
 begin
-  if Index = FCount then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('Index');
+  if (AIndex = FCount) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   Result := FElement;
 end;
 
-function TEnexFillCollection<T>.ElementAtOrDefault(const Index: NativeUInt; const ADefault: T): T;
+function TEnexFillCollection<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
-  if Index = FCount then
+  if (AIndex = FCount) or (AIndex < 0) then
     Result := ADefault
   else
     Result := FElement;
@@ -5727,7 +5395,7 @@ end;
 function TEnexFillCollection<T>.EqualsTo(const AEnumerable: IEnumerable<T>): Boolean;
 var
   V: T;
-  I: NativeUInt;
+  I: NativeInt;
 begin
   I := 0;
 
@@ -5764,7 +5432,7 @@ begin
     Result := FElement;
 end;
 
-function TEnexFillCollection<T>.GetCount: NativeUInt;
+function TEnexFillCollection<T>.GetCount: NativeInt;
 begin
   Result := FCount;
 end;
@@ -5863,11 +5531,10 @@ end;
 
 { TEnexSkipCollection<T> }
 
-constructor TEnexSkipCollection<T>.Create(
-  const AEnumerable: TEnexCollection<T>; const ACount: NativeUInt);
+constructor TEnexSkipCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt);
 begin
   { Check parameters }
-  if ACount = 0 then
+  if ACount <= 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Check arguments }
@@ -5875,30 +5542,19 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Installing the element type }
-  InstallType(AEnumerable.ElementRules);
+  inherited Create(AEnumerable.ElementRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
 
   FCount := ACount;
-  FDeleteEnum := false;
-end;
-
-constructor TEnexSkipCollection<T>.CreateIntf(
-  const AEnumerable: IEnumerable<T>; const ACount: NativeUInt; const ARules: TRules<T>);
-begin
-  { Call upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, ARules), ACount);
-
-  { Mark for destruction }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexSkipCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -5955,11 +5611,10 @@ end;
 
 { TEnexTakeCollection<T> }
 
-constructor TEnexTakeCollection<T>.Create(
-  const AEnumerable: TEnexCollection<T>; const ACount: NativeUInt);
+constructor TEnexTakeCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt);
 begin
   { Check parameters }
-  if ACount = 0 then
+  if ACount <= 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Check arguments }
@@ -5967,30 +5622,19 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Installing the element type }
-  InstallType(AEnumerable.ElementRules);
+  inherited Create(AEnumerable.ElementRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
 
   FCount := ACount;
-  FDeleteEnum := false;
-end;
-
-constructor TEnexTakeCollection<T>.CreateIntf(
-  const AEnumerable: IEnumerable<T>; const ACount: NativeUInt; const ARules: TRules<T>);
-begin
-  { Call upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, ARules), ACount);
-
-  { Mark for destruction }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexTakeCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -6048,32 +5692,19 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Install the type }
-  InstallType(AEnumerable.ElementRules);
+  inherited Create(AEnumerable.ElementRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
-  FDeleteEnum := false;
-end;
-
-constructor TEnexTakeWhileCollection<T>.CreateIntf(
-  const AEnumerable: IEnumerable<T>;
-  const APredicate: TFunc<T, Boolean>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, ARules), APredicate);
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexTakeWhileCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -6132,32 +5763,19 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Install the type }
-  InstallType(AEnumerable.ElementRules);
+  inherited Create(AEnumerable.ElementRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
-  FDeleteEnum := false;
-end;
-
-constructor TEnexSkipWhileCollection<T>.CreateIntf(
-  const AEnumerable: IEnumerable<T>;
-  const APredicate: TFunc<T, Boolean>;
-  const ARules: TRules<T>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, ARules), APredicate);
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexSkipWhileCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -6216,95 +5834,6 @@ begin
     Result := FIter.MoveNext;
 end;
 
-{ TEnexIntervalCollection<T> }
-
-constructor TEnexIntervalCollection<T>.Create(const ALower, AHigher, AIncrement: T; const ARules: TRules<T>);
-begin
-  { Check arguments }
-  if not Assigned(ARules) then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
-
-  { Restrict only to numbers! }
-  ARules.RestrictTo([tfUnsignedInteger, tfSignedInteger, tfReal]);
-
-  if ARules.Compare(ALower, AHigher) >= 0 then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('ALower >= AHigher');
-
-  { Install the type }
-  InstallType(ARules);
-
-  { Copy Values }
-  FLower := ALower;
-  FHigher := AHigher;
-  FIncrement := AIncrement;
-end;
-
-function TEnexIntervalCollection<T>.Empty: Boolean;
-begin
-  { Never empty }
-  Result := false;
-end;
-
-function TEnexIntervalCollection<T>.First: T;
-begin
-  { Default }
-  Result := FLower;
-end;
-
-function TEnexIntervalCollection<T>.FirstOrDefault(const ADefault: T): T;
-begin
-  { Never empty, so - Default }
-  Result := FLower;
-end;
-
-function TEnexIntervalCollection<T>.GetEnumerator: IEnumerator<T>;
-begin
-  { Create enumerator }
-  Result := TEnumerator.Create(Self);
-end;
-
-function TEnexIntervalCollection<T>.Min: T;
-begin
-  Result := FLower;
-end;
-
-{ TEnexIntervalCollection<T>.TEnumerator }
-
-constructor TEnexIntervalCollection<T>.TEnumerator.Create(const AEnum: TEnexIntervalCollection<T>);
-begin
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
-
-  FNow := FEnum.FLower;
-  FNowVariant := FEnum.ElementRules.ConvertToVariant(FNow);
-end;
-
-destructor TEnexIntervalCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FEnum);
-  inherited;
-end;
-
-function TEnexIntervalCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Pass the next value }
-  Result := FNow;
-end;
-
-function TEnexIntervalCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  FNow := FEnum.ElementRules.ConvertFromVariant(FNowVariant);
-
-  { Check bounds }
-  Result := (FEnum.ElementRules.Compare(FNow, FEnum.FHigher) <= 0);
-
-  if not Result then
-    Exit;
-
-  { Update current position }
-  FNowVariant := FNowVariant + FEnum.ElementRules.ConvertToVariant(FEnum.FIncrement);
-end;
-
 { TEnexSelectKeysCollection<TKey, TValue> }
 
 constructor TEnexSelectKeysCollection<TKey, TValue>.Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>);
@@ -6314,35 +5843,23 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Install the type }
-  InstallType(AEnumerable.KeyRules);
+  inherited Create(AEnumerable.KeyRules);
 
   { Assign internals }
   FEnum := AEnumerable;
 
   KeepObjectAlive(FEnum);
-  FDeleteEnum := false;
-end;
-
-constructor TEnexSelectKeysCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
-begin
-  { Call the upper constructor }
-  Create(TEnexAssociativeWrapCollection<TKey, TValue>.Create(AEnumerable, AKeyRules, AValueRules));
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexSelectKeysCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
 
-function TEnexSelectKeysCollection<TKey, TValue>.GetCount: NativeUInt;
+function TEnexSelectKeysCollection<TKey, TValue>.GetCount: NativeInt;
 begin
   Result := FEnum.GetCount();
 end;
@@ -6401,36 +5918,23 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Install the type }
-  InstallType(AEnumerable.ValueRules);
+  inherited Create(AEnumerable.ValueRules);
 
   { Assign internals }
   FEnum := AEnumerable;
 
   KeepObjectAlive(FEnum);
-  FDeleteEnum := false;
-end;
-
-constructor TEnexSelectValuesCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>);
-begin
-  { Call the upper constructor }
-  Create(TEnexAssociativeWrapCollection<TKey, TValue>.Create(AEnumerable, AKeyRules, AValueRules));
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexSelectValuesCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
 
-function TEnexSelectValuesCollection<TKey, TValue>.GetCount: NativeUInt;
+function TEnexSelectValuesCollection<TKey, TValue>.GetCount: NativeInt;
 begin
   Result := FEnum.GetCount();
 end;
@@ -6494,36 +5998,21 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Install types }
-  InstallTypes(AEnumerable.KeyRules, AEnumerable.ValueRules);
+  inherited Create(AEnumerable.KeyRules, AEnumerable.ValueRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
-  FDeleteEnum := false;
 
   FInvertResult := AInvertResult;
-end;
-
-constructor TEnexAssociativeWhereCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const APredicate: TFunc<TKey, TValue, Boolean>;
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AInvertResult: Boolean);
-begin
-  { Call the upper constructor }
-  Create(TEnexAssociativeWrapCollection<TKey, TValue>.Create(AEnumerable, AKeyRules, AValueRules), APredicate, AInvertResult);
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexAssociativeWhereCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -6587,14 +6076,8 @@ begin
   if not Assigned(AEnumerable) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
-  if not Assigned(AKeyRules) then
-    ExceptionHelper.Throw_ArgumentNilError('AKeyRules');
-
-  if not Assigned(AValueRules) then
-    ExceptionHelper.Throw_ArgumentNilError('AValueRules');
-
   { Install both types }
-  InstallTypes(AKeyRules, AValueRules);
+  inherited Create(AKeyRules, AValueRules);
 
   { Assign internals }
   FEnum := AEnumerable;
@@ -6616,30 +6099,17 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Install types }
-  InstallTypes(AEnumerable.KeyRules, AEnumerable.ValueRules);
+  inherited Create(AEnumerable.KeyRules, AEnumerable.ValueRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
-
-  FDeleteEnum := false;
-end;
-
-constructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
-begin
-  { Call the higher constructor }
-  Create(TEnexAssociativeWrapCollection<TKey, TValue>.Create(AEnumerable, AKeyRules, AValueRules));
-
-  { Mark for deletion }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -6662,7 +6132,7 @@ begin
   FIter := AEnum.FEnum.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<TKey>.Create(TSuppressedWrapperType<TKey>.Create(AEnum.FEnum.KeyRules));
+  FSet := THashSet<TKey>.Create(AEnum.FEnum.KeyRules);
 end;
 
 destructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.Destroy;
@@ -6707,30 +6177,17 @@ begin
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
   { Install types }
-  InstallTypes(AEnumerable.KeyRules, AEnumerable.ValueRules);
+  inherited Create(AEnumerable.KeyRules, AEnumerable.ValueRules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
-
-  FDeleteEnum := false;
-end;
-
-constructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.CreateIntf(
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
-begin
-  { Call the higher constructor }
-  Create(TEnexAssociativeWrapCollection<TKey, TValue>.Create(AEnumerable, AKeyRules, AValueRules));
-
-  { Mark for deletion }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -6753,7 +6210,7 @@ begin
   FIter := AEnum.FEnum.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<TValue>.Create(TSuppressedWrapperType<TValue>.Create(AEnum.FEnum.ValueRules));
+  FSet := THashSet<TValue>.Create(AEnum.FEnum.ValueRules);
 end;
 
 destructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.Destroy;
@@ -6795,32 +6252,18 @@ begin
   if not Assigned(AEnumerable) then
     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
 
-  if not Assigned(ARules) then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
-
   { Installing the element type }
-  InstallType(ARules);
+  inherited Create(ARules);
 
   { Assign internals }
   FEnum := AEnumerable;
   KeepObjectAlive(FEnum);
-
-  FDeleteEnum := false;
-end;
-
-constructor TEnexSelectClassCollection<T, TOut>.CreateIntf(const AEnumerable: IEnumerable<T>; const ARules: TRules<TOut>);
-begin
-  { Call the upper constructor }
-  Create(TEnexWrapCollection<T>.Create(AEnumerable, TRules<T>.Default), ARules);
-
-  { Mark enumerable to be deleted }
-  FDeleteEnum := true;
 end;
 
 destructor TEnexSelectClassCollection<T, TOut>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, FDeleteEnum);
+  ReleaseObject(FEnum, false);
 
   inherited;
 end;
@@ -6877,68 +6320,243 @@ end;
 
 { Collection }
 
-class function Collection.Fill<T>(const AElement: T; const ACount: NativeUInt): IEnexCollection<T>;
+class function Collection.Fill<T>(const AElement: T; const ACount: NativeInt): IEnexCollection<T>;
 begin
   { Call upper function }
   Result := Fill<T>(AElement, ACount, TRules<T>.Default);
 end;
 
-class function Collection.Fill<T>(const AElement: T; const ACount: NativeUInt; const ARules: TRules<T>): IEnexCollection<T>;
+class function Collection.Fill<T>(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>;
 begin
   { Check arguments }
-  if ACount = 0 then
+  if ACount <= 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
-  if ARules = nil then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
 
   { Create an collection }
   Result := TEnexFillCollection<T>.Create(AElement, ACount, ARules);
 end;
 
-class function Collection.Interval<T>(const AStart, AEnd, AIncrement: T;
-  const ARules: TRules<T>): IEnexCollection<T>;
+{ TRules<T> }
+
+function TRules<T>.AreEqual(const ALeft, ARight: T): Boolean;
 begin
-  { Check arguments }
-  if not Assigned(ARules) then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
-
-  { Restrict only to numbers! }
-  ARules.RestrictTo([tfUnsignedInteger, tfSignedInteger, tfReal]);
-
-  if ARules.Compare(AStart, AEnd) >= 0 then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStart >= AEnd');
-
-  { Create the collection }
-  Result := TEnexIntervalCollection<T>.Create(AStart, AEnd, AIncrement, ARules);
+//TODO: implement me
 end;
 
-class function Collection.Interval<T>(const AStart, AEnd: T): IEnexCollection<T>;
+function TRules<T>.Compare(const ALeft, ARight: T): NativeInt;
 begin
-  { Call upper function }
-  Result := Interval<T>(AStart, AEnd, TRules<T>.Default);
+//TODO: implement me
 end;
 
-class function Collection.Interval<T>(const AStart, AEnd: T; const ARules: TRules<T>): IEnexCollection<T>;
+class function TRules<T>.Default: TRules<T>;
 begin
-  { Check arguments }
-  if not Assigned(ARules) then
-    ExceptionHelper.Throw_ArgumentNilError('ARules');
-
-  { Restrict only to numbers! }
-  ARules.RestrictTo([tfUnsignedInteger, tfSignedInteger, tfReal]);
-
-  if ARules.Compare(AStart, AEnd) >= 0 then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStart >= AEnd');
-
-  { Create the collection }
-  Result := TEnexIntervalCollection<T>.Create(AStart, AEnd, ARules.ConvertFromVariant(1), ARules);
+//TODO: implement me
 end;
 
-class function Collection.Interval<T>(const AStart, AEnd, AIncrement: T): IEnexCollection<T>;
+function TRules<T>.GetHashCode(const AValue: T): NativeInt;
 begin
-  { Call upper function }
-  Result := Interval<T>(AStart, AEnd, AIncrement, TRules<T>.Default);
+//TODO: implement me
+end;
+
+{ TRefCountedObject }
+
+procedure TRefCountedObject.AfterConstruction;
+begin
+  FInConstruction := false;
+  inherited AfterConstruction();
+end;
+
+function TRefCountedObject.ExtractReference: IInterface;
+var
+  Ref: NativeInt;
+begin
+  { While constructing, an object has an implicit ref count of 1 }
+  if FInConstruction then
+    Ref := 1
+  else
+    Ref := 0;
+
+  {
+      If the object is referenced in other places as an
+      interface, get a new one, otherwise return nil
+   }
+  if RefCount > Ref then
+    Result := Self
+  else
+    Result := nil;
+end;
+
+procedure TRefCountedObject.KeepObjectAlive(const AObject: TRefCountedObject);
+var
+  I, L: NativeInt;
+  II: IInterface;
+begin
+  { Skip nil references }
+  if AObject = nil then
+    Exit;
+
+  { Cannot self-ref! }
+  if AObject = Self then
+    ExceptionHelper.Throw_CannotSelfReferenceError();
+
+  { Extract an optional reference, do not continue if failed }
+  II := AObject.ExtractReference();
+  if II = nil then
+    Exit;
+
+  L := Length(FKeepAliveList);
+
+  { Find a free spot }
+  if L > 0 then
+    for I := 0 to L - 1 do
+      if FKeepAliveList[I] = nil then
+      begin
+        FKeepAliveList[I] := II;
+        Exit;
+      end;
+
+  { No free spots, extend array and insert the ref there }
+  SetLength(FKeepAliveList, L + 1);
+  FKeepAliveList[L] := II;
+end;
+
+class function TRefCountedObject.NewInstance: TObject;
+begin
+  Result := inherited NewInstance();
+
+  { Set in construction! }
+  TRefCountedObject(Result).FInConstruction := true;
+end;
+
+procedure TRefCountedObject.ReleaseObject(const AObject: TRefCountedObject; const AFreeObject: Boolean);
+var
+  I, L: NativeInt;
+  II: IInterface;
+begin
+  { Do nothing on nil references, since it may be calle din destructors }
+  if AObject = nil then
+    Exit;
+
+  { Cannot self-ref! }
+  if AObject = Self then
+    ExceptionHelper.Throw_CannotSelfReferenceError();
+
+  { Extract an optional reference, if none received, exit }
+  II := AObject.ExtractReference();
+  if II = nil then
+  begin
+    if AFreeObject then
+      AObject.Free;
+
+    Exit;
+  end;
+
+  L := Length(FKeepAliveList);
+
+  { Find a free spot }
+  if L > 0 then
+    for I := 0 to L - 1 do
+      if FKeepAliveList[I] = II then
+      begin
+        { Release the spot and kill references to the interface }
+        FKeepAliveList[I] := nil;
+        II := nil;
+        Exit;
+      end;
+end;
+
+{ ExceptionHelper }
+
+class procedure ExceptionHelper.Throw_ArgumentConverError(
+  const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_ArgumentNilError(const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_ArgumentNotSameTypeError(
+  const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_ArgumentOutOfRangeError(
+  const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_ArgumentOutOfSpaceError(
+  const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_CannotSelfReferenceError;
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_CollectionChangedError;
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_CollectionEmptyError;
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_CollectionHasMoreThanOneElement;
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_CollectionHasNoFilteredElements;
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_DefaultConstructorNotAllowedError;
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_DuplicateKeyError(const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError(
+  const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_ElementNotPartOfCollectionError(
+  const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_InvalidArgumentFormatError(
+  const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_KeyNotFoundError(const ArgName: String);
+begin
+//TODO: implement me
+end;
+
+class procedure ExceptionHelper.Throw_PositionOccupiedError;
+begin
+//TODO: implement me
 end;
 
 end.

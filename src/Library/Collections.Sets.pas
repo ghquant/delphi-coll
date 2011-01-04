@@ -39,7 +39,7 @@ type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: THashSet<T>;
       FCurrentIndex: NativeInt;
       FValue: T;
@@ -70,10 +70,10 @@ type
     FCount: NativeInt;
     FFreeCount: NativeInt;
     FFreeList: NativeInt;
-    FVer: NativeUInt;
+    FVer: NativeInt;
 
     { Internal }
-    procedure InitializeInternals(const Capacity: NativeUInt);
+    procedure InitializeInternals(const ACapacity: NativeInt);
     procedure Insert(const AKey: T; const ShouldAdd: Boolean = true);
     function FindEntry(const AKey: T): NativeInt;
     procedure Resize();
@@ -82,7 +82,7 @@ type
   protected
     ///  <summary>Returns the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default type object is requested.</remarks>
@@ -91,7 +91,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -111,7 +111,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -149,7 +149,7 @@ type
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    property Count: NativeUInt read GetCount;
+    property Count: NativeInt read GetCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this set.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -163,7 +163,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the set.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the set is empty.</summary>
     ///  <returns><c>True</c> if the set is empty; <c>False</c> otherwise.</returns>
@@ -208,7 +208,7 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TSortedSet<T>;
       FNext: TNode;
       FValue: T;
@@ -226,8 +226,8 @@ type
     {$ENDREGION}
 
   private var
-    FCount: NativeUInt;
-    FVer: NativeUInt;
+    FCount: NativeInt;
+    FVer: NativeInt;
     FRoot: TNode;
     FSignFix: NativeInt;
 
@@ -248,7 +248,7 @@ type
   protected
     ///  <summary>Returns the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
@@ -314,7 +314,7 @@ type
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    property Count: NativeUInt read FCount;
+    property Count: NativeInt read FCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this set.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -328,7 +328,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the set.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the set is empty.</summary>
     ///  <returns><c>True</c> if the set is empty; <c>False</c> otherwise.</returns>
@@ -405,9 +405,9 @@ type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FSet: TArraySet<T>;
-      FCurrentIndex: NativeUInt;
+      FCurrentIndex: NativeInt;
 
     public
       { Constructor }
@@ -423,20 +423,20 @@ type
 
   private var
     FArray: TArray<T>;
-    FLength: NativeUInt;
-    FVer: NativeUInt;
+    FLength: NativeInt;
+    FVer: NativeInt;
 
   protected
     ///  <summary>Returns the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the set can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this method is greater or equal to the amount of elements in the set. If this value
     ///  is greater then the number of elements, it means that the set has some extra capacity to operate upon.</remarks>
-    function GetCapacity(): NativeUInt;
+    function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default type object is requested.</remarks>
@@ -445,7 +445,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -465,7 +465,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
@@ -503,14 +503,14 @@ type
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    property Count: NativeUInt read FLength;
+    property Count: NativeInt read FLength;
 
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the set can hold before it
     ///  needs to grow again.</returns>
     ///  <remarks>The value of this property is greater or equal to the amount of elements in the set. If this value
     ///  if greater then the number of elements, it means that the set has some extra capacity to operate upon.</remarks>
-    property Capacity: NativeUInt read GetCapacity;
+    property Capacity: NativeInt read GetCapacity;
 
     ///  <summary>Returns a new enumerator object used to enumerate this set.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -535,7 +535,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the set.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the set is empty.</summary>
     ///  <returns><c>True</c> if the set is empty; <c>False</c> otherwise.</returns>
@@ -613,14 +613,14 @@ type
     ///  <returns>The element from the specified position.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The set is empty.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ElementAt(const AIndex: NativeUInt): T; override;
+    function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the set is empty.</param>
     ///  <returns>The element from the specified position if the set is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
-    function ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
     ///  <summary>Check whether at least one element in the set satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -710,19 +710,18 @@ begin
   Result := (FindEntry(AValue) >= 0);
 end;
 
-procedure THashSet<T>.CopyTo(
-  var AArray: array of T; const StartIndex: NativeUInt);
+procedure THashSet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   I, X: NativeInt;
 begin
   { Check for indexes }
-  if StartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < Count then
+  if (Length(AArray) - AStartIndex) < Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   for I := 0 to FCount - 1 do
   begin
@@ -739,7 +738,7 @@ begin
   Create(TRules<T>.Default);
 end;
 
-constructor THashSet<T>.Create(const AInitialCapacity: NativeUInt);
+constructor THashSet<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
 end;
@@ -749,7 +748,7 @@ begin
   Create(TRules<T>.Default, ACollection);
 end;
 
-constructor THashSet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
+constructor THashSet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   { Call the upper constructor}
   inherited Create(ARules);
@@ -820,7 +819,7 @@ begin
   end;
 end;
 
-function THashSet<T>.GetCount: NativeUInt;
+function THashSet<T>.GetCount: NativeInt;
 begin
   Result := (FCount - FFreeCount);
 end;
@@ -837,14 +836,14 @@ begin
   Result := PositiveMask and ((PositiveMask and ElementRules.GetHashCode(AKey)) + 1);
 end;
 
-procedure THashSet<T>.InitializeInternals(const Capacity: NativeUInt);
+procedure THashSet<T>.InitializeInternals(const ACapacity: NativeInt);
 var
   I: NativeInt;
 begin
-  SetLength(FBucketArray, Capacity);
-  SetLength(FEntryArray, Capacity);
+  SetLength(FBucketArray, ACapacity);
+  SetLength(FEntryArray, ACapacity);
 
-  for I := 0 to Capacity - 1 do
+  for I := 0 to ACapacity - 1 do
   begin
     FBucketArray[I] := -1;
     FEntryArray[I].FHashCode := -1;
@@ -1449,19 +1448,19 @@ begin
   Result := FindNodeWithKey(AValue) <> nil;
 end;
 
-procedure TSortedSet<T>.CopyTo(var AArray: array of T; const StartIndex: NativeUInt);
+procedure TSortedSet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   X: NativeInt;
   LNode: TNode;
 begin
   { Check for indexes }
-  if StartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < FCount then
+  if (Length(AArray) - AStartIndex) < FCount then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   { Find the left-most node }
   LNode := FindLeftMostNode();
@@ -1604,7 +1603,7 @@ begin
     Result := FindLeftMostNode().FKey
 end;
 
-function TSortedSet<T>.GetCount: NativeUInt;
+function TSortedSet<T>.GetCount: NativeInt;
 begin
   Result := FCount;
 end;
@@ -2076,7 +2075,7 @@ begin
   if Contains(AValue) then
      Exit;
 
-  if FLength = NativeUInt(Length(FArray)) then
+  if FLength = Length(FArray) then
     Grow();
 
   { Put the element into the new position }
@@ -2088,7 +2087,7 @@ end;
 
 function TArraySet<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -2110,7 +2109,7 @@ end;
 
 function TArraySet<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -2132,7 +2131,7 @@ end;
 
 function TArraySet<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -2147,7 +2146,7 @@ end;
 
 function TArraySet<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -2174,7 +2173,7 @@ end;
 
 function TArraySet<T>.Contains(const AValue: T): Boolean;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   Result := false;
 
@@ -2188,15 +2187,15 @@ begin
       end;
 end;
 
-procedure TArraySet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeUInt);
+procedure TArraySet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   I: NativeInt;
 begin
-  if AStartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if (NativeUInt(Length(AArray)) - AStartIndex) < FLength then
+  if (Length(AArray) - AStartIndex) < FLength then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Copy all elements safely }
@@ -2209,7 +2208,7 @@ begin
   Create(TRules<T>.Default, ACollection);
 end;
 
-constructor TArraySet<T>.Create(const AInitialCapacity: NativeUInt);
+constructor TArraySet<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
 end;
@@ -2241,7 +2240,7 @@ begin
     Add(V);
 end;
 
-constructor TArraySet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   { Call the upper constructor }
   inherited Create(ARules);
@@ -2259,19 +2258,19 @@ begin
   inherited;
 end;
 
-function TArraySet<T>.ElementAt(const AIndex: NativeUInt): T;
+function TArraySet<T>.ElementAt(const AIndex: NativeInt): T;
 begin
   { Simply use the getter }
-  if (AIndex >= FLength) then
+  if (AIndex >= FLength) or (AIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   Result := FArray[AIndex];
 end;
 
-function TArraySet<T>.ElementAtOrDefault(const AIndex: NativeUInt; const ADefault: T): T;
+function TArraySet<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   { Check range }
-  if (AIndex >= FLength) then
+  if (AIndex >= FLength) or (AIndex < 0) then
      Result := ADefault
   else
      Result := FArray[AIndex];
@@ -2285,7 +2284,7 @@ end;
 function TArraySet<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
   V: T;
-  I: NativeUInt;
+  I: NativeInt;
 begin
   I := 0;
 
@@ -2324,12 +2323,12 @@ begin
     Result := FArray[0];
 end;
 
-function TArraySet<T>.GetCapacity: NativeUInt;
+function TArraySet<T>.GetCapacity: NativeInt;
 begin
   Result := Length(FArray);
 end;
 
-function TArraySet<T>.GetCount: NativeUInt;
+function TArraySet<T>.GetCount: NativeInt;
 begin
   Result := FLength;
 end;
@@ -2369,7 +2368,7 @@ end;
 
 function TArraySet<T>.Max: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
@@ -2385,7 +2384,7 @@ end;
 
 function TArraySet<T>.Min: T;
 var
-  I: NativeUInt;
+  I: NativeInt;
 begin
   { Check length }
   if FLength = 0 then

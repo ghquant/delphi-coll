@@ -66,7 +66,7 @@ type
 
     ///  <summary>Returns the number of pairs in the bidi-map.</summary>
     ///  <returns>A positive value specifying the total number of pairs in the bidi-map.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
@@ -96,16 +96,6 @@ type
     constructor Create(const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TDynamicArray<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TFixedArray<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A type object decribing the keys in the bidi-map.</param>
     ///  <param name="AValueRules">A type object decribing the values in the bidi-map.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
@@ -130,24 +120,6 @@ type
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
           const AArray: array of TPair<TKey,TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the bidi-map.</param>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-          const AArray: TDynamicArray<TPair<TKey,TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the bidi-map.</param>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-          const AArray: TFixedArray<TPair<TKey,TValue>>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
@@ -242,7 +214,7 @@ type
 
     ///  <summary>Returns the number of pairs in the bidi-map.</summary>
     ///  <returns>A positive value specifying the total number of pairs in the bidi-map.</returns>
-    property Count: NativeUInt read GetCount;
+    property Count: NativeInt read GetCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this bidi-map.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -256,7 +228,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the bidi-map.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
@@ -284,7 +256,7 @@ type
   ///  <remarks>This type uses <c>distinct multimaps</c> to store its keys and values.</remarks>
   TBidiMap<TKey, TValue> = class(TAbstractBidiMap<TKey, TValue>)
   private
-    FInitialCapacity: NativeUInt;
+    FInitialCapacity: NativeInt;
 
   protected
     ///  <summary>Called when the map needs to initialize the key multimap.</summary>
@@ -301,25 +273,11 @@ type
     function CreateValueMap(const AValueRules: TRules<TValue>;
       const AKeyRules: TRules<TKey>): IDistinctMultiMap<TValue, TKey>; override;
 
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an pair has been deserialized and needs to be inserted into the map.</summary>
-    ///  <param name="AKey">The key that was deserialized.</param>
-    ///  <param name="AValue">The value that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the map.</remarks>
-    procedure DeserializePair(const AKey: TKey; const AValue: TValue); override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The map's initial capacity.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">The type object describing the keys.</param>
@@ -327,46 +285,32 @@ type
     ///  <param name="AInitialCapacity">The map's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt); overload;
   end;
 
   ///  <summary>The generic <c>bidirectional map</c> collection designed to store objects.</summary>
   ///  <remarks>This type uses <c>distinct multimaps</c> to store its keys and values.</remarks>
   TObjectBidiMap<TKey, TValue> = class(TBidiMap<TKey, TValue>)
   private
-    FKeyWrapperType: TMaybeObjectWrapperType<TKey>;
-    FValueWrapperType: TMaybeObjectWrapperType<TValue>;
-
-    { Getters/Setters for OwnsKeys }
-    function GetOwnsKeys: Boolean;
-    procedure SetOwnsKeys(const Value: Boolean);
-
-    { Getters/Setters for OwnsValues }
-    function GetOwnsValues: Boolean;
-    procedure SetOwnsValues(const Value: Boolean);
-
+    FOwnsKeys, FOwnsValues: Boolean;
   protected
-    ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyRules">The key's type object to install.</param>
-    ///  <param name="AValueRules">The value's type object to install.</param>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request.
-    ///  Make sure to call this method in descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); override;
+    //TODO: doc me.
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+    //TODO: doc me.
+    procedure HandleValueRemoved(const AValue: TValue); override;
 
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the map controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
-    property OwnsKeys: Boolean read GetOwnsKeys write SetOwnsKeys;
+    property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this map owns the values.</summary>
     ///  <returns><c>True</c> if the map owns the values; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the map controls the life-time of the stored values. The value of this property has effect only
     ///  if the values are objects, otherwise it is ignored.</remarks>
-    property OwnsValues: Boolean read GetOwnsValues write SetOwnsValues;
+    property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
 type
@@ -390,21 +334,6 @@ type
     ///  <remarks>This method creates a sorted distinct multimap used as the underlying back-end for the map.</remarks>
     function CreateValueMap(const AValueRules: TRules<TValue>;
       const AKeyRules: TRules<TKey>): IDistinctMultiMap<TValue, TKey>; override;
-
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an pair has been deserialized and needs to be inserted into the map.</summary>
-    ///  <param name="AKey">The key that was deserialized.</param>
-    ///  <param name="AValue">The value that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the map.</remarks>
-    procedure DeserializePair(const AKey: TKey; const AValue: TValue); override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
@@ -423,18 +352,6 @@ type
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <remarks>The default type object is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TDynamicArray<TPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TFixedArray<TPair<TKey, TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">The type object describing the keys.</param>
@@ -466,26 +383,6 @@ type
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: TDynamicArray<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: TFixedArray<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
-
     ///  <summary>Returns the biggest key.</summary>
     ///  <returns>The biggest key stored in the map.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The map is empty.</exception>
@@ -501,39 +398,25 @@ type
   ///  <remarks>This type uses <c>sorted distinct multimaps</c> to store its keys and values.</remarks>
   TObjectSortedBidiMap<TKey, TValue> = class(TSortedBidiMap<TKey, TValue>)
   private
-    FKeyWrapperType: TMaybeObjectWrapperType<TKey>;
-    FValueWrapperType: TMaybeObjectWrapperType<TValue>;
-
-    { Getters/Setters for OwnsKeys }
-    function GetOwnsKeys: Boolean;
-    procedure SetOwnsKeys(const Value: Boolean);
-
-    { Getters/Setters for OwnsValues }
-    function GetOwnsValues: Boolean;
-    procedure SetOwnsValues(const Value: Boolean);
-
+    FOwnsKeys, FOwnsValues: Boolean;
   protected
-    ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyRules">The key's type object to install.</returns>
-    ///  <param name="AValueRules">The value's type object to install.</returns>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request.
-    ///  Make sure to call this method in descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); override;
+    //TODO: doc me.
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+    //TODO: doc me.
+    procedure HandleValueRemoved(const AValue: TValue); override;
 
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the map controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
-    property OwnsKeys: Boolean read GetOwnsKeys write SetOwnsKeys;
+    property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this map owns the values.</summary>
     ///  <returns><c>True</c> if the map owns the values; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the map controls the life-time of the stored values. The value of this property has effect only
     ///  if the values are objects, otherwise it is ignored.</remarks>
-    property OwnsValues: Boolean read GetOwnsValues write SetOwnsValues;
+    property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
 type
@@ -558,20 +441,6 @@ type
     function CreateValueMap(const AValueRules: TRules<TValue>;
       const AKeyRules: TRules<TKey>): IDistinctMultiMap<TValue, TKey>; override;
 
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an pair has been deserialized and needs to be inserted into the map.</summary>
-    ///  <param name="AKey">The key that was deserialized.</param>
-    ///  <param name="AValue">The value that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the map.</remarks>
-    procedure DeserializePair(const AKey: TKey; const AValue: TValue); override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
@@ -594,22 +463,6 @@ type
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <remarks>The default type object is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>;
-      const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TDynamicArray<TPair<TKey, TValue>>;
-      const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TFixedArray<TPair<TKey, TValue>>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
@@ -647,30 +500,6 @@ type
       const AArray: array of TPair<TKey,TValue>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: TDynamicArray<TPair<TKey,TValue>>; const AAscendingKeys: Boolean = true;
-      const AAscendingValues: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: TFixedArray<TPair<TKey,TValue>>; const AAscendingKeys: Boolean = true;
-      const AAscendingValues: Boolean = true); overload;
-
     ///  <summary>Returns the biggest key.</summary>
     ///  <returns>The biggest key stored in the map.</returns>
     ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The map is empty.</exception>
@@ -686,39 +515,26 @@ type
   ///  <remarks>This type uses <c>double sorted distinct multimaps</c> to store its keys and values.</remarks>
   TObjectDoubleSortedBidiMap<TKey, TValue> = class(TDoubleSortedBidiMap<TKey, TValue>)
   private
-    FKeyWrapperType: TMaybeObjectWrapperType<TKey>;
-    FValueWrapperType: TMaybeObjectWrapperType<TValue>;
-
-    { Getters/Setters for OwnsKeys }
-    function GetOwnsKeys: Boolean;
-    procedure SetOwnsKeys(const Value: Boolean);
-
-    { Getters/Setters for OwnsValues }
-    function GetOwnsValues: Boolean;
-    procedure SetOwnsValues(const Value: Boolean);
+    FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    ///  <summary>Installs the type objects describing the key and the value or the stored pairs.</summary>
-    ///  <param name="AKeyRules">The key's type object to install.</returns>
-    ///  <param name="AValueRules">The value's type object to install.</returns>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request.
-    ///  Make sure to call this method in descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    procedure InstallTypes(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); override;
+    //TODO: doc me.
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+    //TODO: doc me.
+    procedure HandleValueRemoved(const AValue: TValue); override;
 
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the map controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
-    property OwnsKeys: Boolean read GetOwnsKeys write SetOwnsKeys;
+    property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this map owns the values.</summary>
     ///  <returns><c>True</c> if the map owns the values; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the map controls the life-time of the stored values. The value of this property has effect only
     ///  if the values are objects, otherwise it is ignored.</remarks>
-    property OwnsValues: Boolean read GetOwnsValues write SetOwnsValues;
+    property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
 implementation
@@ -739,27 +555,6 @@ end;
 constructor TAbstractBidiMap<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>);
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection);
-end;
-
-constructor TAbstractBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AArray: TDynamicArray<TPair<TKey, TValue>>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-      Add(AArray[I]);
-{$ELSE}
-      Add(AArray[I].Key, AArray[I].Value);
-{$ENDIF}
-    end;
 end;
 
 procedure TAbstractBidiMap<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
@@ -805,38 +600,17 @@ begin
   Result := FByValueMap.ContainsKey(AValue);
 end;
 
-procedure TAbstractBidiMap<TKey, TValue>.CopyTo(var AArray: array of TPair<TKey, TValue>; const AStartIndex: NativeUInt);
+procedure TAbstractBidiMap<TKey, TValue>.CopyTo(var AArray: array of TPair<TKey, TValue>; const AStartIndex: NativeInt);
 begin
   { Check for indexes }
-  if AStartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - AStartIndex) < Count then
+  if (Length(AArray) - AStartIndex) < Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Call the underlying collection }
   FByKeyMap.CopyTo(AArray, AStartIndex);
-end;
-
-constructor TAbstractBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AArray: TFixedArray<TPair<TKey, TValue>>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-      Add(AArray[I]);
-{$ELSE}
-      Add(AArray[I].Key, AArray[I].Value);
-{$ENDIF}
-    end;
 end;
 
 destructor TAbstractBidiMap<TKey, TValue>.Destroy;
@@ -847,7 +621,7 @@ begin
   inherited;
 end;
 
-function TAbstractBidiMap<TKey, TValue>.GetCount: NativeUInt;
+function TAbstractBidiMap<TKey, TValue>.GetCount: NativeInt;
 begin
   { The cound follows the map properties }
   Result := FByKeyMap.Count;
@@ -970,27 +744,13 @@ begin
 end;
 
 constructor TAbstractBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
-var
-  LKeyWrap: TRules<TKey>;
-  LValueWrap: TRules<TValue>;
 begin
-  { Initialize instance }
-  if (AKeyRules = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AKeyRules');
-
-  if (AValueRules = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AValueRules');
-
   { Install the types }
-  InstallTypes(AKeyRules, AValueRules);
-
-  { Create type wrappers - basically disabling the cleanup for pne of the maps }
-  LKeyWrap := TSuppressedWrapperType<TKey>.Create(KeyRules);
-  LValueWrap := TSuppressedWrapperType<TValue>.Create(ValueRules);
+  inherited Create(AKeyRules, AValueRules);
 
   { Create the maps }
-  FByKeyMap := CreateKeyMap(LKeyWrap, ValueRules);
-  FByValueMap := CreateValueMap(LValueWrap, KeyRules);
+  FByKeyMap := CreateKeyMap(AKeyRules, ValueRules);
+  FByValueMap := CreateValueMap(AValueRules, KeyRules);
 
   { The collections }
   FValueCollection := FByValueMap.Keys;
@@ -1026,24 +786,23 @@ const
 
 { TBidiMap<TKey, TValue> }
 
-constructor TBidiMap<TKey, TValue>.Create(const AInitialCapacity: NativeUInt);
+constructor TBidiMap<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
 begin
   FInitialCapacity := AInitialCapacity;
-
   inherited Create();
 end;
 
-constructor TBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeUInt);
+constructor TBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+  const AInitialCapacity: NativeInt);
 begin
   FInitialCapacity := AInitialCapacity;
-
   inherited Create(AKeyRules, AValueRules);
 end;
 
 function TBidiMap<TKey, TValue>.CreateKeyMap(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>): IDistinctMultiMap<TKey, TValue>;
 var
-  Cap: NativeUInt;
+  Cap: NativeInt;
 begin
   { Create a simple dictionary }
   if FInitialCapacity = 0 then
@@ -1058,7 +817,7 @@ end;
 function TBidiMap<TKey, TValue>.CreateValueMap(const AValueRules: TRules<TValue>;
   const AKeyRules: TRules<TKey>): IDistinctMultiMap<TValue, TKey>;
 var
-  Cap: NativeUInt;
+  Cap: NativeInt;
 begin
   { Create a simple dictionary }
   if FInitialCapacity = 0 then
@@ -1070,75 +829,19 @@ begin
   Result := TDistinctMultiMap<TValue, TKey>.Create(AValueRules, AKeyRules, Cap);
 end;
 
-procedure TBidiMap<TKey, TValue>.DeserializePair(const AKey: TKey; const AValue: TValue);
-begin
-  { Very simple }
-  Add(AKey, AValue);
-end;
-
-procedure TBidiMap<TKey, TValue>.StartDeserializing(const AData: TDeserializationData);
-begin
-  { Call the constructor in this instance to initialize myself first }
-  Create();
-end;
-
-procedure TBidiMap<TKey, TValue>.StartSerializing(const AData: TSerializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
-end;
-
 { TObjectBidiMap<TKey, TValue> }
 
-procedure TObjectBidiMap<TKey, TValue>.InstallTypes(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+procedure TObjectBidiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  { Create a wrapper over the real type class and switch it }
-  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyRules);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueRules);
-
-  { Install overridden type }
-  inherited InstallTypes(FKeyWrapperType, FValueWrapperType);
+  TObject(AKey).Free;
 end;
 
-function TObjectBidiMap<TKey, TValue>.GetOwnsKeys: Boolean;
+procedure TObjectBidiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  Result := FKeyWrapperType.AllowCleanup;
-end;
-
-function TObjectBidiMap<TKey, TValue>.GetOwnsValues: Boolean;
-begin
-  Result := FValueWrapperType.AllowCleanup;
-end;
-
-procedure TObjectBidiMap<TKey, TValue>.SetOwnsKeys(const Value: Boolean);
-begin
-  FKeyWrapperType.AllowCleanup := Value;
-end;
-
-procedure TObjectBidiMap<TKey, TValue>.SetOwnsValues(const Value: Boolean);
-begin
-  FValueWrapperType.AllowCleanup := Value;
+  TObject(AValue).Free;
 end;
 
 { TSortedBidiMap<TKey, TValue> }
-
-
-constructor TSortedBidiMap<TKey, TValue>.Create(
-  const AArray: TDynamicArray<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AArray);
-end;
-
-constructor TSortedBidiMap<TKey, TValue>.Create(
-  const AArray: TFixedArray<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AArray);
-end;
 
 constructor TSortedBidiMap<TKey, TValue>.Create(
   const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
@@ -1162,26 +865,6 @@ begin
   { Do the dew and continue }
   FAscSort := AAscending;
   inherited Create(ACollection);
-end;
-
-constructor TSortedBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AArray: TDynamicArray<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AKeyRules, AValueRules, AArray);
-end;
-
-constructor TSortedBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AArray: TFixedArray<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AKeyRules, AValueRules, AArray);
 end;
 
 constructor TSortedBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
@@ -1225,12 +908,6 @@ begin
   Result := TSortedDistinctMultiMap<TValue, TKey>.Create(AValueRules, AKeyRules, FAscSort);
 end;
 
-procedure TSortedBidiMap<TKey, TValue>.DeserializePair(const AKey: TKey; const AValue: TValue);
-begin
-  { Very simple }
-  Add(AKey, AValue);
-end;
-
 function TSortedBidiMap<TKey, TValue>.MaxKey: TKey;
 begin
   Result := ByKeyMap.MaxKey;
@@ -1241,79 +918,19 @@ begin
   Result := ByKeyMap.MinKey;
 end;
 
-procedure TSortedBidiMap<TKey, TValue>.StartDeserializing(const AData: TDeserializationData);
-var
-  LAsc: Boolean;
-begin
-  { Try to obtain the ascending sign }
-  AData.GetValue(SSerAscendingKeys, LAsc);
-
-  { Call the constructor in this instance to initialize myself first }
-  Create(LAsc);
-end;
-
-procedure TSortedBidiMap<TKey, TValue>.StartSerializing(const AData: TSerializationData);
-begin
-  { Write the ascending sign }
-  AData.AddValue(SSerAscendingKeys, FAscSort);
-end;
-
 { TObjectSortedBidiMap<TKey, TValue> }
 
-procedure TObjectSortedBidiMap<TKey, TValue>.InstallTypes(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+procedure TObjectSortedBidiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  { Create a wrapper over the real type class and switch it }
-  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyRules);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueRules);
-
-  { Install overridden type }
-  inherited InstallTypes(FKeyWrapperType, FValueWrapperType);
+  TObject(AKey).Free;
 end;
 
-function TObjectSortedBidiMap<TKey, TValue>.GetOwnsKeys: Boolean;
+procedure TObjectSortedBidiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  Result := FKeyWrapperType.AllowCleanup;
+  TObject(AValue).Free;
 end;
-
-function TObjectSortedBidiMap<TKey, TValue>.GetOwnsValues: Boolean;
-begin
-  Result := FValueWrapperType.AllowCleanup;
-end;
-
-procedure TObjectSortedBidiMap<TKey, TValue>.SetOwnsKeys(const Value: Boolean);
-begin
-  FKeyWrapperType.AllowCleanup := Value;
-end;
-
-procedure TObjectSortedBidiMap<TKey, TValue>.SetOwnsValues(const Value: Boolean);
-begin
-  FValueWrapperType.AllowCleanup := Value;
-end;
-
 
 { TDoubleSortedBidiMap<TKey, TValue> }
-
-constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
-  const AArray: TDynamicArray<TPair<TKey, TValue>>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do da dew and continue! }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(AArray);
-end;
-
-constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
-  const AArray: TFixedArray<TPair<TKey, TValue>>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do da dew and continue! }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(AArray);
-end;
 
 constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
   const AArray: array of TPair<TKey, TValue>; const AAscendingKeys,
@@ -1344,30 +961,6 @@ begin
   FAscValues := AAscendingValues;
 
   inherited Create(ACollection);
-end;
-
-constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AArray: TDynamicArray<TPair<TKey, TValue>>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do da dew and continue! }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(AKeyRules, AValueRules, AArray);
-end;
-
-constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AArray: TFixedArray<TPair<TKey, TValue>>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do da dew and continue! }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(AKeyRules, AValueRules, AArray);
 end;
 
 constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
@@ -1419,12 +1012,6 @@ begin
   Result := TDoubleSortedDistinctMultiMap<TValue, TKey>.Create(AValueRules, AKeyRules, FAscKeys, FAscValues);
 end;
 
-procedure TDoubleSortedBidiMap<TKey, TValue>.DeserializePair(const AKey: TKey; const AValue: TValue);
-begin
-  { Simple as that }
-  Add(AKey, AValue);
-end;
-
 function TDoubleSortedBidiMap<TKey, TValue>.MaxKey: TKey;
 begin
   Result := ByKeyMap.MaxKey;
@@ -1435,55 +1022,16 @@ begin
   Result := ByKeyMap.MinKey;
 end;
 
-procedure TDoubleSortedBidiMap<TKey, TValue>.StartDeserializing(const AData: TDeserializationData);
-var
-  LAscKeys, LAscValues: Boolean;
-begin
-  { Try to obtain the ascending sign }
-  AData.GetValue(SSerAscendingKeys, LAscKeys);
-  AData.GetValue(SSerAscendingValues, LAscValues);
-
-  { Call the constructor in this instance to initialize myself first }
-  Create(LAscKeys, LAscValues);
-end;
-
-procedure TDoubleSortedBidiMap<TKey, TValue>.StartSerializing(const AData: TSerializationData);
-begin
-  { Write the ascending sign }
-  AData.AddValue(SSerAscendingKeys, FAscKeys);
-  AData.AddValue(SSerAscendingValues, FAscValues);
-end;
-
 { TObjectDoubleSortedBidiMap<TKey, TValue> }
 
-procedure TObjectDoubleSortedBidiMap<TKey, TValue>.InstallTypes(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+procedure TObjectDoubleSortedBidiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  { Create a wrapper over the real type class and switch it }
-  FKeyWrapperType := TMaybeObjectWrapperType<TKey>.Create(AKeyRules);
-  FValueWrapperType := TMaybeObjectWrapperType<TValue>.Create(AValueRules);
-
-  { Install overridden type }
-  inherited InstallTypes(FKeyWrapperType, FValueWrapperType);
+  TObject(AKey).Free;
 end;
 
-function TObjectDoubleSortedBidiMap<TKey, TValue>.GetOwnsKeys: Boolean;
+procedure TObjectDoubleSortedBidiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  Result := FKeyWrapperType.AllowCleanup;
-end;
-
-function TObjectDoubleSortedBidiMap<TKey, TValue>.GetOwnsValues: Boolean;
-begin
-  Result := FValueWrapperType.AllowCleanup;
-end;
-
-procedure TObjectDoubleSortedBidiMap<TKey, TValue>.SetOwnsKeys(const Value: Boolean);
-begin
-  FKeyWrapperType.AllowCleanup := Value;
-end;
-
-procedure TObjectDoubleSortedBidiMap<TKey, TValue>.SetOwnsValues(const Value: Boolean);
-begin
-  FValueWrapperType.AllowCleanup := Value;
+  TObject(AValue).Free;
 end;
 
 end.

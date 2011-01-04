@@ -29,6 +29,7 @@
 unit Collections.Bags;
 interface
 uses SysUtils,
+     Generics.Collections,
      Collections.Base,
      Collections.Dictionaries;
 
@@ -40,10 +41,10 @@ type
     { Enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TAbstractBag<T>;
-      FCurrentKV: IEnumerator<KVPair<T, NativeUInt>>;
-      FCurrentCount: NativeUInt;
+      FCurrentKV: IEnumerator<TPair<T, NativeInt>>;
+      FCurrentCount: NativeInt;
       FValue: T;
 
     public
@@ -59,38 +60,38 @@ type
     {$ENDREGION}
 
   private var
-    FDictionary: IDictionary<T, NativeUInt>;
-    FVer: NativeUInt;
-    FKnownCount: NativeUInt;
+    FDictionary: IDictionary<T, NativeInt>;
+    FVer: NativeInt;
+    FKnownCount: NativeInt;
 
   protected
     ///  <summary>Specifies the internal dictionary used as back-end.</summary>
     ///  <returns>A dictionary of lists used as back-end.</summary>
-    property Dictionary: IDictionary<T, NativeUInt> read FDictionary;
+    property Dictionary: IDictionary<T, NativeInt> read FDictionary;
 
     ///  <summary>Returns the number of elements in the bag.</summary>
     ///  <returns>A positive value specifying the number of elements in the bag.</returns>
     ///  <remarks>The returned value is calculated by taking each key and multiplying it to its weight in
     ///  the bag. For example an item that has a weight of <c>20</c> will increse the count with <c>20</c>.</remarks>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the weight of an element.</param>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns>The weight of the value.</returns>
     ///  <remarks>If the value is not found in the bag, zero is returned.</remarks>
-    function GetWeight(const AValue: T): NativeUInt;
+    function GetWeight(const AValue: T): NativeInt;
 
     ///  <summary>Sets the weight of an element.</param>
     ///  <param name="AValue">The value to set the weight for.</param>
     ///  <param name="AWeight">The new weight.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    procedure SetWeight(const AValue: T; const AWeight: NativeUInt);
+    procedure SetWeight(const AValue: T; const AWeight: NativeInt);
 
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
     ///  <param name="ARules">The type object describing the elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; virtual; abstract;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; virtual; abstract;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default type object is requested.</remarks>
@@ -106,16 +107,6 @@ type
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <remarks>The default type object is requested.</remarks>
     constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TDynamicArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TFixedArray<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A type object decribing the elements in the bag.</param>
@@ -135,18 +126,6 @@ type
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>); overload;
-
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
@@ -160,14 +139,14 @@ type
     ///  <param name="AWeight">The weight of the element.</param>
     ///  <remarks>If the bag already contains the given value, it's stored weight is incremented to by <paramref name="AWeight"/>.
     ///  If the value of <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Add(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure Add(const AValue: T; const AWeight: NativeInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <param name="AWeight">The weight to remove.</param>
     ///  <remarks>This method decreses the weight of the stored item by <paramref name="AWeight"/>. If the resulting weight is less
     ///  than zero or zero, the element is removed for the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Remove(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure Remove(const AValue: T; const AWeight: NativeInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
@@ -181,19 +160,19 @@ type
     ///  <returns><c>True</c> if the condition is met; <c>False</c> otherwise.</returns>
     ///  <remarks>This method checks whether the bag contains the given value and that the contained value has at least the
     ///  given weight.</remarks>
-    function Contains(const AValue: T; const AWeight: NativeUInt = 1): Boolean;
+    function Contains(const AValue: T; const AWeight: NativeInt = 1): Boolean;
 
     ///  <summary>Sets or gets the weight of an item in the bag.</summary>
     ///  <param name="AValue">The value.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    property Weights[const AValue: T]: NativeUInt read GetWeight write SetWeight; default;
+    property Weights[const AValue: T]: NativeInt read GetWeight write SetWeight; default;
 
     ///  <summary>Returns the number of elements in the bag.</summary>
     ///  <returns>A positive value specifying the number of elements in the bag.</returns>
     ///  <remarks>The returned value is calculated by taking each key and multiplying it to its weight in
     ///  the bag. For example an item that has a weight of <c>20</c> will increse the count with <c>20</c>.</remarks>
-    property Count: NativeUInt read FKnownCount;
+    property Count: NativeInt read FKnownCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this bag.</summary>
     ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
@@ -207,7 +186,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the bag.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of T; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the bag is empty.</summary>
     ///  <returns><c>True</c> if the bag is empty; <c>False</c> otherwise.</returns>
@@ -280,63 +259,41 @@ type
   ///  <remarks>This type uses hashing techniques to store its values.</remarks>
   TBag<T> = class(TAbstractBag<T>)
   private var
-    FInitialCapacity: NativeUInt;
+    FInitialCapacity: NativeInt;
 
   protected
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
     ///  <param name="ARules">The type object describing the bag's elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
-
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an element has been deserialized and needs to be inserted into the bag.</summary>
-    ///  <param name="AElement">The element that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the bag.</remarks>
-    procedure DeserializeElement(const AElement: T); override;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">The type object describing the bag's elements.</param>
     ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
   end;
 
   ///  <summary>The generic <c>bag</c> collection designed to store objects.</summary>
   ///  <remarks>This type uses hashing techniques to store its objects.</remarks>
   TObjectBag<T: class> = class(TBag<T>)
   private
-    FWrapperType: TObjectWrapperType<T>;
-
-    { Getters/Setters for OwnsObjects }
-    function GetOwnsObjects: Boolean;
-    procedure SetOwnsObjects(const Value: Boolean);
+    FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Installs the type object.</summary>
-    ///  <param name="ARules">The type object to install.</param>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
-    ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    procedure InstallType(const ARules: TRules<T>); override;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
 
   public
     ///  <summary>Specifies whether this bag owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the bag owns its objects; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the bag controls the life-time of the stored objects.</remarks>
-    property OwnsObjects: Boolean read GetOwnsObjects write SetOwnsObjects;
+    property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
 type
@@ -350,21 +307,7 @@ type
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
     ///  <param name="ARules">The type object describing the bag's elements.</param>
     ///  <remarks>This method creates an AVL-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
-
-    ///  <summary>Called when the serialization process is about to begin.</summary>
-    ///  <param name="AData">The serialization data exposing the context and other serialization options.</param>
-    procedure StartSerializing(const AData: TSerializationData); override;
-
-    ///  <summary>Called when the deserialization process is about to begin.</summary>
-    ///  <param name="AData">The deserialization data exposing the context and other deserialization options.</param>
-    ///  <exception cref="DeHL.Exceptions|ESerializationException">Default implementation.</exception>
-    procedure StartDeserializing(const AData: TDeserializationData); override;
-
-    ///  <summary>Called when the an element has been deserialized and needs to be inserted into the bag.</summary>
-    ///  <param name="AElement">The element that was deserialized.</param>
-    ///  <remarks>This method simply adds the element to the bag.</remarks>
-    procedure DeserializeElement(const AElement: T); override;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
@@ -383,18 +326,6 @@ type
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <remarks>The default type object is requested.</remarks>
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TDynamicArray<T>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AArray: TFixedArray<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A type object decribing the elements in the bag.</param>
@@ -416,55 +347,32 @@ type
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: TFixedArray<T>; const AAscending: Boolean = true); overload;
-
   end;
 
   ///  <summary>The generic <c>bag</c> collection designed to store objects.</summary>
   ///  <remarks>This type uses an AVL tree to store its objects.</remarks>
   TObjectSortedBag<T: class> = class(TSortedBag<T>)
   private
-    FWrapperType: TObjectWrapperType<T>;
-
-    { Getters/Setters for OwnsObjects }
-    function GetOwnsObjects: Boolean;
-    procedure SetOwnsObjects(const Value: Boolean);
+    FOwnsObjects: Boolean;
 
   protected
-    ///  <summary>Installs the type object.</summary>
-    ///  <param name="ARules">The type object to install.</param>
-    ///  <remarks>This method installs a custom wrapper designed to suppress the cleanup of objects on request. Make sure to call this method in
-    ///  descendant classes.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    procedure InstallType(const ARules: TRules<T>); override;
+    //TODO: doc me.
+    procedure HandleElementRemoved(const AElement: T); override;
 
   public
     ///  <summary>Specifies whether this bag owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the bag owns its objects; <c>False</c> otherwise.</returns>
     ///  <remarks>This property controls the way the bag controls the life-time of the stored objects.</remarks>
-    property OwnsObjects: Boolean read GetOwnsObjects write SetOwnsObjects;
+    property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
 implementation
 
 { TAbstractBag<T> }
 
-procedure TAbstractBag<T>.Add(const AValue: T; const AWeight: NativeUInt);
+procedure TAbstractBag<T>.Add(const AValue: T; const AWeight: NativeInt);
 var
-  OldCount: NativeUInt;
+  OldCount: NativeInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
@@ -504,9 +412,9 @@ begin
   end;
 end;
 
-function TAbstractBag<T>.Contains(const AValue: T; const AWeight: NativeUInt): Boolean;
+function TAbstractBag<T>.Contains(const AValue: T; const AWeight: NativeInt): Boolean;
 var
-  InCount: NativeUInt;
+  InCount: NativeInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
@@ -516,16 +424,16 @@ begin
   Result := (FDictionary.TryGetValue(AValue, InCount)) and (InCount >= AWeight);
 end;
 
-procedure TAbstractBag<T>.CopyTo(var AArray: array of T; const StartIndex: NativeUInt);
+procedure TAbstractBag<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
-  TempArray: array of KVPair<T, NativeUInt>;
-  I, X, Y: NativeUInt;
+  TempArray: array of TPair<T, NativeInt>;
+  I, X, Y: NativeInt;
 begin
-  if StartIndex >= NativeUInt(Length(AArray)) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('StartIndex');
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if (NativeUInt(Length(AArray)) - StartIndex) < Count then
+  if (Length(AArray) - AStartIndex) < Count then
     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Nothing to do? }
@@ -536,7 +444,7 @@ begin
   SetLength(TempArray, FDictionary.Count);
   FDictionary.CopyTo(TempArray);
 
-  X := StartIndex;
+  X := AStartIndex;
 
   { OK! Now let's simply copy }
   for I := 0 to Length(TempArray) - 1 do
@@ -548,48 +456,6 @@ begin
       Inc(X);
     end;
   end;
-end;
-
-constructor TAbstractBag<T>.Create(const AArray: TFixedArray<T>);
-begin
-  { Call upper constructor }
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TAbstractBag<T>.Create(const AArray: TDynamicArray<T>);
-begin
-  { Call upper constructor }
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-      Add(AArray[I]);
-    end;
-end;
-
-constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>);
-var
-  I: NativeUInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all items in }
-  if AArray.Length > 0 then
-    for I := 0 to AArray.Length - 1 do
-    begin
-      Add(AArray[I]);
-    end;
 end;
 
 constructor TAbstractBag<T>.Create();
@@ -635,13 +501,9 @@ end;
 
 constructor TAbstractBag<T>.Create(const ARules: TRules<T>);
 begin
-  { Initialize instance }
-  if (ARules = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('ARules');
+  inherited Create(ARules);
 
-  InstallType(ARules);
   FDictionary := CreateDictionary(ElementRules);
-
   FVer := 0;
   FKnownCount := 0;
 end;
@@ -701,13 +563,13 @@ begin
   Result := FDictionary.Keys.Min();
 end;
 
-function TAbstractBag<T>.GetCount: NativeUInt;
+function TAbstractBag<T>.GetCount: NativeInt;
 begin
   { Dictionary knows the real count }
   Result := FKnownCount;
 end;
 
-function TAbstractBag<T>.GetWeight(const AValue: T): NativeUInt;
+function TAbstractBag<T>.GetWeight(const AValue: T): NativeInt;
 begin
   { Get the count }
   if not FDictionary.TryGetValue(AValue, Result) then
@@ -719,9 +581,9 @@ begin
   Result := TEnumerator.Create(Self);
 end;
 
-procedure TAbstractBag<T>.Remove(const AValue: T; const AWeight: NativeUInt);
+procedure TAbstractBag<T>.Remove(const AValue: T; const AWeight: NativeInt);
 var
-  OldCount: NativeUInt;
+  OldCount: NativeInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
@@ -748,7 +610,7 @@ end;
 
 procedure TAbstractBag<T>.RemoveAll(const AValue: T);
 var
-  OldCount: NativeUInt;
+  OldCount: NativeInt;
 begin
   { Check that the key is present in the dictionary first }
   if not FDictionary.TryGetValue(AValue, OldCount) then
@@ -760,9 +622,9 @@ begin
   Inc(FVer);
 end;
 
-procedure TAbstractBag<T>.SetWeight(const AValue: T; const AWeight: NativeUInt);
+procedure TAbstractBag<T>.SetWeight(const AValue: T; const AWeight: NativeInt);
 var
-  OldValue: NativeUInt;
+  OldValue: NativeInt;
 begin
   { Check count > 0 }
   if Count = 0 then
@@ -861,21 +723,21 @@ const
 
 { TBag<T> }
 
-constructor TBag<T>.Create(const AInitialCapacity: NativeUInt);
+constructor TBag<T>.Create(const AInitialCapacity: NativeInt);
 begin
   FInitialCapacity := AInitialCapacity;
   inherited Create();
 end;
 
-constructor TBag<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeUInt);
+constructor TBag<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   FInitialCapacity := AInitialCapacity;
   inherited Create(ARules);
 end;
 
-function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
+function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>;
 var
-  Cap: NativeUInt;
+  Cap: NativeInt;
 begin
   { Create a simple dictionary }
   if FInitialCapacity = 0 then
@@ -883,103 +745,22 @@ begin
   else
     Cap := FInitialCapacity;
 
-  Result := TDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, Cap);
-end;
-
-procedure TBag<T>.DeserializeElement(const AElement: T);
-begin
-  { Simple as hell ... }
-  Add(AElement);
-end;
-
-procedure TBag<T>.StartDeserializing(const AData: TDeserializationData);
-begin
-  { Call the constructor in this instance to initialize myself first }
-  Create();
-end;
-
-procedure TBag<T>.StartSerializing(const AData: TSerializationData);
-begin
-  // Do nothing, just say that I am here and I can be serialized
+  Result := TDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, Cap);
 end;
 
 { TObjectBag<T> }
 
-procedure TObjectBag<T>.InstallType(const ARules: TRules<T>);
+procedure TObjectBag<T>.HandleElementRemoved(const AElement: T);
 begin
-  { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(ARules);
-
-  { Install overridden type }
-  inherited InstallType(FWrapperType);
-end;
-
-function TObjectBag<T>.GetOwnsObjects: Boolean;
-begin
-  Result := FWrapperType.AllowCleanup;
-end;
-
-procedure TObjectBag<T>.SetOwnsObjects(const Value: Boolean);
-begin
-  FWrapperType.AllowCleanup := Value;
+  TObject(AElement).Free;
 end;
 
 { TSortedBag<T> }
 
-constructor TSortedBag<T>.Create(const AArray: TFixedArray<T>; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(AArray);
-end;
-
-constructor TSortedBag<T>.Create(const AArray: TDynamicArray<T>; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(AArray);
-end;
-
-constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AArray: TFixedArray<T>; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(ARules, AArray);
-end;
-
-function TSortedBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
+function TSortedBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>;
 begin
   { Create a sorted dictionary }
-  Result := TSortedDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, FAscSort);
-end;
-
-procedure TSortedBag<T>.DeserializeElement(const AElement: T);
-begin
-  { Simple as hell ... }
-  Add(AElement);
-end;
-
-procedure TSortedBag<T>.StartDeserializing(const AData: TDeserializationData);
-var
-  LAsc: Boolean;
-begin
-  AData.GetValue(SSerAscendingKeys, LAsc);
-
-  { Call the constructor in this instance to initialize myself first }
-  Create(LAsc);
-end;
-
-procedure TSortedBag<T>.StartSerializing(const AData: TSerializationData);
-begin
-  { Write the ascending sign }
-  AData.AddValue(SSerAscendingKeys, FAscSort);
-end;
-
-constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AArray: TDynamicArray<T>; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(ARules, AArray);
+  Result := TSortedDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, FAscSort);
 end;
 
 constructor TSortedBag<T>.Create(const AAscending: Boolean);
@@ -1026,23 +807,9 @@ end;
 
 { TObjectSortedBag<T> }
 
-procedure TObjectSortedBag<T>.InstallType(const ARules: TRules<T>);
+procedure TObjectSortedBag<T>.HandleElementRemoved(const AElement: T);
 begin
-  { Create a wrapper over the real type class and switch it }
-  FWrapperType := TObjectWrapperType<T>.Create(ARules);
-
-  { Install overridden type }
-  inherited InstallType(FWrapperType);
-end;
-
-function TObjectSortedBag<T>.GetOwnsObjects: Boolean;
-begin
-  Result := FWrapperType.AllowCleanup;
-end;
-
-procedure TObjectSortedBag<T>.SetOwnsObjects(const Value: Boolean);
-begin
-  FWrapperType.AllowCleanup := Value;
+  TObject(AElement).Free;
 end;
 
 end.

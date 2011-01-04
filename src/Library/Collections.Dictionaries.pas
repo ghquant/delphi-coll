@@ -41,7 +41,7 @@ type
     { Generic Dictionary Pairs Enumerator }
     TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TDictionary<TKey, TValue>;
       FCurrentIndex: NativeInt;
       FValue: TPair<TKey,TValue>;
@@ -60,7 +60,7 @@ type
     { Generic Dictionary Keys Enumerator }
     TKeyEnumerator = class(TEnumerator<TKey>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TDictionary<TKey, TValue>;
       FCurrentIndex: NativeInt;
       FValue: TKey;
@@ -78,7 +78,7 @@ type
     { Generic Dictionary Values Enumerator }
     TValueEnumerator = class(TEnumerator<TValue>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TDictionary<TKey, TValue>;
       FCurrentIndex: NativeInt;
       FValue: TValue;
@@ -110,20 +110,20 @@ type
 
     protected
       { Hidden }
-      function GetCount(): NativeUInt; override;
+      function GetCount(): NativeInt; override;
 
     public
       { Constructor }
       constructor Create(const ADict: TDictionary<TKey, TValue>);
 
       { Property }
-      property Count: NativeUInt read GetCount;
+      property Count: NativeInt read GetCount;
 
       { IEnumerable/ ICollection support }
       function GetEnumerator(): IEnumerator<TKey>; override;
 
       { Copy-To }
-      procedure CopyTo(var AArray: array of TKey; const StartIndex: NativeUInt); overload; override;
+      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
     end;
 
     { Generic Dictionary Values Collection }
@@ -133,20 +133,20 @@ type
 
     protected
       { Hidden }
-      function GetCount: NativeUInt; override;
+      function GetCount: NativeInt; override;
 
     public
       { Constructor }
       constructor Create(const ADict: TDictionary<TKey, TValue>);
 
       { Property }
-      property Count: NativeUInt read GetCount;
+      property Count: NativeInt read GetCount;
 
       { IEnumerable/ ICollection support }
       function GetEnumerator(): IEnumerator<TValue>; override;
 
       { Copy-To }
-      procedure CopyTo(var AArray: array of TValue; const StartIndex: NativeUInt); overload; override;
+      procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
     end;
     {$ENDREGION}
 
@@ -158,10 +158,10 @@ type
     FCount: NativeInt;
     FFreeCount: NativeInt;
     FFreeList: NativeInt;
-    FVer: NativeUInt;
+    FVer: NativeInt;
 
     { Internal }
-    procedure InitializeInternals(const Capacity: NativeUInt);
+    procedure InitializeInternals(const ACapacity: NativeInt);
     procedure Insert(const AKey: TKey; const AValue: TValue; const ShouldAdd: Boolean = true);
     function FindEntry(const AKey: TKey): NativeInt;
     procedure Resize();
@@ -170,7 +170,7 @@ type
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
@@ -192,7 +192,7 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
     ///  <remarks>The default type object is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeUInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
@@ -215,7 +215,7 @@ type
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AInitialCapacity: NativeUInt); overload;
+      const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
@@ -285,7 +285,7 @@ type
 
     ///  <summary>Specifies the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
-    property Count: NativeUInt read GetCount;
+    property Count: NativeInt read GetCount;
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
@@ -307,7 +307,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
@@ -378,7 +378,7 @@ type
     { Generic Dictionary Pairs Enumerator }
     TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TSortedDictionary<TKey, TValue>;
       FNext: TNode;
       FValue: TPair<TKey,TValue>;
@@ -397,7 +397,7 @@ type
     { Generic Dictionary Keys Enumerator }
     TKeyEnumerator = class(TEnumerator<TKey>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TSortedDictionary<TKey, TValue>;
       FNext: TNode;
       FValue: TKey;
@@ -416,7 +416,7 @@ type
     { Generic Dictionary Values Enumerator }
     TValueEnumerator = class(TEnumerator<TValue>)
     private
-      FVer: NativeUInt;
+      FVer: NativeInt;
       FDict: TSortedDictionary<TKey, TValue>;
       FNext: TNode;
       FValue: TValue;
@@ -439,20 +439,20 @@ type
 
     protected
       { Hidden }
-      function GetCount(): NativeUInt; override;
+      function GetCount(): NativeInt; override;
 
     public
       { Constructor }
       constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
 
       { Property }
-      property Count: NativeUInt read GetCount;
+      property Count: NativeInt read GetCount;
 
       { IEnumerable/ ICollection support }
       function GetEnumerator(): IEnumerator<TKey>; override;
 
       { Copy-To }
-      procedure CopyTo(var AArray: array of TKey; const StartIndex: NativeUInt); overload; override;
+      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
     end;
 
     { Generic Dictionary Values Collection }
@@ -462,26 +462,26 @@ type
 
     protected
       { Hidden }
-      function GetCount: NativeUInt; override;
+      function GetCount: NativeInt; override;
 
     public
       { Constructor }
       constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
 
       { Property }
-      property Count: NativeUInt read GetCount;
+      property Count: NativeInt read GetCount;
 
       { IEnumerable/ ICollection support }
       function GetEnumerator(): IEnumerator<TValue>; override;
 
       { Copy-To }
-      procedure CopyTo(var AArray: array of TValue; const StartIndex: NativeUInt); overload; override;
+      procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
     end;
     {$ENDREGION}
 
   private var
-    FCount: NativeUInt;
-    FVer: NativeUInt;
+    FCount: NativeInt;
+    FVer: NativeInt;
     FRoot: TNode;
     FSignFix: NativeInt;
     FKeyCollection: IEnexCollection<TKey>;
@@ -504,7 +504,7 @@ type
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
-    function GetCount(): NativeUInt; override;
+    function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
@@ -624,7 +624,7 @@ type
 
     ///  <summary>Specifies the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
-    property Count: NativeUInt read GetCount;
+    property Count: NativeInt read GetCount;
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
@@ -646,7 +646,7 @@ type
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
-    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const StartIndex: NativeUInt); overload; override;
+    procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
@@ -725,7 +725,7 @@ end;
 
 procedure TDictionary<TKey, TValue>.Clear;
 var
-  I, K: NativeUInt;
+  I, K: NativeInt;
 begin
   if FCount > 0 then
     for I := 0 to Length(FBucketArray) - 1 do
@@ -771,19 +771,18 @@ begin
   end;
 end;
 
-procedure TDictionary<TKey, TValue>.CopyTo(
-  var AArray: array of TPair<TKey, TValue>; const StartIndex: NativeUInt);
+procedure TDictionary<TKey, TValue>.CopyTo(var AArray: array of TPair<TKey, TValue>; const AStartIndex: NativeInt);
 var
   I, X: NativeInt;
 begin
   { Check for indexes }
-  if StartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < Count then
+  if (Length(AArray) - AStartIndex) < Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   for I := 0 to FCount - 1 do
   begin
@@ -802,7 +801,7 @@ begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default);
 end;
 
-constructor TDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeUInt);
+constructor TDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default, AInitialCapacity);
 end;
@@ -815,7 +814,7 @@ end;
 
 constructor TDictionary<TKey, TValue>.Create(
   const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>; const AInitialCapacity: NativeUInt);
+  const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt);
 begin
   { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
@@ -894,7 +893,7 @@ begin
   end;
 end;
 
-function TDictionary<TKey, TValue>.GetCount: NativeUInt;
+function TDictionary<TKey, TValue>.GetCount: NativeInt;
 begin
   Result := (FCount - FFreeCount);
 end;
@@ -918,14 +917,14 @@ begin
 end;
 
 procedure TDictionary<TKey, TValue>.InitializeInternals(
-  const Capacity: NativeUInt);
+  const ACapacity: NativeInt);
 var
   I: NativeInt;
 begin
-  SetLength(FBucketArray, Capacity);
-  SetLength(FEntryArray, Capacity);
+  SetLength(FBucketArray, ACapacity);
+  SetLength(FEntryArray, ACapacity);
 
-  for I := 0 to Capacity - 1 do
+  for I := 0 to ACapacity - 1 do
   begin
     FBucketArray[I] := -1;
     FEntryArray[I].FHashCode := -1;
@@ -1301,7 +1300,7 @@ begin
   FDict := ADict;
 end;
 
-function TDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeUInt;
+function TDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
 begin
   { Number of elements is the same as key }
   Result := FDict.Count;
@@ -1312,18 +1311,18 @@ begin
   Result := TKeyEnumerator.Create(Self.FDict);
 end;
 
-procedure TDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const StartIndex: NativeUInt);
+procedure TDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
 var
   I, X: NativeInt;
 begin
   { Check for indexes }
-  if StartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < FDict.Count then
+  if (Length(AArray) - AStartIndex) < FDict.Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   for I := 0 to FDict.FCount - 1 do
   begin
@@ -1346,7 +1345,7 @@ begin
   FDict := ADict;
 end;
 
-function TDictionary<TKey, TValue>.TValueCollection.GetCount: NativeUInt;
+function TDictionary<TKey, TValue>.TValueCollection.GetCount: NativeInt;
 begin
   { Number of elements is the same as key }
   Result := FDict.Count;
@@ -1357,18 +1356,18 @@ begin
   Result := TValueEnumerator.Create(Self.FDict);
 end;
 
-procedure TDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const StartIndex: NativeUInt);
+procedure TDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
 var
   I, X: NativeInt;
 begin
-  if StartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if (NativeUInt(Length(AArray)) - StartIndex) < FDict.Count then
+  if (Length(AArray) - AStartIndex) < FDict.Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   for I := 0 to FDict.FCount - 1 do
   begin
@@ -1806,19 +1805,19 @@ begin
   Exit(false);
 end;
 
-procedure TSortedDictionary<TKey, TValue>.CopyTo(var AArray: array of TPair<TKey, TValue>; const StartIndex: NativeUInt);
+procedure TSortedDictionary<TKey, TValue>.CopyTo(var AArray: array of TPair<TKey, TValue>; const AStartIndex: NativeInt);
 var
   X: NativeInt;
   LNode: TNode;
 begin
   { Check for indexes }
-  if StartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < FCount then
+  if (Length(AArray) - AStartIndex) < FCount then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   { Find the left-most node }
   LNode := FindLeftMostNode();
@@ -1948,7 +1947,7 @@ begin
   end;
 end;
 
-function TSortedDictionary<TKey, TValue>.GetCount: NativeUInt;
+function TSortedDictionary<TKey, TValue>.GetCount: NativeInt;
 begin
   Result := FCount;
 end;
@@ -2538,7 +2537,7 @@ begin
   FDict := ADict;
 end;
 
-function TSortedDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeUInt;
+function TSortedDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
 begin
   { Number of elements is the same as AKey }
   Result := FDict.Count;
@@ -2549,19 +2548,19 @@ begin
   Result := TKeyEnumerator.Create(Self.FDict);
 end;
 
-procedure TSortedDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const StartIndex: NativeUInt);
+procedure TSortedDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
 var
   I, X: NativeInt;
   LNode: TNode;
 begin
   { Check for indexes }
-  if StartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < FDict.Count then
+  if (Length(AArray) - AStartIndex) < FDict.Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   { Find the left-most node }
   LNode := FDict.FindLeftMostNode();
@@ -2590,7 +2589,7 @@ begin
   FDict := ADict;
 end;
 
-function TSortedDictionary<TKey, TValue>.TValueCollection.GetCount: NativeUInt;
+function TSortedDictionary<TKey, TValue>.TValueCollection.GetCount: NativeInt;
 begin
   { Number of elements is the same as AKey }
   Result := FDict.Count;
@@ -2601,19 +2600,19 @@ begin
   Result := TValueEnumerator.Create(Self.FDict);
 end;
 
-procedure TSortedDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const StartIndex: NativeUInt);
+procedure TSortedDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
 var
   X: NativeInt;
   LNode: TNode;
 begin
   { Check for indexes }
-  if StartIndex >= NativeUInt(Length(AArray)) then
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (NativeUInt(Length(AArray)) - StartIndex) < FDict.Count then
+  if (Length(AArray) - AStartIndex) < FDict.Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
-  X := StartIndex;
+  X := AStartIndex;
 
   { Find the left-most node }
   LNode := FDict.FindLeftMostNode();
