@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2009-2010, Ciobanu Alexandru
+* Copyright (c) 2009-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.MultiMaps;
 interface
 uses SysUtils,
@@ -733,11 +732,13 @@ type
     FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
     procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -839,11 +840,13 @@ type
     FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
     procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -900,11 +903,13 @@ type
     FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
     procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -954,11 +959,13 @@ type
     FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
     procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     { Object owning }
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
@@ -1047,11 +1054,13 @@ type
     FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
     procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -1148,11 +1157,13 @@ type
     FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
     procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -1326,11 +1337,11 @@ begin
   { Pump in all items }
   for V in ACollection do
   begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     Add(V);
 {$ELSE}
     Add(V.Key, V.Value);
-{$ENDIF}
+{$IFEND}
   end;
 end;
 
@@ -1894,11 +1905,11 @@ begin
   { Pump in all items }
   for V in ACollection do
   begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     Add(V);
 {$ELSE}
     Add(V.Key, V.Value);
-{$ENDIF}
+{$IFEND}
   end;
 end;
 
@@ -2282,9 +2293,6 @@ begin
   end;
 end;
 
-const
-  DefaultArrayLength = 32;
-
 { TMultiMap<TKey, TValue> }
 
 constructor TMultiMap<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
@@ -2302,15 +2310,15 @@ end;
 
 function TMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IList<TValue>>;
 var
-  Cap: NativeInt;
+  LNewCapacity: NativeInt;
 begin
   { Create a simple dictionary }
-  if FInitialCapacity = 0 then
-    Cap := DefaultArrayLength
+  if FInitialCapacity <= 0 then
+    LNewCapacity := CDefaultSize
   else
-    Cap := FInitialCapacity;
+    LNewCapacity := FInitialCapacity;
 
-  Result := TDictionary<TKey, IList<TValue>>.Create(AKeyRules, TRules<IList<TValue>>.Default, Cap);
+  Result := TDictionary<TKey, IList<TValue>>.Create(AKeyRules, TRules<IList<TValue>>.Default, LNewCapacity);
 end;
 
 function TMultiMap<TKey, TValue>.CreateList(const AValueRules: TRules<TValue>): IList<TValue>;
@@ -2435,15 +2443,15 @@ end;
 
 function TDistinctMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ISet<TValue>>;
 var
-  Cap: NativeInt;
+  LNewCapacity: NativeInt;
 begin
   { Create a simple dictionary }
-  if FInitialCapacity = 0 then
-    Cap := DefaultArrayLength
+  if FInitialCapacity <= 0 then
+    LNewCapacity := CDefaultSize
   else
-    Cap := FInitialCapacity;
+    LNewCapacity := FInitialCapacity;
 
-  Result := TDictionary<TKey, ISet<TValue>>.Create(AKeyRules, TRules<ISet<TValue>>.Default, Cap);
+  Result := TDictionary<TKey, ISet<TValue>>.Create(AKeyRules, TRules<ISet<TValue>>.Default, LNewCapacity);
 end;
 
 function TDistinctMultiMap<TKey, TValue>.CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>;

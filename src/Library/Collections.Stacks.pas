@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2010, Ciobanu Alexandru
+* Copyright (c) 2008-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.Stacks;
 interface
 uses SysUtils,
@@ -306,7 +305,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -528,7 +528,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -540,9 +541,6 @@ type
 
 
 implementation
-
-const
-  DefaultArrayLength = 10;
 
 { TStack<T> }
 
@@ -628,7 +626,7 @@ begin
     HandleElementRemoved(FArray[I]);
 
   { Simply reset all to default }
-  SetLength(FArray, DefaultArrayLength);
+  SetLength(FArray, CDefaultSize);
   FLength := 0;
 
   Inc(FVer);
@@ -673,7 +671,7 @@ var
   V: T;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -702,7 +700,7 @@ end;
 constructor TStack<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 end;
 
 constructor TStack<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
@@ -805,16 +803,14 @@ end;
 
 procedure TStack<T>.Grow;
 var
-  ListLength: NativeInt;
+  LNewCapacity: NativeInt;
 begin
-  ListLength := Capacity;
-
-  if ListLength = 0 then
-     ListLength := DefaultArrayLength
+  if Capacity = 0 then
+    LNewCapacity := CDefaultSize
   else
-     ListLength := ListLength * 2;
+    LNewCapacity := Capacity * 2;
 
-  SetLength(FArray, ListLength);
+  SetLength(FArray, LNewCapacity);
 end;
 
 function TStack<T>.Last: T;
@@ -969,7 +965,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Copy array }
   for I := 0 to Length(AArray) - 1 do

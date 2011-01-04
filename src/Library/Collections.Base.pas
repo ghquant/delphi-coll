@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2010, Ciobanu Alexandru
+* Copyright (c) 2008-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.Base;
 interface
 uses
@@ -34,47 +33,9 @@ uses
   Generics.Defaults;
 
 
-type
-{$HINTS OFF}
-  ///  <summary>Base for all reference counted objects in DeHL.</summary>
-  ///  <remarks><see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> is designed to be used as a base class for all
-  ///  objects that implement interfaces and require reference counting.</remarks>
-  TRefCountedObject = class abstract(TInterfacedObject, IInterface)
-  private
-    FKeepAliveList: TArray<IInterface>;
-    FInConstruction: Boolean;
-
-  protected
-    //TODO: doc me
-    procedure KeepObjectAlive(const AObject: TRefCountedObject);
-
-    //TODO: doc me
-    procedure ReleaseObject(const AObject: TRefCountedObject;
-      const AFreeObject: Boolean = false);
-
-    ///  <summary>Extract an interafce reference for this object.</summary>
-    ///  <remarks>If the reference count is zero, then no reference is extracted.</remarks>
-    ///  <returns>An interface reference or <c>nil</c>.</returns>
-    function ExtractReference(): IInterface;
-
-    ///  <summary>Specifies whether the object is currently being constructed.</summary>
-    ///  <returns><c>True</c> if the object is in construction; <c>False</c> otherwise.</returns>
-    property Constructing: Boolean read FInConstruction;
-  public
-    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
-    ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
-    class function NewInstance: TObject; override;
-
-    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
-    ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
-    procedure AfterConstruction; override;
-  end;
-{$HINTS ON}
-
 {$REGION 'Base Collection Interfaces'}
 
 type
-{$IFDEF BUG_BASE_INTFS}
   ///  <summary>Base interface describing all enumerators in DeHL.</summary>
   ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> is implemented by
   ///  all enumerator objects in DeHL.</remarks>
@@ -120,7 +81,6 @@ type
     ///  <returns>The <see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> interface.</returns>
     function GetEnumerator(): IEnumerator<T>;
   end;
-{$ENDIF}
 
 type
   //TODO: document me
@@ -134,6 +94,7 @@ type
     function GetHashCode(const AValue: T): NativeInt;
     function Compare(const ALeft, ARight: T): NativeInt;
 
+    class function Custom(const AComparer: TCustomComparer<T>): TRules<T>; static;
     class function Default: TRules<T>; static;
   end;
 
@@ -520,7 +481,7 @@ type
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Concat(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from both collections taken a single time.</summary>
     ///  <param name="ACollection">The collection to unify with.</param>
@@ -528,20 +489,20 @@ type
     ///  from the given collection except the elements that already are present in this collection. This operation can be seen as
     ///  a "concat" operation followed by a "distinct" operation. </returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Union(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from this collection minus the ones in the given collection.</summary>
     ///  <param name="ACollection">The collection to exclude.</param>
     ///  <returns>A new collection that contains the elements from this collection minus the those elements that are common between
     ///  this and the given collection.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Exclude(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements that are present in both collections.</summary>
     ///  <param name="ACollection">The collection to interset with.</param>
     ///  <returns>A new collection that contains the elements that are common to both collections.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Intersect(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Select the elements that whose indexed are located in the given range.</summary>
     ///  <param name="AStart">The lower bound.</param>
@@ -982,12 +943,12 @@ type
     ///  <remarks>This method clears the map and invokes type object's cleaning routines for key and value.</remarks>
     procedure Clear();
 
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     ///  <summary>Adds a key-value pair to the map.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
     ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
     procedure Add(const APair: TPair<TKey, TValue>); overload;
-{$ENDIF}
+{$IFEND}
 
     ///  <summary>Adds a key-value pair to the map.</summary>
     ///  <param name="AKey">The key of pair.</param>
@@ -1057,13 +1018,13 @@ type
     ///  specified value from the collection of values associated with the given key.</remarks>
     procedure Remove(const AKey: TKey; const AValue: TValue); overload;
 
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="APair">The key and its associated value to remove.</param>
     ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
     ///  specified value from the collection of values associated with the given key.</remarks>
     procedure Remove(const APair: TPair<TKey, TValue>); overload;
-{$ENDIF}
+{$IFEND}
 
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -1071,12 +1032,12 @@ type
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
     function ContainsValue(const AKey: TKey; const AValue: TValue): Boolean; overload;
 
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
     ///  <param name="APair">The key-value pair to check for.</param>
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
     function ContainsValue(const APair: TPair<TKey, TValue>): Boolean; overload;
-{$ENDIF}
+{$IFEND}
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>bidirectional multi-map</c>.</summary>
@@ -1102,13 +1063,13 @@ type
     ///  If the key is associated with another value, nothing happens.</remarks>
     procedure Remove(const AKey: TKey; const AValue: TValue); overload;
 
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     ///  <summary>Removes a key-value combination.</summary>
     ///  <param name="APair">The pair to remove.</param>
     ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
     procedure Remove(const APair: TPair<TKey, TValue>); overload;
-{$ENDIF}
+{$IFEND}
 
     ///  <summary>Checks whether the map contains the given key-value combination.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -1116,12 +1077,12 @@ type
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
     function ContainsPair(const AKey: TKey; const AValue: TValue): Boolean; overload;
 
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     ///  <summary>Checks whether the map contains a given key-value combination.</summary>
     ///  <param name="APair">The key-value pair combination.</param>
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
     function ContainsPair(const APair: TPair<TKey, TValue>): Boolean; overload;
-{$ENDIF}
+{$IFEND}
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
@@ -1349,6 +1310,42 @@ type
 
 {$REGION 'Base Collection Classes'}
 type
+{$HINTS OFF}
+  ///  <summary>Base for all reference counted objects in DeHL.</summary>
+  ///  <remarks><see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> is designed to be used as a base class for all
+  ///  objects that implement interfaces and require reference counting.</remarks>
+  TRefCountedObject = class abstract(TInterfacedObject, IInterface)
+  private
+    FKeepAliveList: TArray<IInterface>;
+    FInConstruction: Boolean;
+
+  protected
+    //TODO: doc me
+    procedure KeepObjectAlive(const AObject: TRefCountedObject);
+
+    //TODO: doc me
+    procedure ReleaseObject(const AObject: TRefCountedObject;
+      const AFreeObject: Boolean = false);
+
+    ///  <summary>Extract an interafce reference for this object.</summary>
+    ///  <remarks>If the reference count is zero, then no reference is extracted.</remarks>
+    ///  <returns>An interface reference or <c>nil</c>.</returns>
+    function ExtractReference(): IInterface;
+
+    ///  <summary>Specifies whether the object is currently being constructed.</summary>
+    ///  <returns><c>True</c> if the object is in construction; <c>False</c> otherwise.</returns>
+    property Constructing: Boolean read FInConstruction;
+  public
+    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
+    ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
+    class function NewInstance: TObject; override;
+
+    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
+    ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
+    procedure AfterConstruction; override;
+  end;
+{$HINTS ON}
+
   ///  <summary>Base class for all Enex enumerator objects.</summary>
   ///  <remarks>All Enex collection are expected to provide enumerators that derive from
   ///  this class.</remarks>
@@ -1379,6 +1376,8 @@ type
   ///  enumerability and introduces serialization support.</remarks>
   TCollection<T> = class abstract(TRefCountedObject, ICollection<T>, IEnumerable<T>)
   protected
+    const CDefaultSize = 32;
+
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>A call to this method can be costly because some
@@ -1725,7 +1724,7 @@ type
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Concat(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from both collections taken a single time.</summary>
     ///  <param name="ACollection">The collection to unify with.</param>
@@ -1733,20 +1732,20 @@ type
     ///  from the given collection except the elements that already are present in this collection. This operation can be seen as
     ///  a "concat" operation followed by a "distinct" operation. </returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Union(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from this collection minus the ones in the given collection.</summary>
     ///  <param name="ACollection">The collection to exclude.</param>
     ///  <returns>A new collection that contains the elements from this collection minus the those elements that are common between
     ///  this and the given collection.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Exclude(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements that are present in both collections.</summary>
     ///  <param name="ACollection">The collection to interset with.</param>
     ///  <returns>A new collection that contains the elements that are common to both collections.</returns>
     ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Intersect(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+    function Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Select the elements that whose indexed are located in the given range.</summary>
     ///  <param name="AStart">The lower bound.</param>
@@ -1875,6 +1874,22 @@ type
     ///  <remarks>This method checks whether <paramref name="Obj"/> is not <c>nil</c>, and that
     ///  <paramref name="Obj"/> is a Enex collection. Then, elements are checked for equality one by one.</remarks>
     function Equals(Obj: TObject): Boolean; override;
+
+    ///  <summary>Generates a new collection that contains a given value for a given number of times.</summary>
+    ///  <param name="AElement">The element to fill the collection with.</param>
+    ///  <param name="ACount">The number of times the element is present in the collection (the length of the collection).</param>
+    ///  <param name="ARules">The type object describing the elements in the new collection.</param>
+    ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
+    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AElement"/> is <c>nil</c>.</exception>
+    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
+    class function Fill(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
+
+    ///  <summary>Generates a new collection that contains a given value for a given number of times.</summary>
+    ///  <param name="AElement">The element to fill the collection with.</param>
+    ///  <param name="ACount">The number of times the element is present in the collection (the length of the collection).</param>
+    ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
+    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
+    class function Fill(const AElement: T; const ACount: NativeInt): IEnexCollection<T>; overload; static;
   end;
 
   ///  <summary>Base class for all associative Enex collections.</summary>
@@ -2035,23 +2050,44 @@ type
 {$ENDREGION}
 
 type
-  ///  <summary>A static type that exposes collection related utility methods.</summary>
-  ///  <remarks>The methods exposed by this type are utilitary and useful in some circumstances. This type
-  ///  also serves as a public container for all "private" types that should not be used in user code.</remarks>
-  Collection = record
-  public
-    ///  <summary>Generates a new collection that contains a given value for a given number of times.</summary>
-    ///  <param name="AElement">The element to fill the collection with.</param>
-    ///  <param name="ACount">The number of times the element is present in the collection (the length of the collection).</param>
-    ///  <param name="ARules">The type object describing the elements in the new collection.</param>
-    ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AElement"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    class function Fill<T>(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
+  ///  <summary>Thrown when an attempt to call an unsupported default parameterless constructor is made.</summary>
+  EDefaultConstructorNotAllowed = class(Exception);
 
-    //TODO: doc me
-    class function Fill<T>(const AElement: T; const ACount: NativeInt): IEnexCollection<T>; overload; static;
-  end;
+  ///  <summary>Thrown when a <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> tries to keep itself alive.</summary>
+  ECannotSelfReferenceException = class(Exception);
+
+  ///  <summary>Thrown when a given argument combination specifies a smaller range than required.</summary>
+  ///  <remarks>This exception is usually used by collections. The exception is thrown when there is not enough
+  ///  space in an array to copy the values to.</remarks>
+  EArgumentOutOfSpaceException = class(EArgumentOutOfRangeException);
+
+  ///  <summary>Represents all exceptions that are thrown when collections are involved.</summary>
+  ECollectionException = class(Exception);
+
+  ///  <summary>Thrown when an enumerator detects that the enumerated collection was changed.</summary>
+  ECollectionChangedException = class(ECollectionException);
+
+  ///  <summary>Thrown when a collection was identified to be empty (and it shouldn't have been).</summary>
+  ECollectionEmptyException = class(ECollectionException);
+
+  ///  <summary>Thrown when a collection was expected to have only one exception.</summary>
+  ECollectionNotOneException = class(ECollectionException);
+
+  ///  <summary>Thrown when a predicated applied to a collection generates a void collection.</summary>
+  ECollectionFilteredEmptyException = class(ECollectionException);
+
+  ///  <summary>Thrown when trying to add a key-value pair into a collection that already has that key
+  ///  in it.</summary>
+  EDuplicateKeyException = class(ECollectionException);
+
+  ///  <summary>Thrown when the key (of a pair) is not found in the collection.</summary>
+  EKeyNotFoundException = class(ECollectionException);
+
+  ///  <summary>Thrown when trying to operate on an element that is not a part of the parent collection.</summary>
+  EElementNotPartOfCollection = class(ECollectionException);
+
+  ///  <summary>Thrown when trying to add an element to a collection that already has it.</summary>
+  EElementAlreadyInACollection = class(ECollectionException);
 
   ///  <summary>A static class that offers methods for throwing DeHL exceptions.</summary>
   ///  <remarks><see cref="DeHL.Exceptions|ExceptionHelper">DeHL.Exceptions.ExceptionHelper</see> is used internally in DeHL to
@@ -2061,15 +2097,7 @@ type
   public
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_DefaultConstructorNotAllowedError();
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_CannotSelfReferenceError();
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_ArgumentNotSameTypeError(const ArgName: String);
 
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
@@ -2082,14 +2110,6 @@ type
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_ArgumentOutOfSpaceError(const ArgName: String);
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_InvalidArgumentFormatError(const ArgName: String);
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_ArgumentConverError(const ArgName: String);
 
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
@@ -2122,12 +2142,7 @@ type
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_ElementAlreadyPartOfCollectionError(const ArgName: String);
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_PositionOccupiedError();
   end;
-
 
   //TODO: doc all these classes :(
 type
@@ -2275,14 +2290,14 @@ type
 
   var
     FEnum1: TEnexCollection<T>;
-    FEnum2: TEnexCollection<T>;
+    FEnum2: IEnexCollection<T>;
   protected
     { ICollection support/hidden }
     function GetCount(): NativeInt; override;
 
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2320,10 +2335,10 @@ type
 
   var
     FEnum1: TEnexCollection<T>;
-    FEnum2: TEnexCollection<T>;
+    FEnum2: IEnexCollection<T>;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2356,10 +2371,10 @@ type
 
   var
     FEnum1: TEnexCollection<T>;
-    FEnum2: TEnexCollection<T>;
+    FEnum2: IEnexCollection<T>;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2392,10 +2407,10 @@ type
 
   var
     FEnum1: TEnexCollection<T>;
-    FEnum2: TEnexCollection<T>;
+    FEnum2: IEnexCollection<T>;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: TEnexCollection<T>); overload;
+    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2897,6 +2912,21 @@ uses
   Collections.Lists,
   Collections.Dictionaries;
 
+resourcestring
+  SDefaultParameterlessCtorNotAllowed = 'Default parameterless constructor not allowed!';
+  SCannotSelfReference = 'The object cannot self-reference!';
+  SNilArgument = 'Argument "%s" is nil. Expected a normal non-disposed object!';
+  SOutOfRangeArgument = 'Argument "%s" is out of range. An argument that falls into the required range of values is expected!';
+  SOutOfSpaceArgument = 'Argument "%s" does not have enough space to hold the result!';
+  SParentCollectionChanged = 'Parent collection has changed. Cannot continue the operation!';
+  SKeyNotFound = 'The key given by the "%s" argument was not found in the collection!';
+  SDuplicateKey = 'The key given by the "%s" argument was already registered in the collection!';
+  SEmptyCollection = 'The collection is empty! The operation cannot be performed!';
+  SCollectionHasMoreThanOneElements = 'The collection has more than one element!';
+  SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
+  SElementNotInCollection = 'The element given in the "%s" parameter is not a part of this collection!';
+  SElementAlreadyInAnotherCollection = 'The element given in the "%s" parameter is already a part of another collection!';
+
 { TEnexExtOps<T> }
 
 function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
@@ -3176,15 +3206,14 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.Concat(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+function TEnexCollection<T>.Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  //TODO: fix me
-//  Result := TEnexConcatCollection<T>.Create(Self, ACollection, ElementRules);
+  Result := TEnexConcatCollection<T>.Create(Self, ACollection);
 end;
 
 constructor TEnexCollection<T>.Create(const ARules: TRules<T>);
@@ -3293,15 +3322,30 @@ begin
   Result := true;
 end;
 
-function TEnexCollection<T>.Exclude(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+function TEnexCollection<T>.Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  //TODO: fix me
-//  Result := TEnexExclusionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
+  Result := TEnexExclusionCollection<T>.Create(Self, ACollection);
+end;
+
+class function TEnexCollection<T>.Fill(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>;
+begin
+  { Check arguments }
+  if ACount <= 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
+
+  { Create an collection }
+  Result := TEnexFillCollection<T>.Create(AElement, ACount, ARules);
+end;
+
+class function TEnexCollection<T>.Fill(const AElement: T; const ACount: NativeInt): IEnexCollection<T>;
+begin
+  { Call upper function }
+  Result := Fill(AElement, ACount, TRules<T>.Default);
 end;
 
 function TEnexCollection<T>.First: T;
@@ -3599,15 +3643,14 @@ begin
  // Nothing
 end;
 
-function TEnexCollection<T>.Intersect(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+function TEnexCollection<T>.Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  //TODO: fix me
-//  Result := TEnexIntersectionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
+  Result := TEnexIntersectionCollection<T>.Create(Self, ACollection);
 end;
 
 function TEnexCollection<T>.Last: T;
@@ -3994,15 +4037,14 @@ begin
   Result := THashSet<T>.Create(Self);
 end;
 
-function TEnexCollection<T>.Union(const ACollection: IEnumerable<T>): IEnexCollection<T>;
+function TEnexCollection<T>.Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  //TODO: fix me
-//  Result := TEnexUnionCollection<T>.CreateIntf2(Self, ACollection, ElementRules);
+  Result := TEnexUnionCollection<T>.Create(Self, ACollection);
 end;
 
 function TEnexCollection<T>.Where(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
@@ -4126,7 +4168,8 @@ end;
 
 constructor TEnexAssociativeCollection<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
-//TODO: implement me
+  FKeyRules := AKeyRules;
+  FValueRules := AValueRules;
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.DistinctByKeys: IEnexAssociativeCollection<TKey, TValue>;
@@ -4743,7 +4786,7 @@ begin
 end;
 
 constructor TEnexConcatCollection<T>.Create(
-  const AEnumerable1, AEnumerable2: TEnexCollection<T>);
+  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
 begin
   { Check arguments }
   if not Assigned(AEnumerable1) then
@@ -4760,14 +4803,12 @@ begin
   KeepObjectAlive(FEnum1);
 
   FEnum2 := AEnumerable2;
-  KeepObjectAlive(FEnum2);
 end;
 
 destructor TEnexConcatCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FEnum1, false);
-  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -4837,7 +4878,7 @@ end;
 { TEnexUnionCollection<T> }
 
 constructor TEnexUnionCollection<T>.Create(
-  const AEnumerable1, AEnumerable2: TEnexCollection<T>);
+  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
 begin
   { Check arguments }
   if not Assigned(AEnumerable1) then
@@ -4854,14 +4895,12 @@ begin
   KeepObjectAlive(FEnum1);
 
   FEnum2 := AEnumerable2;
-  KeepObjectAlive(FEnum2);
 end;
 
 destructor TEnexUnionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FEnum1, false);
-  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -4943,7 +4982,7 @@ end;
 { TEnexExclusionCollection<T> }
 
 constructor TEnexExclusionCollection<T>.Create(
-  const AEnumerable1, AEnumerable2: TEnexCollection<T>);
+  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
 begin
   { Check arguments }
   if not Assigned(AEnumerable1) then
@@ -4960,14 +4999,12 @@ begin
   KeepObjectAlive(FEnum1);
 
   FEnum2 := AEnumerable2;
-  KeepObjectAlive(FEnum2);
 end;
 
 destructor TEnexExclusionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FEnum1, false);
-  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -5026,7 +5063,7 @@ end;
 { TEnexIntersectionCollection<T> }
 
 constructor TEnexIntersectionCollection<T>.Create(
-  const AEnumerable1, AEnumerable2: TEnexCollection<T>);
+  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
 begin
   { Check arguments }
   if not Assigned(AEnumerable1) then
@@ -5043,14 +5080,12 @@ begin
   KeepObjectAlive(FEnum1);
 
   FEnum2 := AEnumerable2;
-  KeepObjectAlive(FEnum2);
 end;
 
 destructor TEnexIntersectionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FEnum1, false);
-  ReleaseObject(FEnum2, false);
 
   inherited;
 end;
@@ -6318,24 +6353,6 @@ begin
   end;
 end;
 
-{ Collection }
-
-class function Collection.Fill<T>(const AElement: T; const ACount: NativeInt): IEnexCollection<T>;
-begin
-  { Call upper function }
-  Result := Fill<T>(AElement, ACount, TRules<T>.Default);
-end;
-
-class function Collection.Fill<T>(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>;
-begin
-  { Check arguments }
-  if ACount <= 0 then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
-  { Create an collection }
-  Result := TEnexFillCollection<T>.Create(AElement, ACount, ARules);
-end;
-
 { TRules<T> }
 
 function TRules<T>.AreEqual(const ALeft, ARight: T): Boolean;
@@ -6346,6 +6363,11 @@ end;
 function TRules<T>.Compare(const ALeft, ARight: T): NativeInt;
 begin
 //TODO: implement me
+end;
+
+class function TRules<T>.Custom(const AComparer: TCustomComparer<T>): TRules<T>;
+begin
+//TODO implement me
 end;
 
 class function TRules<T>.Default: TRules<T>;
@@ -6467,96 +6489,64 @@ end;
 
 { ExceptionHelper }
 
-class procedure ExceptionHelper.Throw_ArgumentConverError(
-  const ArgName: String);
-begin
-//TODO: implement me
-end;
-
 class procedure ExceptionHelper.Throw_ArgumentNilError(const ArgName: String);
 begin
-//TODO: implement me
+  raise EArgumentNilException.CreateFmt(SNilArgument, [ArgName]);
 end;
 
-class procedure ExceptionHelper.Throw_ArgumentNotSameTypeError(
-  const ArgName: String);
+class procedure ExceptionHelper.Throw_ArgumentOutOfRangeError(const ArgName: String);
 begin
-//TODO: implement me
+  raise EArgumentOutOfRangeException.CreateFmt(SOutOfRangeArgument, [ArgName]);
 end;
 
-class procedure ExceptionHelper.Throw_ArgumentOutOfRangeError(
-  const ArgName: String);
+class procedure ExceptionHelper.Throw_ArgumentOutOfSpaceError(const ArgName: String);
 begin
-//TODO: implement me
-end;
-
-class procedure ExceptionHelper.Throw_ArgumentOutOfSpaceError(
-  const ArgName: String);
-begin
-//TODO: implement me
+  raise EArgumentOutOfSpaceException.CreateFmt(SOutOfSpaceArgument, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_CannotSelfReferenceError;
 begin
-//TODO: implement me
+  raise ECannotSelfReferenceException.Create(SCannotSelfReference);//TODO: implement me
 end;
 
 class procedure ExceptionHelper.Throw_CollectionChangedError;
 begin
-//TODO: implement me
+  raise ECollectionChangedException.Create(SParentCollectionChanged);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionEmptyError;
 begin
-//TODO: implement me
+  raise ECollectionEmptyException.Create(SEmptyCollection);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionHasMoreThanOneElement;
 begin
-//TODO: implement me
+  raise ECollectionNotOneException.Create(SCollectionHasMoreThanOneElements);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionHasNoFilteredElements;
 begin
-//TODO: implement me
-end;
-
-class procedure ExceptionHelper.Throw_DefaultConstructorNotAllowedError;
-begin
-//TODO: implement me
+  raise ECollectionFilteredEmptyException.Create(SCollectionHasNoFilteredElements);
 end;
 
 class procedure ExceptionHelper.Throw_DuplicateKeyError(const ArgName: String);
 begin
-//TODO: implement me
+  raise EDuplicateKeyException.CreateFmt(SDuplicateKey, [ArgName]);
 end;
 
-class procedure ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError(
-  const ArgName: String);
+class procedure ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError(const ArgName: String);
 begin
-//TODO: implement me
+  raise EElementAlreadyInACollection.CreateFmt(SElementAlreadyInAnotherCollection, [ArgName]);
 end;
 
-class procedure ExceptionHelper.Throw_ElementNotPartOfCollectionError(
-  const ArgName: String);
+class procedure ExceptionHelper.Throw_ElementNotPartOfCollectionError(const ArgName: String);
 begin
-//TODO: implement me
-end;
-
-class procedure ExceptionHelper.Throw_InvalidArgumentFormatError(
-  const ArgName: String);
-begin
-//TODO: implement me
+  raise EElementNotPartOfCollection.CreateFmt(SElementNotInCollection, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_KeyNotFoundError(const ArgName: String);
 begin
-//TODO: implement me
-end;
-
-class procedure ExceptionHelper.Throw_PositionOccupiedError;
-begin
-//TODO: implement me
+  raise EKeyNotFoundException.CreateFmt(SKeyNotFound, [ArgName]);
 end;
 
 end.

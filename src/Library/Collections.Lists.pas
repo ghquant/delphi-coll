@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2010, Ciobanu Alexandru
+* Copyright (c) 2008-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
+{$DEFINE OPTIMIZED_SORT}
 unit Collections.Lists;
 interface
 uses SysUtils,
@@ -33,7 +33,6 @@ uses SysUtils,
      Collections.Base;
 
 type
-
   ///  <summary>The generic <c>list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
   TList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IUnorderedList<T>, IDynamic)
@@ -465,8 +464,10 @@ type
   TObjectList<T: class> = class(TList<T>)
   private
     FOwnsObjects: Boolean;
+
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -843,7 +844,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -1037,25 +1039,24 @@ type
     function EqualsTo(const AEnumerable: IEnumerable<T>): Boolean; override;
   end;
 
-  { The object variant }
-  //TODO: doc me
+  ///  <summary>The generic <c>linked list</c> collection designed to store objects.</summary>
+  ///  <remarks>This type uses a linked list to store its objects.</remarks>
   TObjectLinkedList<T: class> = class(TLinkedList<T>)
   private
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
   public
-    { Object owning }
-    //TODO: doc me
+    ///  <summary>Specifies whether this queue owns the objects stored in it.</summary>
+    ///  <returns><c>True</c> if the list owns its objects; <c>False</c> otherwise.</returns>
+    ///  <remarks>This property controls the way the queue controls the life-time of the stored objects.</remarks>
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
 implementation
-
-const
-  DefaultArrayLength = 32;
 
 { TList<T> }
 
@@ -1221,7 +1222,7 @@ end;
 constructor TList<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 end;
 
 constructor TList<T>.Create(const ARules: TRules<T>;
@@ -1230,7 +1231,7 @@ var
   V: T;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -1363,8 +1364,8 @@ end;
 procedure TList<T>.Grow;
 begin
   { Grow the array }
-  if FLength < DefaultArrayLength then
-     SetLength(FArray, FLength + DefaultArrayLength)
+  if FLength < CDefaultSize then
+     SetLength(FArray, FLength + CDefaultSize)
   else
      SetLength(FArray, FLength * 2);
 end;
@@ -1857,7 +1858,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Copy from array }
   for I := 0 to Length(AArray) - 1 do
@@ -2126,7 +2127,7 @@ end;
 constructor TSortedList<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength, AAscending);
+  Create(ARules, CDefaultSize, AAscending);
 end;
 
 constructor TSortedList<T>.Create(const ARules: TRules<T>;
@@ -2135,7 +2136,7 @@ var
   V: T;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength, AAscending);
+  Create(ARules, CDefaultSize, AAscending);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -2276,8 +2277,8 @@ end;
 procedure TSortedList<T>.Grow;
 begin
   { Grow the array }
-  if FLength < DefaultArrayLength then
-     SetLength(FArray, FLength + DefaultArrayLength)
+  if FLength < CDefaultSize then
+     SetLength(FArray, FLength + CDefaultSize)
   else
      SetLength(FArray, FLength * 2);
 end;
@@ -2552,7 +2553,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength, AAscending);
+  Create(ARules, CDefaultSize, AAscending);
 
   { Copy from array }
   for I := 0 to Length(AArray) - 1 do

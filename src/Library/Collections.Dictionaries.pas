@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2010, Ciobanu Alexandru
+* Copyright (c) 2008-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.Dictionaries;
 interface
 uses SysUtils,
@@ -335,12 +334,15 @@ type
   TObjectDictionary<TKey, TValue> = class(TDictionary<TKey, TValue>)
   private
     FOwnsKeys, FOwnsValues: Boolean;
-  protected
-    //TODO: doc me.
-    procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+  protected
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
@@ -684,12 +686,15 @@ type
   TObjectSortedDictionary<TKey, TValue> = class(TSortedDictionary<TKey, TValue>)
   private
     FOwnsKeys, FOwnsValues: Boolean;
-  protected
-    //TODO: doc me.
-    procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+  protected
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
@@ -705,9 +710,6 @@ type
   end;
 
 implementation
-
-const
-  DefaultArrayLength = 32;
 
 { TDictionary<TKey, TValue> }
 
@@ -837,7 +839,7 @@ var
   V: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
-  Create(AKeyRules, AValueRules, DefaultArrayLength);
+  Create(AKeyRules, AValueRules, CDefaultSize);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
@@ -845,11 +847,11 @@ begin
   { Pump in all items }
   for V in ACollection do
   begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     Add(V);
 {$ELSE}
     Add(V.Key, V.Value);
-{$ENDIF}
+{$IFEND}
   end;
 end;
 
@@ -858,7 +860,7 @@ constructor TDictionary<TKey, TValue>.Create(
   const AValueRules: TRules<TValue>);
 begin
   { Call upper constructor }
-  Create(AKeyRules, AValueRules, DefaultArrayLength);
+  Create(AKeyRules, AValueRules, CDefaultSize);
 end;
 
 destructor TDictionary<TKey, TValue>.Destroy;
@@ -1054,27 +1056,22 @@ end;
 
 procedure TDictionary<TKey, TValue>.Resize;
 var
-  XPrime, I, Index: NativeInt;
-  NArr  : TBucketArray;
+  LNewLength, I, LIndex: NativeInt;
 begin
-//TODO: redo
-  XPrime := FCount * 2;
+  LNewLength := FCount * 2;
 
-  SetLength(NArr, XPrime);
-  for I := 0 to Length(NArr) - 1 do
-    NArr[I] := -1;
+  SetLength(FBucketArray, LNewLength);
+  SetLength(FEntryArray, LNewLength);
 
-  SetLength(FEntryArray, XPrime);
+  for I := 0 to LNewLength - 1 do
+    FBucketArray[I] := -1;
 
   for I := 0 to FCount - 1 do
   begin
-    Index := FEntryArray[I].FHashCode mod XPrime;
-    FEntryArray[I].FNext := NArr[Index];
-    NArr[Index] := I;
+    LIndex := FEntryArray[I].FHashCode mod LNewLength;
+    FEntryArray[I].FNext := FBucketArray[LIndex];
+    FBucketArray[LIndex] := I;
   end;
-
-  { Reset bucket array }
-  FBucketArray := NArr;
 end;
 
 function TDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
@@ -1130,7 +1127,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(AKeyRules, AValueRules, DefaultArrayLength);
+  Create(AKeyRules, AValueRules, CDefaultSize);
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do

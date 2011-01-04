@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2010, Ciobanu Alexandru
+* Copyright (c) 2008-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.Queues;
 interface
 uses SysUtils,
@@ -668,9 +667,6 @@ type
 
 implementation
 
-const
-  DefaultArrayLength = 8;
-
 { TQueue<T> }
 
 function TQueue<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
@@ -848,7 +844,7 @@ var
   V: T;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -892,7 +888,7 @@ end;
 constructor TQueue<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 end;
 
 function TQueue<T>.ElementAt(const AIndex: NativeInt): T;
@@ -931,8 +927,8 @@ begin
   begin
     NewCapacity := Length(FArray) * 2;
 
-    if NewCapacity < DefaultArrayLength then
-       NewCapacity := Length(FArray) + DefaultArrayLength;
+    if NewCapacity < CDefaultSize then
+       NewCapacity := Length(FArray) + CDefaultSize;
 
     SetCapacity(NewCapacity);
   end;
@@ -1036,8 +1032,8 @@ begin
   begin
     NewCapacity := Length(FArray) * 2;
 
-    if NewCapacity < DefaultArrayLength then
-       NewCapacity := Length(FArray) + DefaultArrayLength;
+    if NewCapacity < CDefaultSize then
+       NewCapacity := Length(FArray) + CDefaultSize;
 
     SetCapacity(NewCapacity);
   end;
@@ -1193,7 +1189,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Copy array }
   for I := 0 to Length(AArray) - 1 do
@@ -1538,7 +1534,7 @@ end;
 constructor TPriorityQueue<TPriority, TValue>.Create(const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(TRules<TPriority>.Default, TRules<TValue>.Default, DefaultArrayLength, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, CDefaultSize, Ascending);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
@@ -1550,7 +1546,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, CDefaultSize, Ascending);
 
   { Copy all items in }
   if Length(AArray) > 0 then
@@ -1592,7 +1588,7 @@ var
   V: TPair<TPriority, TValue>;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, CDefaultSize, Ascending);
 
   if (AEnumerable = nil) then
      ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
@@ -1608,7 +1604,7 @@ constructor TPriorityQueue<TPriority, TValue>.Create(
   const Ascending: Boolean);
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueRules, DefaultArrayLength, Ascending);
+  Create(APriorityType, AValueRules, CDefaultSize, Ascending);
 end;
 
 function TPriorityQueue<TPriority, TValue>.Dequeue: TValue;
@@ -1700,8 +1696,8 @@ var
 begin
   LNewCapacity := Length(FArray) * 2;
 
-  if LNewCapacity < DefaultArrayLength then
-    LNewCapacity := DefaultArrayLength;
+  if LNewCapacity < CDefaultSize then
+    LNewCapacity := CDefaultSize;
 
   { Extend the array }
   SetLength(FArray, LNewCapacity);

@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2009-2010, Ciobanu Alexandru
+* Copyright (c) 2009-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.Bags;
 interface
 uses SysUtils,
@@ -286,7 +285,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -356,7 +356,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -717,10 +718,6 @@ begin
   end;
 end;
 
-
-const
-  DefaultArrayLength = 32;
-
 { TBag<T> }
 
 constructor TBag<T>.Create(const AInitialCapacity: NativeInt);
@@ -737,15 +734,15 @@ end;
 
 function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>;
 var
-  Cap: NativeInt;
+  LNewCapacity: NativeInt;
 begin
   { Create a simple dictionary }
-  if FInitialCapacity = 0 then
-    Cap := DefaultArrayLength
+  if FInitialCapacity <= 0 then
+    LNewCapacity := CDefaultSize
   else
-    Cap := FInitialCapacity;
+    LNewCapacity := FInitialCapacity;
 
-  Result := TDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, Cap);
+  Result := TDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, LNewCapacity);
 end;
 
 { TObjectBag<T> }

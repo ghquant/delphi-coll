@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2009-2010, Ciobanu Alexandru
+* Copyright (c) 2009-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.BidiMaps;
 interface
 uses
@@ -293,12 +292,15 @@ type
   TObjectBidiMap<TKey, TValue> = class(TBidiMap<TKey, TValue>)
   private
     FOwnsKeys, FOwnsValues: Boolean;
-  protected
-    //TODO: doc me.
-    procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+  protected
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -399,12 +401,15 @@ type
   TObjectSortedBidiMap<TKey, TValue> = class(TSortedBidiMap<TKey, TValue>)
   private
     FOwnsKeys, FOwnsValues: Boolean;
-  protected
-    //TODO: doc me.
-    procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+  protected
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
+    procedure HandleKeyRemoved(const AKey: TKey); override;
+
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -518,11 +523,13 @@ type
     FOwnsKeys, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the key (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The key that was removed from the collection.</param>
     procedure HandleKeyRemoved(const AKey: TKey); override;
-    //TODO: doc me.
-    procedure HandleValueRemoved(const AValue: TValue); override;
 
+    ///  <summary>Frees the value (object) that was removed from the collection.</summary>
+    ///  <param name="AKey">The value that was removed from the collection.</param>
+    procedure HandleValueRemoved(const AValue: TValue); override;
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
@@ -772,17 +779,13 @@ begin
   { Pump in all items }
   for V in ACollection do
   begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
+{$IF CompilerVersion < 22}
     Add(V);
 {$ELSE}
     Add(V.Key, V.Value);
-{$ENDIF}
+{$IFEND}
   end;
 end;
-
-
-const
-  DefaultArrayLength = 32;
 
 { TBidiMap<TKey, TValue> }
 
@@ -802,31 +805,31 @@ end;
 function TBidiMap<TKey, TValue>.CreateKeyMap(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>): IDistinctMultiMap<TKey, TValue>;
 var
-  Cap: NativeInt;
+  LNewCapacity: NativeInt;
 begin
   { Create a simple dictionary }
-  if FInitialCapacity = 0 then
-    Cap := DefaultArrayLength
+  if FInitialCapacity <= 0 then
+    LNewCapacity := CDefaultSize
   else
-    Cap := FInitialCapacity;
+    LNewCapacity := FInitialCapacity;
 
   { Use a simple non-sorted map }
-  Result := TDistinctMultiMap<TKey, TValue>.Create(AKeyRules, AValueRules, Cap);
+  Result := TDistinctMultiMap<TKey, TValue>.Create(AKeyRules, AValueRules, LNewCapacity);
 end;
 
 function TBidiMap<TKey, TValue>.CreateValueMap(const AValueRules: TRules<TValue>;
   const AKeyRules: TRules<TKey>): IDistinctMultiMap<TValue, TKey>;
 var
-  Cap: NativeInt;
+  LNewCapacity: NativeInt;
 begin
   { Create a simple dictionary }
-  if FInitialCapacity = 0 then
-    Cap := DefaultArrayLength
+  if FInitialCapacity <= 0 then
+    LNewCapacity := CDefaultSize
   else
-    Cap := FInitialCapacity;
+    LNewCapacity := FInitialCapacity;
 
   { Use a simple non-sorted map }
-  Result := TDistinctMultiMap<TValue, TKey>.Create(AValueRules, AKeyRules, Cap);
+  Result := TDistinctMultiMap<TValue, TKey>.Create(AValueRules, AKeyRules, LNewCapacity);
 end;
 
 { TObjectBidiMap<TKey, TValue> }

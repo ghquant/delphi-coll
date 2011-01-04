@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2010, Ciobanu Alexandru
+* Copyright (c) 2008-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-{$I Collections.inc}
 unit Collections.Sets;
 interface
 uses SysUtils,
@@ -178,7 +177,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
   public
     ///  <summary>Specifies whether this set owns the objects stored in it.</summary>
@@ -387,7 +387,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -656,7 +657,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -668,9 +670,6 @@ type
 
 
 implementation
-
-const
-  DefaultArrayLength = 32;
 
 { THashSet<T> }
 
@@ -766,7 +765,7 @@ var
   V : T;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   if (ACollection = nil) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
@@ -779,7 +778,7 @@ end;
 constructor THashSet<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 end;
 
 destructor THashSet<T>.Destroy;
@@ -1046,7 +1045,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Copy all in }
   for I := 0 to Length(AArray) - 1 do
@@ -2221,7 +2220,7 @@ end;
 constructor TArraySet<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 end;
 
 constructor TArraySet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
@@ -2229,7 +2228,7 @@ var
   V: T;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Initialize instance }
   if (ACollection = nil) then
@@ -2342,8 +2341,8 @@ end;
 procedure TArraySet<T>.Grow;
 begin
   { Grow the array }
-  if FLength < DefaultArrayLength then
-     SetLength(FArray, FLength + DefaultArrayLength)
+  if FLength < CDefaultSize then
+     SetLength(FArray, FLength + CDefaultSize)
   else
      SetLength(FArray, FLength * 2);
 end;
@@ -2469,7 +2468,7 @@ var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(ARules, DefaultArrayLength);
+  Create(ARules, CDefaultSize);
 
   { Copy array contents }
   for I := 0 to Length(AArray) - 1 do
