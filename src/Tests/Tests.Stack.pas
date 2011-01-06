@@ -351,20 +351,19 @@ var
   ObjectDied: Boolean;
 begin
   ObjStack := TObjectStack<TTestObject>.Create();
-  Check(not ObjStack.OwnsObjects, 'OwnsObjects must be false!');
+  CheckFalse(ObjStack.OwnsObjects, 'OwnsObjects must be false!');
 
   TheObject := TTestObject.Create(@ObjectDied);
   ObjStack.Push(TheObject);
   ObjStack.Clear;
+  CheckFalse(ObjectDied, 'The object should have not been cleaned up!');
 
-  Check(not ObjectDied, 'The object should not have been cleaned up!');
-  ObjStack.Push(TheObject);
+  TheObject := TTestObject.Create(@ObjectDied);
   ObjStack.OwnsObjects := true;
-  Check(ObjStack.OwnsObjects, 'OwnsObjects must be true!');
-
+  ObjStack.Push(TheObject);
   ObjStack.Clear;
+  CheckTrue(ObjectDied, 'The object should have been cleaned up!');
 
-  Check(ObjectDied, 'The object should have been cleaned up!');
   ObjStack.Free;
 end;
 

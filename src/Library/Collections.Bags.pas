@@ -33,7 +33,7 @@ uses SysUtils,
      Collections.Dictionaries;
 
 type
-  ///  <summary>The base abstract class for all <c>bags</c> in DeHL.</summary>
+  ///  <summary>The base abstract class for all <c>bag collections</c> in this package.</summary>
   TAbstractBag<T> = class(TEnexCollection<T>, IBag<T>)
   private type
     {$REGION 'Internal Types'}
@@ -88,41 +88,41 @@ type
     procedure SetWeight(const AValue: T; const AWeight: NativeInt);
 
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
-    ///  <param name="ARules">The type object describing the elements.</param>
+    ///  <param name="ARules">The rule set describing the elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
     function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; virtual; abstract;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -130,7 +130,7 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the bag.</summary>
-    ///  <remarks>This method clears the bag and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the bag and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the bag.</summary>
@@ -183,8 +183,8 @@ type
     ///  <param name="AArray">An array where to copy the contents of the bag.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the bag.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the bag is empty.</summary>
@@ -194,17 +194,17 @@ type
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the bag considered to have the biggest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The bag is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
     function Max(): T; override;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the bag considered to have the smallest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The bag is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
     function Min(): T; override;
 
     ///  <summary>Returns the first element.</summary>
     ///  <returns>The first element in the bag.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The bag is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
     function First(): T; override;
 
     ///  <summary>Returns the first element or a default if the bag is empty.</summary>
@@ -214,7 +214,7 @@ type
 
     ///  <summary>Returns the last element.</summary>
     ///  <returns>The last element in the bag.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The bag is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
     function Last(): T; override;
 
     ///  <summary>Returns the last element or a default if the bag is empty.</summary>
@@ -225,8 +225,8 @@ type
     ///  <summary>Returns the single element stored in the bag.</summary>
     ///  <returns>The element in bag.</returns>
     ///  <remarks>This method checks if the bag contains just one element, in which case it is returned.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The bag is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionNotOneException">There is more than one element in the bag.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the bag.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the bag, or a default value.</summary>
@@ -241,7 +241,7 @@ type
     ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole bag and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks that all elements in the bag satisfy a given predicate.</summary>
@@ -249,7 +249,7 @@ type
     ///  <returns><c>True</c> if all elements satisfy a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole bag and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
   end;
 
@@ -262,19 +262,19 @@ type
 
   protected
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
-    ///  <param name="ARules">The type object describing the bag's elements.</param>
+    ///  <param name="ARules">The rule set describing the bag's elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
     function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">The type object describing the bag's elements.</param>
+    ///  <param name="ARules">The rule set describing the bag's elements.</param>
     ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
   end;
 
@@ -305,47 +305,47 @@ type
 
   protected
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
-    ///  <param name="ARules">The type object describing the bag's elements.</param>
+    ///  <param name="ARules">The rule set describing the bag's elements.</param>
     ///  <remarks>This method creates an AVL-based dictionary used as the underlying back-end for the bag.</remarks>
     function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
   end;
 
@@ -735,6 +735,7 @@ end;
 function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>;
 var
   LNewCapacity: NativeInt;
+  LDictionary: TDictionary<T, NativeInt>;
 begin
   { Create a simple dictionary }
   if FInitialCapacity <= 0 then
@@ -742,22 +743,31 @@ begin
   else
     LNewCapacity := FInitialCapacity;
 
-  Result := TDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, LNewCapacity);
+  LDictionary := TDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, LNewCapacity);
+  LDictionary.KeyRemoveNotification := NotifyElementRemoved;
+
+  Result := LDictionary;
 end;
 
 { TObjectBag<T> }
 
 procedure TObjectBag<T>.HandleElementRemoved(const AElement: T);
 begin
-  TObject(AElement).Free;
+  if FOwnsObjects then
+    TObject(AElement).Free;
 end;
 
 { TSortedBag<T> }
 
 function TSortedBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>;
+var
+  LDictionary: TSortedDictionary<T, NativeInt>;
 begin
   { Create a sorted dictionary }
-  Result := TSortedDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, FAscSort);
+  LDictionary := TSortedDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, FAscSort);
+  LDictionary.KeyRemoveNotification := NotifyElementRemoved;
+
+  Result := LDictionary;
 end;
 
 constructor TSortedBag<T>.Create(const AAscending: Boolean);
@@ -806,7 +816,8 @@ end;
 
 procedure TObjectSortedBag<T>.HandleElementRemoved(const AElement: T);
 begin
-  TObject(AElement).Free;
+  if FOwnsObjects then
+    TObject(AElement).Free;
 end;
 
 end.

@@ -78,43 +78,43 @@ type
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -122,7 +122,7 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the queue and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>
@@ -132,13 +132,13 @@ type
     ///  <summary>Retreives the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Dequeue(): T;
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): T;
 
     ///  <summary>Checks whether the queue contains a given value.</summary>
@@ -178,8 +178,8 @@ type
     ///  <param name="AArray">An array where to copy the contents of the queue.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the queue.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the queue is empty.</summary>
@@ -189,17 +189,17 @@ type
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the queue considered to have the biggest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Max(): T; override;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the queue considered to have the smallest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Min(): T; override;
 
     ///  <summary>Returns the first element.</summary>
     ///  <returns>The first element in the queue.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function First(): T; override;
 
     ///  <summary>Returns the first element or a default if the queue is empty.</summary>
@@ -209,7 +209,7 @@ type
 
     ///  <summary>Returns the last element.</summary>
     ///  <returns>The last element in the queue.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Last(): T; override;
 
     ///  <summary>Returns the last element or a default if the queue is empty.</summary>
@@ -220,8 +220,8 @@ type
     ///  <summary>Returns the single element stored in the queue.</summary>
     ///  <returns>The element in queue.</returns>
     ///  <remarks>This method checks if the queue contains just one element, in which case it is returned.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionNotOneException">There is more than one element in the queue.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the queue.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the queue, or a default value.</summary>
@@ -238,8 +238,8 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
 
     ///  <summary>Aggregates a value based on the queue's elements.</summary>
@@ -250,14 +250,14 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <returns>The element from the specified position.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
@@ -272,7 +272,7 @@ type
     ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks that all elements in the queue satisfy a given predicate.</summary>
@@ -280,7 +280,7 @@ type
     ///  <returns><c>True</c> if all elements satisfy a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this queue are equal to the elements in another collection.</summary>
@@ -288,9 +288,9 @@ type
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
     ///  <remarks>This methods checks that each element at position X in this queue is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the type object used by this queue. This means that comparing this collection
+    ///  Note that comparison of element is done using the rule set used by this queue. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
@@ -301,7 +301,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -312,7 +313,6 @@ type
   end;
 
 type
-  //TODO: use a derived type in order to receive removes notifications from the linked queue
   ///  <summary>The generic <c>queue (FIFO)</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
   TLinkedQueue<T> = class(TEnexCollection<T>, IQueue<T>)
@@ -325,33 +325,33 @@ type
     function GetCount(): NativeInt; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -359,7 +359,7 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the queue and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>
@@ -369,13 +369,13 @@ type
     ///  <summary>Retreives the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Dequeue(): T;
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): T;
 
     ///  <summary>Checks whether the queue contains a given value.</summary>
@@ -397,8 +397,8 @@ type
     ///  <param name="AArray">An array where to copy the contents of the queue.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the queue.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the queue is empty.</summary>
@@ -408,17 +408,17 @@ type
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the queue considered to have the biggest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Max(): T; override;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the queue considered to have the smallest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Min(): T; override;
 
     ///  <summary>Returns the first element.</summary>
     ///  <returns>The first element in the queue.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function First(): T; override;
 
     ///  <summary>Returns the first element or a default if the queue is empty.</summary>
@@ -428,7 +428,7 @@ type
 
     ///  <summary>Returns the last element.</summary>
     ///  <returns>The last element in the queue.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Last(): T; override;
 
     ///  <summary>Returns the last element or a default if the queue is empty.</summary>
@@ -439,8 +439,8 @@ type
     ///  <summary>Returns the single element stored in the queue.</summary>
     ///  <returns>The element in queue.</returns>
     ///  <remarks>This method checks if the queue contains just one element, in which case it is returned.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionNotOneException">There is more than one element in the queue.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the queue.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the queue, or a default value.</summary>
@@ -457,8 +457,8 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
 
     ///  <summary>Aggregates a value based on the queue's elements.</summary>
@@ -469,14 +469,14 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <returns>The element from the specified position.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
@@ -491,7 +491,7 @@ type
     ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks that all elements in the queue satisfy a given predicate.</summary>
@@ -499,7 +499,7 @@ type
     ///  <returns><c>True</c> if all elements satisfy a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this queue are equal to the elements in another collection.</summary>
@@ -507,9 +507,9 @@ type
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
     ///  <remarks>This methods checks that each element at position X in this queue is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the type object used by this queue. This means that comparing this collection
+    ///  Note that comparison of element is done using the rule set used by this queue. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
@@ -520,7 +520,8 @@ type
     FOwnsObjects: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
   public
@@ -531,8 +532,8 @@ type
   end;
 
 type
-  { Priority Queue }
-  //TODO: doc me
+  ///  <summary>The generic <c>priority queue</c> collection.</summary>
+  ///  <remarks>This collection reorganizes the first-out element based on a given priority.</remarks>
   TPriorityQueue<TPriority, TValue> = class(TEnexAssociativeCollection<TPriority, TValue>, IPriorityQueue<TPriority, TValue>, IDynamic)
   private type
     {$REGION 'Internal Types'}
@@ -569,99 +570,177 @@ type
 
     { Used internally to remove items from queue }
     function RemoveAt(const AIndex: NativeInt): TPriorityPair;
-
   protected
-    { Serialization overrides }
-    { ICollection support/hidden }
-    //TODO: doc me
+    ///  <summary>Returns the number of elements in the queue.</summary>
+    ///  <returns>A positive value specifying the number of elements in the queue.</returns>
     function GetCount(): NativeInt; override;
 
-    { Gets the current capacity of the collection }
-    //TODO: doc me
+    ///  <summary>Returns the current capacity.</summary>
+    ///  <returns>A positive number that specifies the number of elements that the queue can hold before it
+    ///  needs to grow again.</returns>
+    ///  <remarks>The value of this method is greater or equal to the amount of elements in the queue. If this value
+    ///  is greater then the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
     function GetCapacity(): NativeInt;
   public
-    { Constructors }
-    //TODO: doc me
-    constructor Create(const Ascending: Boolean = true); overload;
-    //TODO: doc me
-    constructor Create(const AInitialCapacity: NativeInt; const Ascending: Boolean = true); overload;
-    //TODO: doc me
-    constructor Create(const AEnumerable: IEnumerable<TPair<TPriority, TValue>>; const Ascending: Boolean = true); overload;
-    //TODO: doc me
-    constructor Create(const AArray: array of TPair<TPriority, TValue>; const Ascending: Boolean = true); overload;
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <remarks>The default rule set for the operated type is used.</remarks>
+    constructor Create(const AAscending: Boolean = True); overload;
 
-    constructor Create(const APriorityType: TRules<TPriority>; const AValueRules: TRules<TValue>;
-      const Ascending: Boolean = true); overload;
-      //TODO: doc me
-    constructor Create(const APriorityType: TRules<TPriority>; const AValueRules: TRules<TValue>;
-      const AInitialCapacity: NativeInt; const Ascending: Boolean = true); overload;
-      //TODO: doc me
-    constructor Create(const APriorityType: TRules<TPriority>; const AValueRules: TRules<TValue>;
-      const AEnumerable: IEnumerable<TPair<TPriority, TValue>>; const Ascending: Boolean = true); overload;
-      //TODO: doc me
-    constructor Create(const APriorityType: TRules<TPriority>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TPriority, TValue>; const Ascending: Boolean = true); overload;
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AInitialCapacity">Specifies the initial capacity of the queue.</param>
+    ///  <remarks>The default rule set for the operated type is used.</remarks>
+    constructor Create(const AInitialCapacity: NativeInt; const AAscending: Boolean = True); overload;
 
-    { Destructor }
-    //TODO: doc me
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection of priority/value pairs to copy elements from.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <remarks>The default rule set for the operated type is used.</remarks>
+    constructor Create(const ACollection: IEnumerable<TPair<TPriority, TValue>>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array of priority/value pairs to copy elements from.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <remarks>The default rule set for the operated type is used.</remarks>
+    constructor Create(const AArray: array of TPair<TPriority, TValue>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
+    ///  <param name="AValueRules">The rule set used for the queues' values.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
+      const AAscending: Boolean = true); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
+    ///  <param name="AValueRules">The rule set used for the queues' values.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AInitialCapacity">Specifies the initial capacity of the queue.</param>
+    constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
+      const AInitialCapacity: NativeInt; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection of priority/value pairs to copy elements from.</param>
+    ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
+    ///  <param name="AValueRules">The rule set used for the queues' values.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
+      const ACollection: IEnumerable<TPair<TPriority, TValue>>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array of priority/value pairs to copy elements from.</param>
+    ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
+    ///  <param name="AValueRules">The rule set used for the queues' values.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
+      const AArray: array of TPair<TPriority, TValue>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
-    { IPriorityQueue }
-    //TODO: doc me
+    ///  <summary>Clears the contents of the queue.</summary>
     procedure Clear();
-    //TODO: doc me
+
+    ///  <summary>Checks whether the queue contains a given value.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <returns><c>True</c> if the value was found in the queue; <c>False</c> otherwise.</returns>
     function Contains(const AValue: TValue): Boolean;
 
-    //TODO: doc me
+    ///  <summary>Appends an element to the queue with the default priority set to type's default value.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    ///  <remarks>Depending on the sorting order specified at creation time, the element is either pushed to the
+    ///  front or the tail of the queue.</remarks>
     procedure Enqueue(const AValue: TValue); overload;
-    //TODO: doc me
+
+    ///  <summary>Appends an element to the queue with the given priority.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    ///  <param name="APriority">The priority of the value.</param>
+    ///  <remarks>This method automatically moves the enqueued value to the correct position using the sorting order
+    ///  or the specified priority.</remarks>
     procedure Enqueue(const AValue: TValue; const APriority: TPriority); overload;
-    //TODO: doc me
+
+    ///  <summary>Retreives the element from the bottom of the queue.</summary>
+    ///  <returns>The value at the bottom of the queue.</returns>
+    ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Dequeue(): TValue; overload;
-    //TODO: doc me
+
+    ///  <summary>Reads the element from the bottom of the queue.</summary>
+    ///  <returns>The value at the bottom of the queue.</returns>
+    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): TValue; overload;
 
-    { Properties }
-    //TODO: doc me
+    ///  <summary>Specifies the number of elements in the queue.</summary>
+    ///  <returns>A positive value specifying the number of elements in the queue.</returns>
     property Count: NativeInt read FCount;
-    //TODO: doc me
+
+    ///  <summary>Specifies the current capacity.</summary>
+    ///  <returns>A positive number that specifies the number of elements that the queue can hold before it
+    ///  needs to grow again.</returns>
+    ///  <remarks>The value of this property is greater or equal to the amount of elements in the queue. If this value
+    ///  if greater then the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
     property Capacity: NativeInt read GetCapacity;
 
-    { IEnumerable/ ICollection support }
-    //TODO: doc me
+    ///  <summary>Returns a new enumerator object used to enumerate this queue.</summary>
+    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  object that is used to actually traverse the queue.</remarks>
+    ///  <returns>An enumerator object.</returns>
     function GetEnumerator() : IEnumerator<TPair<TPriority, TValue>>; override;
 
-    { Grow/Shrink }
-    //TODO: doc me
+    ///  <summary>Removes the excess capacity from the queue.</summary>
+    ///  <remarks>This method can be called manually to force the queue to drop the extra capacity it might hold. For example,
+    ///  after performing some massive operations of a big list, call this method to ensure that all extra memory held by the
+    ///  queue is released.</remarks>
     procedure Shrink();
-    //TODO: doc me
+
+    ///  <summary>Forces the queue to increase its capacity.</summary>
+    ///  <remarks>Call this method to force the queue to increase its capacity ahead of time. Manually adjusting the capacity
+    ///  can be useful in certain situations.</remarks>
     procedure Grow();
 
-    { Enex: Copy-To }
-    //TODO: doc me
+    ///  <summary>Copies the values stored in the queue to a given array.</summary>
+    ///  <param name="AArray">An array where to copy the contents of the queue.</param>
+    ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
+    ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the queue.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TPriority, TValue>; const AStartIndex: NativeInt); overload; override;
 
-    { Enex - Associative collection }
-    //TODO: doc me
+    ///  <summary>Returns the biggest priority associated with an element in the queue.</summary>
+    ///  <returns>A priority of an element from the queue considered to have the biggest value.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function MaxKey(): TPriority; override;
   end;
 
-  { The object variant }
-  //TODO: doc me
+  ///  <summary>The generic <c>priority queue</c> collection designed to store objects.</summary>
+  ///  <remarks>This collection reorganizes the first-out element based on a given priority.</remarks>
   TObjectPriorityQueue<TPriority, TValue> = class(TPriorityQueue<TPriority, TValue>)
   private
     FOwnsPriorities, FOwnsValues: Boolean;
 
   protected
-    //TODO: doc me.
+    ///  <summary>Frees the priority (object) that was removed from the queue.</summary>
+    ///  <param name="AKey">The priority that was removed from the queue.</param>
     procedure HandleKeyRemoved(const AKey: TPriority); override;
-    //TODO: doc me.
+
+    ///  <summary>Frees the value (object) that was removed from the queue.</summary>
+    ///  <param name="AKey">The value that was removed from the queue.</param>
     procedure HandleValueRemoved(const AValue: TValue); override;
   public
-    { Object owning }
-    //TODO: doc me
+    ///  <summary>Specifies whether this queue owns the priorities (if objects).</summary>
+    ///  <returns><c>True</c> if the queue owns the priorities; <c>False</c> otherwise.</returns>
+    ///  <remarks>This property controls the way the queue controls the life-time of the stored priorities. The value of
+    ///  this property has effect only if the priorities are objects, otherwise it is ignored.</remarks>
     property OwnsPriorities: Boolean read FOwnsPriorities write FOwnsPriorities;
-    //TODO: doc me
+
+    ///  <summary>Specifies whether this queue owns the values.</summary>
+    ///  <returns><c>True</c> if the queue owns the values; <c>False</c> otherwise.</returns>
+    ///  <remarks>This property controls the way the queue controls the life-time of the stored values. The value of
+    ///  this property has effect only if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
@@ -775,7 +854,7 @@ begin
   while Count > 0 do
   begin
     Element := Dequeue();
-    HandleElementRemoved(Element);
+    NotifyElementRemoved(Element);
   end;
 
   { Clear all internals }
@@ -1247,7 +1326,8 @@ end;
 
 procedure TObjectQueue<T>.HandleElementRemoved(const AElement: T);
 begin
-  TObject(AElement).Free;
+  if FOwnsObjects then
+    TObject(AElement).Free;
 end;
 
 { TLinkedQueue<T> }
@@ -1304,7 +1384,7 @@ begin
 
   { Initialize instance }
   if (ACollection = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Try to copy the given Enumerable }
   for V in ACollection do
@@ -1327,6 +1407,7 @@ begin
   inherited Create(ARules);
 
   FList := TLinkedList<T>.Create(ElementRules);
+  FList.RemoveNotification := NotifyElementRemoved;
 end;
 
 function TLinkedQueue<T>.ElementAt(const AIndex: NativeInt): T;
@@ -1463,7 +1544,8 @@ end;
 
 procedure TObjectLinkedQueue<T>.HandleElementRemoved(const AElement: T);
 begin
-  TObject(AElement).Free;
+  if FOwnsObjects then
+    TObject(AElement).Free;
 end;
 
 { TPriorityQueue<TPriority, TValue> }
@@ -1473,10 +1555,10 @@ var
   I: NativeInt;
 begin
   { Cleanup the array }
-  for I := 0 to Length(FArray) - 1 do
+  for I := 0 to FCount - 1 do
   begin
-    HandleKeyRemoved(FArray[I].FPriority);
-    HandleValueRemoved(FArray[I].FValue);
+    NotifyKeyRemoved(FArray[I].FPriority);
+    NotifyValueRemoved(FArray[I].FValue);
   end;
 
   { Dispose of all the stuff }
@@ -1518,35 +1600,35 @@ begin
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(const AArray: array of TPair<TPriority, TValue>;
-  const Ascending: Boolean);
+  const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AArray, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AArray, AAscending);
 end;
 
-constructor TPriorityQueue<TPriority, TValue>.Create(const AEnumerable: IEnumerable<TPair<TPriority, TValue>>;
-  const Ascending: Boolean);
+constructor TPriorityQueue<TPriority, TValue>.Create(const ACollection: IEnumerable<TPair<TPriority, TValue>>;
+  const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AEnumerable, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, ACollection, AAscending);
 end;
 
-constructor TPriorityQueue<TPriority, TValue>.Create(const Ascending: Boolean);
+constructor TPriorityQueue<TPriority, TValue>.Create(const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(TRules<TPriority>.Default, TRules<TValue>.Default, CDefaultSize, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, CDefaultSize, AAscending);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
-  const APriorityType: TRules<TPriority>;
+  const APriorityRules: TRules<TPriority>;
   const AValueRules: TRules<TValue>;
   const AArray: array of TPair<TPriority, TValue>;
-  const Ascending: Boolean);
+  const AAscending: Boolean);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueRules, CDefaultSize, Ascending);
+  Create(APriorityRules, AValueRules, CDefaultSize, AAscending);
 
   { Copy all items in }
   if Length(AArray) > 0 then
@@ -1555,56 +1637,56 @@ begin
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
-  const APriorityType: TRules<TPriority>;
+  const APriorityRules: TRules<TPriority>;
   const AValueRules: TRules<TValue>;
   const AInitialCapacity: NativeInt;
-  const Ascending: Boolean);
+  const AAscending: Boolean);
 begin
   { Install types }
-  inherited Create(APriorityType, AValueRules);
+  inherited Create(APriorityRules, AValueRules);
 
   SetLength(FArray, AInitialCapacity);
   FVer := 0;
   FCount := 0;
 
-  if Ascending then
+  if AAscending then
     FSign := 1
   else
     FSign := -1;
 end;
 
-constructor TPriorityQueue<TPriority, TValue>.Create(const AInitialCapacity: NativeInt; const Ascending: Boolean);
+constructor TPriorityQueue<TPriority, TValue>.Create(const AInitialCapacity: NativeInt; const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AInitialCapacity, Ascending);
+  Create(TRules<TPriority>.Default, TRules<TValue>.Default, AInitialCapacity, AAscending);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
-  const APriorityType: TRules<TPriority>;
+  const APriorityRules: TRules<TPriority>;
   const AValueRules: TRules<TValue>;
-  const AEnumerable: IEnumerable<TPair<TPriority, TValue>>;
-  const Ascending: Boolean);
+  const ACollection: IEnumerable<TPair<TPriority, TValue>>;
+  const AAscending: Boolean);
 var
   V: TPair<TPriority, TValue>;
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueRules, CDefaultSize, Ascending);
+  Create(APriorityRules, AValueRules, CDefaultSize, AAscending);
 
-  if (AEnumerable = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if (ACollection = nil) then
+     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Pump in all items }
-  for V in AEnumerable do
+  for V in ACollection do
     Enqueue(V.Value, V.Key);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(
-  const APriorityType: TRules<TPriority>;
+  const APriorityRules: TRules<TPriority>;
   const AValueRules: TRules<TValue>;
-  const Ascending: Boolean);
+  const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(APriorityType, AValueRules, CDefaultSize, Ascending);
+  Create(APriorityRules, AValueRules, CDefaultSize, AAscending);
 end;
 
 function TPriorityQueue<TPriority, TValue>.Dequeue: TValue;
@@ -1618,7 +1700,7 @@ begin
   LPair := RemoveAt(0);
 
   { CLeanup the priority element }
-  HandleKeyRemoved(LPair.FPriority);
+  NotifyKeyRemoved(LPair.FPriority);
 
   { And return the value }
   Result := LPair.FValue;
@@ -1823,12 +1905,14 @@ end;
 
 procedure TObjectPriorityQueue<TPriority, TValue>.HandleKeyRemoved(const AKey: TPriority);
 begin
-  TObject(AKey).Free;
+  if FOwnsPriorities then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectPriorityQueue<TPriority, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 end.

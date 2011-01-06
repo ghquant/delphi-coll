@@ -174,7 +174,7 @@ type
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
     ///  <returns>The value associated with the key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the dictionary.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
     function GetItem(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
@@ -185,49 +185,49 @@ type
     procedure SetItem(const AKey: TKey; const Value: TValue);
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
     constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>); overload;
 
@@ -236,24 +236,24 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    ///  <remarks>This method clears the dictionary and invokes type object's cleaning
+    ///  <remarks>This method clears the dictionary and invokes rule set's cleaning
     ///  routines for each key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
     procedure Add(const APair: TPair<TKey,TValue>); overload;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
     procedure Add(const AKey: TKey; const AValue: TValue); overload;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>This invokes type object's cleaning routines for value
+    ///  <remarks>This invokes rule set's cleaning routines for value
     ///  associated with the key. If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
@@ -278,7 +278,7 @@ type
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
     ///  otherwise the value of the specified key is modified.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The trying to read the value of a key that is
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The trying to read the value of a key that is
     ///  not found in the dictionary.</exception>
     property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
 
@@ -304,14 +304,14 @@ type
     ///  <param name="AArray">An array where to copy the contents of the dictionary.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
     ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">No such key in the dictionary.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the dictionary.</exception>
     function ValueForKey(const AKey: TKey): TValue; override;
 
     ///  <summary>Checks whether the dictionary contains a given key-value pair.</summary>
@@ -511,7 +511,7 @@ type
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
     ///  <returns>The value associated with the key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the dictionary.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
     function GetItem(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
@@ -523,53 +523,53 @@ type
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
@@ -578,24 +578,24 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    ///  <remarks>This method clears the dictionary and invokes type object's cleaning
+    ///  <remarks>This method clears the dictionary and invokes rule set's cleaning
     ///  routines for each key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
     procedure Add(const APair: TPair<TKey,TValue>); overload;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
     procedure Add(const AKey: TKey; const AValue: TValue); overload;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>This invokes type object's cleaning routines for value
+    ///  <remarks>This invokes rule set's cleaning routines for value
     ///  associated with the key. If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
@@ -620,7 +620,7 @@ type
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
     ///  otherwise the value of the specified key is modified.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The trying to read the value of a key that is
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The trying to read the value of a key that is
     ///  not found in the dictionary.</exception>
     property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
 
@@ -646,14 +646,14 @@ type
     ///  <param name="AArray">An array where to copy the contents of the dictionary.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
     ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">No such key in the dictionary.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the dictionary.</exception>
     function ValueForKey(const AKey: TKey): TValue; override;
 
     ///  <summary>Checks whether the dictionary contains a given key-value pair.</summary>
@@ -664,12 +664,12 @@ type
 
     ///  <summary>Returns the biggest key.</summary>
     ///  <returns>The biggest key stored in the dictionary.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The dictionary is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The dictionary is empty.</exception>
     function MaxKey(): TKey; override;
 
     ///  <summary>Returns the smallest key.</summary>
     ///  <returns>The smallest key stored in the dictionary.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The dictionary is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The dictionary is empty.</exception>
     function MinKey(): TKey; override;
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
@@ -737,10 +737,10 @@ begin
   begin
     if FEntryArray[I].FHashCode >= 0 then
     begin
-      HandleKeyRemoved(FEntryArray[I].FKey);
+      NotifyKeyRemoved(FEntryArray[I].FKey);
       FEntryArray[I].FKey := default(TKey);
 
-      HandleValueRemoved(FEntryArray[I].FValue);
+      NotifyValueRemoved(FEntryArray[I].FValue);
       FEntryArray[I].FValue := default(TValue);
     end;
   end;
@@ -1033,7 +1033,7 @@ begin
           FEntryArray[RemIndex].FNext := FEntryArray[I].FNext;
 
         { Cleanup required? }
-        HandleValueRemoved(FEntryArray[I].FValue);
+        NotifyValueRemoved(FEntryArray[I].FValue);
 
         FEntryArray[I].FHashCode := -1;
         FEntryArray[I].FNext := FFreeList;
@@ -1380,12 +1380,14 @@ end;
 
 procedure TObjectDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 { TSortedDictionary<TKey, TValue> }
@@ -2017,7 +2019,7 @@ begin
         Exit(false);
 
       { Cleanup the value if required }
-      HandleValueRemoved(LNode.FValue);
+      NotifyValueRemoved(LNode.FValue);
 
       { Change the node value }
       LNode.FValue := AValue;
@@ -2277,7 +2279,7 @@ begin
   BalanceTreesAfterRemoval(LNode);
 
   { Kill the stored value }
-  HandleValueRemoved(LNode.FValue);
+  NotifyValueRemoved(LNode.FValue);
 
   { Kill the node }
   LNode.Free;
@@ -2295,8 +2297,8 @@ begin
     RecursiveClear(ANode.FRight);
 
   { Cleanup for AKey/Value }
-  HandleKeyRemoved(ANode.FKey);
-  HandleValueRemoved(ANode.FValue);
+  NotifyKeyRemoved(ANode.FKey);
+  NotifyValueRemoved(ANode.FValue);
 
   { Finally, free the node itself }
   ANode.Free;
@@ -2631,12 +2633,14 @@ end;
 
 procedure TObjectSortedDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectSortedDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 end.

@@ -613,20 +613,19 @@ var
   ObjectDied: Boolean;
 begin
   ObjList := TObjectList<TTestObject>.Create();
-  Check(not ObjList.OwnsObjects, 'OwnsObjects must be false!');
+  CheckFalse(ObjList.OwnsObjects, 'OwnsObjects must be false!');
 
   TheObject := TTestObject.Create(@ObjectDied);
   ObjList.Add(TheObject);
   ObjList.Clear;
+  CheckFalse(ObjectDied, 'The object should not have been cleaned up!');
 
-  Check(not ObjectDied, 'The object should not have been cleaned up!');
   ObjList.Add(TheObject);
   ObjList.OwnsObjects := true;
   Check(ObjList.OwnsObjects, 'OwnsObjects must be true!');
-
   ObjList.Clear;
-
   Check(ObjectDied, 'The object should have been cleaned up!');
+
   ObjList.Free;
 end;
 

@@ -43,7 +43,8 @@ uses
   Tests.SortedSet in 'Tests.SortedSet.pas',
   Tests.Stack in 'Tests.Stack.pas',
   Tests.Utils in 'Tests.Utils.pas',
-  Tests.Enex in 'Tests.Enex.pas';
+  Tests.Enex in 'Tests.Enex.pas',
+  Tests.Base in 'Tests.Base.pas';
 
 {$R *.RES}
 

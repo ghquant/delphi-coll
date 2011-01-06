@@ -354,20 +354,19 @@ var
   ObjectDied: Boolean;
 begin
   ObjSet := TObjectSortedSet<TTestObject>.Create();
-  Check(not ObjSet.OwnsObjects, 'OwnsObjects must be false!');
+  CheckFalse(ObjSet.OwnsObjects, 'OwnsObjects must be false!');
 
   TheObject := TTestObject.Create(@ObjectDied);
   ObjSet.Add(TheObject);
   ObjSet.Clear;
+  CheckFalse(ObjectDied, 'The object should not have been cleaned up!');
 
-  Check(not ObjectDied, 'The object should not have been cleaned up!');
-  ObjSet.Add(TheObject);
+  TheObject := TTestObject.Create(@ObjectDied);
   ObjSet.OwnsObjects := true;
-  Check(ObjSet.OwnsObjects, 'OwnsObjects must be true!');
-
+  ObjSet.Add(TheObject);
   ObjSet.Clear;
+  CheckTrue(ObjectDied, 'The object should have been cleaned up!');
 
-  Check(ObjectDied, 'The object should have been cleaned up!');
   ObjSet.Free;
 end;
 

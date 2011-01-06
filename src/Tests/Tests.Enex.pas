@@ -31,6 +31,7 @@ uses SysUtils,
      Math,
      Tests.Utils,
      TestFramework,
+     Generics.Defaults,
      Generics.Collections,
      Collections.Base,
      Collections.Lists,
@@ -52,6 +53,9 @@ type
 
  TTestEnex = class(TTestCaseEx)
  private
+   { Utilz }
+   function AccSum(const Collection: IEnexCollection<Integer>): Integer;
+
    { COMMON TO ALL }
    procedure InternalEnexTestGetCount(const Collection: IEnexCollection<Integer>);
    procedure InternalEnexTestEmpty(const Collection: IEnexCollection<Integer>);
@@ -66,8 +70,6 @@ type
    procedure InternalAssocEnexTestEmpty(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalAssocEnexTestCopyTo(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalAssocEnexTestToArray(const Collection: IEnexAssociativeCollection<Integer, Integer>);
-   procedure InternalAssocEnexTestToDynamicArray(const Collection: IEnexAssociativeCollection<Integer, Integer>);
-   procedure InternalAssocEnexTestToFixedArray(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalAssocEnexTestSingle(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalAssocEnexTestSingleOrDefault(const Collection: IEnexAssociativeCollection<Integer, Integer>);
 
@@ -78,12 +80,12 @@ type
    procedure InternalTestMaxValue(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalTestValueForKey(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalTestKeyHasValue(const Collection: IEnexAssociativeCollection<Integer, Integer>);
-   procedure InternalTestAssocWhere(const Collection: TEnexAssociativeCollection<Integer, Integer>);
-   procedure InternalTestAssocWhereNot(const Collection: TEnexAssociativeCollection<Integer, Integer>);
+   procedure InternalTestAssocWhere(const Collection: IEnexAssociativeCollection<Integer, Integer>);
+   procedure InternalTestAssocWhereNot(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalTestIncludes(const Collection: IEnexAssociativeCollection<Integer, Integer>);
 
-   procedure InternalTestDistinctByKeys(const Collection: TEnexAssociativeCollection<Integer, Integer>);
-   procedure InternalTestDistinctByValues(const Collection: TEnexAssociativeCollection<Integer, Integer>);
+   procedure InternalTestDistinctByKeys(const Collection: IEnexAssociativeCollection<Integer, Integer>);
+   procedure InternalTestDistinctByValues(const Collection: IEnexAssociativeCollection<Integer, Integer>);
 
    procedure InternalTestWhereKeyLower(const Collection: IEnexAssociativeCollection<Integer, Integer>);
    procedure InternalTestWhereKeyLowerOrEqual(const Collection: IEnexAssociativeCollection<Integer, Integer>);
@@ -139,14 +141,14 @@ type
    procedure InternalTestWhereGreaterOrEqual(const Collection: IEnexCollection<Integer>);
    procedure InternalTestWhereBetween(const Collection: IEnexCollection<Integer>);
 
-   procedure InternalTestDistinct(const Collection: TEnexCollection<Integer>);
+   procedure InternalTestDistinct(const Collection: IEnexCollection<Integer>);
    procedure InternalTestOrdered(const Collection: IEnexCollection<Integer>);
    procedure InternalTestReversed(const Collection: IEnexCollection<Integer>);
-   procedure InternalTestConcat(const Collection: TEnexCollection<Integer>);
+   procedure InternalTestConcat(const Collection: IEnexCollection<Integer>);
    procedure InternalTestUnion(const Collection: IEnexCollection<Integer>);
-   procedure InternalTestExclude(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestIntersect(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestRange(const Collection: TEnexCollection<Integer>);
+   procedure InternalTestExclude(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestIntersect(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestRange(const Collection: IEnexCollection<Integer>);
 
    procedure InternalTestTake(const Collection: IEnexCollection<Integer>);
    procedure InternalTestTakeWhile(const Collection: IEnexCollection<Integer>);
@@ -156,13 +158,13 @@ type
    procedure InternalTestTakeWhileGreaterOrEqual(const Collection: IEnexCollection<Integer>);
    procedure InternalTestTakeWhileBetween(const Collection: IEnexCollection<Integer>);
 
-   procedure InternalTestSkip(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestSkipWhile(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestSkipWhileLower(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestSkipWhileLowerOrEqual(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestSkipWhileGreater(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestSkipWhileGreaterOrEqual(const Collection: TEnexCollection<Integer>);
-   procedure InternalTestSkipWhileBetween(const Collection: TEnexCollection<Integer>);
+   procedure InternalTestSkip(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestSkipWhile(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestSkipWhileLower(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestSkipWhileLowerOrEqual(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestSkipWhileGreater(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestSkipWhileGreaterOrEqual(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestSkipWhileBetween(const Collection: IEnexCollection<Integer>);
 
    procedure InternalTestToList(const Collection: IEnexCollection<Integer>);
    procedure InternalTestToSet(const Collection: IEnexCollection<Integer>);
@@ -170,13 +172,16 @@ type
    { Testing }
    procedure TestGenericEnexCollection(const TestProc: TEnexCollectionInternalProc);
    procedure TestGenericAssocEnexCollection(const TestProc: TEnexAssocCollectionInternalProc);
+    procedure InternalAssocEnexTestToDynamicArray(
+      const Collection: IEnexAssociativeCollection<Integer, Integer>);
+    procedure InternalAssocEnexTestToFixedArray(
+      const Collection: IEnexAssociativeCollection<Integer, Integer>);
 
  published
    { Collections }
    procedure TestWhereCollection();
    procedure TestSelectCollection();
    procedure TestSelectClassCollection();
-   procedure TestCastCollection();
    procedure TestConcatCollection();
    procedure TestUnionCollection();
    procedure TestExclusionCollection();
@@ -189,10 +194,8 @@ type
    procedure TestTakeWhileCollection();
    procedure TestFillCollection();
    procedure TestIntervalCollection();
-   procedure TestWrapCollection();
 
    { Associative collections }
-   procedure TestAssociativeWrapCollection();
    procedure TestSelectKeysCollection();
    procedure TestSelectValuesCollection();
    procedure TestAssociativeWhereCollection();
@@ -243,7 +246,6 @@ type
    procedure TestIncludes();
    procedure TestSelect2();
    procedure TestSelect3();
-   procedure TestCast();
 
    procedure TestAssocWhere();
    procedure TestAssocWhereNot();
@@ -325,7 +327,6 @@ implementation
 
 var
    { All types of pre-made collections }
-   LHeap_Full,
    LList_Full,
    LSortedList_Full,
    LAraySet_Full,
@@ -338,12 +339,9 @@ var
    LLinkedQueue_Full,
    LStack_Full,
    LLinkedStack_Full,
-   LWrapColl_Full,
    LFillColl_Full,
-   LIntervalColl_Full,
    LWhereColl_Full,
    LSelectColl_Full,
-   LCastColl_Full,
    LConcatColl_Full,
    LUnionColl_Full,
    LExclColl_Full,
@@ -379,7 +377,6 @@ var
    LSMKey_Full,
    LSMVal_Full: IEnexCollection<Integer>;
 
-   LHeap_One,
    LList_One,
    LSortedList_One,
    LAraySet_One,
@@ -392,12 +389,9 @@ var
    LLinkedQueue_One,
    LStack_One,
    LLinkedStack_One,
-   LWrapColl_One,
    LFillColl_One,
-   LIntervalColl_One,
    LWhereColl_One,
    LSelectColl_One,
-   LCastColl_One,
    LConcatColl_One,
    LUnionColl_One,
    LExclColl_One,
@@ -433,7 +427,6 @@ var
    LSMKey_One,
    LSMVal_One: IEnexCollection<Integer>;
 
-   LHeap_Empty,
    LList_Empty,
    LSortedList_Empty,
    LAraySet_Empty,
@@ -446,10 +439,8 @@ var
    LLinkedQueue_Empty,
    LStack_Empty,
    LLinkedStack_Empty,
-   LWrapColl_Empty,
    LWhereColl_Empty,
    LSelectColl_Empty,
-   LCastColl_Empty,
    LConcatColl_Empty,
    LUnionColl_Empty,
    LExclColl_Empty,
@@ -487,15 +478,12 @@ var
 
    LAssocDByKeysColl_Full,
    LAssocDByValuesColl_Full,
-   LAssocWrapColl_Full,
    LAssocWhereColl_Full,
    LAssocDByKeysColl_One,
    LAssocDByValuesColl_One,
-   LAssocWrapColl_One,
    LAssocWhereColl_One,
    LAssocDByKeysColl_Empty,
    LAssocDByValuesColl_Empty,
-   LAssocWrapColl_Empty,
    LAssocWhereColl_Empty: IEnexAssociativeCollection<Integer, Integer>;
 
    { Keeping references }
@@ -547,6 +535,16 @@ var
    LDoSoSM_One,
    LDoSoSM_Empty: TDoubleSortedDistinctMultiMap<Integer, Integer>;
 
+
+function __(const Collection: IEnexCollection<Integer>): TEnexCollection<Integer>; overload;
+begin
+  Result := TEnexCollection<Integer>(IInterface(Collection));
+end;
+
+function __(const Collection: IEnexAssociativeCollection<Integer, Integer>): TEnexAssociativeCollection<Integer, Integer>; overload;
+begin
+  Result := TEnexAssociativeCollection<Integer, Integer>(IInterface(Collection));
+end;
 
 function AverageOf(const Collection: IEnexCollection<Integer>): Integer;
 var
@@ -765,7 +763,7 @@ begin
   List.Free;
 end;
 
-procedure TTestEnex.InternalTestAssocWhere(const Collection: TEnexAssociativeCollection<Integer, Integer>);
+procedure TTestEnex.InternalTestAssocWhere(const Collection: IEnexAssociativeCollection<Integer, Integer>);
 var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 
@@ -779,19 +777,19 @@ begin
   );
 
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(Collection,
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
     function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > 50); end, False);
 
   Check(Collection.Where(function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > 50); end).Includes(WhereEnum), 'Failed at  > 50');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(Collection,
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
     function(Arg1, Arg2: Integer): Boolean begin Exit(not Odd(Arg1)); end, True);
 
   Check(Collection.Where(function(Arg1, Arg2: Integer): Boolean begin Exit(Odd(Arg1)); end).Includes(WhereEnum), 'Failed at Odd');
 end;
 
 procedure TTestEnex.InternalTestAssocWhereNot(
-  const Collection: TEnexAssociativeCollection<Integer, Integer>);
+  const Collection: IEnexAssociativeCollection<Integer, Integer>);
 var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 
@@ -805,18 +803,18 @@ begin
   );
 
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(Collection,
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
     function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > 50); end, True);
 
   Check(Collection.WhereNot(function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > 50); end).Includes(WhereEnum), 'Failed at > 50');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(Collection,
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
     function(Arg1, Arg2: Integer): Boolean begin Exit(Odd(Arg1)); end, True);
 
   Check(Collection.WhereNot(function(Arg1, Arg2: Integer): Boolean begin Exit(Odd(Arg1)); end).Includes(WhereEnum), 'Failed at Odd');
 end;
 
-procedure TTestEnex.InternalTestConcat(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestConcat(const Collection: IEnexCollection<Integer>);
 var
   Enum1: IEnexCollection<Integer>;
   ConcatEnum: IEnexCollection<Integer>;
@@ -833,8 +831,18 @@ begin
   );
 
   { Now apply predicates }
-  ConcatEnum := TEnexConcatCollection<Integer>.Create(Collection, Enum1);
+  ConcatEnum := TEnexConcatCollection<Integer>.Create(__(Collection), Enum1);
   Check(Collection.Concat(Enum1).EqualsTo(ConcatEnum), 'Concat failed!');
+end;
+
+function TTestEnex.AccSum(const Collection: IEnexCollection<Integer>): Integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+
+  for I in Collection do
+    Inc(Result, I);
 end;
 
 procedure TTestEnex.InternalAssocEnexTestCopyTo(const Collection: IEnexAssociativeCollection<Integer, Integer>);
@@ -1022,6 +1030,18 @@ begin
   List.Free();
 end;
 
+procedure TTestEnex.InternalAssocEnexTestToDynamicArray(
+  const Collection: IEnexAssociativeCollection<Integer, Integer>);
+begin
+
+end;
+
+procedure TTestEnex.InternalAssocEnexTestToFixedArray(
+  const Collection: IEnexAssociativeCollection<Integer, Integer>);
+begin
+
+end;
+
 procedure TTestEnex.InternalEnexTestCopyTo(const Collection: IEnexCollection<Integer>);
 var
   List: TList<Integer>;
@@ -1103,31 +1123,31 @@ begin
   List.Free();
 end;
 
-procedure TTestEnex.InternalTestDistinct(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestDistinct(const Collection: IEnexCollection<Integer>);
 var
   DistinctEnum: IEnexCollection<Integer>;
 begin
-  DistinctEnum := TEnexDistinctCollection<Integer>.Create(Collection);
+  DistinctEnum := TEnexDistinctCollection<Integer>.Create(__(Collection));
   Check(Collection.Distinct().EqualsTo(DistinctEnum), 'Distinct() failed!');
 end;
 
-procedure TTestEnex.InternalTestDistinctByKeys(const Collection: TEnexAssociativeCollection<Integer, Integer>);
+procedure TTestEnex.InternalTestDistinctByKeys(const Collection: IEnexAssociativeCollection<Integer, Integer>);
 var
   XEnum, YEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   XEnum := Collection.DistinctByKeys;
-  YEnum := TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.Create(Collection);
+  YEnum := TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.Create(__(Collection));
 
   Check(XEnum.Includes(YEnum), 'XEnum should include YEnum');
   Check(YEnum.Includes(XEnum), 'YEnum should include XEnum');
 end;
 
-procedure TTestEnex.InternalTestDistinctByValues(const Collection: TEnexAssociativeCollection<Integer, Integer>);
+procedure TTestEnex.InternalTestDistinctByValues(const Collection: IEnexAssociativeCollection<Integer, Integer>);
 var
   XEnum, YEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   XEnum := Collection.DistinctByValues;
-  YEnum := TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.Create(Collection);
+  YEnum := TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.Create(__(Collection));
 
   Check(XEnum.Includes(YEnum), 'XEnum should include YEnum');
   Check(YEnum.Includes(XEnum), 'YEnum should include XEnum');
@@ -1217,7 +1237,7 @@ begin
   List.Free;
 end;
 
-procedure TTestEnex.InternalTestExclude(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestExclude(const Collection: IEnexCollection<Integer>);
 var
   Enum1: IEnexCollection<Integer>;
   ExcludeEnum: IEnexCollection<Integer>;
@@ -1234,7 +1254,7 @@ begin
   );
 
   { Now apply predicates }
-  ExcludeEnum := TEnexExclusionCollection<Integer>.Create(Collection, Enum1);
+  ExcludeEnum := TEnexExclusionCollection<Integer>.Create(__(Collection), Enum1);
   Check(Collection.Exclude(Enum1).EqualsTo(ExcludeEnum), 'Concat failed!');
 end;
 
@@ -1724,7 +1744,7 @@ begin
   Check(not Collection.Includes(Dict), 'Collection does not include Dict');
 end;
 
-procedure TTestEnex.InternalTestIntersect(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestIntersect(const Collection: IEnexCollection<Integer>);
 var
   Enum1: IEnexCollection<Integer>;
   IntersectEnum: IEnexCollection<Integer>;
@@ -1741,7 +1761,7 @@ begin
   );
 
   { Now apply predicates }
-  IntersectEnum := TEnexIntersectionCollection<Integer>.Create(Collection, Enum1);
+  IntersectEnum := TEnexIntersectionCollection<Integer>.Create(__(Collection), Enum1);
   Check(Collection.Intersect(Enum1).EqualsTo(IntersectEnum), 'Concat failed!');
 end;
 
@@ -1934,25 +1954,25 @@ begin
   OrList.Free;
 end;
 
-procedure TTestEnex.InternalTestRange(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestRange(const Collection: IEnexCollection<Integer>);
 var
   RangeEnum: IEnexCollection<Integer>;
 begin
 
   { Test }
-  RangeEnum := TEnexRangeCollection<Integer>.Create(Collection, 0, 0);
+  RangeEnum := TEnexRangeCollection<Integer>.Create(__(Collection), 0, 0);
   Check(Collection.Range(0, 0).EqualsTo(RangeEnum), 'Failed at 1');
 
-  RangeEnum := TEnexRangeCollection<Integer>.Create(Collection, 200, 400);
+  RangeEnum := TEnexRangeCollection<Integer>.Create(__(Collection), 200, 400);
   Check(Collection.Range(200, 400).EqualsTo(RangeEnum), 'Failed at 2');
 
-  RangeEnum := TEnexRangeCollection<Integer>.Create(Collection, 0, 1);
+  RangeEnum := TEnexRangeCollection<Integer>.Create(__(Collection), 0, 1);
   Check(Collection.Range(0, 1).EqualsTo(RangeEnum), 'Failed at 3');
 
-  RangeEnum := TEnexRangeCollection<Integer>.Create(Collection, 0, 50);
+  RangeEnum := TEnexRangeCollection<Integer>.Create(__(Collection), 0, 50);
   Check(Collection.Range(0, 50).EqualsTo(RangeEnum), 'Failed at 4');
 
-  RangeEnum := TEnexRangeCollection<Integer>.Create(Collection, 50, 200);
+  RangeEnum := TEnexRangeCollection<Integer>.Create(__(Collection), 50, 200);
   Check(Collection.Range(50, 200).EqualsTo(RangeEnum), 'Failed at 5');
 end;
 
@@ -2041,7 +2061,19 @@ begin
   List.Free();
 end;
 
-procedure TTestEnex.InternalTestSkip(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalEnexTestToDynamicArray(
+  const Collection: IEnexCollection<Integer>);
+begin
+
+end;
+
+procedure TTestEnex.InternalEnexTestToFixedArray(
+  const Collection: IEnexCollection<Integer>);
+begin
+
+end;
+
+procedure TTestEnex.InternalTestSkip(const Collection: IEnexCollection<Integer>);
 var
   SkipEnum: IEnexCollection<Integer>;
   List: TList<Integer>;
@@ -2063,15 +2095,15 @@ begin
   end;
 
   { Now do test }
-  SkipEnum := TEnexSkipCollection<Integer>.Create(Collection, List.Count);
+  SkipEnum := TEnexSkipCollection<Integer>.Create(__(Collection), List.Count);
   Check(Collection.Skip(List.Count).EqualsTo(SkipEnum), 'Failed to skip count');
 
-  SkipEnum := TEnexSkipCollection<Integer>.Create(Collection, (List.Count div 2) + 1);
+  SkipEnum := TEnexSkipCollection<Integer>.Create(__(Collection), (List.Count div 2) + 1);
   Check(Collection.Skip((List.Count div 2) + 1).EqualsTo(SkipEnum), 'Failed to skip count');
 end;
 
 
-procedure TTestEnex.InternalTestSkipWhile(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestSkipWhile(const Collection: IEnexCollection<Integer>);
 var
   SkipWhileEnum: IEnexCollection<Integer>;
 begin
@@ -2084,70 +2116,70 @@ begin
   );
 
   { Now do test }
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end);
   Check(Collection.SkipWhile(function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end).EqualsTo(SkipWhileEnum), 'Failed at  > 50');
 
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end);
   Check(Collection.SkipWhile(function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end).EqualsTo(SkipWhileEnum), 'Failed at Odd');
 end;
 
-procedure TTestEnex.InternalTestSkipWhileBetween(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestSkipWhileBetween(const Collection: IEnexCollection<Integer>);
 var
   SkipWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end);
   Check(Collection.SkipWhileBetween(-5, 100).EqualsTo(SkipWhileEnum), 'Failed at >= -5, <= 100');
 
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end);
   Check(Collection.SkipWhileBetween(200, 201).EqualsTo(SkipWhileEnum), 'Failed at >= 200, <= 201');
 end;
 
-procedure TTestEnex.InternalTestSkipWhileGreater(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestSkipWhileGreater(const Collection: IEnexCollection<Integer>);
 var
   SkipWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end);
   Check(Collection.SkipWhileGreater(-1).EqualsTo(SkipWhileEnum), 'Failed at > -1');
 
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 > 500); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 > 500); end);
   Check(Collection.SkipWhileGreater(500).EqualsTo(SkipWhileEnum), 'Failed at > 500');
 end;
 
-procedure TTestEnex.InternalTestSkipWhileGreaterOrEqual(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestSkipWhileGreaterOrEqual(const Collection: IEnexCollection<Integer>);
 var
   SkipWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 >= -1); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 >= -1); end);
   Check(Collection.SkipWhileGreaterOrEqual(-1).EqualsTo(SkipWhileEnum), 'Failed at >= -1');
 
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 >= 500); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 >= 500); end);
   Check(Collection.SkipWhileGreaterOrEqual(500).EqualsTo(SkipWhileEnum), 'Failed at >= 500');
 end;
 
-procedure TTestEnex.InternalTestSkipWhileLower(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestSkipWhileLower(const Collection: IEnexCollection<Integer>);
 var
   SkipWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 < -1); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 < -1); end);
   Check(Collection.SkipWhileLower(-1).EqualsTo(SkipWhileEnum), 'Failed at < -1');
 
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 < 500); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 < 500); end);
   Check(Collection.SkipWhileLower(500).EqualsTo(SkipWhileEnum), 'Failed at < 500');
 end;
 
-procedure TTestEnex.InternalTestSkipWhileLowerOrEqual(const Collection: TEnexCollection<Integer>);
+procedure TTestEnex.InternalTestSkipWhileLowerOrEqual(const Collection: IEnexCollection<Integer>);
 var
   SkipWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 <= -1); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 <= -1); end);
   Check(Collection.SkipWhileLowerOrEqual(-1).EqualsTo(SkipWhileEnum), 'Failed at <= -1');
 
-  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 <= 500); end);
+  SkipWhileEnum := TEnexSkipWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 <= 500); end);
   Check(Collection.SkipWhileLowerOrEqual(500).EqualsTo(SkipWhileEnum), 'Failed at <= 500');
 end;
 
@@ -2157,6 +2189,7 @@ var
   ASList: TList<string>;
   I: Integer;
   S: String;
+  C: TComparison<string>;
 begin
   { Typed sort }
   AList := TList<Integer>.Create(Collection);
@@ -2170,10 +2203,12 @@ begin
   for I in Collection do
     ASList.Add(IntToStr(I));
 
-  ASList.Sort(function(const ALeft, ARight: String): Integer
+  C := function(const ALeft, ARight: String): Integer
   begin
     Result := StrToInt(ALeft) - StrToInt(ARight);
-  end);
+  end;
+
+  ASList.Sort(C);
 
   AList := TList<Integer>.Create;
   for S in ASList do
@@ -2230,10 +2265,10 @@ begin
   );
 
   { Now do test }
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end);
   Check(Collection.TakeWhile(function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end).EqualsTo(TakeWhileEnum), 'Failed at  > 50');
 
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end);
   Check(Collection.TakeWhile(function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end).EqualsTo(TakeWhileEnum), 'Failed at Odd');
 end;
 
@@ -2242,10 +2277,10 @@ var
   TakeWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end);
   Check(Collection.TakeWhileBetween(-5, 100).EqualsTo(TakeWhileEnum), 'Failed at >= -5, <= 100');
 
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end);
   Check(Collection.TakeWhileBetween(200, 201).EqualsTo(TakeWhileEnum), 'Failed at >= 200, <= 201');
 end;
 
@@ -2254,10 +2289,10 @@ var
   TakeWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end);
   Check(Collection.TakeWhileGreater(-1).EqualsTo(TakeWhileEnum), 'Failed at > -1');
 
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 > 500); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 > 500); end);
   Check(Collection.TakeWhileGreater(500).EqualsTo(TakeWhileEnum), 'Failed at > 500');
 end;
 
@@ -2266,10 +2301,10 @@ var
   TakeWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 >= -1); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 >= -1); end);
   Check(Collection.TakeWhileGreaterOrEqual(-1).EqualsTo(TakeWhileEnum), 'Failed at >= -1');
 
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 >= 500); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 >= 500); end);
   Check(Collection.TakeWhileGreaterOrEqual(500).EqualsTo(TakeWhileEnum), 'Failed at >= 500');
 end;
 
@@ -2278,10 +2313,10 @@ var
   TakeWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 < -1); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 < -1); end);
   Check(Collection.TakeWhileLower(-1).EqualsTo(TakeWhileEnum), 'Failed at < -1');
 
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 < 500); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 < 500); end);
   Check(Collection.TakeWhileLower(500).EqualsTo(TakeWhileEnum), 'Failed at < 500');
 end;
 
@@ -2290,10 +2325,10 @@ var
   TakeWhileEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 <= -1); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 <= -1); end);
   Check(Collection.TakeWhileLowerOrEqual(-1).EqualsTo(TakeWhileEnum), 'Failed at <= -1');
 
-  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Collection, function(Arg1: Integer): Boolean begin Exit(Arg1 <= 500); end, TType<Integer>.Default);
+  TakeWhileEnum := TEnexTakeWhileCollection<Integer>.Create(__(Collection), function(Arg1: Integer): Boolean begin Exit(Arg1 <= 500); end);
   Check(Collection.TakeWhileLowerOrEqual(500).EqualsTo(TakeWhileEnum), 'Failed at <= 500');
 end;
 
@@ -2345,7 +2380,7 @@ begin
   );
 
   { Now apply predicates }
-  UnionEnum := TEnexUnionCollection<Integer>.CreateIntf(Collection, Enum1, TType<Integer>.Default);
+  UnionEnum := TEnexUnionCollection<Integer>.Create(__(Collection), Enum1);
   Check(Collection.Union(Enum1).EqualsTo(UnionEnum), 'Concat failed!');
 end;
 
@@ -2385,12 +2420,12 @@ begin
   );
 
   { Now do test }
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, False);
   Check(Collection.Where(function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end).EqualsTo(WhereEnum), 'Failed at  > 50');
 
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(not Odd(Arg1)); end, TType<Integer>.Default, True);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(not Odd(Arg1)); end, True);
   Check(Collection.Where(function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end).EqualsTo(WhereEnum), 'Failed at Odd');
 end;
 
@@ -2399,12 +2434,12 @@ var
   WhereEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end, False);
   Check(Collection.WhereBetween(-5, 100).EqualsTo(WhereEnum), 'Failed at  >= -5, <= 100');
 
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end, False);
   Check(Collection.WhereBetween(200, 201).EqualsTo(WhereEnum), 'Failed at >= 200, <= 201');
 end;
 
@@ -2413,12 +2448,12 @@ var
   WhereEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end, False);
   Check(Collection.WhereGreater(-1).EqualsTo(WhereEnum), 'Failed at  > -1');
 
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 > 500); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 > 500); end, False);
   Check(Collection.WhereGreater(500).EqualsTo(WhereEnum), 'Failed at > 500');
 end;
 
@@ -2427,12 +2462,12 @@ var
   WhereEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 >= -1); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 >= -1); end, False);
   Check(Collection.WhereGreaterOrEqual(-1).EqualsTo(WhereEnum), 'Failed at  >= -1');
 
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 >= 500); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 >= 500); end, False);
   Check(Collection.WhereGreaterOrEqual(500).EqualsTo(WhereEnum), 'Failed at >= 500');
 end;
 
@@ -2441,13 +2476,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg1 >= -5) and (Arg1 <= 100)); end, False);
 
   Check(Collection.WhereKeyBetween(-5, 100).Includes(WhereEnum), 'Failed at  >= -5, <= 100');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg1 >= 200) and (Arg1 <= 201)); end, False);
 
   Check(Collection.WhereKeyBetween(200, 201).Includes(WhereEnum), 'Failed at >= 200, <= 201');
 end;
@@ -2457,13 +2492,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > -1); end, False);
 
   Check(Collection.WhereKeyGreater(-1).Includes(WhereEnum), 'Failed at > -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 > 500); end, False);
 
   Check(Collection.WhereKeyGreater(500).Includes(WhereEnum), 'Failed at > 500');
 end;
@@ -2473,13 +2508,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 >= -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 >= -1); end, False);
 
   Check(Collection.WhereKeyGreaterOrEqual(-1).Includes(WhereEnum), 'Failed at >= -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 >= 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 >= 500); end, False);
 
   Check(Collection.WhereKeyGreaterOrEqual(500).Includes(WhereEnum), 'Failed at >= 500');
 end;
@@ -2489,13 +2524,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 < -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 < -1); end, False);
 
   Check(Collection.WhereKeyLower(-1).Includes(WhereEnum), 'Failed at < -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 < 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 < 500); end, False);
 
   Check(Collection.WhereKeyLower(500).Includes(WhereEnum), 'Failed at < 500');
 end;
@@ -2505,13 +2540,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 <= -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 <= -1); end, False);
 
   Check(Collection.WhereKeyLowerOrEqual(-1).Includes(WhereEnum), 'Failed at <= -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 <= 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg1 <= 500); end, False);
 
   Check(Collection.WhereKeyLowerOrEqual(500).Includes(WhereEnum), 'Failed at <= 500');
 end;
@@ -2521,12 +2556,12 @@ var
   WhereEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 < -1); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 < -1); end, False);
   Check(Collection.WhereLower(-1).EqualsTo(WhereEnum), 'Failed at < -1');
 
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 < 500); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 < 500); end, False);
   Check(Collection.WhereLower(500).EqualsTo(WhereEnum), 'Failed at < 500');
 end;
 
@@ -2535,12 +2570,12 @@ var
   WhereEnum: IEnexCollection<Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 <= -1); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 <= -1); end, False);
   Check(Collection.WhereLowerOrEqual(-1).EqualsTo(WhereEnum), 'Failed at <= -1');
 
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 <= 500); end, TType<Integer>.Default, False);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 <= 500); end, False);
   Check(Collection.WhereLowerOrEqual(500).EqualsTo(WhereEnum), 'Failed at <= 500');
 end;
 
@@ -2558,12 +2593,12 @@ begin
   );
 
   { Now do test }
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, TType<Integer>.Default, True);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, True);
   Check(Collection.WhereNot(function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end).EqualsTo(WhereEnum), 'Failed at > 50');
 
-  WhereEnum := TEnexWhereCollection<Integer>.CreateIntf(Collection,
-    function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end, TType<Integer>.Default, True);
+  WhereEnum := TEnexWhereCollection<Integer>.Create(__(Collection),
+    function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end, True);
   Check(Collection.WhereNot(function(Arg1: Integer): Boolean begin Exit(Odd(Arg1)); end).EqualsTo(WhereEnum), 'Failed at Odd');
 end;
 
@@ -2572,13 +2607,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg2 >= -5) and (Arg2 <= 100)); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg2 >= -5) and (Arg2 <= 100)); end, False);
 
   Check(Collection.WhereValueBetween(-5, 100).Includes(WhereEnum), 'Failed at  >= -5, <= 100');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg2 >= 200) and (Arg2 <= 201)); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit((Arg2 >= 200) and (Arg2 <= 201)); end, False);
 
   Check(Collection.WhereValueBetween(200, 201).Includes(WhereEnum), 'Failed at >= 200, <= 201');
 end;
@@ -2588,13 +2623,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 > -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 > -1); end, False);
 
   Check(Collection.WhereValueGreater(-1).Includes(WhereEnum), 'Failed at > -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 > 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 > 500); end, False);
 
   Check(Collection.WhereValueGreater(500).Includes(WhereEnum), 'Failed at > 500');
 end;
@@ -2604,13 +2639,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 >= -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 >= -1); end, False);
 
   Check(Collection.WhereValueGreaterOrEqual(-1).Includes(WhereEnum), 'Failed at >= -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 >= 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 >= 500); end, False);
 
   Check(Collection.WhereValueGreaterOrEqual(500).Includes(WhereEnum), 'Failed at >= 500');
 end;
@@ -2620,13 +2655,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 < -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 < -1); end, False);
 
   Check(Collection.WhereValueLower(-1).Includes(WhereEnum), 'Failed at < -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 < 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 < 500); end, False);
 
   Check(Collection.WhereValueLower(500).Includes(WhereEnum), 'Failed at < 500');
 end;
@@ -2636,13 +2671,13 @@ var
   WhereEnum: IEnexAssociativeCollection<Integer, Integer>;
 begin
   { Now do test }
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 <= -1); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 <= -1); end, False);
 
   Check(Collection.WhereValueLowerOrEqual(-1).Includes(WhereEnum), 'Failed at <= -1');
 
-  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(Collection,
-    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 <= 500); end, TType<Integer>.Default, TType<Integer>.Default, False);
+  WhereEnum := TEnexAssociativeWhereCollection<Integer, Integer>.Create(__(Collection),
+    function(Arg1, Arg2: Integer): Boolean begin Exit(Arg2 <= 500); end, False);
 
   Check(Collection.WhereValueLowerOrEqual(500).Includes(WhereEnum), 'Failed at <= 500');
 end;
@@ -2665,40 +2700,6 @@ end;
 procedure TTestEnex.TestAny;
 begin
   TestGenericEnexCollection(InternalTestAny);
-end;
-
-procedure TTestEnex.TestAssociativeWrapCollection;
-var
-  Dict: IDictionary<Integer, Integer>;
-  XEnum: IEnexAssociativeCollection<Integer, Integer>;
-begin
-  { Make a list }
-  Dict := MakeOrderedIntegerDictionary(0, 100);
-
-  { Verify constructors }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeWrapCollection<Integer, Integer>.Create(nil, TType<Integer>.Default, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeWrapCollection<Integer, Integer>.Create(Dict, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeWrapCollection<Integer, Integer>.Create(Dict, TType<Integer>.Default, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  XEnum := TEnexAssociativeWrapCollection<Integer, Integer>.Create(Dict, TType<Integer>.Default, TType<Integer>.Default);
-  Check(XEnum.Includes(Dict), 'XEnum does not contain the right elements!');
 end;
 
 procedure TTestEnex.TestAssocWhere;
@@ -2744,125 +2745,12 @@ begin
 
   { ............. }
 
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(EnumIntf, Predicate, TType<Integer>.Default, nil, False);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(EnumIntf, Predicate, nil, TType<Integer>.Default, False);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(nil, Predicate, TType<Integer>.Default, TType<Integer>.Default, False);
-    end,
-    'EArgumentNilException not thrown in Create (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeWhereCollection<Integer, Integer>.CreateIntf(EnumIntf, nil, TType<Integer>.Default, TType<Integer>.Default, False);
-    end,
-    'EArgumentNilException not thrown in Create (nil pred).'
-  );
-
   { Now apply predicates }
   Enum2 := TEnexAssociativeWhereCollection<Integer, Integer>.Create(Enum, Predicate, False);
 
   { Verify! }
   Check(Enum2.SelectKeys().EqualsTo(MakeOrderedIntegerList(51, 100)), 'Enum2 does not contain the right keys!');
   Check(Enum2.SelectValues().EqualsTo(MakeOrderedIntegerList(52, 101)), 'Enum2 does not contain the right values!');
-end;
-
-procedure TTestEnex.TestCast;
-var
-  List: TList<Integer>;
-  List2: TList<String>;
-
-  I: Integer;
-begin
-  List := TList<Integer>.Create();
-
-  { Fill list }
-  for I := 0 to 999 do
-    List.Add(Random(I));
-
-  { Verify exceptions }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      List.Op.Cast<String>(nil);
-    end,
-    'EArgumentNilException not thrown in Cast (nil type).'
-  );
-
-  { Populate list 2 with strings }
-  List2 := TList<String>.Create(List.Op.Cast<String>());
-
-  { Check lengths }
-  Check(List.Count = List2.Count);
-
-  { Check elements }
-  for I := 0 to List2.Count - 1 do
-    Check(IntToStr(List[I]) = List2[I], 'Conversion failed!');
-
-  List.Free;
-  List2.Free;
-end;
-
-procedure TTestEnex.TestCastCollection;
-var
-  Enum: IEnexCollection<Integer>;
-  XEnum: IEnexCollection<String>;
-begin
-  { Make a list }
-  Enum := MakeOrderedIntegerList(0, 100);
-
-  { Verify constructors }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexCastCollection<Integer, String>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default),
-        nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexCastCollection<Integer, String>.Create(nil, TType<String>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexCastCollection<Integer, String>.CreateIntf(nil, TType<Integer>.Default, TType<String>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexCastCollection<Integer, String>.CreateIntf(Enum, nil, TType<String>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil in type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexCastCollection<Integer, String>.CreateIntf(Enum, TType<Integer>.Default, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil out type).'
-  );
-
-  { Now apply predicates }
-  XEnum := TEnexCastCollection<Integer, String>.CreateIntf(Enum, TType<Integer>.Default, TType<String>.Default);
-  Check(XEnum.EqualsTo(MakeOrderedStringList(0, 100)), 'XEnum does not contain the right elements!');
 end;
 
 procedure TTestEnex.TestConcat;
@@ -2882,102 +2770,30 @@ begin
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexConcatCollection<Integer>.Create(
-        nil,
-        TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default));
+      TEnexConcatCollection<Integer>.Create(nil, Enum2);
     end,
     'EArgumentNilException not thrown in Create (nil enum 1).'
   );
 
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexConcatCollection<Integer>.Create(
-        TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default),
-        nil);
+      TEnexConcatCollection<Integer>.Create(__(Enum1), nil);
     end,
     'EArgumentNilException not thrown in Create (nil enum 2).'
   );
 
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf(Enum1, Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf1(nil, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf1(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf1(Enum1, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil type).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf2(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexConcatCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexConcatCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexConcatCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 200)), 'XEnum does not contain the right elements!');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 1);
   Enum2 := MakeOrderedIntegerList(1, 2);
-  XEnum := TEnexConcatCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexConcatCollection<Integer>.Create(__(Enum1), Enum2);
 
   Check(XEnum.First = 0, 'XEnum.First = 0');
   Check(XEnum.Last = 2, 'XEnum.Last = 2');
-  Check(Accumulator.Sum<Integer>(XEnum) = 4, 'XEnum.Sum = 4');
+  Check(AccSum(XEnum) = 4, 'XEnum.Sum = 4');
 end;
 
 procedure TTestEnex.TestCopyTo;
@@ -3015,23 +2831,9 @@ begin
 
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.CreateIntf(nil, TType<Integer>.Default, TType<Integer>.Default);
+      TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.Create(nil);
     end,
     'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.CreateIntf(Enum, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.CreateIntf(Enum, TType<Integer>.Default, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type2).'
   );
 
   { Now apply predicates }
@@ -3080,27 +2882,6 @@ begin
     'EArgumentNilException not thrown in Create (nil enum).'
   );
 
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.CreateIntf(nil, TType<Integer>.Default, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.CreateIntf(Enum, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.CreateIntf(Enum, TType<Integer>.Default, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type2).'
-  );
-
   { Now apply predicates }
   XEnum := TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.Create(Enum);
   Check(XEnum.Includes(Enum), 'XEnum does not contain the right elements!');
@@ -3143,30 +2924,23 @@ begin
 
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexDistinctCollection<Integer>.CreateIntf(nil, TType<Integer>.Default);
+      TEnexDistinctCollection<Integer>.Create(nil);
     end,
     'EArgumentNilException not thrown in CreateIntf (nil enum).'
   );
 
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexDistinctCollection<Integer>.CreateIntf(Enum, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexDistinctCollection<Integer>.CreateIntf(Enum, TType<Integer>.Default);
+  XEnum := TEnexDistinctCollection<Integer>.Create(__(Enum));
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 1000)), 'XEnum does not contain the right elements!');
 
 
   { Other situations }
   Enum := TList<Integer>.Create([1, 1, 2, 3, 3, 2]);
-  XEnum := TEnexDistinctCollection<Integer>.CreateIntf(Enum, TType<Integer>.Default);
+  XEnum := TEnexDistinctCollection<Integer>.Create(__(Enum));
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(1, 3)), 'XEnum does not contain the right elements!');
 
   Enum := TList<Integer>.Create([1, 1, 1, 3, 3, 4, 4, 4, 1, 1, 2 ]);
-  XEnum := TEnexDistinctCollection<Integer>.CreateIntf(Enum, TType<Integer>.Default);
+  XEnum := TEnexDistinctCollection<Integer>.Create(__(Enum));
 
   Check(XEnum.EqualsTo(TList<Integer>.Create([1, 3, 4, 2 ])), 'XEnum does not contain the right elements!');
 end;
@@ -3209,113 +2983,41 @@ begin
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexExclusionCollection<Integer>.Create(
-        nil,
-        TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default));
+      TEnexExclusionCollection<Integer>.Create(nil, Enum2);
     end,
     'EArgumentNilException not thrown in Create (nil enum 1).'
   );
 
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexExclusionCollection<Integer>.Create(
-        TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default),
-        nil);
+      TEnexExclusionCollection<Integer>.Create(__(Enum1), nil);
     end,
     'EArgumentNilException not thrown in Create (nil enum 2).'
   );
 
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf(Enum1, Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf1(nil, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf1(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf1(Enum1, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil type).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf2(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexExclusionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexExclusionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 100)), 'XEnum does not contain the right elements!');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 1);
   Enum2 := MakeOrderedIntegerList(1, 2);
-  XEnum := TEnexExclusionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexExclusionCollection<Integer>.Create(__(Enum1), Enum2);
 
   Check(XEnum.First = 0, 'XEnum.First = 0');
   Check(XEnum.Last = 0, 'XEnum.Last = 0');
-  Check(Accumulator.Sum<Integer>(XEnum) = 0, 'XEnum.Sum = 0');
+  Check(AccSum(XEnum) = 0, 'XEnum.Sum = 0');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 100);
   Enum2 := MakeOrderedIntegerList(0, 98);
-  XEnum := TEnexExclusionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexExclusionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(99, 100)), 'XEnum does not contain the right elements!');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 100);
   Enum2 := MakeOrderedIntegerList(50, 110);
-  XEnum := TEnexExclusionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexExclusionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 49)), 'XEnum does not contain the right elements!');
 end;
 
@@ -3325,36 +3027,29 @@ var
 
 begin
   { Check exceptions }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      Collection.Fill<Integer>(1, 1, nil);
-    end,
-    'EArgumentNilException not thrown in Fill (nil type).'
-  );
-
   CheckException(EArgumentOutOfRangeException,
     procedure() begin
-      Collection.Fill<Integer>(1, 0, TType<Integer>.Default);
+      TEnexCollection<Integer>.Fill(1, 0, TRules<Integer>.Default);
     end,
     'EArgumentOutOfRangeException not thrown in Fill (0 Count).'
   );
 
   CheckException(EArgumentOutOfRangeException,
     procedure() begin
-      Collection.Fill<Integer>(1, 0);
+      TEnexCollection<Integer>.Fill(1, 0);
     end,
     'EArgumentOutOfRangeException not thrown in Fill (0 Count).'
   );
 
   { Now do test }
-  FillEnum := TEnexFillCollection<Integer>.Create(1, 100, TType<Integer>.Default);
-  Check(Collection.Fill<Integer>(1, 100).EqualsTo(FillEnum), 'Failed at 100 elements');
+  FillEnum := TEnexFillCollection<Integer>.Create(1, 100, TRules<Integer>.Default);
+  Check(TEnexCollection<Integer>.Fill(1, 100).EqualsTo(FillEnum), 'Failed at 100 elements');
 
-  FillEnum := TEnexFillCollection<Integer>.Create(1, 1, TType<Integer>.Default);
-  Check(Collection.Fill<Integer>(1, 1).EqualsTo(FillEnum), 'Failed at 1 elements');
+  FillEnum := TEnexFillCollection<Integer>.Create(1, 1, TRules<Integer>.Default);
+  Check(TEnexCollection<Integer>.Fill(1, 1).EqualsTo(FillEnum), 'Failed at 1 elements');
 
-  FillEnum := TEnexFillCollection<Integer>.Create(1, 22, TType<Integer>.Default);
-  Check(Collection.Fill<Integer>(1, 22).EqualsTo(FillEnum), 'Failed at 22 elements');
+  FillEnum := TEnexFillCollection<Integer>.Create(1, 22, TRules<Integer>.Default);
+  Check(TEnexCollection<Integer>.Fill(1, 22).EqualsTo(FillEnum), 'Failed at 22 elements');
 end;
 
 procedure TTestEnex.TestFillCollection;
@@ -3363,29 +3058,21 @@ var
 
 begin
   { Verify constructors }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexFillCollection<Integer>.Create(1, 1, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
   CheckException(EArgumentOutOfRangeException,
     procedure() begin
-      TEnexFillCollection<Integer>.Create(1, 0, TType<Integer>.Default);
+      TEnexFillCollection<Integer>.Create(1, 0, TRules<Integer>.Default);
     end,
     'EArgumentOutOfRangeException not thrown in Create (0 Count).'
   );
 
-
   { Test }
-  XEnum := TEnexFillCollection<Integer>.Create(1, 1, TType<Integer>.Default);
+  XEnum := TEnexFillCollection<Integer>.Create(1, 1, TRules<Integer>.Default);
   Check(XEnum.EqualsTo(TList<Integer>.Create([1])), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexFillCollection<Integer>.Create(1, 5, TType<Integer>.Default);
+  XEnum := TEnexFillCollection<Integer>.Create(1, 5, TRules<Integer>.Default);
   Check(XEnum.EqualsTo(TList<Integer>.Create([1, 1, 1, 1, 1])), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexFillCollection<Integer>.Create(-1, 2, TType<Integer>.Default);
+  XEnum := TEnexFillCollection<Integer>.Create(-1, 2, TRules<Integer>.Default);
   Check(XEnum.EqualsTo(TList<Integer>.Create([-1, -1])), 'XEnum does not contain the right elements!');
 end;
 
@@ -3484,7 +3171,6 @@ begin
   TestProc(LSM_Full);
   TestProc(LSoSM_Full);
   TestProc(LDoSoSM_Full);
-  TestProc(LAssocWrapColl_Full);
   TestProc(LAssocWhereColl_Full);
   TestProc(LAssocDByKeysColl_Full);
   TestProc(LAssocDByValuesColl_Full);
@@ -3502,7 +3188,6 @@ begin
   TestProc(LSM_One);
   TestProc(LSoSM_One);
   TestProc(LDoSoSM_One);
-  TestProc(LAssocWrapColl_One);
   TestProc(LAssocWhereColl_One);
   TestProc(LAssocDByKeysColl_One);
   TestProc(LAssocDByValuesColl_One);
@@ -3520,7 +3205,6 @@ begin
   TestProc(LSM_Empty);
   TestProc(LSoSM_Empty);
   TestProc(LDoSoSM_Empty);
-  TestProc(LAssocWrapColl_Empty);
   TestProc(LAssocWhereColl_Empty);
   TestProc(LAssocDByKeysColl_Empty);
   TestProc(LAssocDByValuesColl_Empty);
@@ -3529,7 +3213,6 @@ end;
 procedure TTestEnex.TestGenericEnexCollection(const TestProc: TEnexCollectionInternalProc);
 begin
   { With real data }
-  TestProc(LHeap_Full);
   TestProc(LList_Full);
   TestProc(LSortedList_Full);
   TestProc(LAraySet_Full);
@@ -3542,12 +3225,9 @@ begin
   TestProc(LLinkedQueue_Full);
   TestProc(LStack_Full);
   TestProc(LLinkedStack_Full);
-  TestProc(LWrapColl_Full);
   TestProc(LFillColl_Full);
-  TestProc(LIntervalColl_Full);
   TestProc(LWhereColl_Full);
   TestProc(LSelectColl_Full);
-  TestProc(LCastColl_Full);
   TestProc(LConcatColl_Full);
   TestProc(LUnionColl_Full);
   TestProc(LExclColl_Full);
@@ -3584,7 +3264,6 @@ begin
   TestProc(LDoSoSMVal_Full);
 
   { With one element }
-  TestProc(LHeap_One);
   TestProc(LList_One);
   TestProc(LSortedList_One);
   TestProc(LAraySet_One);
@@ -3597,12 +3276,9 @@ begin
   TestProc(LLinkedQueue_One);
   TestProc(LStack_One);
   TestProc(LLinkedStack_One);
-  TestProc(LWrapColl_One);
   TestProc(LFillColl_One);
-  TestProc(LIntervalColl_One);
   TestProc(LWhereColl_One);
   TestProc(LSelectColl_One);
-  TestProc(LCastColl_One);
   TestProc(LConcatColl_One);
   TestProc(LUnionColl_One);
   TestProc(LExclColl_One);
@@ -3639,7 +3315,6 @@ begin
   TestProc(LDoSoSMVal_One);
 
   { With no data }
-  TestProc(LHeap_Empty);
   TestProc(LList_Empty);
   TestProc(LSortedList_Empty);
   TestProc(LAraySet_Empty);
@@ -3652,10 +3327,8 @@ begin
   TestProc(LLinkedQueue_Empty);
   TestProc(LStack_Empty);
   TestProc(LLinkedStack_Empty);
-  TestProc(LWrapColl_Empty);
   TestProc(LWhereColl_Empty);
   TestProc(LSelectColl_Empty);
-  TestProc(LCastColl_Empty);
   TestProc(LConcatColl_Empty);
   TestProc(LUnionColl_Empty);
   TestProc(LExclColl_Empty);
@@ -3720,248 +3393,52 @@ begin
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexIntersectionCollection<Integer>.Create(
-        nil,
-        TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default));
+      TEnexIntersectionCollection<Integer>.Create(nil, Enum2);
     end,
     'EArgumentNilException not thrown in Create (nil enum 1).'
   );
 
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexIntersectionCollection<Integer>.Create(
-        TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default),
-        nil);
+      TEnexIntersectionCollection<Integer>.Create(__(Enum1), nil);
     end,
     'EArgumentNilException not thrown in Create (nil enum 2).'
   );
 
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf(Enum1, Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf1(nil, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf1(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexExclusionCollection<Integer>.CreateIntf1(Enum1, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf2(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntersectionCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexIntersectionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexIntersectionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.FirstOrDefault(-1) = -1, 'XEnum must be empty!');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 1);
   Enum2 := MakeOrderedIntegerList(1, 2);
-  XEnum := TEnexIntersectionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexIntersectionCollection<Integer>.Create(__(Enum1), Enum2);
 
   Check(XEnum.First = 1, 'XEnum.First = 1');
   Check(XEnum.Last = 1, 'XEnum.Last = 1');
-  Check(Accumulator.Sum<Integer>(XEnum) = 1, 'XEnum.Sum = 1');
+  Check(AccSum(XEnum) = 1, 'XEnum.Sum = 1');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 100);
   Enum2 := MakeOrderedIntegerList(0, 98);
-  XEnum := TEnexIntersectionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexIntersectionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 98)), 'XEnum does not contain the right elements!');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 100);
   Enum2 := MakeOrderedIntegerList(50, 200);
-  XEnum := TEnexIntersectionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexIntersectionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(50, 100)), 'XEnum does not contain the right elements!');
 end;
 
 procedure TTestEnex.TestInterval;
-var
-  XEnum: IEnexCollection<Integer>;
-  List: TList<Integer>;
 begin
-  { Verify constructors }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      Collection.Interval<Integer>(0, 1, 1, nil);
-    end,
-    'EArgumentNilException not thrown in Interval (nil type).'
-  );
 
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      Collection.Interval<Integer>(1, 1, 1, TType<Integer>.Default);
-    end,
-    'EArgumentOutOfRangeException not thrown in Interval (Min = Max).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      Collection.Interval<Integer>(2, 1, 1, TType<Integer>.Default);
-    end,
-    'EArgumentOutOfRangeException not thrown in Interval (Min > Max).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      Collection.Interval<Integer>(2, 1, TType<Integer>.Default);
-    end,
-    'EArgumentOutOfRangeException not thrown in Interval (Min > Max).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      Collection.Interval<Integer>(2, 1);
-    end,
-    'EArgumentOutOfRangeException not thrown in Interval (Min > Max).'
-  );
-
-  CheckException(ETypeException,
-    procedure() begin
-      Collection.Interval<String>('', '', '', TType<String>.Default);
-    end,
-    'ETypeException not thrown in Interval (not number).'
-  );
-
-  CheckException(ETypeException,
-    procedure() begin
-      Collection.Interval<Boolean>(true, true);
-    end,
-    'ETypeException not thrown in Interval (not number).'
-  );
-
-  { Test }
-  XEnum := Collection.Interval<Integer>(0, 1);
-  Check(XEnum.EqualsTo(TList<Integer>.Create([0, 1])), 'XEnum does not contain the right elements!');
-
-  XEnum := Collection.Interval<Integer>(1, 5, 2, TType<Integer>.Default);
-  Check(XEnum.EqualsTo(TList<Integer>.Create([1, 3, 5])), 'XEnum does not contain the right elements!');
-
-  XEnum := Collection.Interval<Integer>(-1, 5, 3);
-  Check(XEnum.EqualsTo(TList<Integer>.Create([-1, 2, 5])), 'XEnum does not contain the right elements!');
-
-  XEnum := Collection.Interval<Integer>(1, 3, 1);
-  List := TList<Integer>.Create(XEnum);
-
-  Check(List[0] = 1 , 'DEnum does not contain the right elements!');
-  Check(List[1] = 2 , 'DEnum does not contain the right elements!');
-  Check(List[2] = 3 , 'DEnum does not contain the right elements!');
-
-  List.Free;
 end;
 
 procedure TTestEnex.TestIntervalCollection;
-var
-  XEnum: IEnexCollection<Integer>;
-  List: TList<Integer>;
 begin
-  { Verify constructors }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexIntervalCollection<Integer>.Create(0, 1, 1, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
 
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      TEnexIntervalCollection<Integer>.Create(1, 1, 1, TType<Integer>.Default);
-    end,
-    'EArgumentOutOfRangeException not thrown in Create (Min = Max).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      TEnexIntervalCollection<Integer>.Create(2, 1, 1, TType<Integer>.Default);
-    end,
-    'EArgumentOutOfRangeException not thrown in Create (Min > Max).'
-  );
-
-  CheckException(ETypeException,
-    procedure() begin
-      TEnexIntervalCollection<String>.Create('', '', '', TType<String>.Default);
-    end,
-    'ETypeException not thrown in Create (not number).'
-  );
-
-  CheckException(ETypeException,
-    procedure() begin
-      TEnexIntervalCollection<Boolean>.Create(true, true, true, TType<Boolean>.Default);
-    end,
-    'ETypeException not thrown in Create (not number).'
-  );
-
-  { Test }
-  XEnum := TEnexIntervalCollection<Integer>.Create(0, 1, 1, TType<Integer>.Default);
-  Check(XEnum.EqualsTo(TList<Integer>.Create([0, 1])), 'XEnum does not contain the right elements!');
-
-  XEnum := TEnexIntervalCollection<Integer>.Create(1, 5, 2, TType<Integer>.Default);
-  Check(XEnum.EqualsTo(TList<Integer>.Create([1, 3, 5])), 'XEnum does not contain the right elements!');
-
-  XEnum := TEnexIntervalCollection<Integer>.Create(-1, 5, 3, TType<Integer>.Default);
-  Check(XEnum.EqualsTo(TList<Integer>.Create([-1, 2, 5])), 'XEnum does not contain the right elements!');
-
-  XEnum := TEnexIntervalCollection<Integer>.Create(1, 3, 1, TType<Integer>.Default);
-  List := TList<Integer>.Create(XEnum);
-
-  Check(List[0] = 1 , 'DEnum does not contain the right elements!');
-  Check(List[1] = 2 , 'DEnum does not contain the right elements!');
-  Check(List[2] = 3 , 'DEnum does not contain the right elements!');
-
-  List.Free;
 end;
 
 procedure TTestEnex.TestKeyHasValue;
@@ -3980,34 +3457,7 @@ begin
 end;
 
 procedure TTestEnex.TestLongChain;
-var
-  SumR, SumR2, SumC, SumC2, I: Integer;
 begin
-  SumC := 0;
-  SumC2 := 0;
-
-  for I := 31 to 49 do
-  begin
-    SumC := SumC + I;
-
-    if not Odd(I) then
-      SumC2 := SumC2 + I;
-  end;
-
-  SumR := Accumulator.Sum<Integer>(Collection.Interval<Integer>(0, 100).
-    WhereLower(50).
-    WhereGreater(30).
-    Take(100));
-
-  SumR2 := Accumulator.Sum<Integer>(Collection.Interval<Integer>(0, 100).
-    WhereLower(50).
-    WhereGreater(30).
-    Intersect(
-      Collection.Interval<Integer>(30, 50, 2)
-    ));
-
-  Check(SumR = SumC, Format('SumC <> SumR (%d <> %d)', [SumC, SumR]) );
-  Check(SumR2 = SumC2, Format('SumC2 <> SumR2 (%d <> %d)', [SumC2, SumR2]) );
 
 end;
 
@@ -4062,34 +3512,20 @@ begin
     'EArgumentNilException not thrown in Create (nil enum).'
   );
 
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexRangeCollection<Integer>.CreateIntf(nil, 0, 0, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexRangeCollection<Integer>.CreateIntf(Enum, 0, 0, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
   { Test }
-  XEnum := TEnexRangeCollection<Integer>.CreateIntf(Enum, 0, 0, TType<Integer>.Default);
+  XEnum := TEnexRangeCollection<Integer>.Create(__(Enum), 0, 0);
   Check(XEnum.SingleOrDefault(-1) = 0, 'Expected to have one element and to be 0');
 
-  XEnum := TEnexRangeCollection<Integer>.CreateIntf(Enum, 200, 400, TType<Integer>.Default);
+  XEnum := TEnexRangeCollection<Integer>.Create(__(Enum), 200, 400);
   Check(XEnum.SingleOrDefault(-1) = -1, 'Expected to be empty.');
 
-  XEnum := TEnexRangeCollection<Integer>.CreateIntf(Enum, 0, 1, TType<Integer>.Default);
+  XEnum := TEnexRangeCollection<Integer>.Create(__(Enum), 0, 1);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 1)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexRangeCollection<Integer>.CreateIntf(Enum, 0, 50, TType<Integer>.Default);
+  XEnum := TEnexRangeCollection<Integer>.Create(__(Enum), 0, 50);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 50)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexRangeCollection<Integer>.CreateIntf(Enum, 50, 200, TType<Integer>.Default);
+  XEnum := TEnexRangeCollection<Integer>.Create(__(Enum), 50, 200);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(50, 100)), 'XEnum does not contain the right elements!');
 end;
 
@@ -4117,14 +3553,6 @@ begin
       List.Op.Select<String>(nil);
     end,
     'EArgumentNilException not thrown in Select (nil func).'
-  );
-
-  { Verify exceptions }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      List.Op.Select<String>(function(Arg1: Integer): string begin end, nil);
-    end,
-    'EArgumentNilException not thrown in Select (nil type).'
   );
 
   { Populate list 2 with strings }
@@ -4159,12 +3587,11 @@ var
 
   C1, C2: Integer;
 begin
-  LList := TList<TX>.Create(TClassType<TX>.Create(true));
+  LList := TList<TX>.Create();
   LList.Add(T1.Create);
   LList.Add(T2.Create);
   LList.Add(nil);
   LList.Add(T3.Create);
-
 
   for L0 in LList.Op.Select<TInterfacedObject> do
     Fail('Did not expect anything to be enumerated by Select<TInterfacedObject>! But got ' + L0.ClassName);
@@ -4195,7 +3622,6 @@ begin
   CheckEquals(1, C1, 'Expected one apparition of T2 in list.');
   CheckEquals(1, C2, 'Expected one apparition of T3 in list.');
 
-
   C1 := 0;
   for L3 in LList.Op.Select<T3> do
   begin
@@ -4206,7 +3632,6 @@ begin
   end;
 
   CheckEquals(1, C1, 'Expected one apparition of T3 in list.');
-
 
   C1 := 0;
   for L4 in LList.Op.Select<TObject> do
@@ -4219,50 +3644,20 @@ begin
   LBadList := TList<Integer>.Create;
 
   { Verify restrictioned access }
-  CheckException(ETypeException, procedure begin
+  CheckException(ENotSupportedException, procedure begin
     LBadList.Op.Select<TObject>;
-  end, 'Expected a restriction problem!');
+  end, 'Expected a restriction problem ENotSupportedException!');
 
   LBadList.Free;
 end;
 
 procedure TTestEnex.TestSelectClassCollection;
-var
-  LList: TList<TObject>;
-  LIList: IEnexCollection<TObject>;
 begin
-  LList := TList<TObject>.Create;
-  LIList := LList;
-
-  { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexSelectClassCollection<TObject, TObject>.Create(LList, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectClassCollection<TObject, TObject>.Create(nil, TType<TObject>.Default);
+      TEnexSelectClassCollection<TObject, TObject>.Create(nil, TRules<TObject>.Default);
     end,
     'EArgumentNilException not thrown in Create (nil enum).'
-  );
-
-
-  { Verify constructors }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectClassCollection<TObject, TObject>.CreateIntf(LIList, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectClassCollection<TObject, TObject>.CreateIntf(nil, TType<TObject>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
   );
 
   { The rest is tested by TestSelect3 }
@@ -4280,61 +3675,30 @@ begin
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexSelectCollection<Integer, String>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default),
-        nil, TType<String>.Default);
+      TEnexSelectCollection<Integer, String>.Create(__(Enum), nil, TRules<string>.Default);
     end,
     'EArgumentNilException not thrown in Create (nil predicate).'
   );
 
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexSelectCollection<Integer, String>.Create(nil, function(Arg1: Integer): String begin Exit(IntToStr(Arg1)); end,
-        TType<String>.Default);
+      TEnexSelectCollection<Integer, String>.Create(nil, function(Arg1: Integer): String begin Exit(IntToStr(Arg1)); end, TRules<string>.Default);
     end,
     'EArgumentNilException not thrown in Create (nil enum).'
   );
 
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectCollection<Integer, String>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default),
-        function(Arg1: Integer): String begin Exit(IntToStr(Arg1)); end, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectCollection<Integer, String>.CreateIntf(nil, function(Arg1: Integer): String begin Exit(IntToStr(Arg1)); end, TType<String>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectCollection<Integer, String>.CreateIntf(Enum, nil, TType<String>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil pred).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectCollection<Integer, String>.CreateIntf(Enum, function(Arg1: Integer): String begin Exit(IntToStr(Arg1)); end, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexSelectCollection<Integer, String>.CreateIntf(Enum, function(Arg1: Integer): String begin Exit(IntToStr(Arg1)); end, TType<String>.Default);
+  XEnum := TEnexSelectCollection<Integer, String>.Create(__(Enum), function(Arg1: Integer): String begin Exit(IntToStr(Arg1)); end, TRules<string>.Default);
   Check(XEnum.EqualsTo(MakeOrderedStringList(0, 100)), 'YEnum does not contain the right elements!');
 
-  YEnum := TEnexSelectCollection<Integer, Integer>.CreateIntf(Enum, function(Arg1: Integer): Integer begin Exit(Arg1 * 2); end, TType<Integer>.Default);
+  YEnum := TEnexSelectCollection<Integer, Integer>.Create(__(Enum), function(Arg1: Integer): Integer begin Exit(Arg1 * 2); end, TRules<Integer>.Default);
 
   Check(YEnum.Min = 0, 'Expected XEnum.Min equal to 0');
   Check(YEnum.Max = 200, 'Expected XEnum.Max equal to 200');
   Check(YEnum.First = 0, 'Expected XEnum.First equal to 0');
   Check(YEnum.Last = 200, 'Expected XEnum.Last equal to 200');
 
-  YEnum := TEnexSelectCollection<Integer, Integer>.CreateIntf(Enum, function(Arg1: Integer): Integer begin Exit(Arg1 + 10); end, TType<Integer>.Default);
+  YEnum := TEnexSelectCollection<Integer, Integer>.Create(__(Enum), function(Arg1: Integer): Integer begin Exit(Arg1 + 10); end, TRules<Integer>.Default);
   Check(YEnum.EqualsTo(MakeOrderedIntegerList(10, 110)), 'YEnum does not contain the right elements!');
 end;
 
@@ -4352,27 +3716,6 @@ begin
       TEnexSelectKeysCollection<Integer, Integer>.Create(nil);
     end,
     'EArgumentNilException not thrown in Create (nil coll).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectKeysCollection<Integer, Integer>.CreateIntf(Enum, TType<Integer>.Default, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectKeysCollection<Integer, Integer>.CreateIntf(Enum, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectKeysCollection<Integer, Integer>.CreateIntf(nil, TType<Integer>.Default, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
   );
 
   { Now apply predicates }
@@ -4396,27 +3739,6 @@ begin
       TEnexSelectValuesCollection<Integer, Integer>.Create(nil);
     end,
     'EArgumentNilException not thrown in Create (nil coll).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectValuesCollection<Integer, Integer>.CreateIntf(Enum, TType<Integer>.Default, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectValuesCollection<Integer, Integer>.CreateIntf(Enum, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSelectValuesCollection<Integer, Integer>.CreateIntf(nil, TType<Integer>.Default, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
   );
 
   { Now apply predicates }
@@ -4461,45 +3783,29 @@ begin
 
   CheckException(EArgumentOutOfRangeException,
     procedure() begin
-      TEnexSkipCollection<Integer>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default), 0);
+      TEnexSkipCollection<Integer>.Create(__(Enum), 0);
     end,
     'EArgumentOutOfRangeException not thrown in Create (0 count).'
   );
 
-
-
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexSkipCollection<Integer>.CreateIntf(nil, 1, TType<Integer>.Default);
+      TEnexSkipCollection<Integer>.Create(nil, 1);
     end,
     'EArgumentNilException not thrown in CreateIntf (nil enum).'
   );
 
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSkipCollection<Integer>.CreateIntf(Enum, 1, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      TEnexSkipCollection<Integer>.CreateIntf(Enum, 0, TType<Integer>.Default);
-    end,
-    'EArgumentOutOfRangeException not thrown in Create (0 count).'
-  );
-
   { Test }
-  XEnum := TEnexSkipCollection<Integer>.CreateIntf(Enum, 1, TType<Integer>.Default);
+  XEnum := TEnexSkipCollection<Integer>.Create(__(Enum), 1);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(1, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipCollection<Integer>.CreateIntf(Enum, 50, TType<Integer>.Default);
+  XEnum := TEnexSkipCollection<Integer>.Create(__(Enum), 50);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(50, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipCollection<Integer>.CreateIntf(Enum, 98, TType<Integer>.Default);
+  XEnum := TEnexSkipCollection<Integer>.Create(__(Enum), 98);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(98, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipCollection<Integer>.CreateIntf(Enum, 200, TType<Integer>.Default);
+  XEnum := TEnexSkipCollection<Integer>.Create(__(Enum), 200);
   Check(XEnum.SingleOrDefault(-1) = -1, 'XEnum does not contain the right elements!');
 end;
 
@@ -4521,11 +3827,10 @@ begin
   { Make a list }
   Enum := MakeOrderedIntegerList(0, 100);
 
-
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexSkipWhileCollection<Integer>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default), nil);
+      TEnexSkipWhileCollection<Integer>.Create(__(Enum), nil);
     end,
     'EArgumentNilException not thrown in Create (nil predicate).'
   );
@@ -4537,46 +3842,23 @@ begin
     'EArgumentNilException not thrown in Create (nil enum).'
   );
 
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSkipWhileCollection<Integer>.CreateIntf(nil, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil pred).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 < 50); end, TType<Integer>.Default);
+  XEnum := TEnexSkipWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 < 50); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(50, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 <= 5); end, TType<Integer>.Default);
+  XEnum := TEnexSkipWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 <= 5); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(6, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end, TType<Integer>.Default);
+  XEnum := TEnexSkipWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end);
   Check(XEnum.SingleOrDefault(-2) = -2, 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > 100); end, TType<Integer>.Default);
+  XEnum := TEnexSkipWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 > 100); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 = 0); end, TType<Integer>.Default);
+  XEnum := TEnexSkipWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 = 0); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(1, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexSkipWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 = -1); end, TType<Integer>.Default);
+  XEnum := TEnexSkipWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 = -1); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 100)), 'XEnum does not contain the right elements!');
 end;
 
@@ -4628,45 +3910,22 @@ begin
 
   CheckException(EArgumentOutOfRangeException,
     procedure() begin
-      TEnexTakeCollection<Integer>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default), 0);
-    end,
-    'EArgumentOutOfRangeException not thrown in Create (0 count).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexTakeCollection<Integer>.CreateIntf(nil, 1, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexTakeCollection<Integer>.CreateIntf(Enum, 1, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin
-      TEnexTakeCollection<Integer>.CreateIntf(Enum, 0, TType<Integer>.Default);
+      TEnexTakeCollection<Integer>.Create(__(Enum), 0);
     end,
     'EArgumentOutOfRangeException not thrown in Create (0 count).'
   );
 
   { Test }
-  XEnum := TEnexTakeCollection<Integer>.CreateIntf(Enum, 1, TType<Integer>.Default);
+  XEnum := TEnexTakeCollection<Integer>.Create(__(Enum), 1);
   Check(XEnum.SingleOrDefault(-1) = 0, 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeCollection<Integer>.CreateIntf(Enum, 50, TType<Integer>.Default);
+  XEnum := TEnexTakeCollection<Integer>.Create(__(Enum), 50);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 49)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeCollection<Integer>.CreateIntf(Enum, 98, TType<Integer>.Default);
+  XEnum := TEnexTakeCollection<Integer>.Create(__(Enum), 98);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 97)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeCollection<Integer>.CreateIntf(Enum, 200, TType<Integer>.Default);
+  XEnum := TEnexTakeCollection<Integer>.Create(__(Enum), 200);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 100)), 'XEnum does not contain the right elements!');
 end;
 
@@ -4692,7 +3951,7 @@ begin
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexTakeWhileCollection<Integer>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default), nil);
+      TEnexTakeWhileCollection<Integer>.Create(__(Enum), nil);
     end,
     'EArgumentNilException not thrown in Create (nil predicate).'
   );
@@ -4704,46 +3963,23 @@ begin
     'EArgumentNilException not thrown in Create (nil enum).'
   );
 
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexTakeWhileCollection<Integer>.CreateIntf(nil, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil pred).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 < 50); end, TType<Integer>.Default);
+  XEnum := TEnexTakeWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 < 50); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 49)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 <= 5); end, TType<Integer>.Default);
+  XEnum := TEnexTakeWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 <= 5); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 5)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end, TType<Integer>.Default);
+  XEnum := TEnexTakeWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 > -1); end);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > 100); end, TType<Integer>.Default);
+  XEnum := TEnexTakeWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 > 100); end);
   Check(XEnum.SingleOrDefault(-2) = -2, 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 = 0); end, TType<Integer>.Default);
+  XEnum := TEnexTakeWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 = 0); end);
   Check(XEnum.SingleOrDefault(-1) = 0, 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexTakeWhileCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 = 5); end, TType<Integer>.Default);
+  XEnum := TEnexTakeWhileCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 = 5); end);
   Check(XEnum.SingleOrDefault(-2) = -2, 'XEnum does not contain the right elements!');
 end;
 
@@ -4817,106 +4053,34 @@ begin
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexUnionCollection<Integer>.Create(
-        nil,
-        TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default));
+      TEnexUnionCollection<Integer>.Create(nil, Enum2);
     end,
     'EArgumentNilException not thrown in Create (nil enum 1).'
   );
 
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexUnionCollection<Integer>.Create(
-        TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default),
-        nil);
+      TEnexUnionCollection<Integer>.Create(__(Enum1), nil);
     end,
     'EArgumentNilException not thrown in Create (nil enum 2).'
   );
 
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf(Enum1, Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf1(nil, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf1(Enum1, nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf1(Enum1, TEnexWrapCollection<Integer>.Create(Enum2, TType<Integer>.Default), nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf1 (nil type).'
-  );
-
-
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf2(nil, Enum2, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 1).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil enum 2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexUnionCollection<Integer>.CreateIntf2(TEnexWrapCollection<Integer>.Create(Enum1, TType<Integer>.Default), Enum2, nil);
-    end,
-    'EArgumentNilException not thrown in CreateIntf2 (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexUnionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexUnionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 200)), 'XEnum does not contain the right elements!');
 
   { Make other two lists }
   Enum1 := MakeOrderedIntegerList(0, 1);
   Enum2 := MakeOrderedIntegerList(1, 2);
-  XEnum := TEnexUnionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexUnionCollection<Integer>.Create(__(Enum1), Enum2);
 
   Check(XEnum.First = 0, 'XEnum.First = 0');
   Check(XEnum.Last = 2, 'XEnum.Last = 2');
-  Check(Accumulator.Sum<Integer>(XEnum) = 3, 'XEnum.Sum = 3');
+  Check(AccSum(XEnum) = 3, 'XEnum.Sum = 3');
 
   Enum1 := MakeOrderedIntegerList(0, 100);
   Enum2 := MakeOrderedIntegerList(50, 110);
-  XEnum := TEnexUnionCollection<Integer>.CreateIntf(Enum1, Enum2, TType<Integer>.Default);
+  XEnum := TEnexUnionCollection<Integer>.Create(__(Enum1), Enum2);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 110)), 'XEnum does not contain the right elements!');
 end;
 
@@ -4966,7 +4130,7 @@ begin
   { Verify constructors }
   CheckException(EArgumentNilException,
     procedure() begin
-      TEnexWhereCollection<Integer>.Create(TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default), nil, False);
+      TEnexWhereCollection<Integer>.Create(__(Enum), nil, False);
     end,
     'EArgumentNilException not thrown in Create (nil predicate).'
   );
@@ -4978,32 +4142,11 @@ begin
     'EArgumentNilException not thrown in Create (nil enum).'
   );
 
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexWhereCollection<Integer>.CreateIntf(nil, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, TType<Integer>.Default, False);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexWhereCollection<Integer>.CreateIntf(Enum, nil, TType<Integer>.Default, False);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil pred).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexWhereCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, nil, False);
-    end,
-    'EArgumentNilException not thrown in CreateIntf (nil type).'
-  );
-
   { Now apply predicates }
-  XEnum := TEnexWhereCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, TType<Integer>.Default, False);
+  XEnum := TEnexWhereCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 > 50); end, False);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(51, 100)), 'XEnum does not contain the right elements!');
 
-  XEnum := TEnexWhereCollection<Integer>.CreateIntf(Enum, function(Arg1: Integer): Boolean begin Exit(Arg1 >= 10); end, TType<Integer>.Default, True);
+  XEnum := TEnexWhereCollection<Integer>.Create(__(Enum), function(Arg1: Integer): Boolean begin Exit(Arg1 >= 10); end, True);
   Check(XEnum.EqualsTo(MakeOrderedIntegerList(0, 9)), 'XEnum does not contain the right elements!');
 end;
 
@@ -5082,49 +4225,13 @@ begin
   TestGenericAssocEnexCollection(InternalTestWhereValueLowerOrEqual);
 end;
 
-procedure TTestEnex.TestWrapCollection;
-var
-  Enum: IEnexCollection<Integer>;
-  XEnum: IEnexCollection<Integer>;
-begin
-  { Make a list }
-  Enum := MakeOrderedIntegerList(0, 100);
-
-  { Verify constructors }
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexWrapCollection<Integer>.Create(nil, TType<Integer>.Default);
-    end,
-    'EArgumentNilException not thrown in Create (nil enum).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin
-      TEnexWrapCollection<Integer>.Create(Enum, nil);
-    end,
-    'EArgumentNilException not thrown in Create (nil type).'
-  );
-
-  XEnum := TEnexWrapCollection<Integer>.Create(Enum, TType<Integer>.Default);
-  Check(XEnum.EqualsTo(Enum), 'XEnum does not contain the right elements!');
-
-  XEnum := TEnexWrapCollection<Integer>.Create(TList<Integer>.Create(), TType<Integer>.Default);
-  Check(XEnum.SingleOrDefault(-1) = -1, 'XEnum does not contain the right elements!');
-end;
-
 procedure SetUpEnexTests();
 var
-  LHeap: THeap<Integer>;
   I: Integer;
 begin
   { Create all testable collections! }
 
   { With real data }
-  LHeap := THeap<Integer>.Create();
-  for I in MakeRandomIntegerList(ListElements, ListMax) do
-    LHeap.Add(I);
-  LHeap_Full := LHeap;
-
   LList_Full := TList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedList_Full := TSortedList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LAraySet_Full := TArraySet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
@@ -5250,10 +4357,6 @@ begin
   end;
 
   { With one element }
-  LHeap := THeap<Integer>.Create();
-  LHeap.Add(1);
-  LHeap_One := LHeap;
-
   LList_One := TList<Integer>.Create([1]);
   LSortedList_One := TSortedList<Integer>.Create([2]);
   LAraySet_One := TArraySet<Integer>.Create([3]);
@@ -5341,7 +4444,6 @@ begin
   LPrioQueue_One.Enqueue(Random(ListMax), Random(ListMax));
 
   { With no data }
-  LHeap_Empty := THeap<Integer>.Create();
   LList_Empty := TList<Integer>.Create();
   LSortedList_Empty := TSortedList<Integer>.Create();
   LAraySet_Empty := TArraySet<Integer>.Create();
@@ -5420,30 +4522,26 @@ end;
 procedure SetUpStdEnexTests();
 begin
   { With data }
-  LWrapColl_Full := TEnexWrapCollection<Integer>.Create(LList_Full, TType<Integer>.Default);
-  LFillColl_Full := Collection.Fill<Integer>(Random(ListMax), ListElements);
-  LIntervalColl_Full := Collection.Interval<Integer>(0, ListElements);
-  LWhereColl_Full := TEnexWhereCollection<Integer>.CreateIntf(LList_Full,
-      function(Arg1: Integer): Boolean begin Exit(Arg1 > (ListMax div 2)); end, TType<Integer>.Default, False);
-  LSelectColl_Full := TEnexSelectCollection<Integer, Integer>.CreateIntf(LList_Full,
-      function(Arg1: Integer): Integer begin Exit(Arg1 + 1); end, TType<Integer>.Default);
-  LCastColl_Full := TEnexCastCollection<Integer, Integer>.CreateIntf(LList_Full, TType<Integer>.Default, TType<Integer>.Default);
-  LConcatColl_Full := TEnexConcatCollection<Integer>.CreateIntf(LList_Full, LSortedList_Full, TType<Integer>.Default);
-  LUnionColl_Full := TEnexUnionCollection<Integer>.CreateIntf(LList_Full, LSortedList_Full, TType<Integer>.Default);
-  LExclColl_Full := TEnexExclusionCollection<Integer>.CreateIntf(LList_Full, LSortedList_Full, TType<Integer>.Default);
-  LInterColl_Full := TEnexIntersectionCollection<Integer>.CreateIntf(LList_Full, LList_Full, TType<Integer>.Default);
-  LDistinctColl_Full := TEnexDistinctCollection<Integer>.CreateIntf(LList_Full, TType<Integer>.Default);
-  LRangeColl_Full := TEnexRangeCollection<Integer>.CreateIntf(LList_Full, 0, ListElements - 1, TType<Integer>.Default);
-  LSkipColl_Full := TEnexSkipCollection<Integer>.CreateIntf(LList_Full, 1, TType<Integer>.Default);
-  LTakeColl_Full := TEnexTakeCollection<Integer>.CreateIntf(LList_Full, ListElements, TType<Integer>.Default);
-  LSkipWhileColl_Full := TEnexSkipWhileCollection<Integer>.CreateIntf(LList_Full,
-      function(Arg1: Integer): Boolean begin Exit(false); end, TType<Integer>.Default);
-  LTakeWhileColl_Full := TEnexTakeWhileCollection<Integer>.CreateIntf(LList_Full,
-      function(Arg1: Integer): Boolean begin Exit(true); end, TType<Integer>.Default);
+  LFillColl_Full := TEnexCollection<Integer>.Fill(Random(ListMax), ListElements);
+  LWhereColl_Full := TEnexWhereCollection<Integer>.Create(__(LList_Full),
+      function(Arg1: Integer): Boolean begin Exit(Arg1 > (ListMax div 2)); end, False);
+  LSelectColl_Full := TEnexSelectCollection<Integer, Integer>.Create(__(LList_Full),
+      function(Arg1: Integer): Integer begin Exit(Arg1 + 1); end, TRules<Integer>.Default);
+  LConcatColl_Full := TEnexConcatCollection<Integer>.Create(__(LList_Full), LSortedList_Full);
+  LUnionColl_Full := TEnexUnionCollection<Integer>.Create(__(LList_Full), LSortedList_Full);
+  LExclColl_Full := TEnexExclusionCollection<Integer>.Create(__(LList_Full), LSortedList_Full);
+  LInterColl_Full := TEnexIntersectionCollection<Integer>.Create(__(LList_Full), LList_Full);
+  LDistinctColl_Full := TEnexDistinctCollection<Integer>.Create(__(LList_Full));
+  LRangeColl_Full := TEnexRangeCollection<Integer>.Create(__(LList_Full), 0, ListElements - 1);
+  LSkipColl_Full := TEnexSkipCollection<Integer>.Create(__(LList_Full), 1);
+  LTakeColl_Full := TEnexTakeCollection<Integer>.Create(__(LList_Full), ListElements);
+  LSkipWhileColl_Full := TEnexSkipWhileCollection<Integer>.Create(__(LList_Full),
+      function(Arg1: Integer): Boolean begin Exit(false); end);
+  LTakeWhileColl_Full := TEnexTakeWhileCollection<Integer>.Create(__(LList_Full),
+      function(Arg1: Integer): Boolean begin Exit(true); end);
 
   LSelectKeysColl_Full := TEnexSelectKeysCollection<Integer, Integer>.Create(LDictionary_Full);
   LSelectValuesColl_Full := TEnexSelectValuesCollection<Integer, Integer>.Create(LDictionary_Full);
-  LAssocWrapColl_Full := TEnexAssociativeWrapCollection<Integer, Integer>.Create(LDictionary_Full, TType<Integer>.Default, TType<Integer>.Default);
 
   LAssocWhereColl_Full := TEnexAssociativeWhereCollection<Integer, Integer>.Create(LDictionary_Full,
     function(Arg1, Arg2: Integer): Boolean begin
@@ -5454,31 +4552,26 @@ begin
   LAssocDByValuesColl_Full := TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.Create(LMM_Full);
 
   { With one element }
-  LWrapColl_One := TEnexWrapCollection<Integer>.Create(LList_One, TType<Integer>.Default);
-  LFillColl_One := Collection.Fill<Integer>(Random(ListMax), 1);
-  LIntervalColl_One := Collection.Interval<Integer>(0, 1, 2);
-
-  LWhereColl_One := TEnexWhereCollection<Integer>.CreateIntf(LList_One,
-      function(Arg1: Integer): Boolean begin Exit(true); end, TType<Integer>.Default, False);
-  LSelectColl_One := TEnexSelectCollection<Integer, Integer>.CreateIntf(LList_One,
-      function(Arg1: Integer): Integer begin Exit(Arg1 + 1); end, TType<Integer>.Default);
-  LCastColl_One := TEnexCastCollection<Integer, Integer>.CreateIntf(LList_One, TType<Integer>.Default, TType<Integer>.Default);
-  LConcatColl_One := TEnexConcatCollection<Integer>.CreateIntf(LList_One, LSortedList_Empty, TType<Integer>.Default);
-  LUnionColl_One := TEnexUnionCollection<Integer>.CreateIntf(LList_One, LList_One, TType<Integer>.Default);
-  LExclColl_One := TEnexExclusionCollection<Integer>.CreateIntf(LList_One, LSortedList_Empty, TType<Integer>.Default);
-  LInterColl_One := TEnexIntersectionCollection<Integer>.CreateIntf(LList_One, LList_One, TType<Integer>.Default);
-  LDistinctColl_One := TEnexDistinctCollection<Integer>.CreateIntf(LList_One, TType<Integer>.Default);
-  LRangeColl_One := TEnexRangeCollection<Integer>.CreateIntf(LList_Full, 0, 0, TType<Integer>.Default);
-  LSkipColl_One := TEnexSkipCollection<Integer>.CreateIntf(LList_Full, ListElements - 1, TType<Integer>.Default);
-  LTakeColl_One := TEnexTakeCollection<Integer>.CreateIntf(LList_Full, 1, TType<Integer>.Default);
-  LSkipWhileColl_One := TEnexSkipWhileCollection<Integer>.CreateIntf(LList_One,
-      function(Arg1: Integer): Boolean begin Exit(false); end, TType<Integer>.Default);
-  LTakeWhileColl_One := TEnexTakeWhileCollection<Integer>.CreateIntf(LList_One,
-      function(Arg1: Integer): Boolean begin Exit(true); end, TType<Integer>.Default);
+  LFillColl_One := TEnexCollection<Integer>.Fill(Random(ListMax), 1);
+  LWhereColl_One := TEnexWhereCollection<Integer>.Create(__(LList_One),
+      function(Arg1: Integer): Boolean begin Exit(true); end, False);
+  LSelectColl_One := TEnexSelectCollection<Integer, Integer>.Create(__(LList_One),
+      function(Arg1: Integer): Integer begin Exit(Arg1 + 1); end, TRules<Integer>.Default);
+  LConcatColl_One := TEnexConcatCollection<Integer>.Create(__(LList_One), LSortedList_Empty);
+  LUnionColl_One := TEnexUnionCollection<Integer>.Create(__(LList_One), LList_One);
+  LExclColl_One := TEnexExclusionCollection<Integer>.Create(__(LList_One), LSortedList_Empty);
+  LInterColl_One := TEnexIntersectionCollection<Integer>.Create(__(LList_One), LList_One);
+  LDistinctColl_One := TEnexDistinctCollection<Integer>.Create(__(LList_One));
+  LRangeColl_One := TEnexRangeCollection<Integer>.Create(__(LList_Full), 0, 0);
+  LSkipColl_One := TEnexSkipCollection<Integer>.Create(__(LList_Full), ListElements - 1);
+  LTakeColl_One := TEnexTakeCollection<Integer>.Create(__(LList_Full), 1);
+  LSkipWhileColl_One := TEnexSkipWhileCollection<Integer>.Create(__(LList_One),
+      function(Arg1: Integer): Boolean begin Exit(false); end);
+  LTakeWhileColl_One := TEnexTakeWhileCollection<Integer>.Create(__(LList_One),
+      function(Arg1: Integer): Boolean begin Exit(true); end);
 
   LSelectKeysColl_One := TEnexSelectKeysCollection<Integer, Integer>.Create(LDictionary_One);
   LSelectValuesColl_One := TEnexSelectValuesCollection<Integer, Integer>.Create(LDictionary_One);
-  LAssocWrapColl_One := TEnexAssociativeWrapCollection<Integer, Integer>.Create(LDictionary_One, TType<Integer>.Default, TType<Integer>.Default);
 
   LAssocWhereColl_One := TEnexAssociativeWhereCollection<Integer, Integer>.Create(LDictionary_One,
     function(Arg1, Arg2: Integer): Boolean begin
@@ -5489,28 +4582,25 @@ begin
   LAssocDByValuesColl_One := TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.Create(LMM_One);
 
   { With no elements }
-  LWrapColl_Empty := TEnexWrapCollection<Integer>.Create(LList_Empty, TType<Integer>.Default);
-  LWhereColl_Empty := TEnexWhereCollection<Integer>.CreateIntf(LList_Full,
-      function(Arg1: Integer): Boolean begin Exit(false); end, TType<Integer>.Default, False);
-  LSelectColl_Empty := TEnexSelectCollection<Integer, Integer>.CreateIntf(LList_Empty,
-      function(Arg1: Integer): Integer begin Exit(Arg1 + 1); end, TType<Integer>.Default);
-  LCastColl_Empty := TEnexCastCollection<Integer, Integer>.CreateIntf(LList_Empty, TType<Integer>.Default, TType<Integer>.Default);
-  LConcatColl_Empty := TEnexConcatCollection<Integer>.CreateIntf(LList_Empty, LSortedList_Empty, TType<Integer>.Default);
-  LUnionColl_Empty := TEnexUnionCollection<Integer>.CreateIntf(LList_Empty, LSortedList_Empty, TType<Integer>.Default);
-  LExclColl_Empty := TEnexExclusionCollection<Integer>.CreateIntf(LList_Full, LList_Full, TType<Integer>.Default);
-  LInterColl_Empty := TEnexIntersectionCollection<Integer>.CreateIntf(LList_One, LList_Empty, TType<Integer>.Default);
-  LDistinctColl_Empty := TEnexDistinctCollection<Integer>.CreateIntf(LList_Empty, TType<Integer>.Default);
-  LRangeColl_Empty := TEnexRangeCollection<Integer>.CreateIntf(LList_Full, ListElements + 1, ListElements + 2, TType<Integer>.Default);
-  LSkipColl_Empty := TEnexSkipCollection<Integer>.CreateIntf(LList_Full, ListElements, TType<Integer>.Default);
-  LTakeColl_Empty := TEnexTakeCollection<Integer>.CreateIntf(LList_Empty, 1, TType<Integer>.Default);
-  LSkipWhileColl_Empty := TEnexSkipWhileCollection<Integer>.CreateIntf(LList_Full,
-      function(Arg1: Integer): Boolean begin Exit(true); end, TType<Integer>.Default);
-  LTakeWhileColl_Empty := TEnexTakeWhileCollection<Integer>.CreateIntf(LList_Full,
-      function(Arg1: Integer): Boolean begin Exit(false); end, TType<Integer>.Default);
+  LWhereColl_Empty := TEnexWhereCollection<Integer>.Create(__(LList_Full),
+      function(Arg1: Integer): Boolean begin Exit(false); end, False);
+  LSelectColl_Empty := TEnexSelectCollection<Integer, Integer>.Create(__(LList_Empty),
+      function(Arg1: Integer): Integer begin Exit(Arg1 + 1); end, TRules<Integer>.Default);
+  LConcatColl_Empty := TEnexConcatCollection<Integer>.Create(__(LList_Empty), LSortedList_Empty);
+  LUnionColl_Empty := TEnexUnionCollection<Integer>.Create(__(LList_Empty), LSortedList_Empty);
+  LExclColl_Empty := TEnexExclusionCollection<Integer>.Create(__(LList_Full), LList_Full);
+  LInterColl_Empty := TEnexIntersectionCollection<Integer>.Create(__(LList_One), LList_Empty);
+  LDistinctColl_Empty := TEnexDistinctCollection<Integer>.Create(__(LList_Empty));
+  LRangeColl_Empty := TEnexRangeCollection<Integer>.Create(__(LList_Full), ListElements + 1, ListElements + 2);
+  LSkipColl_Empty := TEnexSkipCollection<Integer>.Create(__(LList_Full), ListElements);
+  LTakeColl_Empty := TEnexTakeCollection<Integer>.Create(__(LList_Empty), 1);
+  LSkipWhileColl_Empty := TEnexSkipWhileCollection<Integer>.Create(__(LList_Full),
+      function(Arg1: Integer): Boolean begin Exit(true); end);
+  LTakeWhileColl_Empty := TEnexTakeWhileCollection<Integer>.Create(__(LList_Full),
+      function(Arg1: Integer): Boolean begin Exit(false); end);
 
   LSelectKeysColl_Empty := TEnexSelectKeysCollection<Integer, Integer>.Create(LDictionary_Empty);
   LSelectValuesColl_Empty := TEnexSelectValuesCollection<Integer, Integer>.Create(LDictionary_Empty);
-  LAssocWrapColl_Empty := TEnexAssociativeWrapCollection<Integer, Integer>.Create(LDictionary_Empty, TType<Integer>.Default, TType<Integer>.Default);
 
   LAssocWhereColl_Empty := TEnexAssociativeWhereCollection<Integer, Integer>.Create(LDictionary_Empty,
     function(Arg1, Arg2: Integer): Boolean begin
@@ -5619,18 +4709,22 @@ end;
 procedure TTestEnexOther.TestObjHashCode_Simple;
 var
   L1: TList<Integer>;
+  X: NativeInt;
 begin
   L1 := TList<Integer>.Create();
-  CheckEquals(0, L1.GetHashCode());
+  X := L1.GetHashCode();
+  CheckEquals(0, X);
 
   L1.Add(1);
-  CheckEquals(($0F * 0) + 1, L1.GetHashCode());
+  CheckNotEquals(X, L1.GetHashCode());
+  X := L1.GetHashCode();
 
   L1.Add(2);
-  CheckEquals(($0F * 1) + 2, L1.GetHashCode());
+  CheckNotEquals(X, L1.GetHashCode());
+  X := L1.GetHashCode();
 
   L1.Add(3);
-  CheckEquals(($0F * (($0F * 1) + 2)) + 3, L1.GetHashCode());
+  CheckNotEquals(X, L1.GetHashCode());
 
   L1.Free;
 end;

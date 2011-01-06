@@ -88,6 +88,7 @@
 			<DCCReference Include="Tests.Stack.pas"/>
 			<DCCReference Include="Tests.Utils.pas"/>
 			<DCCReference Include="Tests.Enex.pas"/>
+			<DCCReference Include="Tests.Base.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -145,6 +146,7 @@
 					<TestFramework>DUnit / Delphi Win32</TestFramework>
 					<TestRunner>GUI</TestRunner>
 					<SourceProjectName>D:\Projects\coll\src\Library\Collections.dproj</SourceProjectName>
+					<TestProjectName/>
 				</UnitTesting>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>

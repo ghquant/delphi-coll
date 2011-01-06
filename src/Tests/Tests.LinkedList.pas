@@ -202,7 +202,9 @@ var
  List : TLinkedList<String>;
 begin
  { Initialize the list = 'First'}
- List := TLinkedList<String>.Create();
+ List := TLinkedList<String>.Create(
+   TRules<String>.Custom(StringCaseInsensitiveComparer));
+
  List.AddFirst('First');
  List.AddLast('Second');
  List.AddLast('Third');

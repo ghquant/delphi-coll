@@ -34,21 +34,20 @@ uses
 
 
 {$REGION 'Base Collection Interfaces'}
-
 type
-  ///  <summary>Base interface describing all enumerators in DeHL.</summary>
-  ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> is implemented by
-  ///  all enumerator objects in DeHL.</remarks>
+  ///  <summary>Base interface describing all enumerators in this package.</summary>
+  ///  <remarks><see cref="Collections.Base|IEnumerator&lt;T&gt;">Collections.Base.IEnumerator&lt;T&gt;</see> is implemented by
+  ///  all enumerator objects in this package.</remarks>
   IEnumerator<T> = interface
     ///  <summary>Returns the current element of the enumerated collection.</summary>
-    ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;.GetCurrent">DeHL.Base.IEnumerator&lt;T&gt;.GetCurrent</see> is the
-    ///  getter method for the <see cref="DeHL.Base|IEnumerator&lt;T&gt;.Current">DeHL.Base.IEnumerator&lt;T&gt;.Current</see>
+    ///  <remarks><see cref="Collections.Base|IEnumerator&lt;T&gt;.GetCurrent">Collections.Base.IEnumerator&lt;T&gt;.GetCurrent</see> is the
+    ///  getter method for the <see cref="Collections.Base|IEnumerator&lt;T&gt;.Current">Collections.Base.IEnumerator&lt;T&gt;.Current</see>
     ///  property. Use the property to obtain the element instead.</remarks>
     ///  <returns>The current element of the enumerated collection.</returns>
     function GetCurrent(): T;
 
     ///  <summary>Moves the enumerator to the next element of collection.</summary>
-    ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;.MoveNext">DeHL.Base.IEnumerator&lt;T&gt;.MoveNext</see> is usually
+    ///  <remarks><see cref="Collections.Base|IEnumerator&lt;T&gt;.MoveNext">Collections.Base.IEnumerator&lt;T&gt;.MoveNext</see> is usually
     ///  called by compiler generated code. Its purpose is to move the "pointer" to the next element in the collection
     ///  (if there are elements left). Also note that many enumerator implementations may throw various exceptions if the
     ///  enumerated collections were changed in the meantime.</remarks>
@@ -57,8 +56,8 @@ type
     function MoveNext(): Boolean;
 
     ///  <summary>Returns the current element of the traversed collection.</summary>
-    ///  <remarks><see cref="DeHL.Base|IEnumerator&lt;T&gt;.Current">DeHL.Base.IEnumerator&lt;T&gt;.Current</see> can only return a
-    ///  valid element if <see cref="DeHL.Base|IEnumerator&lt;T&gt;.MoveNext">DeHL.Base.IEnumerator&lt;T&gt;.MoveNext</see> was
+    ///  <remarks><see cref="Collections.Base|IEnumerator&lt;T&gt;.Current">Collections.Base.IEnumerator&lt;T&gt;.Current</see> can only return a
+    ///  valid element if <see cref="Collections.Base|IEnumerator&lt;T&gt;.MoveNext">Collections.Base.IEnumerator&lt;T&gt;.MoveNext</see> was
     ///  priorly called and returned <c>True</c>; otherwise the behavior of this property is undefined. Note that many enumerator implementations
     ///  may throw exceptions if the collection was changed in the meantime.
     ///  </remarks>
@@ -66,42 +65,82 @@ type
     property Current: T read GetCurrent;
   end;
 
-  ///  <summary>Base interface describing all enumerable collections in DeHL.</summary>
-  ///  <remarks><see cref="DeHL.Base|IEnumerable&lt;T&gt;">DeHL.Base.IEnumerable&lt;T&gt;</see> is implemented by all
-  ///  enumerable collections in DeHL.</remarks>
+  ///  <summary>Base interface describing all enumerable collections in this package.</summary>
+  ///  <remarks><see cref="Collections.Base|IEnumerable&lt;T&gt;">Collections.Base.IEnumerable&lt;T&gt;</see> is implemented by all
+  ///  enumerable collections in this package.</remarks>
   IEnumerable<T> = interface
-    ///  <summary>Returns an <see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> interface that is used
+    ///  <summary>Returns an <see cref="Collections.Base|IEnumerator&lt;T&gt;">Collections.Base.IEnumerator&lt;T&gt;</see> interface that is used
     ///  to enumerate the collection.</summary>
-    ///  <remarks><see cref="DeHL.Base|IEnumerable&lt;T&gt;.MoveNext">DeHL.Base.IEnumerable&lt;T&gt;.MoveNext</see> is usually
+    ///  <remarks><see cref="Collections.Base|IEnumerable&lt;T&gt;.MoveNext">Collections.Base.IEnumerable&lt;T&gt;.MoveNext</see> is usually
     ///  called by compiler generated code. Its purpose is to create an enumerator object that is used to actually traverse
     ///  the collections.
     ///  Note that many collections generate enumerators that depend on the state of the collection. If the collection is changed
-    ///  after the <see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> had been obtained,
-    ///  <see cref="DeHL.Exceptions|ECollectionChangedException">DeHL.Exceptions.ECollectionChangedException</see> is thrown.</remarks>
-    ///  <returns>The <see cref="DeHL.Base|IEnumerator&lt;T&gt;">DeHL.Base.IEnumerator&lt;T&gt;</see> interface.</returns>
+    ///  after the <see cref="Collections.Base|IEnumerator&lt;T&gt;">Collections.Base.IEnumerator&lt;T&gt;</see> had been obtained,
+    ///  <see cref="Collections.Base|ECollectionChangedException">Collections.Base.ECollectionChangedException</see> is thrown.</remarks>
+    ///  <returns>The <see cref="Collections.Base|IEnumerator&lt;T&gt;">Collections.Base.IEnumerator&lt;T&gt;</see> interface.</returns>
     function GetEnumerator(): IEnumerator<T>;
   end;
 
 type
-  //TODO: document me
+  ///  <summary>A special record designed to hold both a comparer and an equality
+  ///  comparer. All collections require this type in order to function properly.</summary>
+  ///  <remarks>Collection provided in this package provide extended functionality (Enex) which
+  ///  requires to compare values in many circumstances, which requires the presence of the comparer.
+  ///  Some collections need an additional equality comparer. This type is meant to provide both
+  ///  on the need basis.</remarks>
   TRules<T> = record
   private
     FComparer: IComparer<T>;
     FEqComparer: IEqualityComparer<T>;
 
   public
+    ///  <summary>Compares two values for equality.</summary>
+    ///  <param name="ALeft">The first value.</param>
+    ///  <param name="ARight">The second value.</param>
+    ///  <returns><c>True</c> if the values are equal; <c>False</c> otherwise.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
     function AreEqual(const ALeft, ARight: T): Boolean;
+
+    ///  <summary>Generates a hash code for the given value.</summary>
+    ///  <param name="AValue">The value.</param>
+    ///  <returns>The calculated hash code.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
     function GetHashCode(const AValue: T): NativeInt;
+
+    ///  <summary>Compares two values.</summary>
+    ///  <param name="ALeft">The first value.</param>
+    ///  <param name="ARight">The second value.</param>
+    ///  <returns>A value less than zero if <paramref name="ALeft"/> is less than <paramref name="ARight"/>.
+    ///  A value greater than zero if <paramref name="ALeft"/> is greater than <paramref name="ARight"/>. Zero if
+    ///  <paramref name="ALeft"/> is equal to <paramref name="ARight"/>.</returns>
+    ///  <remarks>This method uses the comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
     function Compare(const ALeft, ARight: T): NativeInt;
 
+    ///  <summary>Initializes a rule set with the given comparers.</summary>
+    ///  <param name="AComparer">The comparer.</param>
+    ///  <param name="AEqualityComparer">The equality comparer.</param>
+    ///  <returns>A rule set initialized with the provided comparers.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"> if <paramref name="AComparer"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"> if <paramref name="AEqualityComparer"/> is <c>nil</c>.</exception>
+    class function Create(const AComparer: IComparer<T>; const AEqualityComparer: IEqualityComparer<T>): TRules<T>; static;
+
+    ///  <summary>Initializes a rule set with a given custom comparer.</summary>
+    ///  <param name="AComparer">The custom comparer.</param>
+    ///  <returns>A rule set initialized with the custom comparer.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"> if <paramref name="AComparer"/> is <c>nil</c>.</exception>
     class function Custom(const AComparer: TCustomComparer<T>): TRules<T>; static;
+
+    ///  <summary>Initializes a rule set using default comparers.</summary>
+    ///  <returns>A rule set initialized with the default comparers.</returns>
     class function Default: TRules<T>; static;
   end;
 
   ///  <summary>Base interface inherited by all specific collection interfaces.</summary>
-  ///  <remarks>This interface defines a set of traits common to all collections implemented in DeHL.</remarks>
+  ///  <remarks>This interface defines a set of traits common to all collections implemented in this package.</remarks>
   ICollection<T> = interface(IEnumerable<T>)
-
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>For associative collections such a dictionaries or multimaps, this value represents the
@@ -118,8 +157,8 @@ type
     ///  <summary>Returns the single element stored in the collection.</summary>
     ///  <returns>The element in collection.</returns>
     ///  <remarks>This method checks if the collection contains just one element, in which case it is returned.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionNotOneException">There is more than one element in the collection.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the collection.</exception>
     function Single(): T;
 
     ///  <summary>Returns the single element stored in the collection, or a default value.</summary>
@@ -132,15 +171,15 @@ type
     ///  <summary>Copies the values stored in the collection to a given array.</summary>
     ///  <param name="AArray">An array where to copy the contents of the collection.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T); overload;
 
     ///  <summary>Copies the values stored in the collection to a given array.</summary>
     ///  <param name="AArray">An array where to copy the contents of the collection.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload;
 
     ///  <summary>Creates a new Delphi array with the contents of the collection.</summary>
@@ -174,12 +213,12 @@ type
   public
     ///  <summary>Represents a "select" operation.</summary>
     ///  <param name="ASelector">A selector method invoked for each element in the collction.</param>
-    ///  <param name="ARules">A type object representing the elements in the output collection.</param>
+    ///  <param name="ARules">A rule set representing the elements in the output collection.</param>
     ///  <returns>A new collection containing the selected values.</returns>
     ///  <remarks>This method is use when it is required to select values related to the ones in the operated collection.
     ///  For example, you can select collection of integers where each integer is a field of a class in the original collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     function Select<TOut>(const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>): IEnexCollection<TOut>; overload;
 
     ///  <summary>Represents a "select" operation.</summary>
@@ -187,7 +226,7 @@ type
     ///  <returns>A new collection containing the selected values.</returns>
     ///  <remarks>This method is use when it is required to select values related to the ones in the operated collection.
     ///  For example, you can select collection of integers where each integer is a field of a class in the original collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
     function Select<TOut>(const ASelector: TFunc<T, TOut>): IEnexCollection<TOut>; overload;
 
     ///  <summary>Represents a "where, select object" operation.</summary>
@@ -197,12 +236,12 @@ type
     ///  cast to <c>TOut</c>. The result of the operation is a new collection that contains only the objects of a given
     ///  class. For example, <c>AList.Op.Select&lt;TMyObject&gt;</c> results in a new collection that only contains
     ///  "TMyObject" instances.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ETypeException">The collection's elements are not objects.</exception>
+    ///  <exception cref="Collections.Base|ETypeException">The collection's elements are not objects.</exception>
     function Select<TOut: class>(): IEnexCollection<TOut>; overload;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
-  ///  <remarks>This interface defines a set of traits common to all collections implemented in DeHL. It also introduces
+  ///  <remarks>This interface defines a set of traits common to all collections implemented in this package. It also introduces
   ///  a large se of extended operations that can pe performed on any collection that supports enumerability.</remarks>
   IEnexCollection<T> = interface(ICollection<T>)
     ///  <summary>Checks whether the elements in this collections are equal to the elements in another collection.</summary>
@@ -210,36 +249,36 @@ type
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
     ///  <remarks>This methods checks that each element at position X in this collection is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the type object used by this collection. This means that comparing this collection
+    ///  Note that comparison of element is done using the rule set used by this collection. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 
     ///  <summary>Creates a new list containing the elements of this collection.</summary>
     ///  <returns>A list containing the elements copied from this collection.</returns>
-    ///  <remarks>This method also copies the type object of this collection. Be careful if the type object
+    ///  <remarks>This method also copies the rule set of this collection. Be careful if the rule set
     ///  performs cleanup on the elements.</remarks>
     function ToList(): IList<T>;
 
     ///  <summary>Creates a new set containing the elements of this collection.</summary>
     ///  <returns>A set containing the elements copied from this collection.</returns>
-    ///  <remarks>This method also copies the type object of this collection. Be careful if the type object
+    ///  <remarks>This method also copies the rule set of this collection. Be careful if the rule set
     ///  performs cleanup on the elements.</remarks>
     function ToSet(): ISet<T>;
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the collection considered to have the biggest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Max(): T;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the collection considered to have the smallest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Min(): T;
 
     ///  <summary>Returns the first element.</summary>
     ///  <returns>The first element in collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function First(): T;
 
     ///  <summary>Returns the first element or a default if the collection is empty.</summary>
@@ -250,99 +289,99 @@ type
     ///  <summary>Returns the first element that satisfies the given predicate.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <returns>The first element that satisfies the given predicate.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the predicate.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the predicate.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhere(const APredicate: TFunc<T, Boolean>): T;
 
     ///  <summary>Returns the first element that satisfies the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given predicate; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhereOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <returns>The first element that does not satisfy the given predicate.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements that do not satisfy the predicate.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements that do not satisfy the predicate.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhereNot(const APredicate: TFunc<T, Boolean>): T;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that does not satisfy the given predicate; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhereNotOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
 
     ///  <summary>Returns the first element lower than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLower(const ABound: T): T;
 
     ///  <summary>Returns the first element lower than a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLowerOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element lower than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLowerOrEqual(const ABound: T): T;
 
     ///  <summary>Returns the first element lower than or equal to a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLowerOrEqualOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element greater than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreater(const ABound: T): T;
 
     ///  <summary>Returns the first element greater than a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreaterOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreaterOrEqual(const ABound: T): T;
 
     ///  <summary>Returns the first element greater than or equal to a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreaterOrEqualOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element situated within the given bounds.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The higher bound.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereBetween(const ALower, AHigher: T): T;
 
     ///  <summary>Returns the first element situated within the given bounds or a default.</summary>
@@ -350,13 +389,13 @@ type
     ///  <param name="AHigher">The higher bound.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereBetweenOrDefault(const ALower, AHigher: T; const ADefault: T): T;
 
     ///  <summary>Returns the last element.</summary>
     ///  <returns>The last element in collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Last(): T;
 
     ///  <summary>Returns the last element or a default if the collection is empty.</summary>
@@ -371,8 +410,8 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Aggregate(const AAggregator: TFunc<T, T, T>): T;
 
     ///  <summary>Aggregates a value based on the collection's elements.</summary>
@@ -383,15 +422,15 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <returns>The element from the specified position.</returns>
     ///  <remarks>This method is slow for collections that cannot reference their elements by indexes; for example: linked lists</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T;
 
     ///  <summary>Returns the element at a given position.</summary>
@@ -407,7 +446,7 @@ type
     ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Any(const APredicate: TFunc<T, Boolean>): Boolean;
 
     ///  <summary>Checks that all elements in the collection satisfies a given predicate.</summary>
@@ -415,19 +454,19 @@ type
     ///  <returns><c>True</c> if all elements satisfy a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function All(const APredicate: TFunc<T, Boolean>): Boolean;
 
     ///  <summary>Selects only the elements that satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Where(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that do not satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function WhereNot(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that are less than a given value.</summary>
@@ -469,7 +508,7 @@ type
     ///  <summary>Returns a new ordered collection that contains the elements from this collection.</summary>
     ///  <param name="ASortProc">The comparison method.</param>
     ///  <returns>A new ordered collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
     function Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>; overload;
 
     ///  <summary>Revereses the contents of the collection.</summary>
@@ -480,7 +519,7 @@ type
     ///  <param name="ACollection">A collection to concatenate.</param>
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from both collections taken a single time.</summary>
@@ -488,20 +527,20 @@ type
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection except the elements that already are present in this collection. This operation can be seen as
     ///  a "concat" operation followed by a "distinct" operation. </returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from this collection minus the ones in the given collection.</summary>
     ///  <param name="ACollection">The collection to exclude.</param>
     ///  <returns>A new collection that contains the elements from this collection minus the those elements that are common between
     ///  this and the given collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements that are present in both collections.</summary>
     ///  <param name="ACollection">The collection to interset with.</param>
     ///  <returns>A new collection that contains the elements that are common to both collections.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Select the elements that whose indexed are located in the given range.</summary>
@@ -515,14 +554,14 @@ type
     ///  <summary>Selects only a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to select.</param>
     ///  <returns>A new collection that contains only the first <paramref name="ACount"/> elements.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
     function Take(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function TakeWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than a given value.</summary>
@@ -562,13 +601,13 @@ type
     ///  <summary>Skips a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to skip.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
     function Skip(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function SkipWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than a given value.</summary>
@@ -611,32 +650,32 @@ type
     ///  <returns>The element at the specified position.</returns>
     ///  <remarks>This method is similar to <c>ElementAt</c>. The only difference is that this method is guaranteed
     ///  to provide the fastest lookup (normally <c>ElementAt</c> should also use the same method in indexed collections).</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function GetItem(const AIndex: NativeInt): T;
 
     ///  <summary>Returns the item from a given index.</summary>
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     property Items[const AIndex: NativeInt]: T read GetItem; default;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific associative collection interfaces.</summary>
-  ///  <remarks>This interface defines a set of traits common to all associative collections implemented in DeHL. It also introduces
+  ///  <remarks>This interface defines a set of traits common to all associative collections implemented in this package. It also introduces
   ///  a large se of extended operations that can pe performed on any collection that supports enumerability.</remarks>
   IEnexAssociativeCollection<TKey, TValue> = interface(ICollection<TPair<TKey, TValue>>)
     ///  <summary>Creates a new dictionary containing the elements of this collection.</summary>
     ///  <returns>A dictionary containing the elements copied from this collection.</returns>
-    ///  <remarks>This method also copies the type objects of this collection. Be careful if the type object
+    ///  <remarks>This method also copies the rule sets of this collection. Be careful if the rule set
     ///  performs cleanup on the elements.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The collection contains more than
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The collection contains more than
     ///  one key-value pair with the same key.</exception>
     function ToDictionary(): IDictionary<TKey, TValue>;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
     ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">No such key in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the collection.</exception>
     function ValueForKey(const AKey: TKey): TValue;
 
     ///  <summary>Checks whether the collection contains a given key-value pair.</summary>
@@ -647,22 +686,22 @@ type
 
     ///  <summary>Returns the biggest key.</summary>
     ///  <returns>The biggest key stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MaxKey(): TKey;
 
     ///  <summary>Returns the smallest key.</summary>
     ///  <returns>The smallest key stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MinKey(): TKey;
 
     ///  <summary>Returns the biggest value.</summary>
     ///  <returns>The biggest value stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MaxValue(): TValue;
 
     ///  <summary>Returns the smallest value.</summary>
     ///  <returns>The smallest value stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MinValue(): TValue;
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
@@ -697,13 +736,13 @@ type
     ///  <summary>Selects only the key-value pairs that satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Where(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that do not satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function WhereNot(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than a given value.</summary>
@@ -760,10 +799,10 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>stack</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>stack</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>stack</c>.</remarks>
   IStack<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the stack.</summary>
-    ///  <remarks>This method clears the stack and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the stack and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
@@ -773,13 +812,13 @@ type
     ///  <summary>Retreives the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method removes the element from the top of the stack.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Pop(): T;
 
     ///  <summary>Reads the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method does not remove the element from the top of the stack. It merely reads it's value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Peek(): T;
 
     ///  <summary>Removes an element from the stack.</summary>
@@ -793,10 +832,10 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>queue</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>queue</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>queue</c>.</remarks>
   IQueue<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the queue and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>
@@ -806,13 +845,13 @@ type
     ///  <summary>Retreives the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Dequeue(): T;
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): T;
 
     ///  <summary>Checks whether the queue contains a given value.</summary>
@@ -822,10 +861,10 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>priority queue</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>priority queue</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>priority queue</c>.</remarks>
   IPriorityQueue<TPriority, TValue> = interface(IEnexAssociativeCollection<TPriority, TValue>)
     ///  <summary>Clears the contents of the priority queue.</summary>
-    ///  <remarks>This method clears the priority queue and invokes type object's cleaning routines for each key and value.</remarks>
+    ///  <remarks>This method clears the priority queue and invokes rule set's cleaning routines for each key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the priority queue.</summary>
@@ -843,13 +882,13 @@ type
     ///  <summary>Retreives the element from the bottom of the priority queue.</summary>
     ///  <returns>The value at the bottom of the priority queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the priority queue.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Dequeue(): TValue;
 
     ///  <summary>Reads the element from the bottom of the priority queue.</summary>
     ///  <returns>The value at the bottom of the priority queue.</returns>
     ///  <remarks>This method does not remove the element from the bottom of the priority queue. It merely reads it's value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The queue is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): TValue;
 
     ///  <summary>Checks whether the priority queue contains a given value.</summary>
@@ -859,10 +898,10 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>set</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>set</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>set</c>.</remarks>
   ISet<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>This method clears the set and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the set and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the set.</summary>
@@ -882,10 +921,10 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>bag</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>bag</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>bag</c>.</remarks>
   IBag<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the bag.</summary>
-    ///  <remarks>This method clears the bag and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the bag and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the bag.</summary>
@@ -937,28 +976,28 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections.</summary>
-  ///  <remarks>This interface is inherited by all DeHL interfaces that provide <c>map</c>-like functionality.</remarks>
+  ///  <remarks>This interface is inherited by all interfaces that provide <c>map</c>-like functionality.</remarks>
   IMap<TKey, TValue> = interface(IEnexAssociativeCollection<TKey, TValue>)
     ///  <summary>Clears the contents of the map.</summary>
-    ///  <remarks>This method clears the map and invokes type object's cleaning routines for key and value.</remarks>
+    ///  <remarks>This method clears the map and invokes rule set's cleaning routines for key and value.</remarks>
     procedure Clear();
 
 {$IF CompilerVersion < 22}
     ///  <summary>Adds a key-value pair to the map.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
     procedure Add(const APair: TPair<TKey, TValue>); overload;
 {$IFEND}
 
     ///  <summary>Adds a key-value pair to the map.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
     procedure Add(const AKey: TKey; const AValue: TValue); overload;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of pair.</param>
-    ///  <remarks>This invokes type object's cleaning routines for value
+    ///  <remarks>This invokes rule set's cleaning routines for value
     ///  associated with the key. If the specified key was not found in the map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey);
 
@@ -975,7 +1014,7 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>dictionary</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>dictionary</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>dictionary</c>.</remarks>
   IDictionary<TKey, TValue> = interface(IMap<TKey, TValue>)
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
@@ -986,7 +1025,7 @@ type
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
     ///  <returns>The value associated with the key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the dictionary.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
     function GetItem(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
@@ -1001,14 +1040,14 @@ type
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
     ///  otherwise the value of the specified key is modified.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The trying to read the value of a key that is
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The trying to read the value of a key that is
     ///  not found in the dictionary.</exception>
     property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
   end;
 
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections that associate a
   ///  key with multiple values.</summary>
-  ///  <remarks>This interface is inherited by all DeHL interfaces that provide <c>multi-map</c>-like functionality.</remarks>
+  ///  <remarks>This interface is inherited by all interfaces that provide <c>multi-map</c>-like functionality.</remarks>
   ICollectionMap<TKey, TValue> = interface(IMap<TKey, TValue>)
 
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
@@ -1041,18 +1080,18 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>bidirectional multi-map</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>bidirectional multi-map</c>. In a
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>bidirectional multi-map</c>. In a
   ///  <c>bidirectional multi-map</c>, both the key and the value are treated as "keys".</remarks>
   IBidiMap<TKey, TValue> = interface(IMap<TKey, TValue>)
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key (and its associated values) to remove.</param>
-    ///  <remarks>This method removes all the values that are associated with the given key. The type object's cleanup
+    ///  <remarks>This method removes all the values that are associated with the given key. The rule set's cleanup
     ///  routines are used to cleanup the values that are dropped from the map.</remarks>
     procedure RemoveKey(const AKey: TKey);
 
     ///  <summary>Removes a key-value pair using a given value.</summary>
     ///  <param name="AValue">The value (and its associated keys) to remove.</param>
-    ///  <remarks>This method removes all the keys that are associated with the given value. The type object's cleanup
+    ///  <remarks>This method removes all the keys that are associated with the given value. The rule set's cleanup
     ///  routines are used to cleanup the keys that are dropped from the map.</remarks>
     procedure RemoveValue(const AValue: TValue);
 
@@ -1087,42 +1126,42 @@ type
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     function GetValueList(const AKey: TKey): IEnexCollection<TValue>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     property ByKeys[const AKey: TKey]: IEnexCollection<TValue> read GetValueList;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The value is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
     function GetKeyList(const AValue: TValue): IEnexCollection<TKey>;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The value is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
     property ByValues[const AValue: TValue]: IEnexCollection<TKey> read GetKeyList;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>multi-map</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>multi-map</c>. In a
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>multi-map</c>. In a
   ///  <c>multi-map</c>, a key is associated with multiple values, not just one.</remarks>
   IMultiMap<TKey, TValue> = interface(ICollectionMap<TKey, TValue>)
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     function GetItemList(const AKey: TKey): IEnexIndexedCollection<TValue>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     property Items[const AKey: TKey]: IEnexIndexedCollection<TValue> read GetItemList; default;
 
     ///  <summary>Tries to extract the collection of values associated with a key.</summary>
@@ -1138,19 +1177,19 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>distinct multi-map</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>distinct multi-map</c>. In a
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>distinct multi-map</c>. In a
   ///  <c>dictinct multi-map</c>, a key is associated with multiple distinct values.</remarks>
   IDistinctMultiMap<TKey, TValue> = interface(ICollectionMap<TKey, TValue>)
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     function GetItemList(const Key: TKey): IEnexCollection<TValue>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     property Items[const Key: TKey]: IEnexCollection<TValue> read GetItemList; default;
 
     ///  <summary>Tries to extract the collection of values associated with a key.</summary>
@@ -1166,10 +1205,10 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>list</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>list</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>list</c>.</remarks>
   IList<T> = interface(IEnexIndexedCollection<T>)
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the set and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the set and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the list.</summary>
@@ -1178,7 +1217,7 @@ type
 
     ///  <summary>Appends the elements from a collection to the list.</summary>
     ///  <param name="ACollection">The values to append.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     procedure Add(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Checks whether the list contains a given value.</summary>
@@ -1189,7 +1228,7 @@ type
     ///  <summary>Removes an element from the list at a given index.</summary>
     ///  <param name="AIndex">The index from which to remove the element.</param>
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     procedure RemoveAt(const AIndex: NativeInt);
 
     ///  <summary>Removes a given value from the list.</summary>
@@ -1202,14 +1241,14 @@ type
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
@@ -1222,14 +1261,14 @@ type
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <param name="AStartIndex">The index to from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
@@ -1239,14 +1278,14 @@ type
   end;
 
   ///  <summary>The Enex interface that defines the behavior of an <c>unordered list</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of an <c>unordered list</c>.</remarks>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of an <c>unordered list</c>.</remarks>
   IUnorderedList<T> = interface(IList<T>)
     ///  <summary>Inserts an element into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
     ///  <param name="AValue">The value to insert.</param>
     ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
     ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
 
     ///  <summary>Inserts the elements of a collection into the list.</summary>
@@ -1254,26 +1293,26 @@ type
     ///  <param name="ACollection">The values to insert.</param>
     ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by the length of
     ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>sorted list</c>.</summary>
-  ///  <remarks>This interface is implemented by all DeHL collections that provide the functionality of a <c>sorted list</c>.
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>sorted list</c>.
   ///  A <c>sorted list</c> maintains its elements in an ordered fashion at all times. Whenever a new element is added, it is
   ///  automatically inserted in the right position.</remarks>
   IOrderedList<T> = interface(IList<T>)
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the list considered to have the biggest value. This is either the
     ///  last or the first element (depending on the sorting order).</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Max(): T;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the list considered to have the smallest value. This is either the
     ///  last or the first element (depending on the sorting order).</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Min(): T;
   end;
 
@@ -1311,8 +1350,8 @@ type
 {$REGION 'Base Collection Classes'}
 type
 {$HINTS OFF}
-  ///  <summary>Base for all reference counted objects in DeHL.</summary>
-  ///  <remarks><see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> is designed to be used as a base class for all
+  ///  <summary>Base for all reference counted objects in this package.</summary>
+  ///  <remarks><see cref="Collections.Base|TRefCountedObject">Collections.Base.TRefCountedObject</see> is designed to be used as a base class for all
   ///  objects that implement interfaces and require reference counting.</remarks>
   TRefCountedObject = class abstract(TInterfacedObject, IInterface)
   private
@@ -1320,10 +1359,20 @@ type
     FInConstruction: Boolean;
 
   protected
-    //TODO: doc me
+    ///  <summary>Registers a reference counted object as as keep-alive for this object.</summary>
+    ///  <param name="AObject">The object to keep alive.</param>
+    ///  <remarks>If <paramref name="AObject"/> is <c>nil</c> nothing happens. Otherwise, this object is
+    ///  checked to have a positive reference count. If that is the case, a new interface reference is requested
+    ///  and registered internally, preventing the object from being destroyed prematurely.</remarks>
+    ///  <exception cref="Collections.Base|ECannotSelfReferenceException"> if trying to keep alive self.</exception>
     procedure KeepObjectAlive(const AObject: TRefCountedObject);
 
-    //TODO: doc me
+    ///  <summary>Unregisters a reference counted object from the keep-alive list.</summary>
+    ///  <param name="AObject">The object to unregister.</param>
+    ///  <param name="AFreeObject">Specifies whether to free the object if its reference reaches is zero.</param>
+    ///  <remarks>If <paramref name="AObject"/> is <c>nil</c> nothing happens. Otherwise, this object is
+    ///  checked to have a positive reference count. If that is the case, the help reference is released.</remarks>
+    ///  <exception cref="Collections.Base|ECannotSelfReferenceException"> if trying to release self.</exception>
     procedure ReleaseObject(const AObject: TRefCountedObject;
       const AFreeObject: Boolean = false);
 
@@ -1336,11 +1385,11 @@ type
     ///  <returns><c>True</c> if the object is in construction; <c>False</c> otherwise.</returns>
     property Constructing: Boolean read FInConstruction;
   public
-    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
+    ///  <summary>Initializes the internals of the <see cref="Collections.Base|TRefCountedObject">Collections.Base.TRefCountedObject</see> objects.</summary>
     ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
     class function NewInstance: TObject; override;
 
-    ///  <summary>Initializes the internals of the <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> objects.</summary>
+    ///  <summary>Initializes the internals of the <see cref="Collections.Base|TRefCountedObject">Collections.Base.TRefCountedObject</see> objects.</summary>
     ///  <remarks>Do not call this method directly. It is part of the object creation process.</remarks>
     procedure AfterConstruction; override;
   end;
@@ -1371,6 +1420,11 @@ type
     property Current: T read GetCurrent;
   end;
 
+  ///  <summary>Procedural type used by collections to insert custom remove notification code
+  ///  into inner collections.</summary>
+  ///  <param name="AValue">The value being removed.</param>
+  TRemoveNotification<T> = reference to procedure(const AValue: T);
+
   ///  <summary>Base class for all collections.</summary>
   ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
   ///  enumerability and introduces serialization support.</remarks>
@@ -1393,8 +1447,8 @@ type
     ///  <summary>Returns the single element stored in the collection.</summary>
     ///  <returns>The element in collection.</returns>
     ///  <remarks>This method checks if the collection contains just one element, in which case it is returned.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionNotOneException">There is more than one element in the collection.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the collection.</exception>
     function Single(): T; virtual;
 
     ///  <summary>Returns the single element stored in the collection, or a default value.</summary>
@@ -1407,15 +1461,15 @@ type
     ///  <summary>Copies the values stored in the collection to a given array.</summary>
     ///  <param name="AArray">An array where to copy the contents of the collection.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T); overload;
 
     ///  <summary>Copies the values stored in the collection to a given array.</summary>
     ///  <param name="AArray">An array where to copy the contents of the collection.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the collection.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; virtual;
 
     ///  <summary>Creates a new Delphi array with the contents of the collection.</summary>
@@ -1445,34 +1499,55 @@ type
   TEnexCollection<T> = class abstract(TCollection<T>, IComparable, IEnexCollection<T>)
   private
     FElementRules: TRules<T>;
+    FRemoveNotification: TRemoveNotification<T>;
 
   protected
-    ///  <summary>Specifies the type object that describes the stored elements.</summary>
-    ///  <returns>A type object describing the stored elements.</returns>
+    ///  <summary>Specifies a custom remove notification method that will be called by this
+    ///  collection when elements are removed.</summary>
+    ///  <returns>The notification method.</returns>
+    property RemoveNotification: TRemoveNotification<T> read FRemoveNotification write FRemoveNotification;
+
+    ///  <summary>Specifies the rule set that describes the stored elements.</summary>
+    ///  <returns>A rule set describing the stored elements.</returns>
     property ElementRules: TRules<T> read FElementRules;
 
-    //TODO: doec me
+    ///  <summary>Override in descendant classed to properly handle elements that are removed from
+    ///  the collection.</summary>
+    ///  <param name="AElement">The element being removed.</param>
+    ///  <remarks>This method is called by the collection when an element is removed and the caller has
+    ///  no possibility of obtaining it. For example, a call to <c>Clear</c> calls this method for each element
+    ///  of the collection.</remarks>
     procedure HandleElementRemoved(const AElement: T); virtual;
+
+    ///  <summary>Call this method in descendant collections to properly invoke the removal mechanism.</summary>
+    ///  <param name="AElement">The element being removed.</param>
+    ///  <remarks>This method verifies if a custom removal notification is registered and calls it. Otherwise the normal
+    ///  removal mechanisms are involved.</remarks>
+    procedure NotifyElementRemoved(const AElement: T);
   public
-    //TODO: doc me
+    ///  <summary>Instantiates this class.</summary>
+    ///  <remarks>The default comparer and equality comparer are requested if this constructor is used. Do not call this method if
+    ///  you don't know what you are doing.</remarks>
     constructor Create(); overload;
 
-    //TODO: doc me
+    ///  <summary>Instantiates this class.</summary>
+    ///  <param name="ARules">The rules set used by the collection.</param>
+    ///  <remarks>The provided rules set is used by this collection. This constructor must be called from descendent collections.</remarks>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the collection considered to have the biggest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Max(): T; virtual;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the collection considered to have the smallest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Min(): T; virtual;
 
     ///  <summary>Returns the first element.</summary>
     ///  <returns>The first element in collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function First(): T; virtual;
 
     ///  <summary>Returns the first element or a default if the collection is empty.</summary>
@@ -1483,99 +1558,99 @@ type
     ///  <summary>Returns the first element that satisfies the given predicate.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <returns>The first element that satisfies the given predicate.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the predicate.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the predicate.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhere(const APredicate: TFunc<T, Boolean>): T; virtual;
 
     ///  <summary>Returns the first element that satisfies the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given predicate; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhereOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T; virtual;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <returns>The first element that does not satisfy the given predicate.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements that do not satisfy the predicate.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements that do not satisfy the predicate.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhereNot(const APredicate: TFunc<T, Boolean>): T;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that does not satisfy the given predicate; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function FirstWhereNotOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
 
     ///  <summary>Returns the first element lower than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLower(const ABound: T): T;
 
     ///  <summary>Returns the first element lower than a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLowerOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element lower than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLowerOrEqual(const ABound: T): T;
 
     ///  <summary>Returns the first element lower than or equal to a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereLowerOrEqualOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element greater than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreater(const ABound: T): T;
 
     ///  <summary>Returns the first element greater than a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreaterOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreaterOrEqual(const ABound: T): T;
 
     ///  <summary>Returns the first element greater than or equal to a given value or a default.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereGreaterOrEqualOrDefault(const ABound: T; const ADefault: T): T;
 
     ///  <summary>Returns the first element situated within the given bounds.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The higher bound.</param>
     ///  <returns>The first element that satisfies the given condition.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereBetween(const ALower, AHigher: T): T;
 
     ///  <summary>Returns the first element situated within the given bounds or a default.</summary>
@@ -1583,13 +1658,13 @@ type
     ///  <param name="AHigher">The higher bound.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given condition; or <paramref name="ADefault"/> otherwise.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the condition.</exception>
     function FirstWhereBetweenOrDefault(const ALower, AHigher: T; const ADefault: T): T;
 
     ///  <summary>Returns the last element.</summary>
     ///  <returns>The last element in collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Last(): T; virtual;
 
     ///  <summary>Returns the last element or a default if the collection is empty.</summary>
@@ -1604,8 +1679,8 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function Aggregate(const AAggregator: TFunc<T, T, T>): T; virtual;
 
     ///  <summary>Aggregates a value based on the collection's elements.</summary>
@@ -1616,15 +1691,15 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; virtual;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <returns>The element from the specified position.</returns>
     ///  <remarks>This method is slow for collections that cannot reference their elements by indexes; for example: linked lists</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; virtual;
 
     ///  <summary>Returns the element at a given position.</summary>
@@ -1640,7 +1715,7 @@ type
     ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; virtual;
 
     ///  <summary>Checks that all elements in the collection satisfies a given predicate.</summary>
@@ -1648,7 +1723,7 @@ type
     ///  <returns><c>True</c> if all elements satisfy a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function All(const APredicate: TFunc<T, Boolean>): Boolean; virtual;
 
     ///  <summary>Checks whether the elements in this collections are equal to the elements in another collection.</summary>
@@ -1656,21 +1731,21 @@ type
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
     ///  <remarks>This methods checks that each element at position X in this collection is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the type object used by this collection. This means that comparing this collection
+    ///  Note that comparison of element is done using the rule set used by this collection. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; virtual;
 
     ///  <summary>Selects only the elements that satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Where(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that do not satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function WhereNot(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that are less than a given value.</summary>
@@ -1712,7 +1787,7 @@ type
     ///  <summary>Returns a new ordered collection that contains the elements from this collection.</summary>
     ///  <param name="ASortProc">The comparison method.</param>
     ///  <returns>A new ordered collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
     function Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>; overload; virtual;
 
     ///  <summary>Revereses the contents of the collection.</summary>
@@ -1723,7 +1798,7 @@ type
     ///  <param name="ACollection">A collection to concatenate.</param>
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from both collections taken a single time.</summary>
@@ -1731,20 +1806,20 @@ type
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection except the elements that already are present in this collection. This operation can be seen as
     ///  a "concat" operation followed by a "distinct" operation. </returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements from this collection minus the ones in the given collection.</summary>
     ///  <param name="ACollection">The collection to exclude.</param>
     ///  <returns>A new collection that contains the elements from this collection minus the those elements that are common between
     ///  this and the given collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Creates a new collection that contains the elements that are present in both collections.</summary>
     ///  <param name="ACollection">The collection to interset with.</param>
     ///  <returns>A new collection that contains the elements that are common to both collections.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
     ///  <summary>Select the elements that whose indexed are located in the given range.</summary>
@@ -1758,14 +1833,14 @@ type
     ///  <summary>Selects only a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to select.</param>
     ///  <returns>A new collection that contains only the first <paramref name="ACount"/> elements.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
     function Take(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function TakeWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than a given value.</summary>
@@ -1805,13 +1880,13 @@ type
     ///  <summary>Skips a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to skip.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
     function Skip(const ACount: NativeInt): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function SkipWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than a given value.</summary>
@@ -1846,13 +1921,13 @@ type
 
     ///  <summary>Creates a new list containing the elements of this collection.</summary>
     ///  <returns>A list containing the elements copied from this collection.</returns>
-    ///  <remarks>This method also copies the type object of this collection. Be careful if the type object
+    ///  <remarks>This method also copies the rule set of this collection. Be careful if the rule set
     ///  performs cleanup on the elements.</remarks>
     function ToList(): IList<T>;
 
     ///  <summary>Creates a new set containing the elements of this collection.</summary>
     ///  <returns>A set containing the elements copied from this collection.</returns>
-    ///  <remarks>This method also copies the type object of this collection. Be careful if the type object
+    ///  <remarks>This method also copies the rule set of this collection. Be careful if the rule set
     ///  performs cleanup on the elements.</remarks>
     function ToSet(): ISet<T>;
 
@@ -1878,17 +1953,17 @@ type
     ///  <summary>Generates a new collection that contains a given value for a given number of times.</summary>
     ///  <param name="AElement">The element to fill the collection with.</param>
     ///  <param name="ACount">The number of times the element is present in the collection (the length of the collection).</param>
-    ///  <param name="ARules">The type object describing the elements in the new collection.</param>
+    ///  <param name="ARules">The rule set describing the elements in the new collection.</param>
     ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AElement"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AElement"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
     class function Fill(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
 
     ///  <summary>Generates a new collection that contains a given value for a given number of times.</summary>
     ///  <param name="AElement">The element to fill the collection with.</param>
     ///  <param name="ACount">The number of times the element is present in the collection (the length of the collection).</param>
     ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
     class function Fill(const AElement: T; const ACount: NativeInt): IEnexCollection<T>; overload; static;
   end;
 
@@ -1901,31 +1976,71 @@ type
   private
     FKeyRules: TRules<TKey>;
     FValueRules: TRules<TValue>;
+    FKeyRemoveNotification: TRemoveNotification<TKey>;
+    FValueRemoveNotification: TRemoveNotification<TValue>;
 
   protected
-    ///  <summary>Specifies the type object that describes the keys of the stored pairs.</summary>
-    ///  <returns>A type object describing the keys.</returns>
+    ///  <summary>Specifies a custom remove notification method that will be called by this
+    ///  collection when keys are removed.</summary>
+    ///  <returns>The notification method.</returns>
+    property KeyRemoveNotification: TRemoveNotification<TKey> read FKeyRemoveNotification write FKeyRemoveNotification;
+
+    ///  <summary>Specifies a custom remove notification method that will be called by this
+    ///  collection when values are removed.</summary>
+    ///  <returns>The notification method.</returns>
+    property ValueRemoveNotification: TRemoveNotification<TValue> read FValueRemoveNotification write FValueRemoveNotification;
+
+    ///  <summary>Specifies the rule set that describes the keys of the stored pairs.</summary>
+    ///  <returns>A rule set describing the keys.</returns>
     property KeyRules: TRules<TKey> read FKeyRules;
 
-    ///  <summary>Specifies the type object that describes the values of the stored pairs.</summary>
-    ///  <returns>A type object describing the values.</returns>
+    ///  <summary>Specifies the rule set that describes the values of the stored pairs.</summary>
+    ///  <returns>A rule set describing the values.</returns>
     property ValueRules: TRules<TValue> read FValueRules;
 
-    //TODO: doc me.
+    ///  <summary>Override in descendant classed to properly handle keys that are removed from
+    ///  the collection.</summary>
+    ///  <param name="AKey">The key being removed.</param>
+    ///  <remarks>This method is called by the collection when a key is removed and the caller has
+    ///  no possibility of obtaining it. For example, a call to <c>Clear</c> calls this method for each key
+    ///  of the collection.</remarks>
     procedure HandleKeyRemoved(const AKey: TKey); virtual;
-    //TODO: doc me.
+
+    ///  <summary>Override in descendant classed to properly handle values that are removed from
+    ///  the collection.</summary>
+    ///  <param name="AValue">The key being removed.</param>
+    ///  <remarks>This method is called by the collection when a value is removed and the caller has
+    ///  no possibility of obtaining it. For example, a call to <c>Clear</c> calls this method for each value
+    ///  of the collection.</remarks>
     procedure HandleValueRemoved(const AValue: TValue); virtual;
+
+    ///  <summary>Call this method in descendant collections to properly invoke the removal mechanism.</summary>
+    ///  <param name="AKey">The key being removed.</param>
+    ///  <remarks>This method verifies if a custom removal notification is registered and calls it. Otherwise the normal
+    ///  removal mechanisms are involved.</remarks>
+    procedure NotifyKeyRemoved(const AKey: TKey);
+
+    ///  <summary>Call this method in descendant collections to properly invoke the removal mechanism.</summary>
+    ///  <param name="AValue">The key being removed.</param>
+    ///  <remarks>This method verifies if a custom removal notification is registered and calls it. Otherwise the normal
+    ///  removal mechanisms are involved.</remarks>
+    procedure NotifyValueRemoved(const AValue: TValue);
   public
-    //TODO: doc me
+    ///  <summary>Instantiates this class.</summary>
+    ///  <remarks>The default comparer and equality comparer are requested if this constructor is used. Do not call this method if
+    ///  you don't know what you are doing.</remarks>
     constructor Create(); overload;
 
-    //TODO: doc me
+    ///  <summary>Instantiates this class.</summary>
+    ///  <param name="AKeyRules">The rules set used by the collection for its keys.</param>
+    ///  <param name="AValueRules">The rules set used by the collection for its values.</param>
+    ///  <remarks>The provided rules set is used by this collection. This constructor must be called from descendent collections.</remarks>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
     ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">No such key in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the collection.</exception>
     function ValueForKey(const AKey: TKey): TValue; virtual;
 
     ///  <summary>Checks whether the collection contains a given key-value pair.</summary>
@@ -1936,28 +2051,28 @@ type
 
     ///  <summary>Returns the biggest key.</summary>
     ///  <returns>The biggest key stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MaxKey(): TKey; virtual;
 
     ///  <summary>Returns the smallest key.</summary>
     ///  <returns>The smallest key stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MinKey(): TKey; virtual;
 
     ///  <summary>Returns the biggest value.</summary>
     ///  <returns>The biggest value stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MaxValue(): TValue; virtual;
 
     ///  <summary>Returns the smallest value.</summary>
     ///  <returns>The smallest value stored in the collection.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The collection is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     function MinValue(): TValue; virtual;
 
     ///  <summary>Checks whether this collection includes the key-value pairs in another collection.</summary>
     ///  <param name="ACollection">The collection to check against.</param>
     ///  <returns><c>True</c> if this collection includes the elements in another; <c>False</c> otherwise.</returns>
-    function Includes(const AEnumerable: IEnumerable<TPair<TKey, TValue>>): Boolean; virtual;
+    function Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean; virtual;
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the collection.</returns>
@@ -1978,13 +2093,13 @@ type
     ///  <summary>Selects only the key-value pairs that satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Where(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that do not satisfy the given rule.</returns>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function WhereNot(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than a given value.</summary>
@@ -2041,19 +2156,20 @@ type
 
     ///  <summary>Creates a new dictionary containing the elements of this collection.</summary>
     ///  <returns>A dictionary containing the elements copied from this collection.</returns>
-    ///  <remarks>This method also copies the type objects of this collection. Be careful if the type object
+    ///  <remarks>This method also copies the rule sets of this collection. Be careful if the rule set
     ///  performs cleanup on the elements.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The collection contains more than
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The collection contains more than
     ///  one key-value pair with the same key.</exception>
     function ToDictionary(): IDictionary<TKey, TValue>;
   end;
 {$ENDREGION}
 
+{$REGION 'Exception Support'}
 type
   ///  <summary>Thrown when an attempt to call an unsupported default parameterless constructor is made.</summary>
   EDefaultConstructorNotAllowed = class(Exception);
 
-  ///  <summary>Thrown when a <see cref="DeHL.Base|TRefCountedObject">DeHL.Base.TRefCountedObject</see> tries to keep itself alive.</summary>
+  ///  <summary>Thrown when a <see cref="Collections.Base|TRefCountedObject">Collections.Base.TRefCountedObject</see> tries to keep itself alive.</summary>
   ECannotSelfReferenceException = class(Exception);
 
   ///  <summary>Thrown when a given argument combination specifies a smaller range than required.</summary>
@@ -2089,8 +2205,8 @@ type
   ///  <summary>Thrown when trying to add an element to a collection that already has it.</summary>
   EElementAlreadyInACollection = class(ECollectionException);
 
-  ///  <summary>A static class that offers methods for throwing DeHL exceptions.</summary>
-  ///  <remarks><see cref="DeHL.Exceptions|ExceptionHelper">DeHL.Exceptions.ExceptionHelper</see> is used internally in DeHL to
+  ///  <summary>A static class that offers methods for throwing exceptions.</summary>
+  ///  <remarks><see cref="Collections.Base|ExceptionHelper">Collections.Base.ExceptionHelper</see> is used internally in this package to
   ///  throw all kinds of exceptions. This class is useful because it separates the exceptions
   ///  (including the messages) from the rest of the code.</remarks>
   ExceptionHelper = class sealed
@@ -2142,8 +2258,30 @@ type
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_ElementAlreadyPartOfCollectionError(const ArgName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_TypeNotAClassError(const TypeName: String);
   end;
 
+resourcestring
+  SDefaultParameterlessCtorNotAllowed = 'Default parameterless constructor not allowed!';
+  SCannotSelfReference = 'The object cannot self-reference!';
+  SNilArgument = 'Argument "%s" is nil. Expected a normal non-disposed object!';
+  SOutOfRangeArgument = 'Argument "%s" is out of range. An argument that falls into the required range of values is expected!';
+  SOutOfSpaceArgument = 'Argument "%s" does not have enough space to hold the result!';
+  SParentCollectionChanged = 'Parent collection has changed. Cannot continue the operation!';
+  SKeyNotFound = 'The key given by the "%s" argument was not found in the collection!';
+  SDuplicateKey = 'The key given by the "%s" argument was already registered in the collection!';
+  SEmptyCollection = 'The collection is empty! The operation cannot be performed!';
+  SCollectionHasMoreThanOneElements = 'The collection has more than one element!';
+  SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
+  SElementNotInCollection = 'The element given in the "%s" parameter is not a part of this collection!';
+  SElementAlreadyInAnotherCollection = 'The element given in the "%s" parameter is already a part of another collection!';
+  STypeNotAClass = 'The type "%s" on which the opration was invoked is not a class!';
+{$ENDREGION}
+
+{$REGION 'Enex Internal Enumerables'}
   //TODO: doc all these classes :(
 type
   { The "Where" collection }
@@ -2173,7 +2311,7 @@ type
     FInvertResult: Boolean;
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>;
+    constructor Create(const ACollection: TEnexCollection<T>;
       const APredicate: TFunc<T, Boolean>; const AInvertResult: Boolean); overload;
 
     { Destructor }
@@ -2215,7 +2353,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2258,7 +2396,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const ARules: TRules<TOut>); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const ARules: TRules<TOut>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2297,7 +2435,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
+    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2338,7 +2476,7 @@ type
     FEnum2: IEnexCollection<T>;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
+    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2374,7 +2512,7 @@ type
     FEnum2: IEnexCollection<T>;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
+    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2410,7 +2548,7 @@ type
     FEnum2: IEnexCollection<T>;
   public
     { Constructors }
-    constructor Create(const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>); overload;
+    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2446,7 +2584,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>); overload;
+    constructor Create(const ACollection: TEnexCollection<T>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2482,7 +2620,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const AStart, AEnd: NativeInt); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const AStart, AEnd: NativeInt); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2518,7 +2656,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2555,7 +2693,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2615,7 +2753,7 @@ type
     function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
-    function EqualsTo(const AEnumerable: IEnumerable<T>): Boolean; override;
+    function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
   { The "Take While" collection }
@@ -2645,7 +2783,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2681,41 +2819,13 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
 
     { Destructor }
     destructor Destroy(); override;
 
     { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  { The "Wrap" collection }
-  TEnexWrapCollection<T> = class sealed(TEnexCollection<T>)
-  private
-    FEnum: IEnumerable<T>;
-
-  public
-    { Constructors }
-    constructor Create(const AEnumerable: IEnumerable<T>; const ARules: TRules<T>);
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  { The "Wrap associative" collection }
-  TEnexAssociativeWrapCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>,
-    IEnexAssociativeCollection<TKey, TValue>)
-  private
-    FEnum: IEnumerable<TPair<TKey, TValue>>;
-
-  public
-    { Constructors }
-    constructor Create(const AEnumerable: IEnumerable<TPair<TKey, TValue>>; const AKeyRules: TRules<TKey>;
-      const AValueRules: TRules<TValue>);
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
 
   { The "Select Keys" collection }
@@ -2748,7 +2858,7 @@ type
     function GetCount(): NativeInt; override;
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
+    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2787,7 +2897,7 @@ type
     function GetCount(): NativeInt; override;
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
+    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2824,7 +2934,7 @@ type
     FInvertResult: Boolean;
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>;
+    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>;
         const APredicate: TFunc<TKey, TValue, Boolean>; const AInvertResult: Boolean); overload;
 
     { Destructor }
@@ -2861,7 +2971,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
+    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2897,7 +3007,7 @@ type
 
   public
     { Constructors }
-    constructor Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>); overload;
+    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
 
     { Destructor }
     destructor Destroy(); override;
@@ -2905,35 +3015,28 @@ type
     { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
+{$ENDREGION}
 
 implementation
 uses
+  TypInfo,
   Collections.Sets,
   Collections.Lists,
   Collections.Dictionaries;
 
-resourcestring
-  SDefaultParameterlessCtorNotAllowed = 'Default parameterless constructor not allowed!';
-  SCannotSelfReference = 'The object cannot self-reference!';
-  SNilArgument = 'Argument "%s" is nil. Expected a normal non-disposed object!';
-  SOutOfRangeArgument = 'Argument "%s" is out of range. An argument that falls into the required range of values is expected!';
-  SOutOfSpaceArgument = 'Argument "%s" does not have enough space to hold the result!';
-  SParentCollectionChanged = 'Parent collection has changed. Cannot continue the operation!';
-  SKeyNotFound = 'The key given by the "%s" argument was not found in the collection!';
-  SDuplicateKey = 'The key given by the "%s" argument was already registered in the collection!';
-  SEmptyCollection = 'The collection is empty! The operation cannot be performed!';
-  SCollectionHasMoreThanOneElements = 'The collection has more than one element!';
-  SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
-  SElementNotInCollection = 'The element given in the "%s" parameter is not a part of this collection!';
-  SElementAlreadyInAnotherCollection = 'The element given in the "%s" parameter is already a part of another collection!';
-
 { TEnexExtOps<T> }
 
 function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
+var
+  LTypeInfo: PTypeInfo;
 begin
   { Make sure that T is a class }
-//TODO: Fix this
- // FType.RestrictTo([tfClass]);
+  LTypeInfo := TypeInfo(T);
+
+  { TADA! }
+  if (LTypeInfo = nil) or (LTypeInfo^.Kind <> tkClass) then
+    ExceptionHelper.Throw_TypeNotAClassError(GetTypeName(LTypeInfo));
+
   Result := TEnexSelectClassCollection<TObject, TOut>.Create(FInstance, TRules<TOut>.Default);
 end;
 
@@ -3753,6 +3856,15 @@ begin
   end;
 end;
 
+procedure TEnexCollection<T>.NotifyElementRemoved(const AElement: T);
+begin
+  { Handle removal }
+  if Assigned(FRemoveNotification) then
+    FRemoveNotification(AElement)
+  else
+    HandleElementRemoved(AElement);
+end;
+
 function TEnexCollection<T>.Op: TEnexExtOps<T>;
 begin
   { Build up the record + keep an optional reference to the object }
@@ -4192,12 +4304,12 @@ begin
   // Nothing!
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.Includes(const AEnumerable: IEnumerable<TPair<TKey, TValue>>): Boolean;
+function TEnexAssociativeCollection<TKey, TValue>.Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean;
 var
   Enum: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object }
-  Enum := AEnumerable.GetEnumerator();
+  Enum := ACollection.GetEnumerator();
 
   { Iterate till the last element in the enum }
   while Enum.MoveNext do
@@ -4331,6 +4443,24 @@ begin
     if not Enum.MoveNext() then
       Exit;
   end;
+end;
+
+procedure TEnexAssociativeCollection<TKey, TValue>.NotifyKeyRemoved(const AKey: TKey);
+begin
+  { Handle stuff }
+  if Assigned(FKeyRemoveNotification) then
+    FKeyRemoveNotification(AKey)
+  else
+    HandleKeyRemoved(AKey);
+end;
+
+procedure TEnexAssociativeCollection<TKey, TValue>.NotifyValueRemoved(const AValue: TValue);
+begin
+  { Handle stuff }
+  if Assigned(FValueRemoveNotification) then
+    FValueRemoveNotification(AValue)
+  else
+    HandleValueRemoved(AValue);
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
@@ -4595,20 +4725,20 @@ end;
 
 { TEnexWhereCollection<T> }
 
-constructor TEnexWhereCollection<T>.Create(const AEnumerable: TEnexCollection<T>;
+constructor TEnexWhereCollection<T>.Create(const ACollection: TEnexCollection<T>;
   const APredicate: TFunc<T, Boolean>; const AInvertResult: Boolean);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
-  inherited Create(AEnumerable.ElementRules);
+  inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
@@ -4672,21 +4802,21 @@ end;
 
 { TEnexSelectCollection<T, TOut> }
 
-constructor TEnexSelectCollection<T, TOut>.Create(const AEnumerable: TEnexCollection<T>;
+constructor TEnexSelectCollection<T, TOut>.Create(const ACollection: TEnexCollection<T>;
   const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>);
 begin
   { Check arguments }
   if not Assigned(ASelector) then
     ExceptionHelper.Throw_ArgumentNilError('ASelector');
 
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Rules ... }
   inherited Create(ARules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FSelector := ASelector;
@@ -4786,23 +4916,23 @@ begin
 end;
 
 constructor TEnexConcatCollection<T>.Create(
-  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
+  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable1) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable1');
+  if not Assigned(ACollection1) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection1');
 
-  if not Assigned(AEnumerable2) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
+  if not Assigned(ACollection2) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection2');
 
   { Rules ... }
-  inherited Create(AEnumerable1.ElementRules);
+  inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := AEnumerable1;
+  FEnum1 := ACollection1;
   KeepObjectAlive(FEnum1);
 
-  FEnum2 := AEnumerable2;
+  FEnum2 := ACollection2;
 end;
 
 destructor TEnexConcatCollection<T>.Destroy;
@@ -4878,23 +5008,23 @@ end;
 { TEnexUnionCollection<T> }
 
 constructor TEnexUnionCollection<T>.Create(
-  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
+  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable1) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable1');
+  if not Assigned(ACollection1) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection1');
 
-  if not Assigned(AEnumerable2) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
+  if not Assigned(ACollection2) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection2');
 
   { Rules ... }
-  inherited Create(AEnumerable1.ElementRules);
+  inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := AEnumerable1;
+  FEnum1 := ACollection1;
   KeepObjectAlive(FEnum1);
 
-  FEnum2 := AEnumerable2;
+  FEnum2 := ACollection2;
 end;
 
 destructor TEnexUnionCollection<T>.Destroy;
@@ -4982,23 +5112,23 @@ end;
 { TEnexExclusionCollection<T> }
 
 constructor TEnexExclusionCollection<T>.Create(
-  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
+  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable1) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable1');
+  if not Assigned(ACollection1) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection1');
 
-  if not Assigned(AEnumerable2) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
+  if not Assigned(ACollection2) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection2');
 
   { Rules ... }
-  inherited Create(AEnumerable1.ElementRules);
+  inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := AEnumerable1;
+  FEnum1 := ACollection1;
   KeepObjectAlive(FEnum1);
 
-  FEnum2 := AEnumerable2;
+  FEnum2 := ACollection2;
 end;
 
 destructor TEnexExclusionCollection<T>.Destroy;
@@ -5063,23 +5193,23 @@ end;
 { TEnexIntersectionCollection<T> }
 
 constructor TEnexIntersectionCollection<T>.Create(
-  const AEnumerable1: TEnexCollection<T>; const AEnumerable2: IEnexCollection<T>);
+  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable1) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable1');
+  if not Assigned(ACollection1) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection1');
 
-  if not Assigned(AEnumerable2) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable2');
+  if not Assigned(ACollection2) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection2');
 
   { Rules ... }
-  inherited Create(AEnumerable1.ElementRules);
+  inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := AEnumerable1;
+  FEnum1 := ACollection1;
   KeepObjectAlive(FEnum1);
 
-  FEnum2 := AEnumerable2;
+  FEnum2 := ACollection2;
 end;
 
 destructor TEnexIntersectionCollection<T>.Destroy;
@@ -5142,7 +5272,7 @@ end;
 
 { TEnexRangeCollection<T> }
 
-constructor TEnexRangeCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const AStart, AEnd: NativeInt);
+constructor TEnexRangeCollection<T>.Create(const ACollection: TEnexCollection<T>; const AStart, AEnd: NativeInt);
 begin
   if AStart < 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStart');
@@ -5151,14 +5281,14 @@ begin
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AEnd');
 
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Rules ... }
-  inherited Create(AEnumerable.ElementRules);
+  inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FStart := AStart;
@@ -5230,39 +5360,18 @@ begin
   end;
 end;
 
-{ TEnexWrapCollection<T> }
-
-constructor TEnexWrapCollection<T>.Create(const AEnumerable: IEnumerable<T>; const ARules: TRules<T>);
-begin
-  { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
-
-  { Rules ... }
-  inherited Create(ARules);
-
-  { Assign internals }
-  FEnum := AEnumerable;
-end;
-
-function TEnexWrapCollection<T>.GetEnumerator: IEnumerator<T>;
-begin
-  { Generate an enumerable from the sub-enum }
-  Result := FEnum.GetEnumerator();
-end;
-
 { TEnexDistinctCollection<T> }
 
-constructor TEnexDistinctCollection<T>.Create(const AEnumerable: TEnexCollection<T>);
+constructor TEnexDistinctCollection<T>.Create(const ACollection: TEnexCollection<T>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
-  inherited Create(AEnumerable.ElementRules);
+  inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 end;
 
@@ -5427,14 +5536,14 @@ begin
   Result := (FCount = 0);
 end;
 
-function TEnexFillCollection<T>.EqualsTo(const AEnumerable: IEnumerable<T>): Boolean;
+function TEnexFillCollection<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
   V: T;
   I: NativeInt;
 begin
   I := 0;
 
-  for V in AEnumerable do
+  for V in ACollection do
   begin
     if I >= FCount then
       Exit(false);
@@ -5566,21 +5675,21 @@ end;
 
 { TEnexSkipCollection<T> }
 
-constructor TEnexSkipCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt);
+constructor TEnexSkipCollection<T>.Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt);
 begin
   { Check parameters }
   if ACount <= 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Installing the element type }
-  inherited Create(AEnumerable.ElementRules);
+  inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FCount := ACount;
@@ -5646,21 +5755,21 @@ end;
 
 { TEnexTakeCollection<T> }
 
-constructor TEnexTakeCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const ACount: NativeInt);
+constructor TEnexTakeCollection<T>.Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt);
 begin
   { Check parameters }
   if ACount <= 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Installing the element type }
-  inherited Create(AEnumerable.ElementRules);
+  inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FCount := ACount;
@@ -5717,20 +5826,20 @@ end;
 
 { TEnexTakeWhileCollection<T> }
 
-constructor TEnexTakeWhileCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>);
+constructor TEnexTakeWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Install the type }
-  inherited Create(AEnumerable.ElementRules);
+  inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
@@ -5788,20 +5897,20 @@ end;
 
 { TEnexSkipWhileCollection<T> }
 
-constructor TEnexSkipWhileCollection<T>.Create(const AEnumerable: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>);
+constructor TEnexSkipWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Install the type }
-  inherited Create(AEnumerable.ElementRules);
+  inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
@@ -5871,17 +5980,17 @@ end;
 
 { TEnexSelectKeysCollection<TKey, TValue> }
 
-constructor TEnexSelectKeysCollection<TKey, TValue>.Create(const AEnumerable: TEnexAssociativeCollection<TKey, TValue>);
+constructor TEnexSelectKeysCollection<TKey, TValue>.Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Install the type }
-  inherited Create(AEnumerable.KeyRules);
+  inherited Create(ACollection.KeyRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
 
   KeepObjectAlive(FEnum);
 end;
@@ -5946,17 +6055,17 @@ end;
 { TEnexSelectValuesCollection<TKey, TValue> }
 
 constructor TEnexSelectValuesCollection<TKey, TValue>.Create(
-  const AEnumerable: TEnexAssociativeCollection<TKey, TValue>);
+  const ACollection: TEnexAssociativeCollection<TKey, TValue>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Install the type }
-  inherited Create(AEnumerable.ValueRules);
+  inherited Create(ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
 
   KeepObjectAlive(FEnum);
 end;
@@ -6021,7 +6130,7 @@ end;
 { TEnexAssociativeWhereCollection<TKey, TValue> }
 
 constructor TEnexAssociativeWhereCollection<TKey, TValue>.Create(
-  const AEnumerable: TEnexAssociativeCollection<TKey, TValue>;
+  const ACollection: TEnexAssociativeCollection<TKey, TValue>;
   const APredicate: TFunc<TKey, TValue, Boolean>;
   const AInvertResult: Boolean);
 begin
@@ -6029,14 +6138,14 @@ begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Install types }
-  inherited Create(AEnumerable.KeyRules, AEnumerable.ValueRules);
+  inherited Create(ACollection.KeyRules, ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 
   FPredicate := APredicate;
@@ -6100,44 +6209,20 @@ begin
   end;
 end;
 
-{ TEnexAssociativeWrapCollection<TKey, TValue> }
-
-constructor TEnexAssociativeWrapCollection<TKey, TValue>.Create(
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>);
-begin
-  { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
-
-  { Install both types }
-  inherited Create(AKeyRules, AValueRules);
-
-  { Assign internals }
-  FEnum := AEnumerable;
-end;
-
-function TEnexAssociativeWrapCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
-begin
-  { Generate an enumerable from the sub-enum }
-  Result := FEnum.GetEnumerator();
-end;
-
 { TCollection.EnexAssociativeDistinctByKeysCollection<TKey, TValue> }
 
 constructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.Create(
-  const AEnumerable: TEnexAssociativeCollection<TKey, TValue>);
+  const ACollection: TEnexAssociativeCollection<TKey, TValue>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Install types }
-  inherited Create(AEnumerable.KeyRules, AEnumerable.ValueRules);
+  inherited Create(ACollection.KeyRules, ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 end;
 
@@ -6205,17 +6290,17 @@ end;
 { TEnexAssociativeDistinctByValuesCollection<TKey, TValue> }
 
 constructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Create(
-  const AEnumerable: TEnexAssociativeCollection<TKey, TValue>);
+  const ACollection: TEnexAssociativeCollection<TKey, TValue>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Install types }
-  inherited Create(AEnumerable.KeyRules, AEnumerable.ValueRules);
+  inherited Create(ACollection.KeyRules, ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 end;
 
@@ -6281,17 +6366,17 @@ end;
 
 { TEnexSelectClassCollection<T, TOut> }
 
-constructor TEnexSelectClassCollection<T, TOut>.Create(const AEnumerable: TEnexCollection<T>; const ARules: TRules<TOut>);
+constructor TEnexSelectClassCollection<T, TOut>.Create(const ACollection: TEnexCollection<T>; const ARules: TRules<TOut>);
 begin
   { Check arguments }
-  if not Assigned(AEnumerable) then
-    ExceptionHelper.Throw_ArgumentNilError('AEnumerable');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Installing the element type }
   inherited Create(ARules);
 
   { Assign internals }
-  FEnum := AEnumerable;
+  FEnum := ACollection;
   KeepObjectAlive(FEnum);
 end;
 
@@ -6357,27 +6442,60 @@ end;
 
 function TRules<T>.AreEqual(const ALeft, ARight: T): Boolean;
 begin
-//TODO: implement me
+  { Lazy init in some cases }
+  if not Assigned(FEqComparer) then
+    FEqComparer := TEqualityComparer<T>.Default;
+
+  Result := FEqComparer.Equals(ALeft, ARight);
 end;
 
 function TRules<T>.Compare(const ALeft, ARight: T): NativeInt;
 begin
-//TODO: implement me
+  { Lazy init in some cases }
+  if not Assigned(FComparer) then
+    FComparer := TComparer<T>.Default;
+
+  Result := FComparer.Compare(ALeft, ARight);
+end;
+
+class function TRules<T>.Create(const AComparer: IComparer<T>;
+  const AEqualityComparer: IEqualityComparer<T>): TRules<T>;
+begin
+  if not Assigned(AComparer) then
+    ExceptionHelper.Throw_ArgumentNilError('AComparer');
+
+  if not Assigned(AEqualityComparer) then
+    ExceptionHelper.Throw_ArgumentNilError('AEqualityComparer');
+
+  { Initialize }
+  Result.FComparer := AComparer;
+  Result.FEqComparer := AEqualityComparer;
 end;
 
 class function TRules<T>.Custom(const AComparer: TCustomComparer<T>): TRules<T>;
 begin
-//TODO implement me
+  if not Assigned(AComparer) then
+    ExceptionHelper.Throw_ArgumentNilError('AComparer');
+
+  { Init with proper stuff }
+  Result.FComparer := AComparer;
+  Result.FEqComparer := AComparer;
 end;
 
 class function TRules<T>.Default: TRules<T>;
 begin
-//TODO: implement me
+  { Init with proper stuff }
+  Result.FComparer := TComparer<T>.Default;
+  Result.FEqComparer := TEqualityComparer<T>.Default;
 end;
 
 function TRules<T>.GetHashCode(const AValue: T): NativeInt;
 begin
-//TODO: implement me
+  { Lazy init in some cases }
+  if not Assigned(FEqComparer) then
+    FEqComparer := TEqualityComparer<T>.Default;
+
+  Result := FEqComparer.GetHashCode(AValue);
 end;
 
 { TRefCountedObject }
@@ -6506,7 +6624,7 @@ end;
 
 class procedure ExceptionHelper.Throw_CannotSelfReferenceError;
 begin
-  raise ECannotSelfReferenceException.Create(SCannotSelfReference);//TODO: implement me
+  raise ECannotSelfReferenceException.Create(SCannotSelfReference);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionChangedError;
@@ -6547,6 +6665,11 @@ end;
 class procedure ExceptionHelper.Throw_KeyNotFoundError(const ArgName: String);
 begin
   raise EKeyNotFoundException.CreateFmt(SKeyNotFound, [ArgName]);
+end;
+
+class procedure ExceptionHelper.Throw_TypeNotAClassError(const TypeName: String);
+begin
+  raise ENotSupportedException.CreateFmt(STypeNotAClass, [TypeName]);
 end;
 
 end.

@@ -35,7 +35,7 @@ uses SysUtils,
      Collections.Dictionaries;
 
 type
-  ///  <summary>The base abstract class for all <c>multi-maps</c> in DeHL.</summary>
+  ///  <summary>The base abstract class for all <c>multi-maps</c> in this package.</summary>
   TAbstractMultiMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IMultiMap<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
@@ -185,56 +185,56 @@ type
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     function GetItemList(const AKey: TKey): IEnexIndexedCollection<TValue>;
 
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
     function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IList<TValue>>; virtual; abstract;
 
     ///  <summary>Called when the map needs to initialize a list assoiated with a key.</summary>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     function CreateList(const AValueRules: TRules<TValue>): IList<TValue>; virtual; abstract;
 
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the multi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the multi-map.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <param name="AKeyRules">A rule set decribing the keys in the multi-map.</param>
+    ///  <param name="AValueRules">A rule set decribing the values in the multi-map.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the multi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the multi-map.</param>
+    ///  <param name="AKeyRules">A rule set decribing the keys in the multi-map.</param>
+    ///  <param name="AValueRules">A rule set decribing the values in the multi-map.</param>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
           const ACollection: IEnumerable<TPair<TKey,TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the multi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the multi-map.</param>
+    ///  <param name="AKeyRules">A rule set decribing the keys in the multi-map.</param>
+    ///  <param name="AValueRules">A rule set decribing the values in the multi-map.</param>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
           const AArray: array of TPair<TKey,TValue>); overload;
 
@@ -243,23 +243,23 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the multi-map.</summary>
-    ///  <remarks>This method clears the multi-map and invokes type object's cleaning routines for key and value.</remarks>
+    ///  <remarks>This method clears the multi-map and invokes rule set's cleaning routines for key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
     procedure Add(const APair: TPair<TKey, TValue>); overload;
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
     procedure Add(const AKey: TKey; const AValue: TValue); overload;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of pair.</param>
-    ///  <remarks>This invokes type object's cleaning routines for value
+    ///  <remarks>This invokes rule set's cleaning routines for value
     ///  associated with the key. If the specified key was not found in the multi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
@@ -311,7 +311,7 @@ type
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the multi-map.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the multi-map.</exception>
     property Items[const AKey: TKey]: IEnexIndexedCollection<TValue> read GetItemList; default;
 
     ///  <summary>Returns the number of pairs in the multi-map.</summary>
@@ -340,14 +340,14 @@ type
     ///  <param name="AArray">An array where to copy the contents of the multi-map.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the multi-map.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
     ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">No such key in the multi-map.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the multi-map.</exception>
     function ValueForKey(const AKey: TKey): TValue; override;
 
     ///  <summary>Checks whether the multi-map contains a given key-value pair.</summary>
@@ -366,7 +366,7 @@ type
   end;
 
 type
-  ///  <summary>The base abstract class for all <c>distinct multi-maps</c> in DeHL.</summary>
+  ///  <summary>The base abstract class for all <c>distinct multi-maps</c> in this package.</summary>
   TAbstractDistinctMultiMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IDistinctMultiMap<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
@@ -509,56 +509,56 @@ type
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the collection.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
     function GetItemList(const AKey: TKey): IEnexCollection<TValue>;
 
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
     function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ISet<TValue>>; virtual; abstract;
 
     ///  <summary>Called when the map needs to initialize a set assoiated with a key.</summary>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     function CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>; virtual; abstract;
 
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the multi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the multi-map.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <param name="AKeyRules">A rule set decribing the keys in the multi-map.</param>
+    ///  <param name="AValueRules">A rule set decribing the values in the multi-map.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the multi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the multi-map.</param>
+    ///  <param name="AKeyRules">A rule set decribing the keys in the multi-map.</param>
+    ///  <param name="AValueRules">A rule set decribing the values in the multi-map.</param>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
           const ACollection: IEnumerable<TPair<TKey,TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A type object decribing the keys in the multi-map.</param>
-    ///  <param name="AValueRules">A type object decribing the values in the multi-map.</param>
+    ///  <param name="AKeyRules">A rule set decribing the keys in the multi-map.</param>
+    ///  <param name="AValueRules">A rule set decribing the values in the multi-map.</param>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
           const AArray: array of TPair<TKey,TValue>); overload;
 
@@ -567,23 +567,23 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the multi-map.</summary>
-    ///  <remarks>This method clears the multi-map and invokes type object's cleaning routines for key and value.</remarks>
+    ///  <remarks>This method clears the multi-map and invokes rule set's cleaning routines for key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
     procedure Add(const APair: TPair<TKey, TValue>); overload;
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
-    ///  <exception cref="DeHL.Exceptions|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
     procedure Add(const AKey: TKey; const AValue: TValue); overload;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of pair.</param>
-    ///  <remarks>This invokes type object's cleaning routines for value
+    ///  <remarks>This invokes rule set's cleaning routines for value
     ///  associated with the key. If the specified key was not found in the multi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
@@ -635,7 +635,7 @@ type
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">The key is not found in the multi-map.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the multi-map.</exception>
     property Items[const AKey: TKey]: IEnexCollection<TValue> read GetItemList; default;
 
     ///  <summary>Returns the number of pairs in the multi-map.</summary>
@@ -664,14 +664,14 @@ type
     ///  <param name="AArray">An array where to copy the contents of the multi-map.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the multi-map.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
     ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="DeHL.Exceptions|EKeyNotFoundException">No such key in the multi-map.</exception>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the multi-map.</exception>
     function ValueForKey(const AKey: TKey): TValue; override;
 
     ///  <summary>Checks whether the multi-map contains a given key-value pair.</summary>
@@ -699,12 +699,12 @@ type
 
   protected
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the map.</remarks>
     function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IList<TValue>>; override;
 
     ///  <summary>Called when the map needs to initialize a list assoiated with a key.</summary>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a simple array-based list. This list is associated with a key and store the map's
     ///  values for that key.</remarks>
     function CreateList(const AValueRules: TRules<TValue>): IList<TValue>; override;
@@ -712,15 +712,15 @@ type
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The map's initial capacity.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AInitialCapacity">The map's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt); overload;
   end;
 
@@ -763,72 +763,72 @@ type
 
   protected
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <remarks>This method creates an AVL-dictionary used as the underlying back-end for the map.</remarks>
     function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IList<TValue>>; override;
 
     ///  <summary>Called when the map needs to initialize a list assoiated with a key.</summary>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a simple array-based list. This list is associated with a key and store the map's
     ///  values for that key.</remarks>
     function CreateList(const AValueRules: TRules<TValue>): IList<TValue>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Returns the biggest key.</summary>
     ///  <returns>The biggest key stored in the map.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The map is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The map is empty.</exception>
     function MaxKey(): TKey; override;
 
     ///  <summary>Returns the smallest key.</summary>
     ///  <returns>The smallest key stored in the map.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The map is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The map is empty.</exception>
     function MinKey(): TKey; override;
   end;
 
@@ -871,27 +871,27 @@ type
 
   protected
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the map.</remarks>
     function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ISet<TValue>>; override;
 
     ///  <summary>Called when the map needs to initialize a set assoiated with a key.</summary>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a hash-based set. This set is associated with a key and store the map's
     ///  values for that key.</remarks>
     function CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The map's initial capacity.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AInitialCapacity">The map's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt); overload;
   end;
 
@@ -925,35 +925,86 @@ type
   end;
 
 type
-  //TODO: doc me
-  { Multi-Map based on a sorted dictionary and a list }
+  ///  <summary>The generic <c>distinct multi map</c> collection.</summary>
+  ///  <remarks>This type uses a <c>sorted dictionary</c> and a number of <c>sorted sets</c> to store its
+  ///  keys and values.</remarks>
   TSortedDistinctMultiMap<TKey, TValue> = class(TAbstractDistinctMultiMap<TKey, TValue>)
   private
     FAscSort: Boolean;
 
   protected
-    { Provide our implementations }
+    ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <remarks>This method creates an AVL-dictionary used as the underlying back-end for the map.</remarks>
     function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ISet<TValue>>; override;
+
+    ///  <summary>Called when the map needs to initialize a set assoiated with a key.</summary>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
+    ///  <remarks>This method creates an AVL-based set. This set is associated with a key and store the map's
+    ///  values for that key.</remarks>
     function CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>; override;
   public
-    { Constructors }
-    constructor Create(const Ascending: Boolean = true); overload;
-    constructor Create(const AEnumerable: IEnumerable<TPair<TKey,TValue>>; const Ascending: Boolean = true); overload;
-    constructor Create(const AArray: array of TPair<TKey,TValue>; const Ascending: Boolean = true); overload;
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AAscending">A value specifying whether the keys and values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const AAscending: Boolean = True); overload;
 
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const Ascending: Boolean = true); overload;
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-          const AEnumerable : IEnumerable<TPair<TKey,TValue>>; const Ascending: Boolean = true); overload;
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-          const AArray : array of TPair<TKey,TValue>; const Ascending: Boolean = true); overload;
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
+    ///  <param name="AAscending">A value specifying whether the keys and values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = True); overload;
 
-    { Enex - Associative collection }
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
+    ///  <param name="AAscending">A value specifying whether the keys and values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
+    ///  <param name="AAscending">A value specifying whether the keys and values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
+    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
+    ///  <param name="AAscending">A value specifying whether the keys and values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+      const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
+    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
+    ///  <param name="AAscending">A value specifying whether the keys and values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+      const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = True); overload;
+
+    ///  <summary>Returns the biggest key.</summary>
+    ///  <returns>The biggest key stored in the map.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The map is empty.</exception>
     function MaxKey(): TKey; override;
+
+    ///  <summary>Returns the smallest key.</summary>
+    ///  <returns>The smallest key stored in the map.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The map is empty.</exception>
     function MinKey(): TKey; override;
   end;
 
-  //TODO: doc me
-  { The object variant }
+  ///  <summary>The generic <c>distinct multi map</c> collection designed to store objects.</summary>
+  ///  <remarks>This type uses a <c>sorted dictionary</c> and a number of <c>sorted sets</c> to store its
+  ///  keys and values.</remarks>
   TObjectSortedDistinctMultiMap<TKey, TValue> = class(TSortedDistinctMultiMap<TKey, TValue>)
   private
     FOwnsKeys, FOwnsValues: Boolean;
@@ -967,8 +1018,16 @@ type
     ///  <param name="AKey">The value that was removed from the collection.</param>
     procedure HandleValueRemoved(const AValue: TValue); override;
   public
-    { Object owning }
+    ///  <summary>Specifies whether this map owns the keys.</summary>
+    ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
+    ///  <remarks>This property controls the way the map controls the life-time of the stored keys. The value of this property has effect only
+    ///  if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
+
+    ///  <summary>Specifies whether this map owns the values.</summary>
+    ///  <returns><c>True</c> if the map owns the values; <c>False</c> otherwise.</returns>
+    ///  <remarks>This property controls the way the map controls the life-time of the stored values. The value of this property has effect only
+    ///  if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
@@ -982,7 +1041,7 @@ type
 
   protected
     ///  <summary>Called when the map needs to initialize a list assoiated with a key.</summary>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a simple array-based sorted list. This list is associated with a key and store the map's
     ///  values for that key.</remarks>
     function CreateList(const AValueRules: TRules<TValue>): IList<TValue>; override;
@@ -990,15 +1049,15 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
@@ -1006,41 +1065,41 @@ type
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
@@ -1085,7 +1144,7 @@ type
 
   protected
     ///  <summary>Called when the map needs to initialize a set assoiated with a key.</summary>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates an AVL-based set. This set is associated with a key and store the map's
     ///  values for that key.</remarks>
     function CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>; override;
@@ -1093,15 +1152,15 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
@@ -1109,41 +1168,41 @@ type
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The type object describing the keys.</param>
-    ///  <param name="AValueRules">The type object describing the values.</param>
+    ///  <param name="AKeyRules">The rule set describing the keys.</param>
+    ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
@@ -1212,8 +1271,8 @@ procedure TAbstractMultiMap<TKey, TValue>.Clear;
 var
   List: IList<TValue>;
 begin
-  if (FDictionary <> nil) then
-    { Simply clear out the dictionary }
+  { Simply clear out the dictionary }
+  if Assigned(FDictionary) then
     FDictionary.Clear();
 
   { Increase the version }
@@ -2311,6 +2370,7 @@ end;
 function TMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IList<TValue>>;
 var
   LNewCapacity: NativeInt;
+  LDictionary: TDictionary<TKey, IList<TValue>>;
 begin
   { Create a simple dictionary }
   if FInitialCapacity <= 0 then
@@ -2318,25 +2378,35 @@ begin
   else
     LNewCapacity := FInitialCapacity;
 
-  Result := TDictionary<TKey, IList<TValue>>.Create(AKeyRules, TRules<IList<TValue>>.Default, LNewCapacity);
+  LDictionary := TDictionary<TKey, IList<TValue>>.Create(AKeyRules, TRules<IList<TValue>>.Default, LNewCapacity);
+  LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
+
+  Result := LDictionary;
 end;
 
 function TMultiMap<TKey, TValue>.CreateList(const AValueRules: TRules<TValue>): IList<TValue>;
+var
+  LList: TList<TValue>;
 begin
   { Create a simple list }
-  Result := TList<TValue>.Create(AValueRules);
+  LList := TList<TValue>.Create(AValueRules);
+  LList.RemoveNotification := NotifyValueRemoved;
+
+  Result := LList;
 end;
 
 { TObjectMultiMap<TKey, TValue> }
 
 procedure TObjectMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 { TSortedMultiMap<TKey, TValue> }
@@ -2393,15 +2463,25 @@ begin
 end;
 
 function TSortedMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IList<TValue>>;
+var
+  LDictionary: TSortedDictionary<TKey, IList<TValue>>;
 begin
   { Create a simple dictionary }
-  Result := TSortedDictionary<TKey, IList<TValue>>.Create(AKeyRules, TRules<IList<TValue>>.Default, FAscSort);
+  LDictionary := TSortedDictionary<TKey, IList<TValue>>.Create(AKeyRules, TRules<IList<TValue>>.Default, FAscSort);
+  LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
+
+  Result := LDictionary;
 end;
 
 function TSortedMultiMap<TKey, TValue>.CreateList(const AValueRules: TRules<TValue>): IList<TValue>;
+var
+  LList: TList<TValue>;
 begin
   { Create a simple list }
-  Result := TList<TValue>.Create(AValueRules);
+  LList := TList<TValue>.Create(AValueRules);
+  LList.RemoveNotification := NotifyValueRemoved;
+
+  Result := LList;
 end;
 
 function TSortedMultiMap<TKey, TValue>.MaxKey: TKey;
@@ -2418,12 +2498,14 @@ end;
 
 procedure TObjectSortedMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectSortedMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 { TDistinctMultiMap<TKey, TValue> }
@@ -2444,6 +2526,7 @@ end;
 function TDistinctMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ISet<TValue>>;
 var
   LNewCapacity: NativeInt;
+  LDictionary: TDictionary<TKey, ISet<TValue>>;
 begin
   { Create a simple dictionary }
   if FInitialCapacity <= 0 then
@@ -2451,90 +2534,110 @@ begin
   else
     LNewCapacity := FInitialCapacity;
 
-  Result := TDictionary<TKey, ISet<TValue>>.Create(AKeyRules, TRules<ISet<TValue>>.Default, LNewCapacity);
+  LDictionary := TDictionary<TKey, ISet<TValue>>.Create(AKeyRules, TRules<ISet<TValue>>.Default, LNewCapacity);
+  LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
+
+  Result := LDictionary;
 end;
 
 function TDistinctMultiMap<TKey, TValue>.CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>;
+var
+  LSet: THashSet<TValue>;
 begin
   { Create a simple list }
-  Result := THashSet<TValue>.Create(AValueRules);
+  LSet := THashSet<TValue>.Create(AValueRules);
+  LSet.RemoveNotification := NotifyValueRemoved;
+
+  Result := LSet;
 end;
 
 { TObjectDistinctMultiMap<TKey, TValue> }
 
 procedure TObjectDistinctMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectDistinctMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 { TSortedDistinctMultiMap<TKey, TValue> }
 
 constructor TSortedDistinctMultiMap<TKey, TValue>.Create(
-  const AArray: array of TPair<TKey, TValue>; const Ascending: Boolean);
+  const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
 begin
   { Do the dew and continue }
-  FAscSort := Ascending;
+  FAscSort := AAscending;
   inherited Create(AArray);
 end;
 
-constructor TSortedDistinctMultiMap<TKey, TValue>.Create(const Ascending: Boolean);
+constructor TSortedDistinctMultiMap<TKey, TValue>.Create(const AAscending: Boolean);
 begin
   { Do the dew and continue }
-  FAscSort := Ascending;
+  FAscSort := AAscending;
   inherited Create();
 end;
 
 constructor TSortedDistinctMultiMap<TKey, TValue>.Create(
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const Ascending: Boolean);
+  const ACollection: IEnumerable<TPair<TKey, TValue>>;
+  const AAscending: Boolean);
 begin
   { Do the dew and continue }
-  FAscSort := Ascending;
-  inherited Create(AEnumerable);
+  FAscSort := AAscending;
+  inherited Create(ACollection);
 end;
 
 constructor TSortedDistinctMultiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>; const Ascending: Boolean);
+  const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
 begin
   { Do the dew and continue }
-  FAscSort := Ascending;
+  FAscSort := AAscending;
   inherited Create(AKeyRules, AValueRules, AArray);
 end;
 
 constructor TSortedDistinctMultiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>; const Ascending: Boolean);
+  const AValueRules: TRules<TValue>; const AAscending: Boolean);
 begin
   { Do the dew and continue }
-  FAscSort := Ascending;
+  FAscSort := AAscending;
   inherited Create(AKeyRules, AValueRules);
 end;
 
 constructor TSortedDistinctMultiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>;
-  const AEnumerable: IEnumerable<TPair<TKey, TValue>>;
-  const Ascending: Boolean);
+  const ACollection: IEnumerable<TPair<TKey, TValue>>;
+  const AAscending: Boolean);
 begin
   { Do the dew and continue }
-  FAscSort := Ascending;
-  inherited Create(AKeyRules, AValueRules, AEnumerable);
+  FAscSort := AAscending;
+  inherited Create(AKeyRules, AValueRules, ACollection);
 end;
 
 function TSortedDistinctMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ISet<TValue>>;
+var
+  LDictionary: TSortedDictionary<TKey, ISet<TValue>>;
 begin
   { Create a simple dictionary }
-  Result := TSortedDictionary<TKey, ISet<TValue>>.Create(AKeyRules, TRules<ISet<TValue>>.Default, FAscSort);
+  LDictionary := TSortedDictionary<TKey, ISet<TValue>>.Create(AKeyRules, TRules<ISet<TValue>>.Default, FAscSort);
+  LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
+
+  Result := LDictionary;
 end;
 
 function TSortedDistinctMultiMap<TKey, TValue>.CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>;
+var
+  LSet: THashSet<TValue>;
 begin
   { Create a simple list }
-  Result := THashSet<TValue>.Create(AValueRules);
+  LSet := THashSet<TValue>.Create(AValueRules);
+  LSet.RemoveNotification := NotifyValueRemoved;
+
+  Result := LSet;
 end;
 
 function TSortedDistinctMultiMap<TKey, TValue>.MaxKey: TKey;
@@ -2551,12 +2654,14 @@ end;
 
 procedure TObjectSortedDistinctMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectSortedDistinctMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 { TDoubleSortedMultiMap<TKey, TValue> }
@@ -2616,21 +2721,28 @@ begin
 end;
 
 function TDoubleSortedMultiMap<TKey, TValue>.CreateList(const AValueRules: TRules<TValue>): IList<TValue>;
+var
+  LList: TSortedList<TValue>;
 begin
   { Create a simple list }
-  Result := TSortedList<TValue>.Create(AValueRules, FAscValues);
+  LList := TSortedList<TValue>.Create(AValueRules, FAscValues);
+  LList.RemoveNotification := NotifyValueRemoved;
+
+  Result := LList;
 end;
 
 { TObjectDoubleSortedMultiMap<TKey, TValue> }
 
 procedure TObjectDoubleSortedMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectDoubleSortedMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 { TDoubleSortedDistinctMultiMap<TKey, TValue> }
@@ -2690,21 +2802,28 @@ begin
 end;
 
 function TDoubleSortedDistinctMultiMap<TKey, TValue>.CreateSet(const AValueRules: TRules<TValue>): ISet<TValue>;
+var
+  LSet: TSortedSet<TValue>;
 begin
   { Create a simple list }
-  Result := TSortedSet<TValue>.Create(AValueRules, FAscValues);
+  LSet := TSortedSet<TValue>.Create(AValueRules, FAscValues);
+  LSet.RemoveNotification := NotifyValueRemoved;
+
+  Result := LSet;
 end;
 
 { TObjectDoubleSortedDistinctMultiMap<TKey, TValue> }
 
 procedure TObjectDoubleSortedDistinctMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
-  TObject(AKey).Free;
+  if FOwnsKeys then
+    TObject(AKey).Free;
 end;
 
 procedure TObjectDoubleSortedDistinctMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
-  TObject(AValue).Free;
+  if FOwnsValues then
+    TObject(AValue).Free;
 end;
 
 end.

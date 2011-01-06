@@ -74,47 +74,47 @@ type
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A type object decribing the elements in the stack.</param>
+    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -122,7 +122,7 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the stack.</summary>
-    ///  <remarks>This method clears the stack and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the stack and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
@@ -132,13 +132,13 @@ type
     ///  <summary>Retreives the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method removes the element from the top of the stack.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Pop(): T;
 
     ///  <summary>Reads the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method does not remove the element from the top of the stack. It merely reads it's value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Peek(): T;
 
     ///  <summary>Removes an element from the stack.</summary>
@@ -182,8 +182,8 @@ type
     ///  <param name="AArray">An array where to copy the contents of the stack.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the stack.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the stack is empty.</summary>
@@ -193,17 +193,17 @@ type
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the stack considered to have the biggest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Max(): T; override;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the stack considered to have the smallest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Min(): T; override;
 
     ///  <summary>Returns the first element.</summary>
     ///  <returns>The first element in the stack.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function First(): T; override;
 
     ///  <summary>Returns the first element or a default if the stack is empty.</summary>
@@ -213,7 +213,7 @@ type
 
     ///  <summary>Returns the last element.</summary>
     ///  <returns>The last element in the stack.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Last(): T; override;
 
     ///  <summary>Returns the last element or a default if the stack is empty.</summary>
@@ -224,8 +224,8 @@ type
     ///  <summary>Returns the single element stored in the stack.</summary>
     ///  <returns>The element in stack.</returns>
     ///  <remarks>This method checks if the stack contains just one element, in which case it is returned.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionNotOneException">There is more than one element in the stack.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the stack.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the stack, or a default value.</summary>
@@ -242,8 +242,8 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
 
     ///  <summary>Aggregates a value based on the stack's elements.</summary>
@@ -254,14 +254,14 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <returns>The element from the specified position.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
@@ -276,7 +276,7 @@ type
     ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole stack and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks that all elements in the stack satisfy a given predicate.</summary>
@@ -284,7 +284,7 @@ type
     ///  <returns><c>True</c> if all elements satisfy a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole stack and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this stack are equal to the elements in another collection.</summary>
@@ -292,9 +292,9 @@ type
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
     ///  <remarks>This methods checks that each element at position X in this stack is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the type object used by this stack. This means that comparing this collection
+    ///  Note that comparison of element is done using the rule set used by this stack. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
@@ -329,33 +329,33 @@ type
     function GetCount(): NativeInt; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default type object is requested.</remarks>
+    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -363,7 +363,7 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the stack.</summary>
-    ///  <remarks>This method clears the stack and invokes type object's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the stack and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
@@ -373,13 +373,13 @@ type
     ///  <summary>Retreives the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method removes the element from the top of the stack.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Pop(): T;
 
     ///  <summary>Reads the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method does not remove the element from the top of the stack. It merely reads it's value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Peek(): T;
 
     ///  <summary>Removes an element from the stack.</summary>
@@ -405,8 +405,8 @@ type
     ///  <param name="AArray">An array where to copy the contents of the stack.</param>
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the stack.</remarks>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the stack is empty.</summary>
@@ -416,17 +416,17 @@ type
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the stack considered to have the biggest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Max(): T; override;
 
     ///  <summary>Returns the smallest element.</summary>
     ///  <returns>An element from the stack considered to have the smallest value.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Min(): T; override;
 
     ///  <summary>Returns the first element.</summary>
     ///  <returns>The first element in the stack.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function First(): T; override;
 
     ///  <summary>Returns the first element or a default if the stack is empty.</summary>
@@ -436,7 +436,7 @@ type
 
     ///  <summary>Returns the last element.</summary>
     ///  <returns>The last element in the stack.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Last(): T; override;
 
     ///  <summary>Returns the last element or a default if the stack is empty.</summary>
@@ -447,8 +447,8 @@ type
     ///  <summary>Returns the single element stored in the stack.</summary>
     ///  <returns>The element in stack.</returns>
     ///  <remarks>This method checks if the stack contains just one element, in which case it is returned.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionNotOneException">There is more than one element in the stack.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the stack.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the stack, or a default value.</summary>
@@ -465,8 +465,8 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
 
     ///  <summary>Aggregates a value based on the stack's elements.</summary>
@@ -477,14 +477,14 @@ type
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
     ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <returns>The element from the specified position.</returns>
-    ///  <exception cref="DeHL.Exceptions|ECollectionEmptyException">The stack is empty.</exception>
-    ///  <exception cref="DeHL.Exceptions|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
@@ -499,7 +499,7 @@ type
     ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole stack and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks that all elements in the stack satisfy a given predicate.</summary>
@@ -507,7 +507,7 @@ type
     ///  <returns><c>True</c> if all elements satisfy a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole stack and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this stack are equal to the elements in another collection.</summary>
@@ -515,9 +515,9 @@ type
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
     ///  <remarks>This methods checks that each element at position X in this stack is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the type object used by this stack. This means that comparing this collection
+    ///  Note that comparison of element is done using the rule set used by this stack. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
-    ///  <exception cref="DeHL.Exceptions|ENilArgumentException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
@@ -623,7 +623,7 @@ var
   I: NativeInt;
 begin
   for I := 0 to FLength - 1 do
-    HandleElementRemoved(FArray[I]);
+    NotifyElementRemoved(FArray[I]);
 
   { Simply reset all to default }
   SetLength(FArray, CDefaultSize);
@@ -1016,7 +1016,8 @@ end;
 
 procedure TObjectStack<T>.HandleElementRemoved(const AElement: T);
 begin
-  TObject(AElement).Free;
+  if FOwnsObjects then
+    TObject(AElement).Free;
 end;
 
 { TLinkedStack<T> }
@@ -1096,6 +1097,7 @@ begin
   inherited Create(ARules);
 
   FList := TLinkedList<T>.Create(ElementRules);
+  FList.RemoveNotification := NotifyElementRemoved;
 end;
 
 destructor TLinkedStack<T>.Destroy;
@@ -1242,7 +1244,8 @@ end;
 
 procedure TObjectLinkedStack<T>.HandleElementRemoved(const AElement: T);
 begin
-  TObject(AElement).Free;
+  if FOwnsObjects then
+    TObject(AElement).Free;
 end;
 
 end.

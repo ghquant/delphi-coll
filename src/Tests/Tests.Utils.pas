@@ -114,8 +114,11 @@ begin
 end;
 
 function TInsensitiveStringComparer.GetHashCode(const Value: string): Integer;
+var
+  Upped: string;
 begin
-  Result := BobJenkinsHash(PChar(Value)^, SizeOf(Char) * Length(Value), 0);
+  Upped := AnsiUpperCase(Value);
+  Result := BobJenkinsHash(PChar(Upped)^, SizeOf(Char) * Length(Upped), 0);
 end;
 
 initialization
