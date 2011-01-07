@@ -30,6 +30,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_UsePackage>vclx;vcl;rtl;vclimg;vcldb;dbrtl;adortl;DbxCommonDriver;dbexpress;dbxcds;xmlrtl;vclie;inet;IndyProtocols;ExpertsCreators;ExpertsUI;inetdbbde;inetdbxpress;vclactnband;vclribbon;soaprtl;dsnap;dsnapcon;websnap;webdsnap;inetdb;bdertl;vcldbx;IndySystem;IndyCore;DataSnapIndy10ServerTransport;DataSnapProviderClient;DbxClientDriver;DataSnapClient;DataSnapServer;DBXInterBaseDriver;DBXMySQLDriver;DBXFirebirdDriver;DBXSybaseASEDriver;DBXSybaseASADriver;DBXOracleDriver;DBXMSSQLDriver;DBXInformixDriver;DBXDb2Driver;AzureCloud;vcltouch;svnui;svn;CloudService</DCC_UsePackage>
 			<DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_ExeOutput>.\$(Config)\$(Platform)</DCC_ExeOutput>
@@ -49,9 +50,9 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
 			<DCC_UnitSearchPath>..\Library;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_BplOutput>..\..\$(Config)\$(Platform)</DCC_BplOutput>
-			<DCC_ExeOutput>..\..\$(Config)\$(Platform)</DCC_ExeOutput>
-			<DCC_DcuOutput>..\..\$(Config)\$(Platform)</DCC_DcuOutput>
+			<DCC_BplOutput>..\..\bin\$(Config)\$(Platform)</DCC_BplOutput>
+			<DCC_ExeOutput>..\..\bin\$(Config)\$(Platform)</DCC_ExeOutput>
+			<DCC_DcuOutput>..\..\bin\$(Config)\$(Platform)</DCC_DcuOutput>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
 			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -107,12 +108,12 @@
 			<BorlandProject>
 				<Delphi.Personality>
 					<VersionInfo>
-						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
-						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
 						<VersionInfo Name="MajorVer">1</VersionInfo>
 						<VersionInfo Name="MinorVer">0</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Build">8</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -122,14 +123,14 @@
 						<VersionInfo Name="CodePage">1252</VersionInfo>
 					</VersionInfo>
 					<VersionInfoKeys>
-						<VersionInfoKeys Name="CompanyName"/>
-						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
-						<VersionInfoKeys Name="InternalName"/>
-						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="CompanyName">Alexandru Ciobanu</VersionInfoKeys>
+						<VersionInfoKeys Name="FileDescription">Collections Tests</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.0.0.8</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName">delphi-coll</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalCopyright">Alexandru Ciobanu</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
 						<VersionInfoKeys Name="OriginalFilename"/>
-						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductName">Collections Tests</VersionInfoKeys>
 						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>

@@ -1,0 +1,17 @@
+﻿========================
+=  Major Release: 1.0  =
+======================== 
+
+    * First public version!
+    * The following units are provided
+      + Collections.Base
+      + Collections.Lists
+      + Collections.Queues
+      + Collections.Stacks
+      + Collections.Sets
+      + Collections.Dictionaries
+      + Collections.Bags
+      + Collections.MultiMaps
+      + Collections.BidiMaps
+    * Documentation is up
+    * Everything is tested.
