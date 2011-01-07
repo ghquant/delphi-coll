@@ -95,28 +95,22 @@ type
     constructor Create(const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set decribing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A rule set decribing the values in the bidi-map.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
+    ///  <param name="AKeyRules">A rule set describing the keys in the bidi-map.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the bidi-map.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set decribing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A rule set decribing the values in the bidi-map.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the bidi-map.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the bidi-map.</param>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
           const ACollection: IEnumerable<TPair<TKey,TValue>>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set decribing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A rule set decribing the values in the bidi-map.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the bidi-map.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the bidi-map.</param>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
           const AArray: array of TPair<TKey,TValue>); overload;
 
@@ -282,8 +276,6 @@ type
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AInitialCapacity">The map's initial capacity.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt); overload;
   end;
 
@@ -359,8 +351,6 @@ type
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
@@ -370,8 +360,6 @@ type
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
@@ -380,8 +368,6 @@ type
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
@@ -475,8 +461,6 @@ type
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
@@ -487,8 +471,6 @@ type
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
@@ -499,8 +481,6 @@ type
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
@@ -578,10 +558,10 @@ end;
 
 procedure TAbstractBidiMap<TKey, TValue>.Clear;
 begin
-  if FByKeyMap <> nil then
+  if Assigned(FByKeyMap) then
     FByKeyMap.Clear;
 
-  if FByValueMap <> nil then
+  if Assigned(FByValueMap) then
     FByValueMap.Clear;
 end;
 
@@ -768,21 +748,21 @@ constructor TAbstractBidiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>;
   const ACollection: IEnumerable<TPair<TKey, TValue>>);
 var
-  V: TPair<TKey, TValue>;
+  LValue: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
   Create(AKeyRules, AValueRules);
 
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Pump in all items }
-  for V in ACollection do
+  for LValue in ACollection do
   begin
 {$IF CompilerVersion < 22}
-    Add(V);
+    Add(LValue);
 {$ELSE}
-    Add(V.Key, V.Value);
+    Add(LValue.Key, LValue.Value);
 {$IFEND}
   end;
 end;

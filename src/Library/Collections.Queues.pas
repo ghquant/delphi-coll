@@ -98,23 +98,23 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -340,18 +340,18 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -750,7 +750,7 @@ implementation
 
 function TQueue<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  I, H: NativeInt;
+  I, LH: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -762,21 +762,21 @@ begin
   { Select the first element as comparison base }
   Result := FArray[FHead];
 
-  H := (FHead + 1) mod Length(FArray);
+  LH := (FHead + 1) mod Length(FArray);
 
   for I := 1 to FLength - 1 do
   begin
     { Aggregate a value }
-    Result := AAggregator(Result, FArray[H]);
+    Result := AAggregator(Result, FArray[LH]);
 
     { Circulate Head }
-    H := (H + 1) mod Length(FArray);
+    LH := (LH + 1) mod Length(FArray);
   end;
 end;
 
 function TQueue<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  I, H: NativeInt;
+  I, LH: NativeInt;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -788,35 +788,35 @@ begin
   { Select the first element as comparison base }
   Result := FArray[FHead];
 
-  H := (FHead + 1) mod Length(FArray);
+  LH := (FHead + 1) mod Length(FArray);
 
   for I := 1 to FLength - 1 do
   begin
     { Aggregate a value }
-    Result := AAggregator(Result, FArray[H]);
+    Result := AAggregator(Result, FArray[LH]);
 
     { Circulate Head }
-    H := (H + 1) mod Length(FArray);
+    LH := (LH + 1) mod Length(FArray);
   end;
 end;
 
 function TQueue<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I, H: NativeInt;
+  I, LH: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   if FLength > 0 then
   begin
-    H := FHead;
+    LH := FHead;
     for I := 0 to FLength - 1 do
     begin
-      if not APredicate(FArray[H]) then
+      if not APredicate(FArray[LH]) then
         Exit(false);
 
       { Circulate Head }
-      H := (H + 1) mod Length(FArray);
+      LH := (LH + 1) mod Length(FArray);
     end;
   end;
 
@@ -825,21 +825,21 @@ end;
 
 function TQueue<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  I, H: NativeInt;
+  I, LH: NativeInt;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   if FLength > 0 then
   begin
-    H := FHead;
+    LH := FHead;
     for I := 0 to FLength - 1 do
     begin
-      if APredicate(FArray[H]) then
+      if APredicate(FArray[LH]) then
         Exit(true);
 
       { Circulate Head }
-      H := (H + 1) mod Length(FArray);
+      LH := (LH + 1) mod Length(FArray);
     end;
   end;
 
@@ -848,13 +848,13 @@ end;
 
 procedure TQueue<T>.Clear;
 var
-  Element: T;
+  LElement: T;
 begin
   { If must cleanup, use the dequeue method }
   while Count > 0 do
   begin
-    Element := Dequeue();
-    NotifyElementRemoved(Element);
+    LElement := Dequeue();
+    NotifyElementRemoved(LElement);
   end;
 
   { Clear all internals }
@@ -868,13 +868,13 @@ end;
 function TQueue<T>.Contains(const AValue: T): Boolean;
 var
   I: NativeInt;
-  Capacity: NativeInt;
+  LCapacity: NativeInt;
 begin
   { Do a look-up in all the queue }
   Result := False;
 
   I := FHead;
-  Capacity := Length(FArray);
+  LCapacity := Length(FArray);
 
   while I <> FTail do
   begin
@@ -885,15 +885,14 @@ begin
     end;
 
     { Next + wrap over }
-    I := (I + 1) mod Capacity;
+    I := (I + 1) mod LCapacity;
   end;
-
 end;
                  
 procedure TQueue<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   I, X: NativeInt;
-  Capacity: NativeInt;
+  LCapacity: NativeInt;
 begin
   { Check for indexes }
   if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
@@ -904,7 +903,7 @@ begin
 
   X := AStartIndex;
   I := FHead;
-  Capacity := Length(FArray);
+  LCapacity := Length(FArray);
 
   while FTail <> I do
   begin
@@ -912,7 +911,7 @@ begin
     AArray[X] := FArray[I];
 
     { Next + wrap over }
-    I := (I + 1) mod Capacity;
+    I := (I + 1) mod LCapacity;
     Inc(X);
   end;
 end;
@@ -920,21 +919,18 @@ end;
 constructor TQueue<T>.Create(const ARules: TRules<T>;
   const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
 begin
   { Call upper constructor }
   Create(ARules, CDefaultSize);
 
   { Initialize instance }
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Try to copy the given Enumerable }
-  for V in ACollection do
-  begin
-    { Perform a simple push }
-    Enqueue(V);
-  end;
+  for LValue in ACollection do
+    Enqueue(LValue);
 end;
 
 constructor TQueue<T>.Create;
@@ -972,24 +968,24 @@ end;
 
 function TQueue<T>.ElementAt(const AIndex: NativeInt): T;
 var
-  H: NativeInt;
+  LH: NativeInt;
 begin
   if (AIndex >= FLength) or (AIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
-  H := (FHead + AIndex) mod Length(FArray);
-  Result := FArray[H];
+  LH := (FHead + AIndex) mod Length(FArray);
+  Result := FArray[LH];
 end;
 
 function TQueue<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 var
-  H: NativeInt;
+  LH: NativeInt;
 begin
   if (AIndex >= FLength) or (AIndex < 0) then
     Exit(ADefault);
 
-  H := (FHead + AIndex) mod Length(FArray);
-  Result := FArray[H];
+  LH := (FHead + AIndex) mod Length(FArray);
+  Result := FArray[LH];
 end;
 
 function TQueue<T>.Empty: Boolean;
@@ -999,17 +995,17 @@ end;
 
 procedure TQueue<T>.Enqueue(const AValue: T);
 var
-  NewCapacity: NativeInt;
+  LNewCapacity: NativeInt;
 begin
   { Ensure Capacity }
   if FLength = Length(FArray) then
   begin
-    NewCapacity := Length(FArray) * 2;
+    LNewCapacity := Length(FArray) * 2;
 
-    if NewCapacity < CDefaultSize then
-       NewCapacity := Length(FArray) + CDefaultSize;
+    if LNewCapacity < CDefaultSize then
+       LNewCapacity := Length(FArray) + CDefaultSize;
 
-    SetCapacity(NewCapacity);
+    SetCapacity(LNewCapacity);
   end;
 
   { Place the element to the end of the list }
@@ -1022,21 +1018,21 @@ end;
 
 function TQueue<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  V: T;
-  I, H: NativeInt;
+  LValue: T;
+  I, LH: NativeInt;
 begin
   I := 0;
-  H := FHead;
+  LH := FHead;
 
-  for V in ACollection do
+  for LValue in ACollection do
   begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[H], V) then
+    if not ElementRules.AreEqual(FArray[LH], LValue) then
       Exit(false);
 
-    H := (H + 1) mod Length(FArray);
+    LH := (LH + 1) mod Length(FArray);
     Inc(I);
   end;
 
@@ -1104,91 +1100,91 @@ end;
 
 procedure TQueue<T>.Grow;
 var
-  NewCapacity: NativeInt;
+  LNewCapacity: NativeInt;
 begin
   { Ensure Capacity }
   if FLength = Length(FArray) then
   begin
-    NewCapacity := Length(FArray) * 2;
+    LNewCapacity := Length(FArray) * 2;
 
-    if NewCapacity < CDefaultSize then
-       NewCapacity := Length(FArray) + CDefaultSize;
+    if LNewCapacity < CDefaultSize then
+       LNewCapacity := Length(FArray) + CDefaultSize;
 
-    SetCapacity(NewCapacity);
+    SetCapacity(LNewCapacity);
   end;
 end;
 
 function TQueue<T>.Last: T;
 var
-  T: NativeInt;
+  LT: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
-  T := (FTail - 1) mod Length(FArray);
-  Result := FArray[T];
+  LT := (FTail - 1) mod Length(FArray);
+  Result := FArray[LT];
 end;
 
 function TQueue<T>.LastOrDefault(const ADefault: T): T;
 var
-  T: NativeInt;
+  LT: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
     Result := ADefault
   else
   begin
-    T := (FTail - 1) mod Length(FArray);
-    Result := FArray[T];
+    LT := (FTail - 1) mod Length(FArray);
+    Result := FArray[LT];
   end;
 end;
 
 function TQueue<T>.Max: T;
 var
-  I, H: NativeInt;
+  I, LH: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Default one }
-  H := FHead;
-  Result := FArray[H];
+  LH := FHead;
+  Result := FArray[LH];
 
-  H := (H + 1) mod Length(FArray);
+  LH := (LH + 1) mod Length(FArray);
 
   for I := 1 to FLength - 1 do
   begin
-    if ElementRules.Compare(FArray[H], Result) > 0 then
+    if ElementRules.Compare(FArray[LH], Result) > 0 then
       Result := FArray[I];
 
     { Circulate Head }
-    H := (H + 1) mod Length(FArray);
+    LH := (LH + 1) mod Length(FArray);
   end;
 end;
 
 function TQueue<T>.Min: T;
 var
-  I, H: NativeInt;
+  I, LH: NativeInt;
 begin
   { Check length }
   if FLength = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Default one }
-  H := FHead;
-  Result := FArray[H];
+  LH := FHead;
+  Result := FArray[LH];
 
-  H := (H + 1) mod Length(FArray);
+  LH := (LH + 1) mod Length(FArray);
 
   for I := 1 to FLength - 1 do
   begin
-    if ElementRules.Compare(FArray[H], Result) < 0 then
+    if ElementRules.Compare(FArray[LH], Result) < 0 then
       Result := FArray[I];
 
     { Circulate Head }
-    H := (H + 1) mod Length(FArray);
+    LH := (LH + 1) mod Length(FArray);
   end;
 end;
 
@@ -1202,26 +1198,24 @@ end;
 
 procedure TQueue<T>.SetCapacity(const ANewCapacity: NativeInt);
 var
- NewArray: TArray<T>;
+  LNewArray: TArray<T>;
 begin
   { Create new array }
-  SetLength(NewArray, ANewCapacity);
+  SetLength(LNewArray, ANewCapacity);
 
   if (FLength > 0) then
   begin
     if FHead < FTail then
-       Move(FArray[FHead], NewArray[0], FLength * SizeOf(T))
+       Move(FArray[FHead], LNewArray[0], FLength * SizeOf(T))
     else
     begin
-       Move(FArray[FHead], NewArray[0], (FLength - FHead) * SizeOf(T));
-       Move(FArray[0], NewArray[Length(FArray) - FHead], FTail * SizeOf(T));
+       Move(FArray[FHead], LNewArray[0], (FLength - FHead) * SizeOf(T));
+       Move(FArray[0], LNewArray[Length(FArray) - FHead], FTail * SizeOf(T));
     end;
   end;
 
   { Switch arrays }
-  FArray := nil;
-  FArray := NewArray;
-  
+  FArray := LNewArray;
   FTail := FLength;
   FHead := 0;
   Inc(FVer);
@@ -1231,9 +1225,7 @@ procedure TQueue<T>.Shrink;
 begin
   { Ensure Capacity }
   if FLength < Capacity then
-  begin
     SetCapacity(FLength);
-  end;
 end;
 
 function TQueue<T>.Single: T;
@@ -1359,7 +1351,7 @@ end;
 procedure TLinkedQueue<T>.Clear;
 begin
   { Clear the internal list }
-  if FList <> nil then
+  if Assigned(FList) then
     FList.Clear();
 end;
 
@@ -1377,18 +1369,18 @@ end;
 
 constructor TLinkedQueue<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
 begin
   { Call upper constructor }
   Create(ARules);
 
   { Initialize instance }
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Try to copy the given Enumerable }
-  for V in ACollection do
-    Enqueue(V);
+  for LValue in ACollection do
+    Enqueue(LValue);
 end;
 
 constructor TLinkedQueue<T>.Create;
@@ -1503,7 +1495,7 @@ end;
 
 function TLinkedQueue<T>.Peek: T;
 begin
-  if FList.FirstNode = nil then
+  if not Assigned(FList.FirstNode) then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   Result := FList.FirstNode.Value;
@@ -1667,17 +1659,17 @@ constructor TPriorityQueue<TPriority, TValue>.Create(
   const ACollection: IEnumerable<TPair<TPriority, TValue>>;
   const AAscending: Boolean);
 var
-  V: TPair<TPriority, TValue>;
+  LValue: TPair<TPriority, TValue>;
 begin
   { Call upper constructor }
   Create(APriorityRules, AValueRules, CDefaultSize, AAscending);
 
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Pump in all items }
-  for V in ACollection do
-    Enqueue(V.Value, V.Key);
+  for LValue in ACollection do
+    Enqueue(LValue.Value, LValue.Key);
 end;
 
 constructor TPriorityQueue<TPriority, TValue>.Create(

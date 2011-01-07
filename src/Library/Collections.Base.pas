@@ -2278,7 +2278,7 @@ resourcestring
   SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
   SElementNotInCollection = 'The element given in the "%s" parameter is not a part of this collection!';
   SElementAlreadyInAnotherCollection = 'The element given in the "%s" parameter is already a part of another collection!';
-  STypeNotAClass = 'The type "%s" on which the opration was invoked is not a class!';
+  STypeNotAClass = 'The type "%s" on which the operation was invoked is not a class!';
 {$ENDREGION}
 
 {$REGION 'Enex Internal Enumerables'}
@@ -2291,12 +2291,12 @@ type
     { The "Where" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexWhereCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexWhereCollection<T>;
+      FEnumerator: IEnumerator<T>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexWhereCollection<T>);
+      constructor Create(const ACollection: TEnexWhereCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2306,7 +2306,7 @@ type
     end;
 
   var
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
     FPredicate: TFunc<T, Boolean>;
     FInvertResult: Boolean;
   public
@@ -2328,13 +2328,13 @@ type
     { The "Select" enumerator }
     TEnumerator = class(TEnumerator<TOut>)
     private
-      FEnum: TEnexSelectCollection<T, TOut>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexSelectCollection<T, TOut>;
+      FEnumerator: IEnumerator<T>;
       FCurrent: TOut;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexSelectCollection<T, TOut>);
+      constructor Create(const ACollection: TEnexSelectCollection<T, TOut>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2344,7 +2344,7 @@ type
     end;
 
   var
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
     FSelector: TFunc<T, TOut>;
 
   protected
@@ -2376,13 +2376,13 @@ type
     { The "Select Class" enumerator }
     TEnumerator = class(TEnumerator<TOut>)
     private
-      FEnum: TEnexSelectClassCollection<T, TOut>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexSelectClassCollection<T, TOut>;
+      FEnumerator: IEnumerator<T>;
       FCurrent: TOut;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexSelectClassCollection<T, TOut>);
+      constructor Create(const ACollection: TEnexSelectClassCollection<T, TOut>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2392,7 +2392,7 @@ type
     end;
 
   var
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
 
   public
     { Constructors }
@@ -2412,12 +2412,12 @@ type
     { The "Concatenation" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexConcatCollection<T>;
-      FIter1, FIter2: IEnumerator<T>;
+      FCollection: TEnexConcatCollection<T>;
+      FEnumerator1, FEnumerator2: IEnumerator<T>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexConcatCollection<T>);
+      constructor Create(const ACollection: TEnexConcatCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2427,8 +2427,8 @@ type
     end;
 
   var
-    FEnum1: TEnexCollection<T>;
-    FEnum2: IEnexCollection<T>;
+    FCollection1: TEnexCollection<T>;
+    FCollection2: IEnexCollection<T>;
   protected
     { ICollection support/hidden }
     function GetCount(): NativeInt; override;
@@ -2456,13 +2456,13 @@ type
     { The "Union" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexUnionCollection<T>;
-      FIter1, FIter2: IEnumerator<T>;
+      FCollection: TEnexUnionCollection<T>;
+      FEnumerator1, FEnumerator2: IEnumerator<T>;
       FSet: ISet<T>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexUnionCollection<T>);
+      constructor Create(const ACollection: TEnexUnionCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2472,8 +2472,8 @@ type
     end;
 
   var
-    FEnum1: TEnexCollection<T>;
-    FEnum2: IEnexCollection<T>;
+    FCollection1: TEnexCollection<T>;
+    FCollection2: IEnexCollection<T>;
   public
     { Constructors }
     constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
@@ -2492,13 +2492,13 @@ type
     { The "Exclusion" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexExclusionCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexExclusionCollection<T>;
+      FEnumerator: IEnumerator<T>;
       FSet: ISet<T>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexExclusionCollection<T>);
+      constructor Create(const ACollection: TEnexExclusionCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2508,8 +2508,8 @@ type
     end;
 
   var
-    FEnum1: TEnexCollection<T>;
-    FEnum2: IEnexCollection<T>;
+    FCollection1: TEnexCollection<T>;
+    FCollection2: IEnexCollection<T>;
   public
     { Constructors }
     constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
@@ -2528,13 +2528,13 @@ type
     { The "Intersection" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexIntersectionCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexIntersectionCollection<T>;
+      FEnumerator: IEnumerator<T>;
       FSet: ISet<T>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexIntersectionCollection<T>);
+      constructor Create(const ACollection: TEnexIntersectionCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2544,8 +2544,8 @@ type
     end;
 
   var
-    FEnum1: TEnexCollection<T>;
-    FEnum2: IEnexCollection<T>;
+    FCollection1: TEnexCollection<T>;
+    FCollection2: IEnexCollection<T>;
   public
     { Constructors }
     constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
@@ -2564,13 +2564,13 @@ type
     { The "Distinct" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexDistinctCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexDistinctCollection<T>;
+      FEnumerator: IEnumerator<T>;
       FSet: ISet<T>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexDistinctCollection<T>);
+      constructor Create(const ACollection: TEnexDistinctCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2580,7 +2580,7 @@ type
     end;
 
   var
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
 
   public
     { Constructors }
@@ -2600,12 +2600,12 @@ type
     { The "Range" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexRangeCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexRangeCollection<T>;
+      FEnumerator: IEnumerator<T>;
       FIdx: NativeInt;
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexRangeCollection<T>);
+      constructor Create(const ACollection: TEnexRangeCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2616,7 +2616,7 @@ type
 
   var
     FStart, FEnd: NativeInt;
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
 
   public
     { Constructors }
@@ -2636,12 +2636,12 @@ type
     { The "Skip" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexSkipCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexSkipCollection<T>;
+      FEnumerator: IEnumerator<T>;
       FIdx: NativeInt;
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexSkipCollection<T>);
+      constructor Create(const ACollection: TEnexSkipCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2652,7 +2652,7 @@ type
 
   var
     FCount: NativeInt;
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
 
   public
     { Constructors }
@@ -2672,13 +2672,13 @@ type
     { The "Take" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexTakeCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexTakeCollection<T>;
+      FEnumerator: IEnumerator<T>;
       FIdx: NativeInt;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexTakeCollection<T>);
+      constructor Create(const ACollection: TEnexTakeCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2689,7 +2689,7 @@ type
 
   var
     FCount: NativeInt;
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
 
   public
     { Constructors }
@@ -2709,11 +2709,11 @@ type
     { The "Fill" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexFillCollection<T>;
+      FCollection: TEnexFillCollection<T>;
       FCount: NativeInt;
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexFillCollection<T>);
+      constructor Create(const ACollection: TEnexFillCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2763,12 +2763,12 @@ type
     { The "Take While" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexTakeWhileCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexTakeWhileCollection<T>;
+      FEnumerator: IEnumerator<T>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexTakeWhileCollection<T>);
+      constructor Create(const ACollection: TEnexTakeWhileCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2778,7 +2778,7 @@ type
     end;
 
   var
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
     FPredicate: TFunc<T, Boolean>;
 
   public
@@ -2799,12 +2799,12 @@ type
     { The "Skip While" enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FEnum: TEnexSkipWhileCollection<T>;
-      FIter: IEnumerator<T>;
+      FCollection: TEnexSkipWhileCollection<T>;
+      FEnumerator: IEnumerator<T>;
       FStop: Boolean;
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexSkipWhileCollection<T>);
+      constructor Create(const ACollection: TEnexSkipWhileCollection<T>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2814,7 +2814,7 @@ type
     end;
 
   var
-    FEnum: TEnexCollection<T>;
+    FCollection: TEnexCollection<T>;
     FPredicate: TFunc<T, Boolean>;
 
   public
@@ -2835,13 +2835,13 @@ type
     { The "Select Keys" enumerator }
     TEnumerator = class(TEnumerator<TKey>)
     private
-      FEnum: TEnexSelectKeysCollection<TKey, TValue>;
-      FIter: IEnumerator<TPair<TKey, TValue>>;
+      FCollection: TEnexSelectKeysCollection<TKey, TValue>;
+      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
       FCurrent: TKey;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexSelectKeysCollection<TKey, TValue>);
+      constructor Create(const ACollection: TEnexSelectKeysCollection<TKey, TValue>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2851,7 +2851,7 @@ type
     end;
 
   var
-    FEnum: TEnexAssociativeCollection<TKey, TValue>;
+    FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   protected
     { Enex: Defaults }
@@ -2874,13 +2874,13 @@ type
     { The "Select Keys" enumerator }
     TEnumerator = class(TEnumerator<TValue>)
     private
-      FEnum: TEnexSelectValuesCollection<TKey, TValue>;
-      FIter: IEnumerator<TPair<TKey, TValue>>;
+      FCollection: TEnexSelectValuesCollection<TKey, TValue>;
+      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
       FCurrent: TValue;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexSelectValuesCollection<TKey, TValue>);
+      constructor Create(const ACollection: TEnexSelectValuesCollection<TKey, TValue>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2890,7 +2890,7 @@ type
     end;
 
   var
-    FEnum: TEnexAssociativeCollection<TKey, TValue>;
+    FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   protected
     { Enex: Defaults }
@@ -2914,12 +2914,12 @@ type
     { The "Where" associative enumerator }
     TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
-      FEnum: TEnexAssociativeWhereCollection<TKey, TValue>;
-      FIter: IEnumerator<TPair<TKey, TValue>>;
+      FCollection: TEnexAssociativeWhereCollection<TKey, TValue>;
+      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexAssociativeWhereCollection<TKey, TValue>);
+      constructor Create(const ACollection: TEnexAssociativeWhereCollection<TKey, TValue>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2929,7 +2929,7 @@ type
     end;
 
   var
-    FEnum: TEnexAssociativeCollection<TKey, TValue>;
+    FCollection: TEnexAssociativeCollection<TKey, TValue>;
     FPredicate: TFunc<TKey, TValue, Boolean>;
     FInvertResult: Boolean;
   public
@@ -2951,13 +2951,13 @@ type
     { The "Distinct By Keys" associative enumerator }
     TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
-      FEnum: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>;
-      FIter: IEnumerator<TPair<TKey, TValue>>;
+      FCollection: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>;
+      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
       FSet: ISet<TKey>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>);
+      constructor Create(const ACollection: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -2967,7 +2967,7 @@ type
     end;
 
   var
-    FEnum: TEnexAssociativeCollection<TKey, TValue>;
+    FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   public
     { Constructors }
@@ -2987,13 +2987,13 @@ type
     { The "Distinct By Keys" associative enumerator }
     TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
-      FEnum: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>;
-      FIter: IEnumerator<TPair<TKey, TValue>>;
+      FCollection: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>;
+      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
       FSet: ISet<TValue>;
 
     public
       { Constructor }
-      constructor Create(const AEnum: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>);
+      constructor Create(const ACollection: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>);
 
       { Destructor }
       destructor Destroy(); override;
@@ -3003,7 +3003,7 @@ type
     end;
 
   var
-    FEnum: TEnexAssociativeCollection<TKey, TValue>;
+    FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   public
     { Constructors }
@@ -3034,7 +3034,7 @@ begin
   LTypeInfo := TypeInfo(T);
 
   { TADA! }
-  if (LTypeInfo = nil) or (LTypeInfo^.Kind <> tkClass) then
+  if (not Assigned(LTypeInfo)) or (LTypeInfo^.Kind <> tkClass) then
     ExceptionHelper.Throw_TypeNotAClassError(GetTypeName(LTypeInfo));
 
   Result := TEnexSelectClassCollection<TObject, TOut>.Create(FInstance, TRules<TOut>.Default);
@@ -3066,84 +3066,84 @@ end;
 
 procedure TCollection<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
   L, I: NativeInt;
 begin
   if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
   L := Length(AArray);
   I := AStartIndex;
 
   { Iterate until ANY element supports the predicate }
-  while Enum.MoveNext() do
+  while LEnumerator.MoveNext() do
   begin
     if I >= L then
       ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray/AStartIndex');
 
-    AArray[I] := Enum.Current;
+    AArray[I] := LEnumerator.Current;
     Inc(I);
   end;
 end;
 
 function TCollection<T>.Empty: Boolean;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Check if empty }
-  Result := (not Enum.MoveNext());
+  Result := (not LEnumerator.MoveNext());
 end;
 
 function TCollection<T>.GetCount: NativeInt;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Iterate till the end }
   Result := 0;
-  while Enum.MoveNext() do Inc(Result);
+  while LEnumerator.MoveNext() do Inc(Result);
 end;
 
 function TCollection<T>.Single: T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if Enum.MoveNext() then
-    Result := Enum.Current
+  if LEnumerator.MoveNext() then
+    Result := LEnumerator.Current
   else
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Fail if more than one elements are there }
-  if Enum.MoveNext() then
+  if LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
 function TCollection<T>.SingleOrDefault(const ADefault: T): T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if Enum.MoveNext() then
-    Result := Enum.Current
+  if LEnumerator.MoveNext() then
+    Result := LEnumerator.Current
   else
     Exit(ADefault);
 
   { Fail if more than one elements are there }
-  if Enum.MoveNext() then
+  if LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
@@ -3171,68 +3171,68 @@ end;
 
 function TEnexCollection<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   if not Assigned(AAggregator) then
     ExceptionHelper.Throw_ArgumentNilError('AAggregator');
 
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
-  Result := Enum.Current;
+  Result := LEnumerator.Current;
 
   { Iterate over the last N - 1 elements }
-  while Enum.MoveNext() do
+  while LEnumerator.MoveNext() do
   begin
     { Aggregate a value }
-    Result := AAggregator(Result, Enum.Current);
+    Result := AAggregator(Result, LEnumerator.Current);
   end;
 end;
 
 function TEnexCollection<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   if not Assigned(AAggregator) then
     ExceptionHelper.Throw_ArgumentNilError('AAggregator');
 
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     Exit(ADefault);
 
   { Select the first element as comparison base }
-  Result := Enum.Current;
+  Result := LEnumerator.Current;
 
   { Iterate over the last N - 1 elements }
-  while Enum.MoveNext() do
+  while LEnumerator.MoveNext() do
   begin
     { Aggregate a value }
-    Result := AAggregator(Result, Enum.Current);
+    Result := AAggregator(Result, LEnumerator.Current);
   end;
 end;
 
 function TEnexCollection<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Iterate while ALL elements support the predicate }
-  while Enum.MoveNext() do
+  while LEnumerator.MoveNext() do
   begin
-    if not APredicate(Enum.Current) then
+    if not APredicate(LEnumerator.Current) then
       Exit(false);
   end;
 
@@ -3241,18 +3241,18 @@ end;
 
 function TEnexCollection<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Iterate until ANY element supports the predicate }
-  while Enum.MoveNext() do
+  while LEnumerator.MoveNext() do
   begin
-    if APredicate(Enum.Current) then
+    if APredicate(LEnumerator.Current) then
       Exit(true);
   end;
 
@@ -3261,19 +3261,19 @@ end;
 
 function TEnexCollection<T>.CompareTo(AObject: TObject): Integer;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
   LIterSelf, LIterTo: IEnumerator<T>;
   LMovSelf, LMovTo: Boolean;
 begin
   { Check if we can continue }
-  if (AObject = nil) or (not AObject.InheritsFrom(TEnexCollection<T>)) then
+  if (not Assigned(AObject)) or (not AObject.InheritsFrom(TEnexCollection<T>)) then
     Result := 1
   else begin
     { Assume equality }
     Result := 0;
 
     { Get the type }
-    LType := ElementRules;
+    LRules := ElementRules;
 
     { Get enumerators }
     LIterSelf := GetEnumerator();
@@ -3302,7 +3302,7 @@ begin
         Break;
 
       { Verify both values are identical }
-      Result := LType.Compare(LIterSelf.Current, LIterTo.Current);
+      Result := LRules.Compare(LIterSelf.Current, LIterTo.Current);
       if Result <> 0 then
         Break;
     end;
@@ -3337,20 +3337,20 @@ end;
 
 function TEnexCollection<T>.ElementAt(const AIndex: NativeInt): T;
 var
-  Enum: IEnumerator<T>;
-  Count: NativeInt;
+  LEnumerator: IEnumerator<T>;
+  LCount: NativeInt;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
-  Count := 0;
+  LEnumerator := GetEnumerator();
+  LCount := 0;
 
-  while Enum.MoveNext() do
+  while LEnumerator.MoveNext() do
   begin
     { If we reached thge element, exit }
-    if Count = AIndex then
-      Exit(Enum.Current);
+    if LCount = AIndex then
+      Exit(LEnumerator.Current);
 
-    Inc(Count);
+    Inc(LCount);
   end;
 
   { Fail! }
@@ -3359,20 +3359,20 @@ end;
 
 function TEnexCollection<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 var
-  Enum: IEnumerator<T>;
-  Count: NativeInt;
+  LEnumerator: IEnumerator<T>;
+  LCount: NativeInt;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
-  Count := 0;
+  LEnumerator := GetEnumerator();
+  LCount := 0;
 
-  while Enum.MoveNext() do
+  while LEnumerator.MoveNext() do
   begin
     { If we reached thge element, exit }
-    if Count = AIndex then
-      Exit(Enum.Current);
+    if LCount = AIndex then
+      Exit(LEnumerator.Current);
 
-    Inc(Count);
+    Inc(LCount);
   end;
 
   { Return default value }
@@ -3387,37 +3387,37 @@ end;
 
 function TEnexCollection<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  LType: TRules<T>;
-  LIter1, LIter2: IEnumerator<T>;
-  Moved1, Moved2: Boolean;
+  LRules: TRules<T>;
+  LEnumerator1, LEnumerator2: IEnumerator<T>;
+  LMoved1, LMoved2: Boolean;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Get enumerators }
-  LIter1 := GetEnumerator();
-  LIter2 := ACollection.GetEnumerator();
+  LEnumerator1 := GetEnumerator();
+  LEnumerator2 := ACollection.GetEnumerator();
 
   while true do
   begin
     { Iterate and verify that both enumerators moved }
-    Moved1 := LIter1.MoveNext();
-    Moved2 := LIter2.MoveNext();
+    LMoved1 := LEnumerator1.MoveNext();
+    LMoved2 := LEnumerator2.MoveNext();
 
     { If one moved but the other did not - error }
-    if Moved1 <> Moved2 then
+    if LMoved1 <> LMoved2 then
       Exit(false);
 
     { If neither moved, we've reached the end }
-    if not Moved1 then
+    if not LMoved1 then
       break;
 
     { Verify both values are identical }
-    if not LType.AreEqual(LIter1.Current, LIter2.Current) then
+    if not LRules.AreEqual(LEnumerator1.Current, LEnumerator2.Current) then
       Exit(false);
   end;
 
@@ -3453,51 +3453,51 @@ end;
 
 function TEnexCollection<T>.First: T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if Enum.MoveNext() then
-    Result := Enum.Current
+  if LEnumerator.MoveNext() then
+    Result := LEnumerator.Current
   else
     ExceptionHelper.Throw_CollectionEmptyError();
 end;
 
 function TEnexCollection<T>.FirstOrDefault(const ADefault: T): T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise return default! }
-  if Enum.MoveNext() then
-    Result := Enum.Current
+  if LEnumerator.MoveNext() then
+    Result := LEnumerator.Current
   else
     Result := ADefault;
 end;
 
 function TEnexCollection<T>.FirstWhere(const APredicate: TFunc<T, Boolean>): T;
 var
-  LIter: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
   LWasOne: Boolean;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Retrieve the enumerator object }
-  LIter := GetEnumerator();
+  LEnumerator := GetEnumerator();
   LWasOne := false;
 
   { Do the funky stuff already }
-  while LIter.MoveNext do
+  while LEnumerator.MoveNext do
   begin
     LWasOne := true;
 
-    if APredicate(LIter.Current) then
-      Exit(LIter.Current);
+    if APredicate(LEnumerator.Current) then
+      Exit(LEnumerator.Current);
   end;
 
   { Failure to find what we need }
@@ -3509,32 +3509,32 @@ end;
 
 function TEnexCollection<T>.FirstWhereBetween(const ALower, AHigher: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := (LType.Compare(Arg1, ALower) >= 0) and
-                (LType.Compare(Arg1, AHigher) <= 0)
+      Result := (LRules.Compare(Arg1, ALower) >= 0) and
+                (LRules.Compare(Arg1, AHigher) <= 0)
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereBetweenOrDefault(const ALower, AHigher, ADefault: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := (LType.Compare(Arg1, ALower) >= 0) and
-                (LType.Compare(Arg1, AHigher) <= 0)
+      Result := (LRules.Compare(Arg1, ALower) >= 0) and
+                (LRules.Compare(Arg1, AHigher) <= 0)
     end,
     ADefault
   );
@@ -3542,30 +3542,30 @@ end;
 
 function TEnexCollection<T>.FirstWhereGreater(const ABound: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) > 0;
+      Result := LRules.Compare(Arg1, ABound) > 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereGreaterOrDefault(const ABound, ADefault: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) > 0;
+      Result := LRules.Compare(Arg1, ABound) > 0;
     end,
     ADefault
   );
@@ -3573,30 +3573,30 @@ end;
 
 function TEnexCollection<T>.FirstWhereGreaterOrEqual(const ABound: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) >= 0;
+      Result := LRules.Compare(Arg1, ABound) >= 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereGreaterOrEqualOrDefault(const ABound, ADefault: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) >= 0;
+      Result := LRules.Compare(Arg1, ABound) >= 0;
     end,
     ADefault
   );
@@ -3604,30 +3604,30 @@ end;
 
 function TEnexCollection<T>.FirstWhereLower(const ABound: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) < 0;
+      Result := LRules.Compare(Arg1, ABound) < 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereLowerOrDefault(const ABound, ADefault: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) < 0;
+      Result := LRules.Compare(Arg1, ABound) < 0;
     end,
     ADefault
   );
@@ -3635,30 +3635,30 @@ end;
 
 function TEnexCollection<T>.FirstWhereLowerOrEqual(const ABound: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) <= 0;
+      Result := LRules.Compare(Arg1, ABound) <= 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereLowerOrEqualOrDefault(const ABound, ADefault: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LType.Compare(Arg1, ABound) <= 0;
+      Result := LRules.Compare(Arg1, ABound) <= 0;
     end,
     ADefault
   );
@@ -3666,13 +3666,13 @@ end;
 
 function TEnexCollection<T>.FirstWhereNot(const APredicate: TFunc<T, Boolean>): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhere(
     function(Arg1: T): Boolean
@@ -3685,13 +3685,13 @@ end;
 function TEnexCollection<T>.FirstWhereNotOrDefault(
   const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
 var
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Get the type }
-  LType := ElementRules;
+  LRules := ElementRules;
 
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
@@ -3704,18 +3704,18 @@ end;
 
 function TEnexCollection<T>.FirstWhereOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
 var
-  LIter: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Retrieve the enumerator object }
-  LIter := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Do the funky stuff already }
-  while LIter.MoveNext do
-    if APredicate(LIter.Current) then
-      Exit(LIter.Current);
+  while LEnumerator.MoveNext do
+    if APredicate(LEnumerator.Current) then
+      Exit(LEnumerator.Current);
 
   { Failure to find what we need }
   Result := ADefault;
@@ -3726,19 +3726,19 @@ const
   CMagic = $0F;
 
 var
-  LIter: IEnumerator<T>;
-  LType: TRules<T>;
+  LEnumerator: IEnumerator<T>;
+  LRules: TRules<T>;
 begin
   { Obtain the enumerator }
-  LIter := GetEnumerator();
-  LType := ElementRules;
+  LEnumerator := GetEnumerator();
+  LRules := ElementRules;
 
   { Start at 0 }
   Result := 0;
 
   { ... }
-  while LIter.MoveNext() do
-    Result := CMagic * Result + LType.GetHashCode(LIter.Current);
+  while LEnumerator.MoveNext() do
+    Result := CMagic * Result + LRules.GetHashCode(LEnumerator.Current);
 end;
 
 procedure TEnexCollection<T>.HandleElementRemoved(const AElement: T);
@@ -3758,100 +3758,100 @@ end;
 
 function TEnexCollection<T>.Last: T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    Result := Enum.Current;
+    Result := LEnumerator.Current;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
 
 function TEnexCollection<T>.LastOrDefault(const ADefault: T): T;
 var
-  Enum: IEnumerator<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise return default! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     Exit(ADefault);
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    Result := Enum.Current;
+    Result := LEnumerator.Current;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
 
 function TEnexCollection<T>.Max: T;
 var
-  Tps: TRules<T>;
-  Enum: IEnumerator<T>;
+  LRules: TRules<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
-  Tps := ElementRules;
+  LEnumerator := GetEnumerator();
+  LRules := ElementRules;
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
-  Result := Enum.Current;
+  Result := LEnumerator.Current;
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if Tps.Compare(Enum.Current, Result) > 0 then
-      Result := Enum.Current;
+    if LRules.Compare(LEnumerator.Current, Result) > 0 then
+      Result := LEnumerator.Current;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
 
 function TEnexCollection<T>.Min: T;
 var
-  LType: TRules<T>;
-  Enum: IEnumerator<T>;
+  LRules: TRules<T>;
+  LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
-  LType := ElementRules;
+  LEnumerator := GetEnumerator();
+  LRules := ElementRules;
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
-  Result := Enum.Current;
+  Result := LEnumerator.Current;
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if LType.Compare(Enum.Current, Result) < 0 then
-      Result := Enum.Current;
+    if LRules.Compare(LEnumerator.Current, Result) < 0 then
+      Result := LEnumerator.Current;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
@@ -3881,14 +3881,14 @@ end;
 
 function TEnexCollection<T>.Reversed: IEnexCollection<T>;
 var
-  List: TList<T>;
+  LList: TList<T>;
 begin
-  { Create an itermediary list }
-  List := TList<T>.Create(Self);
-  List.Reverse();
+  { Create an itermediary LList }
+  LList := TList<T>.Create(Self);
+  LList.Reverse();
 
-  { Pass the list further }
-  Result := List;
+  { Pass the LList further }
+  Result := LList;
 end;
 
 function TEnexCollection<T>.Skip(const ACount: NativeInt): IEnexCollection<T>;
@@ -3914,18 +3914,18 @@ end;
 function TEnexCollection<T>.SkipWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
 var
   LLower, LHigher: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit((LType.Compare(Arg1, LLower) >= 0) and (LType.Compare(Arg1, LHigher) <= 0));
+      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -3933,17 +3933,17 @@ end;
 function TEnexCollection<T>.SkipWhileGreater(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) > 0);
+      Exit(LRules.Compare(Arg1, LBound) > 0);
     end
   );
 end;
@@ -3951,17 +3951,17 @@ end;
 function TEnexCollection<T>.SkipWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) >= 0);
+      Exit(LRules.Compare(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -3969,17 +3969,17 @@ end;
 function TEnexCollection<T>.SkipWhileLower(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) < 0);
+      Exit(LRules.Compare(Arg1, LBound) < 0);
     end
   );
 end;
@@ -3987,43 +3987,43 @@ end;
 function TEnexCollection<T>.SkipWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) <= 0);
+      Exit(LRules.Compare(Arg1, LBound) <= 0);
     end
   );
 end;
 
 function TEnexCollection<T>.Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>;
 var
-  List: TList<T>;
+  LList: TList<T>;
 begin
-  { Create an itermediary list }
-  List := TList<T>.Create(Self);
-  List.Sort(ASortProc);
+  { Create an itermediary LList }
+  LList := TList<T>.Create(Self);
+  LList.Sort(ASortProc);
 
-  { Pass the list further }
-  Result := List;
+  { Pass the LList further }
+  Result := LList;
 end;
 
 function TEnexCollection<T>.Ordered(const AAscending: Boolean = true): IEnexCollection<T>;
 var
-  List: TList<T>;
+  LList: TList<T>;
 begin
-  { Create an itermediary list }
-  List := TList<T>.Create(Self);
-  List.Sort(AAscending);
+  { Create an itermediary LList }
+  LList := TList<T>.Create(Self);
+  LList.Sort(AAscending);
 
-  { Pass the list further }
-  Result := List;
+  { Pass the LList further }
+  Result := LList;
 end;
 
 function TEnexCollection<T>.Take(const ACount: NativeInt): IEnexCollection<T>;
@@ -4049,18 +4049,18 @@ end;
 function TEnexCollection<T>.TakeWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
 var
   LLower, LHigher: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit((LType.Compare(Arg1, LLower) >= 0) and (LType.Compare(Arg1, LHigher) <= 0));
+      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -4068,17 +4068,17 @@ end;
 function TEnexCollection<T>.TakeWhileGreater(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) > 0);
+      Exit(LRules.Compare(Arg1, LBound) > 0);
     end
   );
 end;
@@ -4086,17 +4086,17 @@ end;
 function TEnexCollection<T>.TakeWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) >= 0);
+      Exit(LRules.Compare(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -4104,17 +4104,17 @@ end;
 function TEnexCollection<T>.TakeWhileLower(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) < 0);
+      Exit(LRules.Compare(Arg1, LBound) < 0);
     end
   );
 end;
@@ -4122,17 +4122,17 @@ end;
 function TEnexCollection<T>.TakeWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) <= 0);
+      Exit(LRules.Compare(Arg1, LBound) <= 0);
     end
   );
 end;
@@ -4172,18 +4172,18 @@ end;
 function TEnexCollection<T>.WhereBetween(const ALower, AHigher: T): IEnexCollection<T>;
 var
   LLower, LHigher: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit((LType.Compare(Arg1, LLower) >= 0) and (LType.Compare(Arg1, LHigher) <= 0));
+      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -4191,17 +4191,17 @@ end;
 function TEnexCollection<T>.WhereGreater(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) > 0);
+      Exit(LRules.Compare(Arg1, LBound) > 0);
     end
   );
 end;
@@ -4209,17 +4209,17 @@ end;
 function TEnexCollection<T>.WhereGreaterOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) >= 0);
+      Exit(LRules.Compare(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -4227,17 +4227,17 @@ end;
 function TEnexCollection<T>.WhereLower(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) < 0);
+      Exit(LRules.Compare(Arg1, LBound) < 0);
     end
   );
 end;
@@ -4245,17 +4245,17 @@ end;
 function TEnexCollection<T>.WhereLowerOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LType: TRules<T>;
+  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LType := ElementRules;
+  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) <= 0);
+      Exit(LRules.Compare(Arg1, LBound) <= 0);
     end
   );
 end;
@@ -4306,15 +4306,15 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean;
 var
-  Enum: IEnumerator<TPair<TKey, TValue>>;
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object }
-  Enum := ACollection.GetEnumerator();
+  LEnumerator := ACollection.GetEnumerator();
 
-  { Iterate till the last element in the enum }
-  while Enum.MoveNext do
+  { Iterate till the last element in the LEnumerator }
+  while LEnumerator.MoveNext do
   begin
-    if not KeyHasValue(Enum.Current.Key, Enum.Current.Value) then
+    if not KeyHasValue(LEnumerator.Current.Key, LEnumerator.Current.Value) then
       Exit(false);
   end;
 
@@ -4324,16 +4324,16 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
 var
-  Enum: IEnumerator<TPair<TKey, TValue>>;
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
-  { Iterate till the last element in the enum }
-  while Enum.MoveNext do
+  { Iterate till the last element in the LEnumerator }
+  while LEnumerator.MoveNext do
   begin
-    if KeyRules.AreEqual(Enum.Current.Key, AKey) and
-       ValueRules.AreEqual(Enum.Current.Value, AValue) then
+    if KeyRules.AreEqual(LEnumerator.Current.Key, AKey) and
+       ValueRules.AreEqual(LEnumerator.Current.Value, AValue) then
       Exit(true);
   end;
 
@@ -4343,104 +4343,104 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MaxKey: TKey;
 var
-  Enum: IEnumerator<TPair<TKey, TValue>>;
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
-  Result := Enum.Current.Key;
+  Result := LEnumerator.Current.Key;
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if KeyRules.Compare(Enum.Current.Key, Result) > 0 then
-      Result := Enum.Current.Key;
+    if KeyRules.Compare(LEnumerator.Current.Key, Result) > 0 then
+      Result := LEnumerator.Current.Key;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MaxValue: TValue;
 var
-  Enum: IEnumerator<TPair<TKey, TValue>>;
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
-  Result := Enum.Current.Value;
+  Result := LEnumerator.Current.Value;
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if ValueRules.Compare(Enum.Current.Value, Result) > 0 then
-      Result := Enum.Current.Value;
+    if ValueRules.Compare(LEnumerator.Current.Value, Result) > 0 then
+      Result := LEnumerator.Current.Value;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MinKey: TKey;
 var
-  Enum: IEnumerator<TPair<TKey, TValue>>;
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
-  Result := Enum.Current.Key;
+  Result := LEnumerator.Current.Key;
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if KeyRules.Compare(Enum.Current.Key, Result) < 0 then
-      Result := Enum.Current.Key;
+    if KeyRules.Compare(LEnumerator.Current.Key, Result) < 0 then
+      Result := LEnumerator.Current.Key;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MinValue: TValue;
 var
-  Enum: IEnumerator<TPair<TKey, TValue>>;
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
   { Get the first object in the enumeration, otherwise fail! }
-  if not Enum.MoveNext() then
+  if not LEnumerator.MoveNext() then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
-  Result := Enum.Current.Value;
+  Result := LEnumerator.Current.Value;
 
-  { Iterate till the last element in the enum }
+  { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if ValueRules.Compare(Enum.Current.Value, Result) < 0 then
-      Result := Enum.Current.Value;
+    if ValueRules.Compare(LEnumerator.Current.Value, Result) < 0 then
+      Result := LEnumerator.Current.Value;
 
     { Exit if we hit the last element }
-    if not Enum.MoveNext() then
+    if not LEnumerator.MoveNext() then
       Exit;
   end;
 end;
@@ -4482,16 +4482,16 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
 var
-  Enum: IEnumerator<TPair<TKey, TValue>>;
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Retrieve the enumerator object and type }
-  Enum := GetEnumerator();
+  LEnumerator := GetEnumerator();
 
-  { Iterate till the last element in the enum }
-  while Enum.MoveNext do
+  { Iterate till the last element in the LEnumerator }
+  while LEnumerator.MoveNext do
   begin
-    if KeyRules.AreEqual(Enum.Current.Key, AKey) then
-      Exit(Enum.Current.Value);
+    if KeyRules.AreEqual(LEnumerator.Current.Key, AKey) then
+      Exit(LEnumerator.Current.Value);
   end;
 
   { If nothing found, simply raise an exception }
@@ -4513,19 +4513,19 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyBetween(const ALower,
   AHigher: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LLower, LHigher: TKey;
-  LType: TRules<TKey>;
+  LRules: TRules<TKey>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
 
-  LType := KeyRules;
+  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit((LType.Compare(Arg1, LLower) >= 0) and (LType.Compare(Arg1, LHigher) <= 0));
+      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -4534,18 +4534,18 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyGreater(
   const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TKey;
-  LType: TRules<TKey>;
+  LRules: TRules<TKey>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := KeyRules;
+  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) > 0);
+      Exit(LRules.Compare(Arg1, LBound) > 0);
     end
   );
 end;
@@ -4554,18 +4554,18 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyGreaterOrEqual(
   const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TKey;
-  LType: TRules<TKey>;
+  LRules: TRules<TKey>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := KeyRules;
+  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) >= 0);
+      Exit(LRules.Compare(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -4574,18 +4574,18 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyLower(
   const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TKey;
-  LType: TRules<TKey>;
+  LRules: TRules<TKey>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := KeyRules;
+  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) < 0);
+      Exit(LRules.Compare(Arg1, LBound) < 0);
     end
   );
 end;
@@ -4594,18 +4594,18 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyLowerOrEqual(
   const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TKey;
-  LType: TRules<TKey>;
+  LRules: TRules<TKey>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := KeyRules;
+  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg1, LBound) <= 0);
+      Exit(LRules.Compare(Arg1, LBound) <= 0);
     end
   );
 end;
@@ -4625,19 +4625,19 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueBetween(
   const ALower, AHigher: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LLower, LHigher: TValue;
-  LType: TRules<TValue>;
+  LRules: TRules<TValue>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
 
-  LType := ValueRules;
+  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit((LType.Compare(Arg2, LLower) >= 0) and (LType.Compare(Arg2, LHigher) <= 0));
+      Exit((LRules.Compare(Arg2, LLower) >= 0) and (LRules.Compare(Arg2, LHigher) <= 0));
     end
   );
 end;
@@ -4646,18 +4646,18 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueGreater(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LType: TRules<TValue>;
+  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := ValueRules;
+  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg2, LBound) > 0);
+      Exit(LRules.Compare(Arg2, LBound) > 0);
     end
   );
 end;
@@ -4666,18 +4666,18 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueGreaterOrEqual(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LType: TRules<TValue>;
+  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := ValueRules;
+  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg2, LBound) >= 0);
+      Exit(LRules.Compare(Arg2, LBound) >= 0);
     end
   );
 end;
@@ -4686,18 +4686,18 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueLower(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LType: TRules<TValue>;
+  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := ValueRules;
+  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg2, LBound) < 0);
+      Exit(LRules.Compare(Arg2, LBound) < 0);
     end
   );
 end;
@@ -4706,22 +4706,21 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueLowerOrEqual(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LType: TRules<TValue>;
+  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
 
-  LType := ValueRules;
+  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LType.Compare(Arg2, LBound) <= 0);
+      Exit(LRules.Compare(Arg2, LBound) <= 0);
     end
   );
 end;
-
 
 { TEnexWhereCollection<T> }
 
@@ -4738,8 +4737,8 @@ begin
   inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FPredicate := APredicate;
   FInvertResult := AInvertResult;
@@ -4748,7 +4747,7 @@ end;
 destructor TEnexWhereCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -4761,25 +4760,25 @@ end;
 
 { TEnexWhereCollection<T>.TEnumerator }
 
-constructor TEnexWhereCollection<T>.TEnumerator.Create(const AEnum: TEnexWhereCollection<T>);
+constructor TEnexWhereCollection<T>.TEnumerator.Create(const ACollection: TEnexWhereCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter:= AEnum.FEnum.GetEnumerator();
+  FEnumerator:= ACollection.FCollection.GetEnumerator();
 end;
 
 destructor TEnexWhereCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexWhereCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Get current element of the "sub-enumerable" object }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexWhereCollection<T>.TEnumerator.MoveNext: Boolean;
@@ -4787,7 +4786,7 @@ begin
   { Iterate until given condition is met on an element }
   while True do
   begin
-    Result := FIter.MoveNext;
+    Result := FEnumerator.MoveNext;
 
     { Terminate on sub-enum termination }
     if not Result then
@@ -4795,7 +4794,7 @@ begin
 
     { Check whether the current element meets the condition and exit }
     { ... otherwise continue to the next iteration }
-    if FEnum.FPredicate(FIter.Current) xor FEnum.FInvertResult then
+    if FCollection.FPredicate(FEnumerator.Current) xor FCollection.FInvertResult then
       Exit;
   end;
 end;
@@ -4816,8 +4815,8 @@ begin
   inherited Create(ARules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FSelector := ASelector;
 end;
@@ -4825,29 +4824,29 @@ end;
 destructor TEnexSelectCollection<T, TOut>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
 
 function TEnexSelectCollection<T, TOut>.ElementAt(const AIndex: NativeInt): TOut;
 begin
-  Result := FSelector(FEnum.ElementAt(AIndex));
+  Result := FSelector(FCollection.ElementAt(AIndex));
 end;
 
 function TEnexSelectCollection<T, TOut>.Empty: Boolean;
 begin
-  Result := FEnum.Empty;
+  Result := FCollection.Empty;
 end;
 
 function TEnexSelectCollection<T, TOut>.First: TOut;
 begin
-  Result := FSelector(FEnum.First);
+  Result := FSelector(FCollection.First);
 end;
 
 function TEnexSelectCollection<T, TOut>.GetCount: NativeInt;
 begin
-  Result := FEnum.GetCount();
+  Result := FCollection.GetCount();
 end;
 
 function TEnexSelectCollection<T, TOut>.GetEnumerator: IEnumerator<TOut>;
@@ -4858,29 +4857,29 @@ end;
 
 function TEnexSelectCollection<T, TOut>.Last: TOut;
 begin
-  Result := FSelector(FEnum.Last);
+  Result := FSelector(FCollection.Last);
 end;
 
 function TEnexSelectCollection<T, TOut>.Single: TOut;
 begin
-  Result := FSelector(FEnum.Single);
+  Result := FSelector(FCollection.Single);
 end;
 
 { TEnexSelectCollection<T, TOut>.TEnumerator }
 
-constructor TEnexSelectCollection<T, TOut>.TEnumerator.Create(const AEnum: TEnexSelectCollection<T, TOut>);
+constructor TEnexSelectCollection<T, TOut>.TEnumerator.Create(const ACollection: TEnexSelectCollection<T, TOut>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
   FCurrent := default(TOut);
 end;
 
 destructor TEnexSelectCollection<T, TOut>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
@@ -4893,26 +4892,26 @@ end;
 function TEnexSelectCollection<T, TOut>.TEnumerator.MoveNext: Boolean;
 begin
   { Next iteration }
-  Result := FIter.MoveNext;
+  Result := FEnumerator.MoveNext;
 
   { Terminate on sub-enum termination }
   if not Result then
     Exit;
 
   { Return the next "selected" element }
-  FCurrent := FEnum.FSelector(FIter.Current);
+  FCurrent := FCollection.FSelector(FEnumerator.Current);
 end;
 
 { TEnexConcatCollection<T> }
 
 function TEnexConcatCollection<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 begin
-  Result := FEnum1.All(APredicate) and FEnum2.All(APredicate);
+  Result := FCollection1.All(APredicate) and FCollection2.All(APredicate);
 end;
 
 function TEnexConcatCollection<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 begin
-  Result := FEnum1.Any(APredicate) or FEnum2.Any(APredicate);
+  Result := FCollection1.Any(APredicate) or FCollection2.Any(APredicate);
 end;
 
 constructor TEnexConcatCollection<T>.Create(
@@ -4929,16 +4928,16 @@ begin
   inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := ACollection1;
-  KeepObjectAlive(FEnum1);
+  FCollection1 := ACollection1;
+  KeepObjectAlive(FCollection1);
 
-  FEnum2 := ACollection2;
+  FCollection2 := ACollection2;
 end;
 
 destructor TEnexConcatCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, false);
+  ReleaseObject(FCollection1, false);
 
   inherited;
 end;
@@ -4950,7 +4949,7 @@ end;
 
 function TEnexConcatCollection<T>.GetCount: NativeInt;
 begin
-  Result := FEnum1.GetCount() + FEnum2.GetCount();
+  Result := FCollection1.GetCount() + FCollection2.GetCount();
 end;
 
 function TEnexConcatCollection<T>.GetEnumerator: IEnumerator<T>;
@@ -4961,48 +4960,48 @@ end;
 
 { TEnexConcatCollection<T>.TEnumerator }
 
-constructor TEnexConcatCollection<T>.TEnumerator .Create(const AEnum: TEnexConcatCollection<T>);
+constructor TEnexConcatCollection<T>.TEnumerator.Create(const ACollection: TEnexConcatCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter1 := AEnum.FEnum1.GetEnumerator();
-  FIter2 := AEnum.FEnum2.GetEnumerator();
+  FEnumerator1 := ACollection.FCollection1.GetEnumerator();
+  FEnumerator2 := ACollection.FCollection2.GetEnumerator();
 end;
 
-destructor TEnexConcatCollection<T>.TEnumerator .Destroy;
+destructor TEnexConcatCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
-function TEnexConcatCollection<T>.TEnumerator .GetCurrent: T;
+function TEnexConcatCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Pass the first and then the last }
-  if FIter1 <> nil then
-    Result := FIter1.Current
+  if Assigned(FEnumerator1) then
+    Result := FEnumerator1.Current
   else
-    Result := FIter2.Current;
+    Result := FEnumerator2.Current;
 end;
 
-function TEnexConcatCollection<T>.TEnumerator .MoveNext: Boolean;
+function TEnexConcatCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
-  if FIter1 <> nil then
+  if Assigned(FEnumerator1) then
   begin
     { Iterate over 1 }
-    Result := FIter1.MoveNext();
+    Result := FEnumerator1.MoveNext();
 
     { Succesefully iterated collection 1 }
     if Result then
       Exit;
 
     { We've reached the bottom of 1 }
-    FIter1 := nil;
+    FEnumerator1 := nil;
   end;
 
   { Iterate over 2 now }
-  Result := FIter2.MoveNext();
+  Result := FEnumerator2.MoveNext();
 end;
 
 { TEnexUnionCollection<T> }
@@ -5021,16 +5020,16 @@ begin
   inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := ACollection1;
-  KeepObjectAlive(FEnum1);
+  FCollection1 := ACollection1;
+  KeepObjectAlive(FCollection1);
 
-  FEnum2 := ACollection2;
+  FCollection2 := ACollection2;
 end;
 
 destructor TEnexUnionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, false);
+  ReleaseObject(FCollection1, false);
 
   inherited;
 end;
@@ -5043,67 +5042,67 @@ end;
 
 { TEnexUnionCollection<T>.TEnumerator }
 
-constructor TEnexUnionCollection<T>.TEnumerator .Create(const AEnum: TEnexUnionCollection<T>);
+constructor TEnexUnionCollection<T>.TEnumerator.Create(const ACollection: TEnexUnionCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter1 := AEnum.FEnum1.GetEnumerator();
-  FIter2 := AEnum.FEnum2.GetEnumerator();
+  FEnumerator1 := ACollection.FCollection1.GetEnumerator();
+  FEnumerator2 := ACollection.FCollection2.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(AEnum.FEnum1.ElementRules);
+  FSet := THashSet<T>.Create(ACollection.FCollection1.ElementRules);
 end;
 
-destructor TEnexUnionCollection<T>.TEnumerator .Destroy;
+destructor TEnexUnionCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
-function TEnexUnionCollection<T>.TEnumerator .GetCurrent: T;
+function TEnexUnionCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Pass the first and then the last }
-  if FIter1 <> nil then
-    Result := FIter1.Current
+  if Assigned(FEnumerator1) then
+    Result := FEnumerator1.Current
   else
-    Result := FIter2.Current;
+    Result := FEnumerator2.Current;
 end;
 
-function TEnexUnionCollection<T>.TEnumerator .MoveNext: Boolean;
+function TEnexUnionCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
-  if FIter1 <> nil then
+  if Assigned(FEnumerator1) then
   begin
     { Iterate over 1 }
-    Result := FIter1.MoveNext();
+    Result := FEnumerator1.MoveNext();
 
     { Succesefully iterated collection 1 }
     if Result then
     begin
       { Add the element to the set }
-      FSet.Add(FIter1.Current);
+      FSet.Add(FEnumerator1.Current);
       Exit;
     end;
 
     { We've reached the bottom of 1 }
-    FIter1 := nil;
+    FEnumerator1 := nil;
   end;
 
   { Continue until we find what we need or we get to the bottom }
   while True do
   begin
     { Iterate over 2 now }
-    Result := FIter2.MoveNext();
+    Result := FEnumerator2.MoveNext();
 
     { Exit on bad result }
     if not Result then
       Exit;
 
     { Exit if the element is good }
-    if not FSet.Contains(FIter2.Current) then
+    if not FSet.Contains(FEnumerator2.Current) then
     begin
-      FSet.Add(FIter2.Current);
+      FSet.Add(FEnumerator2.Current);
       Exit;
     end;
   end;
@@ -5125,16 +5124,16 @@ begin
   inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := ACollection1;
-  KeepObjectAlive(FEnum1);
+  FCollection1 := ACollection1;
+  KeepObjectAlive(FCollection1);
 
-  FEnum2 := ACollection2;
+  FCollection2 := ACollection2;
 end;
 
 destructor TEnexExclusionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, false);
+  ReleaseObject(FCollection1, false);
 
   inherited;
 end;
@@ -5147,44 +5146,44 @@ end;
 
 { TEnexExclusionCollection<T>.TEnumerator }
 
-constructor TEnexExclusionCollection<T>.TEnumerator .Create(const AEnum: TEnexExclusionCollection<T>);
+constructor TEnexExclusionCollection<T>.TEnumerator.Create(const ACollection: TEnexExclusionCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum1.GetEnumerator();
+  FEnumerator := ACollection.FCollection1.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(AEnum.FEnum1.ElementRules, AEnum.FEnum2);
+  FSet := THashSet<T>.Create(ACollection.FCollection1.ElementRules, ACollection.FCollection2);
 end;
 
-destructor TEnexExclusionCollection<T>.TEnumerator .Destroy;
+destructor TEnexExclusionCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
-function TEnexExclusionCollection<T>.TEnumerator .GetCurrent: T;
+function TEnexExclusionCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Pass 1's enumerator }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
-function TEnexExclusionCollection<T>.TEnumerator .MoveNext: Boolean;
+function TEnexExclusionCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
   { Continue until we find what we need or we get to the bottom }
   while True do
   begin
     { Iterate over 1 }
-    Result := FIter.MoveNext();
+    Result := FEnumerator.MoveNext();
 
     { Exit on bad result }
     if not Result then
       Exit;
 
     { Exit if the element is good }
-    if not FSet.Contains(FIter.Current) then
+    if not FSet.Contains(FEnumerator.Current) then
       Exit;
   end;
 end;
@@ -5206,16 +5205,16 @@ begin
   inherited Create(ACollection1.ElementRules);
 
   { Assign internals }
-  FEnum1 := ACollection1;
-  KeepObjectAlive(FEnum1);
+  FCollection1 := ACollection1;
+  KeepObjectAlive(FCollection1);
 
-  FEnum2 := ACollection2;
+  FCollection2 := ACollection2;
 end;
 
 destructor TEnexIntersectionCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum1, false);
+  ReleaseObject(FCollection1, false);
 
   inherited;
 end;
@@ -5228,28 +5227,28 @@ end;
 
 { Collection.EnexIntersectionCollection<T>.TEnumerator }
 
-constructor TEnexIntersectionCollection<T>.TEnumerator .Create(const AEnum: TEnexIntersectionCollection<T>);
+constructor TEnexIntersectionCollection<T>.TEnumerator .Create(const ACollection: TEnexIntersectionCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum1.GetEnumerator();
+  FEnumerator := ACollection.FCollection1.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(AEnum.FEnum1.ElementRules, AEnum.FEnum2);
+  FSet := THashSet<T>.Create(ACollection.FCollection1.ElementRules, ACollection.FCollection2);
 end;
 
 destructor TEnexIntersectionCollection<T>.TEnumerator .Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexIntersectionCollection<T>.TEnumerator .GetCurrent: T;
 begin
   { Pass 1's enumerator }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexIntersectionCollection<T>.TEnumerator .MoveNext: Boolean;
@@ -5258,14 +5257,14 @@ begin
   while True do
   begin
     { Iterate over 1 }
-    Result := FIter.MoveNext();
+    Result := FEnumerator.MoveNext();
 
     { Exit on bad result }
     if not Result then
       Exit;
 
     { Exit if the element is good }
-    if FSet.Contains(FIter.Current) then
+    if FSet.Contains(FEnumerator.Current) then
       Exit;
   end;
 end;
@@ -5288,8 +5287,8 @@ begin
   inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FStart := AStart;
   FEnd := AEnd;
@@ -5298,7 +5297,7 @@ end;
 destructor TEnexRangeCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -5311,37 +5310,37 @@ end;
 
 { TEnexRangeCollection<T>.TEnumerator }
 
-constructor TEnexRangeCollection<T>.TEnumerator.Create(const AEnum: TEnexRangeCollection<T>);
+constructor TEnexRangeCollection<T>.TEnumerator.Create(const ACollection: TEnexRangeCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
   FIdx  := 0;
 end;
 
 destructor TEnexRangeCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexRangeCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { PAss the current in the sub-enum }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexRangeCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
   { Skip the required amount of elements }
-  if (FIdx <= FEnum.FStart) then
+  if (FIdx <= FCollection.FStart) then
   begin
-    while (FIdx <= FEnum.FStart) do
+    while (FIdx <= FCollection.FStart) do
     begin
       { Move cursor }
-      Result := FIter.MoveNext();
+      Result := FEnumerator.MoveNext();
 
       if not Result then
         Exit;
@@ -5351,11 +5350,11 @@ begin
   end else
   begin
     { Check if we're finished }
-    if (FIdx > FEnum.FEnd) then
+    if (FIdx > FCollection.FEnd) then
       Exit(false);
 
     { Move the cursor next in the sub-enum, and increase index }
-    Result := FIter.MoveNext();
+    Result := FEnumerator.MoveNext();
     Inc(FIdx);
   end;
 end;
@@ -5371,14 +5370,14 @@ begin
   inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 end;
 
 destructor TEnexDistinctCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -5391,28 +5390,28 @@ end;
 
 { TEnexDistinctCollection<T>.TEnumerator }
 
-constructor TEnexDistinctCollection<T>.TEnumerator.Create(const AEnum: TEnexDistinctCollection<T>);
+constructor TEnexDistinctCollection<T>.TEnumerator.Create(const ACollection: TEnexDistinctCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<T>.Create(AEnum.FEnum.ElementRules);
+  FSet := THashSet<T>.Create(ACollection.FCollection.ElementRules);
 end;
 
 destructor TEnexDistinctCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexDistinctCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Get from sub-enum }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexDistinctCollection<T>.TEnumerator.MoveNext: Boolean;
@@ -5420,15 +5419,15 @@ begin
   while True do
   begin
     { Iterate }
-    Result := FIter.MoveNext;
+    Result := FEnumerator.MoveNext;
 
     if not Result then
       Exit;
 
     { If the item is distinct, add it to set and continue }
-    if not FSet.Contains(FIter.Current) then
+    if not FSet.Contains(FEnumerator.Current) then
     begin
-      FSet.Add(FIter.Current);
+      FSet.Add(FEnumerator.Current);
       Exit;
     end;
   end;
@@ -5538,17 +5537,17 @@ end;
 
 function TEnexFillCollection<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  V: T;
+  LValue: T;
   I: NativeInt;
 begin
   I := 0;
 
-  for V in ACollection do
+  for LValue in ACollection do
   begin
     if I >= FCount then
       Exit(false);
 
-    if not ElementRules.AreEqual(FElement, V) then
+    if not ElementRules.AreEqual(FElement, LValue) then
       Exit(false);
 
     Inc(I);
@@ -5642,30 +5641,30 @@ end;
 
 { TEnexFillCollection<T>.TEnumerator }
 
-constructor TEnexFillCollection<T>.TEnumerator.Create(const AEnum: TEnexFillCollection<T>);
+constructor TEnexFillCollection<T>.TEnumerator.Create(const ACollection: TEnexFillCollection<T>);
 begin
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FCount := 0;
 end;
 
 destructor TEnexFillCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexFillCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Pass the element }
-  Result := FEnum.FElement;
+  Result := FCollection.FElement;
 end;
 
 function TEnexFillCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
   { Check for end }
-  Result := (FCount < FEnum.FCount);
+  Result := (FCount < FCollection.FCount);
 
   if not Result then
     Exit;
@@ -5689,8 +5688,8 @@ begin
   inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FCount := ACount;
 end;
@@ -5698,7 +5697,7 @@ end;
 destructor TEnexSkipCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -5711,37 +5710,37 @@ end;
 
 { TEnexSkipCollection<T>.TEnumerator }
 
-constructor TEnexSkipCollection<T>.TEnumerator.Create(const AEnum: TEnexSkipCollection<T>);
+constructor TEnexSkipCollection<T>.TEnumerator.Create(const ACollection: TEnexSkipCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
   FIdx  := 0;
 end;
 
 destructor TEnexSkipCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexSkipCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { PAss the current in the sub-enum }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexSkipCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
   { Skip the required amount of elements }
-  if (FIdx < FEnum.FCount) then
+  if (FIdx < FCollection.FCount) then
   begin
-    while (FIdx < FEnum.FCount) do
+    while (FIdx < FCollection.FCount) do
     begin
       { Move cursor }
-      Result := FIter.MoveNext();
+      Result := FEnumerator.MoveNext();
 
       if not Result then
         Exit;
@@ -5750,7 +5749,7 @@ begin
     end;
   end;
 
-  Result := FIter.MoveNext(); { Move the cursor next in the sub-enum }
+  Result := FEnumerator.MoveNext(); { Move the cursor next in the sub-enum }
 end;
 
 { TEnexTakeCollection<T> }
@@ -5769,8 +5768,8 @@ begin
   inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FCount := ACount;
 end;
@@ -5778,7 +5777,7 @@ end;
 destructor TEnexTakeCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -5791,36 +5790,36 @@ end;
 
 { TEnexTakeCollection<T>.TEnumerator }
 
-constructor TEnexTakeCollection<T>.TEnumerator.Create(const AEnum: TEnexTakeCollection<T>);
+constructor TEnexTakeCollection<T>.TEnumerator.Create(const ACollection: TEnexTakeCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
   FIdx  := 0;
 end;
 
 destructor TEnexTakeCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexTakeCollection<T>.TEnumerator.GetCurrent: T;
 begin
-  { PAss the current in the sub-enum }
-  Result := FIter.Current;
+  { Pass the current in the sub-enum }
+  Result := FEnumerator.Current;
 end;
 
 function TEnexTakeCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
   { Check if we're finished}
-  if (FIdx >= FEnum.FCount) then
+  if (FIdx >= FCollection.FCount) then
     Exit(false);
 
   { Move the cursor next in the sub-enum, and increase index }
-  Result := FIter.MoveNext();
+  Result := FEnumerator.MoveNext();
   Inc(FIdx);
 end;
 
@@ -5839,8 +5838,8 @@ begin
   inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FPredicate := APredicate;
 end;
@@ -5848,7 +5847,7 @@ end;
 destructor TEnexTakeWhileCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -5861,37 +5860,37 @@ end;
 
 { TEnexTakeWhileCollection<T>.TEnumerator }
 
-constructor TEnexTakeWhileCollection<T>.TEnumerator.Create(const AEnum: TEnexTakeWhileCollection<T>);
+constructor TEnexTakeWhileCollection<T>.TEnumerator.Create(const ACollection: TEnexTakeWhileCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter:= AEnum.FEnum.GetEnumerator();
+  FEnumerator:= ACollection.FCollection.GetEnumerator();
 end;
 
 destructor TEnexTakeWhileCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexTakeWhileCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Get current element of the "sub-enumerable" object }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexTakeWhileCollection<T>.TEnumerator.MoveNext: Boolean;
 begin
-  Result := FIter.MoveNext;
+  Result := FEnumerator.MoveNext;
 
   { Terminate on sub-enum termination }
   if not Result then
     Exit;
 
   { When the condition is not met, stop iterating! }
-  if not FEnum.FPredicate(FIter.Current) then
+  if not FCollection.FPredicate(FEnumerator.Current) then
     Exit(false);
 end;
 
@@ -5910,8 +5909,8 @@ begin
   inherited Create(ACollection.ElementRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FPredicate := APredicate;
 end;
@@ -5919,7 +5918,7 @@ end;
 destructor TEnexSkipWhileCollection<T>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -5932,26 +5931,26 @@ end;
 
 { TEnexSkipWhileCollection<T>.TEnumerator }
 
-constructor TEnexSkipWhileCollection<T>.TEnumerator.Create(const AEnum: TEnexSkipWhileCollection<T>);
+constructor TEnexSkipWhileCollection<T>.TEnumerator.Create(const ACollection: TEnexSkipWhileCollection<T>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
   FStop := false;
 end;
 
 destructor TEnexSkipWhileCollection<T>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexSkipWhileCollection<T>.TEnumerator.GetCurrent: T;
 begin
   { Get current element of the "sub-enumerable" object }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexSkipWhileCollection<T>.TEnumerator.MoveNext: Boolean;
@@ -5961,21 +5960,21 @@ begin
   begin
     while not FStop do
     begin
-      Result := FIter.MoveNext;
+      Result := FEnumerator.MoveNext;
 
       { Terminate on sub-enum termination }
       if not Result then
         Exit;
 
       { When condition is met, move next }
-      if FEnum.FPredicate(FIter.Current) then
+      if FCollection.FPredicate(FEnumerator.Current) then
         Continue;
 
       { Mark as skipped }
       FStop := true;
     end;
   end else
-    Result := FIter.MoveNext;
+    Result := FEnumerator.MoveNext;
 end;
 
 { TEnexSelectKeysCollection<TKey, TValue> }
@@ -5990,22 +5989,22 @@ begin
   inherited Create(ACollection.KeyRules);
 
   { Assign internals }
-  FEnum := ACollection;
+  FCollection := ACollection;
 
-  KeepObjectAlive(FEnum);
+  KeepObjectAlive(FCollection);
 end;
 
 destructor TEnexSelectKeysCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
 
 function TEnexSelectKeysCollection<TKey, TValue>.GetCount: NativeInt;
 begin
-  Result := FEnum.GetCount();
+  Result := FCollection.GetCount();
 end;
 
 function TEnexSelectKeysCollection<TKey, TValue>.GetEnumerator: IEnumerator<TKey>;
@@ -6017,19 +6016,19 @@ end;
 { TEnexSelectKeysCollection<TKey, TValue>.TEnumerator }
 
 constructor TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.Create(
-  const AEnum: TEnexSelectKeysCollection<TKey, TValue>);
+  const ACollection: TEnexSelectKeysCollection<TKey, TValue>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter:= AEnum.FEnum.GetEnumerator();
+  FEnumerator:= ACollection.FCollection.GetEnumerator();
   FCurrent := default(TKey);
 end;
 
 destructor TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
@@ -6042,14 +6041,14 @@ end;
 function TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
 begin
   { Next iteration }
-  Result := FIter.MoveNext;
+  Result := FEnumerator.MoveNext;
 
   { Terminate on sub-enum termination }
   if not Result then
     Exit;
 
   { Return the next "selected" key }
-  FCurrent := FIter.Current.Key;
+  FCurrent := FEnumerator.Current.Key;
 end;
 
 { TEnexSelectValuesCollection<TKey, TValue> }
@@ -6065,22 +6064,22 @@ begin
   inherited Create(ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := ACollection;
+  FCollection := ACollection;
 
-  KeepObjectAlive(FEnum);
+  KeepObjectAlive(FCollection);
 end;
 
 destructor TEnexSelectValuesCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
 
 function TEnexSelectValuesCollection<TKey, TValue>.GetCount: NativeInt;
 begin
-  Result := FEnum.GetCount();
+  Result := FCollection.GetCount();
 end;
 
 function TEnexSelectValuesCollection<TKey, TValue>.GetEnumerator: IEnumerator<TValue>;
@@ -6092,19 +6091,19 @@ end;
 { TEnexSelectValuesCollection<TKey, TValue>.TEnumerator }
 
 constructor TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.Create(
-  const AEnum: TEnexSelectValuesCollection<TKey, TValue>);
+  const ACollection: TEnexSelectValuesCollection<TKey, TValue>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter:= AEnum.FEnum.GetEnumerator();
+  FEnumerator:= ACollection.FCollection.GetEnumerator();
   FCurrent := default(TValue);
 end;
 
 destructor TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
@@ -6117,14 +6116,14 @@ end;
 function TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
 begin
   { Next iteration }
-  Result := FIter.MoveNext;
+  Result := FEnumerator.MoveNext;
 
   { Terminate on sub-enum termination }
   if not Result then
     Exit;
 
   { Return the next "selected" key }
-  FCurrent := FIter.Current.Value;
+  FCurrent := FEnumerator.Current.Value;
 end;
 
 { TEnexAssociativeWhereCollection<TKey, TValue> }
@@ -6145,8 +6144,8 @@ begin
   inherited Create(ACollection.KeyRules, ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
   FPredicate := APredicate;
 
@@ -6156,7 +6155,7 @@ end;
 destructor TEnexAssociativeWhereCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -6170,25 +6169,25 @@ end;
 { TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator }
 
 constructor TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.Create(
-  const AEnum: TEnexAssociativeWhereCollection<TKey, TValue>);
+  const ACollection: TEnexAssociativeWhereCollection<TKey, TValue>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
 end;
 
 destructor TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
 begin
   { Get current element of the "sub-enumerable" object }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
@@ -6196,7 +6195,7 @@ begin
   { Iterate until given condition is met on an element }
   while True do
   begin
-    Result := FIter.MoveNext;
+    Result := FEnumerator.MoveNext;
 
     { Terminate on sub-enum termination }
     if not Result then
@@ -6204,7 +6203,7 @@ begin
 
     { Check whether the current element meets the condition and exit }
     { ... otherwise continue to the next iteration }
-    if FEnum.FPredicate(FIter.Current.Key, FIter.Current.Value) xor FEnum.FInvertResult then
+    if FCollection.FPredicate(FEnumerator.Current.Key, FEnumerator.Current.Value) xor FCollection.FInvertResult then
       Exit;
   end;
 end;
@@ -6222,14 +6221,14 @@ begin
   inherited Create(ACollection.KeyRules, ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 end;
 
 destructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -6243,28 +6242,28 @@ end;
 { TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator }
 
 constructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.Create(
-  const AEnum: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>);
+  const ACollection: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<TKey>.Create(AEnum.FEnum.KeyRules);
+  FSet := THashSet<TKey>.Create(ACollection.FCollection.KeyRules);
 end;
 
 destructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
 begin
   { Get from sub-enum }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
@@ -6272,15 +6271,15 @@ begin
   while True do
   begin
     { Iterate }
-    Result := FIter.MoveNext;
+    Result := FEnumerator.MoveNext;
 
     if not Result then
       Exit;
 
     { If the item is distinct, add it to set and continue }
-    if not FSet.Contains(FIter.Current.Key) then
+    if not FSet.Contains(FEnumerator.Current.Key) then
     begin
-      FSet.Add(FIter.Current.Key);
+      FSet.Add(FEnumerator.Current.Key);
       Exit;
     end;
   end;
@@ -6300,14 +6299,14 @@ begin
   inherited Create(ACollection.KeyRules, ACollection.ValueRules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 end;
 
 destructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -6321,28 +6320,28 @@ end;
 { TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator }
 
 constructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.Create(
-  const AEnum: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>);
+  const ACollection: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
 
   { Create an internal set }
-  FSet := THashSet<TValue>.Create(AEnum.FEnum.ValueRules);
+  FSet := THashSet<TValue>.Create(ACollection.FCollection.ValueRules);
 end;
 
 destructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
 function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
 begin
   { Get from sub-enum }
-  Result := FIter.Current;
+  Result := FEnumerator.Current;
 end;
 
 function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
@@ -6350,15 +6349,15 @@ begin
   while True do
   begin
     { Iterate }
-    Result := FIter.MoveNext;
+    Result := FEnumerator.MoveNext;
 
     if not Result then
       Exit;
 
     { If the item is distinct, add it to set and continue }
-    if not FSet.Contains(FIter.Current.Value) then
+    if not FSet.Contains(FEnumerator.Current.Value) then
     begin
-      FSet.Add(FIter.Current.Value);
+      FSet.Add(FEnumerator.Current.Value);
       Exit;
     end;
   end;
@@ -6376,14 +6375,14 @@ begin
   inherited Create(ARules);
 
   { Assign internals }
-  FEnum := ACollection;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 end;
 
 destructor TEnexSelectClassCollection<T, TOut>.Destroy;
 begin
   { Delete the enumerable if required }
-  ReleaseObject(FEnum, false);
+  ReleaseObject(FCollection, false);
 
   inherited;
 end;
@@ -6396,19 +6395,19 @@ end;
 
 { TEnexSelectClassCollection<T, TOut>.TEnumerator }
 
-constructor TEnexSelectClassCollection<T, TOut>.TEnumerator.Create(const AEnum: TEnexSelectClassCollection<T, TOut>);
+constructor TEnexSelectClassCollection<T, TOut>.TEnumerator.Create(const ACollection: TEnexSelectClassCollection<T, TOut>);
 begin
   { Initialize }
-  FEnum := AEnum;
-  KeepObjectAlive(FEnum);
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
 
-  FIter := AEnum.FEnum.GetEnumerator();
+  FEnumerator := ACollection.FCollection.GetEnumerator();
   FCurrent := default(TOut);
 end;
 
 destructor TEnexSelectClassCollection<T, TOut>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FEnum);
+  ReleaseObject(FCollection);
   inherited;
 end;
 
@@ -6423,16 +6422,16 @@ begin
   { Iterate until given condition is met on an element }
   while True do
   begin
-    Result := FIter.MoveNext;
+    Result := FEnumerator.MoveNext;
 
     { Terminate on sub-enum termination }
     if not Result then
       Exit;
 
     { Check if T is TOut. Exit if yes}
-    if (FIter.Current <> nil) and (FIter.Current.InheritsFrom(TOut)) then
+    if Assigned(FEnumerator.Current) and FEnumerator.Current.InheritsFrom(TOut) then
     begin
-      FCurrent := TOut(TObject(FIter.Current));
+      FCurrent := TOut(TObject(FEnumerator.Current));
       Exit;
     end;
   end;
@@ -6508,19 +6507,19 @@ end;
 
 function TRefCountedObject.ExtractReference: IInterface;
 var
-  Ref: NativeInt;
+  LRefCount: NativeInt;
 begin
-  { While constructing, an object has an implicit ref count of 1 }
+  { While constructing, an object has an implicit LRefCount count of 1 }
   if FInConstruction then
-    Ref := 1
+    LRefCount := 1
   else
-    Ref := 0;
+    LRefCount := 0;
 
   {
       If the object is referenced in other places as an
       interface, get a new one, otherwise return nil
    }
-  if RefCount > Ref then
+  if RefCount > LRefCount then
     Result := Self
   else
     Result := nil;
@@ -6528,11 +6527,11 @@ end;
 
 procedure TRefCountedObject.KeepObjectAlive(const AObject: TRefCountedObject);
 var
-  I, L: NativeInt;
-  II: IInterface;
+  I, LKALen: NativeInt;
+  LIntfRef: IInterface;
 begin
   { Skip nil references }
-  if AObject = nil then
+  if not Assigned(AObject) then
     Exit;
 
   { Cannot self-ref! }
@@ -6540,24 +6539,24 @@ begin
     ExceptionHelper.Throw_CannotSelfReferenceError();
 
   { Extract an optional reference, do not continue if failed }
-  II := AObject.ExtractReference();
-  if II = nil then
+  LIntfRef := AObject.ExtractReference();
+  if not Assigned(LIntfRef) then
     Exit;
 
-  L := Length(FKeepAliveList);
+  LKALen := Length(FKeepAliveList);
 
   { Find a free spot }
-  if L > 0 then
-    for I := 0 to L - 1 do
-      if FKeepAliveList[I] = nil then
+  if LKALen > 0 then
+    for I := 0 to LKALen - 1 do
+      if not Assigned(FKeepAliveList[I]) then
       begin
-        FKeepAliveList[I] := II;
+        FKeepAliveList[I] := LIntfRef;
         Exit;
       end;
 
   { No free spots, extend array and insert the ref there }
-  SetLength(FKeepAliveList, L + 1);
-  FKeepAliveList[L] := II;
+  SetLength(FKeepAliveList, LKALen + 1);
+  FKeepAliveList[LKALen] := LIntfRef;
 end;
 
 class function TRefCountedObject.NewInstance: TObject;
@@ -6570,11 +6569,11 @@ end;
 
 procedure TRefCountedObject.ReleaseObject(const AObject: TRefCountedObject; const AFreeObject: Boolean);
 var
-  I, L: NativeInt;
-  II: IInterface;
+  I, LKALen: NativeInt;
+  LIntfRef: IInterface;
 begin
   { Do nothing on nil references, since it may be calle din destructors }
-  if AObject = nil then
+  if not Assigned(AObject) then
     Exit;
 
   { Cannot self-ref! }
@@ -6582,8 +6581,8 @@ begin
     ExceptionHelper.Throw_CannotSelfReferenceError();
 
   { Extract an optional reference, if none received, exit }
-  II := AObject.ExtractReference();
-  if II = nil then
+  LIntfRef := AObject.ExtractReference();
+  if not Assigned(LIntfRef) then
   begin
     if AFreeObject then
       AObject.Free;
@@ -6591,16 +6590,16 @@ begin
     Exit;
   end;
 
-  L := Length(FKeepAliveList);
+  LKALen := Length(FKeepAliveList);
 
   { Find a free spot }
-  if L > 0 then
-    for I := 0 to L - 1 do
-      if FKeepAliveList[I] = II then
+  if LKALen > 0 then
+    for I := 0 to LKALen - 1 do
+      if FKeepAliveList[I] = LIntfRef then
       begin
         { Release the spot and kill references to the interface }
         FKeepAliveList[I] := nil;
-        II := nil;
+        LIntfRef := nil;
         Exit;
       end;
 end;

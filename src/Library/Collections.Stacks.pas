@@ -94,27 +94,23 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
+    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
+    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the stack.</param>
+    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -344,18 +340,18 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -668,18 +664,18 @@ end;
 
 constructor TStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
 begin
   { Call upper constructor }
   Create(ARules, CDefaultSize);
 
   { Initialize instance }
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Try to copy the given Enumerable }
-  for V in ACollection do
-    Push(V);
+  for LValue in ACollection do
+    Push(LValue);
 end;
 
 constructor TStack<T>.Create;
@@ -745,17 +741,17 @@ end;
 
 function TStack<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  V: T;
+  LValue: T;
   I: NativeInt;
 begin
   I := 0;
 
-  for V in ACollection do
+  for LValue in ACollection do
   begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[I], V) then
+    if not ElementRules.AreEqual(FArray[I], LValue) then
       Exit(false);
 
     Inc(I);
@@ -875,12 +871,12 @@ function TStack<T>.Pop: T;
 begin
   if FLength > 0 then
   begin
-     Result := FArray[FLength - 1];
-     Dec(FLength);
-     Inc(FVer);
-  end
-  else
-     ExceptionHelper.Throw_CollectionEmptyError();
+    Result := FArray[FLength - 1];
+
+    Dec(FLength);
+    Inc(FVer);
+  end else
+    ExceptionHelper.Throw_CollectionEmptyError();
 end;
 
 procedure TStack<T>.Push(const AValue: T);
@@ -897,26 +893,26 @@ end;
 
 procedure TStack<T>.Remove(const AValue: T);
 var
-  I, FoundIndex: NativeInt;
+  I, LFoundIndex: NativeInt;
 begin
   { Defaults }
   if (FLength = 0) then Exit;
-  FoundIndex := -1;
+  LFoundIndex := -1;
 
   for I := 0 to FLength - 1 do
   begin
     if ElementRules.AreEqual(FArray[I], AValue) then
     begin
-      FoundIndex := I;
+      LFoundIndex := I;
       Break;
     end;
   end;
 
-  if (FoundIndex > -1) then
+  if (LFoundIndex > -1) then
   begin
     { Move the list }
     if FLength > 1 then
-      for I := FoundIndex to FLength - 2 do
+      for I := LFoundIndex to FLength - 2 do
         FArray[I] := FArray[I + 1];
 
     Dec(FLength);
@@ -928,9 +924,7 @@ procedure TStack<T>.Shrink;
 begin
   { Cut the capacity if required }
   if FLength < Capacity then
-  begin
     SetLength(FArray, FLength);
-  end;
 end;
 
 function TStack<T>.Single: T;
@@ -1049,7 +1043,7 @@ end;
 procedure TLinkedStack<T>.Clear;
 begin
   { Clear the internal list }
-  if FList <> nil then
+  if Assigned(FList) then
     FList.Clear();
 end;
 
@@ -1067,18 +1061,18 @@ end;
 
 constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
 begin
   { Call upper constructor }
   Create(ARules);
 
   { Initialize instance }
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Try to copy the given Enumerable }
-  for V in ACollection do
-    Push(V);
+  for LValue in ACollection do
+    Push(LValue);
 end;
 
 constructor TLinkedStack<T>.Create;
@@ -1185,7 +1179,7 @@ end;
 
 function TLinkedStack<T>.Peek: T;
 begin
-  if FList.LastNode = nil then
+  if not Assigned(FList.LastNode) then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   Result := FList.LastNode.Value;

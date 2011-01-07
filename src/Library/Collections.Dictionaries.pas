@@ -207,17 +207,21 @@ type
     constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy pairs from.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
@@ -226,7 +230,8 @@ type
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>); overload;
@@ -542,33 +547,26 @@ type
     constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AKeyRules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AValueRules"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
@@ -836,21 +834,21 @@ constructor TDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>;
   const ACollection: IEnumerable<TPair<TKey, TValue>>);
 var
-  V: TPair<TKey, TValue>;
+  LValue: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
   Create(AKeyRules, AValueRules, CDefaultSize);
 
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Pump in all items }
-  for V in ACollection do
+  for LValue in ACollection do
   begin
 {$IF CompilerVersion < 22}
-    Add(V);
+    Add(LValue);
 {$ELSE}
-    Add(V.Key, V.Value);
+    Add(LValue.Key, LValue.Value);
 {$IFEND}
   end;
 end;
@@ -873,21 +871,20 @@ end;
 
 function TDictionary<TKey, TValue>.FindEntry(const AKey: TKey): NativeInt;
 var
-  HashCode: NativeInt;
-  I       : NativeInt;
+  LHashCode, I: NativeInt;
 begin
   Result := -1;
 
   if Length(FBucketArray) > 0 then
   begin
     { Generate the hash code }
-    HashCode := Hash(AKey);
+    LHashCode := Hash(AKey);
 
-    I := FBucketArray[HashCode mod Length(FBucketArray)];
+    I := FBucketArray[LHashCode mod Length(FBucketArray)];
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = HashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = LHashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
          begin Result := I; Exit; end;
 
       I := FEntryArray[I].FNext;
@@ -938,23 +935,23 @@ end;
 procedure TDictionary<TKey, TValue>.Insert(const AKey: TKey;
   const AValue: TValue; const ShouldAdd: Boolean);
 var
-  FreeList, Index,
-    HashCode, I: NativeInt;
+  LFreeList, LIndex,
+    LHashCode, I: NativeInt;
 begin
-  FreeList := 0;
+  LFreeList := 0;
 
   if Length(FBucketArray) = 0 then
      InitializeInternals(0);
 
   { Generate the hash code }
-  HashCode := Hash(AKey);
-  Index := HashCode mod Length(FBucketArray);
+  LHashCode := Hash(AKey);
+  LIndex := LHashCode mod Length(FBucketArray);
 
-  I := FBucketArray[Index];
+  I := FBucketArray[LIndex];
 
   while I >= 0 do
   begin
-    if (FEntryArray[I].FHashCode = HashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
+    if (FEntryArray[I].FHashCode = LHashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
     begin
       if (ShouldAdd) then
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
@@ -971,30 +968,30 @@ begin
   { Adjust free spaces }
   if FFreeCount > 0 then
   begin
-    FreeList := FFreeList;
-    FFreeList := FEntryArray[FreeList].FNext;
+    LFreeList := FFreeList;
+    FFreeList := FEntryArray[LFreeList].FNext;
 
     Dec(FFreeCount);
   end else
   begin
-    { Adjust index if there is not enough free space }
+    { Adjust LIndex if there is not enough free space }
     if FCount = Length(FEntryArray) then
     begin
       Resize();
-      Index := HashCode mod Length(FBucketArray);
+      LIndex := LHashCode mod Length(FBucketArray);
     end;
 
-    FreeList := FCount;
+    LFreeList := FCount;
     Inc(FCount);
   end;
 
   { Insert the element at the right position and adjust arrays }
-  FEntryArray[FreeList].FHashCode := HashCode;
-  FEntryArray[FreeList].FKey := AKey;
-  FEntryArray[FreeList].FValue := AValue;
-  FEntryArray[FreeList].FNext := FBucketArray[Index];
+  FEntryArray[LFreeList].FHashCode := LHashCode;
+  FEntryArray[LFreeList].FKey := AKey;
+  FEntryArray[LFreeList].FValue := AValue;
+  FEntryArray[LFreeList].FNext := FBucketArray[LIndex];
 
-  FBucketArray[Index] := FreeList;
+  FBucketArray[LIndex] := LFreeList;
   Inc(FVer);
 end;
 
@@ -1007,30 +1004,28 @@ end;
 
 procedure TDictionary<TKey, TValue>.Remove(const AKey: TKey);
 var
-  HashCode: NativeInt;
-  Index   : NativeInt;
-  I       : NativeInt;
-  RemIndex: NativeInt;
+  LHashCode, LIndex,
+    LRemIndex, I: NativeInt;
 begin
   if Length(FBucketArray) > 0 then
   begin
     { Generate the hash code }
-    HashCode := Hash(AKey);
+    LHashCode := Hash(AKey);
 
-    Index := HashCode mod Length(FBucketArray);
-    RemIndex := -1;
+    LIndex := LHashCode mod Length(FBucketArray);
+    LRemIndex := -1;
 
-    I := FBucketArray[Index];
+    I := FBucketArray[LIndex];
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = HashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = LHashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
       begin
 
-        if RemIndex < 0 then
-          FBucketArray[Index] := FEntryArray[I].FNext
+        if LRemIndex < 0 then
+          FBucketArray[LIndex] := FEntryArray[I].FNext
         else
-          FEntryArray[RemIndex].FNext := FEntryArray[I].FNext;
+          FEntryArray[LRemIndex].FNext := FEntryArray[I].FNext;
 
         { Cleanup required? }
         NotifyValueRemoved(FEntryArray[I].FValue);
@@ -1047,7 +1042,7 @@ begin
         Exit;
       end;
 
-      RemIndex := I;
+      LRemIndex := I;
       I := FEntryArray[I].FNext;
     end;
 
@@ -1084,8 +1079,7 @@ begin
   Result := Values;
 end;
 
-procedure TDictionary<TKey, TValue>.SetItem(const AKey: TKey;
-  const Value: TValue);
+procedure TDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
 begin
   { Simply call insert }
   Insert(AKey, Value, false);
@@ -1093,13 +1087,13 @@ end;
 
 function TDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
 var
-  Index: NativeInt;
+  LIndex: NativeInt;
 begin
-  Index := FindEntry(AKey);
+  LIndex := FindEntry(AKey);
 
-  if Index >= 0 then
+  if LIndex >= 0 then
      begin
-       AFoundValue := FEntryArray[Index].FValue;
+       AFoundValue := FEntryArray[LIndex].FValue;
        Exit(True);
      end;
 
@@ -1157,7 +1151,7 @@ end;
 function TDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
 begin
   if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
+    ExceptionHelper.Throw_CollectionChangedError();
 
   Result := FValue;
 end;
@@ -1208,7 +1202,7 @@ end;
 function TDictionary<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
 begin
   if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
+    ExceptionHelper.Throw_CollectionChangedError();
 
   Result := FValue;
 end;
@@ -1216,7 +1210,7 @@ end;
 function TDictionary<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
 begin
   if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
+    ExceptionHelper.Throw_CollectionChangedError();
 
   while FCurrentIndex < FDict.FCount do
   begin
@@ -1258,7 +1252,7 @@ end;
 function TDictionary<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
 begin
   if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
+    ExceptionHelper.Throw_CollectionChangedError();
 
   Result := FValue;
 end;
@@ -1266,7 +1260,7 @@ end;
 function TDictionary<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
 begin
   if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
+    ExceptionHelper.Throw_CollectionChangedError();
 
   while FCurrentIndex < FDict.FCount do
   begin
@@ -1408,358 +1402,357 @@ end;
 
 procedure TSortedDictionary<TKey, TValue>.BalanceTreesAfterRemoval(const ANode: TNode);
 var
-  CurrentAct: TBalanceAct;
-  LNode, XNode,
-    SNode, WNode,
-      YNode: TNode;
+  LCurrentAct: TBalanceAct;
+  LLNode, LXNode, LSNode,
+    LWNode, LYNode: TNode;
 begin
   { Initiliaze ... }
-  CurrentAct := TBalanceAct.baStart;
-  LNode := ANode;
+  LCurrentAct := TBalanceAct.baStart;
+  LLNode := ANode;
 
   { Continue looping until end is declared }
-  while CurrentAct <> TBalanceAct.baEnd do
+  while LCurrentAct <> TBalanceAct.baEnd do
   begin
-    case CurrentAct of
+    case LCurrentAct of
 
       { START MODE }
       TBalanceAct.baStart:
       begin
-        if LNode.FRight = nil then
+        if not Assigned(LLNode.FRight) then
         begin
           { Exclude myself! }
-          if LNode.FLeft <> nil then
-            LNode.FLeft.FParent := LNode.FParent;
+          if Assigned(LLNode.FLeft) then
+            LLNode.FLeft.FParent := LLNode.FParent;
 
           { I'm root! nothing to do here }
-          if LNode.FParent = nil then
+          if not Assigned(LLNode.FParent) then
           begin
-            FRoot := LNode.FLeft;
+            FRoot := LLNode.FLeft;
 
             { DONE! }
-            CurrentAct := TBalanceAct.baEnd;
+            LCurrentAct := TBalanceAct.baEnd;
             continue;
           end;
 
           { ... }
-          if LNode = LNode.FParent.FLeft then
+          if LLNode = LLNode.FParent.FLeft then
           begin
-            LNode.FParent.FLeft := LNode.FLeft;
-            YNode := LNode.FParent;
+            LLNode.FParent.FLeft := LLNode.FLeft;
+            LYNode := LLNode.FParent;
           end else
           begin
-            LNode.FParent.FRight := LNode.FLeft;
-            YNode := LNode.FParent;
+            LLNode.FParent.FRight := LLNode.FLeft;
+            LYNode := LLNode.FParent;
 
             { RIGHT! }
-            CurrentAct := TBalanceAct.baRight;
+            LCurrentAct := TBalanceAct.baRight;
             continue;
           end;
-        end else if LNode.FRight.FLeft = nil then
+        end else if not Assigned(LLNode.FRight.FLeft) then
         begin
           { Case 1, RIGHT, NO LEFT }
-          if LNode.FLeft <> nil then
+          if Assigned(LLNode.FLeft) then
           begin
-            LNode.FLeft.FParent := LNode.FRight;
-            LNode.FRight.FLeft := LNode.FLeft;
+            LLNode.FLeft.FParent := LLNode.FRight;
+            LLNode.FRight.FLeft := LLNode.FLeft;
           end;
 
-          LNode.FRight.FBalance := LNode.FBalance;
-          LNode.FRight.FParent := LNode.FParent;
+          LLNode.FRight.FBalance := LLNode.FBalance;
+          LLNode.FRight.FParent := LLNode.FParent;
 
-          if LNode.FParent = nil then
-            FRoot := LNode.FRight
+          if not Assigned(LLNode.FParent) then
+            FRoot := LLNode.FRight
           else
           begin
-            if LNode = LNode.FParent.FLeft then
-              LNode.FParent.FLeft := LNode.FRight
+            if LLNode = LLNode.FParent.FLeft then
+              LLNode.FParent.FLeft := LLNode.FRight
             else
-              LNode.FParent.FRight := LNode.FRight;
+              LLNode.FParent.FRight := LLNode.FRight;
           end;
 
-          YNode := LNode.FRight;
+          LYNode := LLNode.FRight;
 
           { RIGHT! }
-          CurrentAct := TBalanceAct.baRight;
+          LCurrentAct := TBalanceAct.baRight;
           continue;
         end else
         begin
           { Case 3: RIGHT+LEFT }
-          SNode := LNode.FRight.FLeft;
+          LSNode := LLNode.FRight.FLeft;
 
-          while SNode.FLeft <> nil do
-            SNode := SNode.FLeft;
+          while Assigned(LSNode.FLeft) do
+            LSNode := LSNode.FLeft;
 
-          if LNode.FLeft <> nil then
+          if Assigned(LLNode.FLeft) then
           begin
-            LNode.FLeft.FParent := SNode;
-            SNode.FLeft := LNode.FLeft;
+            LLNode.FLeft.FParent := LSNode;
+            LSNode.FLeft := LLNode.FLeft;
           end;
 
-          SNode.FParent.FLeft := SNode.FRight;
+          LSNode.FParent.FLeft := LSNode.FRight;
 
-          if SNode.FRight <> nil then
-            SNode.FRight.FParent := SNode.FParent;
+          if Assigned(LSNode.FRight) then
+            LSNode.FRight.FParent := LSNode.FParent;
 
-          LNode.FRight.FParent := SNode;
-          SNode.FRight := LNode.FRight;
+          LLNode.FRight.FParent := LSNode;
+          LSNode.FRight := LLNode.FRight;
 
-          YNode := SNode.FParent;
+          LYNode := LSNode.FParent;
 
-          SNode.FBalance := LNode.FBalance;
-          SNode.FParent := LNode.FParent;
+          LSNode.FBalance := LLNode.FBalance;
+          LSNode.FParent := LLNode.FParent;
 
-          if LNode.FParent = nil then
-            FRoot := SNode
+          if not Assigned(LLNode.FParent) then
+            FRoot := LSNode
           else
           begin
-            if LNode = LNode.FParent.FLeft then
-              LNode.FParent.FLeft := SNode
+            if LLNode = LLNode.FParent.FLeft then
+              LLNode.FParent.FLeft := LSNode
             else
-              LNode.FParent.FRight := SNode;
+              LLNode.FParent.FRight := LSNode;
           end;
         end;
 
         { LEFT! }
-        CurrentAct := TBalanceAct.baLeft;
+        LCurrentAct := TBalanceAct.baLeft;
         continue;
       end; { baStart }
 
       { LEFT BALANCING MODE }
       TBalanceAct.baLeft:
       begin
-        Inc(YNode.FBalance);
+        Inc(LYNode.FBalance);
 
-        if YNode.FBalance = 1 then
+        if LYNode.FBalance = 1 then
         begin
           { DONE! }
-          CurrentAct := TBalanceAct.baEnd;
+          LCurrentAct := TBalanceAct.baEnd;
           continue;
         end
-        else if YNode.FBalance = 2 then
+        else if LYNode.FBalance = 2 then
         begin
-          XNode := YNode.FRight;
+          LXNode := LYNode.FRight;
 
-          if XNode.FBalance = -1 then
+          if LXNode.FBalance = -1 then
           begin
-            WNode := XNode.FLeft;
-            WNode.FParent := YNode.FParent;
+            LWNode := LXNode.FLeft;
+            LWNode.FParent := LYNode.FParent;
 
-            if YNode.FParent = nil then
-              FRoot := WNode
+            if not Assigned(LYNode.FParent) then
+              FRoot := LWNode
             else
             begin
-              if YNode.FParent.FLeft = YNode then
-                YNode.FParent.FLeft := WNode
+              if LYNode.FParent.FLeft = LYNode then
+                LYNode.FParent.FLeft := LWNode
               else
-                YNode.FParent.FRight := WNode;
+                LYNode.FParent.FRight := LWNode;
             end;
 
-            XNode.FLeft := WNode.FRight;
+            LXNode.FLeft := LWNode.FRight;
 
-            if XNode.FLeft <> nil then
-              XNode.FLeft.FParent := XNode;
+            if Assigned(LXNode.FLeft) then
+              LXNode.FLeft.FParent := LXNode;
 
-            YNode.FRight := WNode.FLeft;
+            LYNode.FRight := LWNode.FLeft;
 
-            if YNode.FRight <> nil then
-              YNode.FRight.FParent := YNode;
+            if Assigned(LYNode.FRight) then
+              LYNode.FRight.FParent := LYNode;
 
-            WNode.FRight := XNode;
-            WNode.FLeft := YNode;
+            LWNode.FRight := LXNode;
+            LWNode.FLeft := LYNode;
 
-            XNode.FParent := WNode;
-            YNode.FParent := WNode;
+            LXNode.FParent := LWNode;
+            LYNode.FParent := LWNode;
 
-            if WNode.FBalance = 1 then
+            if LWNode.FBalance = 1 then
             begin
-              XNode.FBalance := 0;
-              YNode.FBalance := -1;
-            end else if WNode.FBalance = 0 then
+              LXNode.FBalance := 0;
+              LYNode.FBalance := -1;
+            end else if LWNode.FBalance = 0 then
             begin
-              XNode.FBalance := 0;
-              YNode.FBalance := 0;
+              LXNode.FBalance := 0;
+              LYNode.FBalance := 0;
             end else
             begin
-              XNode.FBalance := 1;
-              YNode.FBalance := 0;
+              LXNode.FBalance := 1;
+              LYNode.FBalance := 0;
             end;
 
-            WNode.FBalance := 0;
-            YNode := WNode;
+            LWNode.FBalance := 0;
+            LYNode := LWNode;
           end else
           begin
-            XNode.FParent := YNode.FParent;
+            LXNode.FParent := LYNode.FParent;
 
-            if YNode.FParent <> nil then
+            if Assigned(LYNode.FParent) then
             begin
-              if YNode.FParent.FLeft = YNode then
-                YNode.FParent.FLeft := XNode
+              if LYNode.FParent.FLeft = LYNode then
+                LYNode.FParent.FLeft := LXNode
               else
-                YNode.FParent.FRight := XNode;
+                LYNode.FParent.FRight := LXNode;
             end else
-              FRoot := XNode;
+              FRoot := LXNode;
 
-            YNode.FRight := XNode.FLeft;
+            LYNode.FRight := LXNode.FLeft;
 
-            if YNode.FRight <> nil then
-              YNode.FRight.FParent := YNode;
+            if Assigned(LYNode.FRight) then
+              LYNode.FRight.FParent := LYNode;
 
-            XNode.FLeft := YNode;
-            YNode.FParent := XNode;
+            LXNode.FLeft := LYNode;
+            LYNode.FParent := LXNode;
 
-            if XNode.FBalance = 0 then
+            if LXNode.FBalance = 0 then
             begin
-              XNode.FBalance := -1;
-              YNode.FBalance := 1;
+              LXNode.FBalance := -1;
+              LYNode.FBalance := 1;
 
               { DONE! }
-              CurrentAct := TBalanceAct.baEnd;
+              LCurrentAct := TBalanceAct.baEnd;
               continue;
             end else
             begin
-              XNode.FBalance := 0;
-              YNode.FBalance := 0;
+              LXNode.FBalance := 0;
+              LYNode.FBalance := 0;
 
-              YNode := XNode;
+              LYNode := LXNode;
             end;
           end;
         end;
 
         { LOOP! }
-        CurrentAct := TBalanceAct.baLoop;
+        LCurrentAct := TBalanceAct.baLoop;
         continue;
       end; { baLeft }
 
       { RIGHT BALANCING MODE }
       TBalanceAct.baRight:
       begin
-        Dec(YNode.FBalance);
+        Dec(LYNode.FBalance);
 
-        if YNode.FBalance = -1 then
+        if LYNode.FBalance = -1 then
         begin
           { DONE! }
-          CurrentAct := TBalanceAct.baEnd;
+          LCurrentAct := TBalanceAct.baEnd;
           continue;
         end
-        else if YNode.FBalance = -2 then
+        else if LYNode.FBalance = -2 then
         begin
-          XNode := YNode.FLeft;
+          LXNode := LYNode.FLeft;
 
-          if XNode.FBalance = 1 then
+          if LXNode.FBalance = 1 then
           begin
-            WNode := XNode.FRight;
-            WNode.FParent := YNode.FParent;
+            LWNode := LXNode.FRight;
+            LWNode.FParent := LYNode.FParent;
 
-            if YNode.FParent = nil then
-              FRoot := WNode
+            if not Assigned(LYNode.FParent) then
+              FRoot := LWNode
             else
             begin
-              if YNode.FParent.FLeft = YNode then
-                YNode.FParent.FLeft := WNode
+              if LYNode.FParent.FLeft = LYNode then
+                LYNode.FParent.FLeft := LWNode
               else
-                YNode.FParent.FRight := WNode;
+                LYNode.FParent.FRight := LWNode;
             end;
 
-            XNode.FRight := WNode.FLeft;
+            LXNode.FRight := LWNode.FLeft;
 
-            if XNode.FRight <> nil then
-              XNode.FRight.FParent := XNode;
+            if Assigned(LXNode.FRight) then
+              LXNode.FRight.FParent := LXNode;
 
-            YNode.FLeft := WNode.FRight;
+            LYNode.FLeft := LWNode.FRight;
 
-            if YNode.FLeft <> nil then
-              YNode.FLeft.FParent := YNode;
+            if Assigned(LYNode.FLeft) then
+              LYNode.FLeft.FParent := LYNode;
 
-            WNode.FLeft := XNode;
-            WNode.FRight := YNode;
+            LWNode.FLeft := LXNode;
+            LWNode.FRight := LYNode;
 
-            XNode.FParent := WNode;
-            YNode.FParent := WNode;
+            LXNode.FParent := LWNode;
+            LYNode.FParent := LWNode;
 
-            if WNode.FBalance = -1 then
+            if LWNode.FBalance = -1 then
             begin
-              XNode.FBalance := 0;
-              YNode.FBalance := 1;
-            end else if WNode.FBalance = 0 then
+              LXNode.FBalance := 0;
+              LYNode.FBalance := 1;
+            end else if LWNode.FBalance = 0 then
             begin
-              XNode.FBalance := 0;
-              YNode.FBalance := 0;
+              LXNode.FBalance := 0;
+              LYNode.FBalance := 0;
             end else
             begin
-              XNode.FBalance := -1;
-              YNode.FBalance := 0;
+              LXNode.FBalance := -1;
+              LYNode.FBalance := 0;
             end;
 
-            WNode.FBalance := 0;
-            YNode := WNode;
+            LWNode.FBalance := 0;
+            LYNode := LWNode;
           end else
           begin
-            XNode.FParent := YNode.FParent;
+            LXNode.FParent := LYNode.FParent;
 
-            if YNode.FParent <> nil then
+            if Assigned(LYNode.FParent) then
             begin
-              if YNode.FParent.FLeft = YNode then
-                YNode.FParent.FLeft := XNode
+              if LYNode.FParent.FLeft = LYNode then
+                LYNode.FParent.FLeft := LXNode
               else
-                YNode.FParent.FRight := XNode
+                LYNode.FParent.FRight := LXNode
             end else
-              FRoot := XNode;
+              FRoot := LXNode;
 
-            YNode.FLeft := XNode.FRight;
+            LYNode.FLeft := LXNode.FRight;
 
-            if YNode.FLeft <> nil then
-              YNode.FLeft.FParent := YNode;
+            if Assigned(LYNode.FLeft) then
+              LYNode.FLeft.FParent := LYNode;
 
-            XNode.FRight := YNode;
-            YNode.FParent := XNode;
+            LXNode.FRight := LYNode;
+            LYNode.FParent := LXNode;
 
-            if XNode.FBalance = 0 then
+            if LXNode.FBalance = 0 then
             begin
-              XNode.FBalance := 1;
-              YNode.FBalance := -1;
+              LXNode.FBalance := 1;
+              LYNode.FBalance := -1;
 
               { END! }
-              CurrentAct := TBalanceAct.baEnd;
+              LCurrentAct := TBalanceAct.baEnd;
               continue;
             end else
             begin
-              XNode.FBalance := 0;
-              YNode.FBalance := 0;
+              LXNode.FBalance := 0;
+              LYNode.FBalance := 0;
 
-              YNode := XNode;
+              LYNode := LXNode;
             end;
           end;
         end;
 
         { LOOP! }
-        CurrentAct := TBalanceAct.baLoop;
+        LCurrentAct := TBalanceAct.baLoop;
         continue;
       end; { baRight }
 
       TBalanceAct.baLoop:
       begin
         { Verify continuation }
-        if YNode.FParent <> nil then
+        if Assigned(LYNode.FParent) then
         begin
-          if YNode = YNode.FParent.FLeft then
+          if LYNode = LYNode.FParent.FLeft then
           begin
-            YNode := YNode.FParent;
+            LYNode := LYNode.FParent;
 
             { LEFT! }
-            CurrentAct := TBalanceAct.baLeft;
+            LCurrentAct := TBalanceAct.baLeft;
             continue;
           end;
 
-          YNode := YNode.FParent;
+          LYNode := LYNode.FParent;
 
           { RIGHT! }
-          CurrentAct := TBalanceAct.baRight;
+          LCurrentAct := TBalanceAct.baRight;
           continue;
         end;
 
         { END! }
-        CurrentAct := TBalanceAct.baEnd;
+        LCurrentAct := TBalanceAct.baEnd;
         continue;
       end;
     end; { Case }
@@ -1768,7 +1761,7 @@ end;
 
 procedure TSortedDictionary<TKey, TValue>.Clear;
 begin
-  if FRoot <> nil then
+  if Assigned(FRoot) then
   begin
     RecursiveClear(FRoot);
     FRoot := nil;
@@ -1781,7 +1774,7 @@ end;
 
 function TSortedDictionary<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
 begin
-  Result := FindNodeWithKey(AKey) <> nil;
+  Result := Assigned(FindNodeWithKey(AKey));
 end;
 
 function TSortedDictionary<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
@@ -1791,7 +1784,7 @@ begin
   { Find the left-most node }
   LNode := FindLeftMostNode();
 
-  while (LNode <> nil) do
+  while Assigned(LNode) do
   begin
     { Verify existance }
     if ValueRules.AreEqual(LNode.FValue, AValue) then
@@ -1821,7 +1814,7 @@ begin
   { Find the left-most node }
   LNode := FindLeftMostNode();
 
-  while (LNode <> nil) do
+  while Assigned(LNode) do
   begin
     { Get the key }
     AArray[X].Key := LNode.FKey;
@@ -1849,21 +1842,21 @@ end;
 constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
   const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean);
 var
-  V: TPair<TKey, TValue>;
+  LValue: TPair<TKey, TValue>;
 begin
   { Call upper constructor }
   Create(AKeyRules, AValueRules, AAscending);
 
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Pump in all items }
-  for V in ACollection do
+  for LValue in ACollection do
   begin
 {$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-    Add(V);
+    Add(LValue);
 {$ELSE}
-    Add(V.Key, V.Value);
+    Add(LValue.Key, LValue.Value);
 {$ENDIF}
   end;
 end;
@@ -1900,9 +1893,9 @@ begin
   Result := FRoot;
 
   { And go to maximum left }
-  if Result <> nil then
+  if Assigned(Result) then
   begin
-    while Result.FLeft <> nil do
+    while Assigned(Result.FLeft) do
       Result := Result.FLeft;
   end;
 end;
@@ -1910,20 +1903,19 @@ end;
 function TSortedDictionary<TKey, TValue>.FindNodeWithKey(const AKey: TKey): TNode;
 var
   LNode: TNode;
-  Compare: NativeInt;
-  HACK: IInterface;
+  LCompareResult: NativeInt;
 begin
   { Get root }
   LNode := FRoot;
 
-  while LNode <> nil do
+  while Assigned(LNode) do
   begin
-	  Compare := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
+	  LCompareResult := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
 
     { Navigate left, right or find! }
-    if Compare < 0 then
+    if LCompareResult < 0 then
       LNode := LNode.FLeft
-    else if Compare > 0 then
+    else if LCompareResult > 0 then
       LNode := LNode.FRight
     else
       Exit(LNode);
@@ -1939,9 +1931,9 @@ begin
   Result := FRoot;
 
   { And go to maximum left }
-  if Result <> nil then
+  if Assigned(Result) then
   begin
-    while Result.FRight <> nil do
+    while Assigned(Result.FRight) do
       Result := Result.FRight;
   end;
 end;
@@ -1965,10 +1957,10 @@ end;
 function TSortedDictionary<TKey, TValue>.Insert(const AKey: TKey; const AValue: TValue; const ChangeOrFail: Boolean): Boolean;
 var
   LNode: TNode;
-  Compare: NativeInt;
+  LCompareResult: NativeInt;
 begin
   { First one get special treatment! }
-  if FRoot = nil then
+  if not Assigned(FRoot) then
   begin
     FRoot := MakeNode(AKey, AValue, nil);
 
@@ -1985,11 +1977,11 @@ begin
 
   while true do
   begin
-	  Compare := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
+	  LCompareResult := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
 
-    if Compare < 0 then
+    if LCompareResult < 0 then
     begin
-      if LNode.FLeft <> nil then
+      if Assigned(LNode.FLeft) then
         LNode := LNode.FLeft
       else
       begin
@@ -2000,9 +1992,9 @@ begin
         { [ADDED NEW] Exit function! }
         break;
       end;
-    end else if Compare > 0 then
+    end else if LCompareResult > 0 then
     begin
-      if LNode.FRight <> nil then
+      if Assigned(LNode.FRight) then
         LNode := LNode.FRight
       else
       begin
@@ -2059,7 +2051,7 @@ end;
 function TSortedDictionary<TKey, TValue>.MaxKey: TKey;
 begin
   { Check there are elements in the set }
-  if FRoot = nil then
+  if not Assigned(FRoot) then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   if FSignFix = 1 then
@@ -2071,7 +2063,7 @@ end;
 function TSortedDictionary<TKey, TValue>.MinKey: TKey;
 begin
   { Check there are elements in the set }
-  if FRoot = nil then
+  if not Assigned(FRoot) then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   if FSignFix = 1 then
@@ -2082,179 +2074,173 @@ end;
 
 procedure TSortedDictionary<TKey, TValue>.ReBalanceSubTreeOnInsert(const ANode: TNode);
 var
-  LNode, XNode, WNode: TNode;
-  Compare: NativeInt;
+  LLNode, LXNode, LWNode: TNode;
 begin
-  (*
-    DISCLAIMER: I HAVE LITTLE TO ABSOLUTELY NO IDEA HOW THIS SPAGETTI WORKS!
-    DO NOT BLAME ME :D (Alex).
-  *)
-
-  LNode := ANode;
+  LLNode := ANode;
 
   { Re-balancing the tree! }
-  while ((LNode.FBalance <> 0) and (LNode.FParent <> nil)) do
+  while (LLNode.FBalance <> 0) and Assigned(LLNode.FParent) do
   begin
-    if (LNode.FParent.FLeft = LNode) then
-      Dec(LNode.FParent.FBalance)
+    if (LLNode.FParent.FLeft = LLNode) then
+      Dec(LLNode.FParent.FBalance)
     else
-      Inc(LNode.FParent.FBalance);
+      Inc(LLNode.FParent.FBalance);
 
     { Move up }
-    LNode := LNode.FParent;
+    LLNode := LLNode.FParent;
 
-    if (LNode.FBalance = -2) then
+    if (LLNode.FBalance = -2) then
     begin
-      XNode := LNode.FLeft;
+      LXNode := LLNode.FLeft;
 
-      if (XNode.FBalance = -1) then
+      if (LXNode.FBalance = -1) then
       begin
-        XNode.FParent := LNode.FParent;
+        LXNode.FParent := LLNode.FParent;
 
-        if (LNode.FParent = nil) then
-          FRoot := XNode
+        if not Assigned(LLNode.FParent) then
+          FRoot := LXNode
         else
         begin
-          if (LNode.FParent.FLeft = LNode) then
-            LNode.FParent.FLeft := XNode
+          if (LLNode.FParent.FLeft = LLNode) then
+            LLNode.FParent.FLeft := LXNode
           else
-            LNode.FParent.FRight := XNode;
+            LLNode.FParent.FRight := LXNode;
         end;
 
-        LNode.FLeft := XNode.FRight;
+        LLNode.FLeft := LXNode.FRight;
 
-        if LNode.FLeft <> nil then
-          LNode.FLeft.FParent := LNode;
+        if Assigned(LLNode.FLeft) then
+          LLNode.FLeft.FParent := LLNode;
 
-        XNode.FRight := LNode;
-        LNode.FParent := XNode;
+        LXNode.FRight := LLNode;
+        LLNode.FParent := LXNode;
 
-        XNode.FBalance := 0;
-        LNode.FBalance := 0;
+        LXNode.FBalance := 0;
+        LLNode.FBalance := 0;
       end else
       begin
-        WNode := XNode.FRight;
-        WNode.FParent := LNode.FParent;
+        LWNode := LXNode.FRight;
+        LWNode.FParent := LLNode.FParent;
 
-        if LNode.FParent = nil then
-          FRoot := WNode
+        if not Assigned(LLNode.FParent) then
+          FRoot := LWNode
         else
         begin
-          if LNode.FParent.FLeft = LNode then
-            LNode.FParent.FLeft := WNode
+          if LLNode.FParent.FLeft = LLNode then
+            LLNode.FParent.FLeft := LWNode
           else
-            LNode.FParent.FRight := WNode;
+            LLNode.FParent.FRight := LWNode;
         end;
 
-        XNode.FRight := WNode.FLeft;
+        LXNode.FRight := LWNode.FLeft;
 
-        if XNode.FRight <> nil then
-          XNode.FRight.FParent := XNode;
+        if Assigned(LXNode.FRight) then
+          LXNode.FRight.FParent := LXNode;
 
-        LNode.FLeft := WNode.FRight;
+        LLNode.FLeft := LWNode.FRight;
 
-        if LNode.FLeft <> nil then
-          LNode.FLeft.FParent := LNode;
+        if Assigned(LLNode.FLeft) then
+          LLNode.FLeft.FParent := LLNode;
 
-        WNode.FLeft := XNode;
-        WNode.FRight := LNode;
+        LWNode.FLeft := LXNode;
+        LWNode.FRight := LLNode;
 
-        XNode.FParent := WNode;
-        LNode.FParent := WNode;
+        LXNode.FParent := LWNode;
+        LLNode.FParent := LWNode;
 
         { Apply proper balancing }
-        if WNode.FBalance = -1 then
+        if LWNode.FBalance = -1 then
         begin
-          XNode.FBalance := 0;
-          LNode.FBalance := 1;
-        end else if WNode.FBalance = 0 then
+          LXNode.FBalance := 0;
+          LLNode.FBalance := 1;
+        end else if LWNode.FBalance = 0 then
         begin
-          XNode.FBalance := 0;
-          LNode.FBalance := 0;
+          LXNode.FBalance := 0;
+          LLNode.FBalance := 0;
         end else
         begin
-          XNode.FBalance := -1;
-          LNode.FBalance := 0;
+          LXNode.FBalance := -1;
+          LLNode.FBalance := 0;
         end;
 
-        WNode.FBalance := 0;
+        LWNode.FBalance := 0;
       end;
 
       break;
-    end else if LNode.FBalance = 2 then
+    end else if LLNode.FBalance = 2 then
     begin
-      XNode := LNode.FRight;
+      LXNode := LLNode.FRight;
 
-      if XNode.FBalance = 1 then
+      if LXNode.FBalance = 1 then
       begin
-        XNode.FParent := LNode.FParent;
+        LXNode.FParent := LLNode.FParent;
 
-        if LNode.FParent = nil then
-          FRoot := XNode
+        if not Assigned(LLNode.FParent) then
+          FRoot := LXNode
         else
         begin
-          if LNode.FParent.FLeft = LNode then
-            LNode.FParent.FLeft := XNode
+          if LLNode.FParent.FLeft = LLNode then
+            LLNode.FParent.FLeft := LXNode
           else
-            LNode.FParent.FRight := XNode;
+            LLNode.FParent.FRight := LXNode;
         end;
 
-        LNode.FRight := XNode.FLeft;
+        LLNode.FRight := LXNode.FLeft;
 
-        if LNode.FRight <> nil then
-          LNode.FRight.FParent := LNode;
+        if Assigned(LLNode.FRight) then
+          LLNode.FRight.FParent := LLNode;
 
-        XNode.FLeft := LNode;
-        LNode.FParent := XNode;
+        LXNode.FLeft := LLNode;
+        LLNode.FParent := LXNode;
 
-        XNode.FBalance := 0;
-        LNode.FBalance := 0;
+        LXNode.FBalance := 0;
+        LLNode.FBalance := 0;
       end else
       begin
-        WNode := XNode.FLeft;
-        WNode.FParent := LNode.FParent;
+        LWNode := LXNode.FLeft;
+        LWNode.FParent := LLNode.FParent;
 
-        if LNode.FParent = nil then
-          FRoot := WNode
+        if not Assigned(LLNode.FParent) then
+          FRoot := LWNode
         else
         begin
-          if LNode.FParent.FLeft = LNode then
-            LNode.FParent.FLeft := WNode
+          if LLNode.FParent.FLeft = LLNode then
+            LLNode.FParent.FLeft := LWNode
           else
-            LNode.FParent.FRight := WNode;
+            LLNode.FParent.FRight := LWNode;
         end;
 
-        XNode.FLeft := WNode.FRight;
+        LXNode.FLeft := LWNode.FRight;
 
-        if XNode.FLeft <> nil then
-          XNode.FLeft.FParent := XNode;
+        if Assigned(LXNode.FLeft) then
+          LXNode.FLeft.FParent := LXNode;
 
-        LNode.FRight := WNode.FLeft;
+        LLNode.FRight := LWNode.FLeft;
 
-        if LNode.FRight <> nil then
-          LNode.FRight.FParent := LNode;
+        if Assigned(LLNode.FRight) then
+          LLNode.FRight.FParent := LLNode;
 
-        WNode.FRight := XNode;
-        WNode.FLeft := LNode;
+        LWNode.FRight := LXNode;
+        LWNode.FLeft := LLNode;
 
-        XNode.FParent := WNode;
-        LNode.FParent := WNode;
+        LXNode.FParent := LWNode;
+        LLNode.FParent := LWNode;
 
-        if WNode.FBalance = 1 then
+        if LWNode.FBalance = 1 then
         begin
-          XNode.FBalance := 0;
-          LNode.FBalance := -1;
-        end else if WNode.FBalance = 0 then
+          LXNode.FBalance := 0;
+          LLNode.FBalance := -1;
+        end else if LWNode.FBalance = 0 then
         begin
-          XNode.FBalance := 0;
-          LNode.FBalance := 0;
+          LXNode.FBalance := 0;
+          LLNode.FBalance := 0;
         end else
         begin
-          XNode.FBalance := 1;
-          LNode.FBalance := 0;
+          LXNode.FBalance := 1;
+          LLNode.FBalance := 0;
         end;
 
-        WNode.FBalance := 0;
+        LWNode.FBalance := 0;
       end;
 
       break;
@@ -2272,7 +2258,7 @@ begin
   LNode := FindNodeWithKey(AKey);
 
   { Remove and rebalance the tree accordingly }
-  if LNode = nil then
+  if not Assigned(LNode) then
     Exit;
 
   { .. Do da dew! }
@@ -2290,10 +2276,10 @@ end;
 
 procedure TSortedDictionary<TKey, TValue>.RecursiveClear(const ANode: TNode);
 begin
-  if ANode.FLeft <> nil then
+  if Assigned(ANode.FLeft) then
     RecursiveClear(ANode.FLeft);
 
-  if ANode.FRight <> nil then
+  if Assigned(ANode.FRight) then
     RecursiveClear(ANode.FRight);
 
   { Cleanup for AKey/Value }
@@ -2322,13 +2308,13 @@ end;
 
 function TSortedDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
 var
-  ResultNode: TNode;
+  LResultNode: TNode;
 begin
-  ResultNode := FindNodeWithKey(AKey);
+  LResultNode := FindNodeWithKey(AKey);
 
-  if ResultNode <> nil then
+  if Assigned(LResultNode) then
   begin
-    AFoundValue := ResultNode.FValue;
+    AFoundValue := LResultNode.FValue;
     Exit(true);
   end;
 
@@ -2346,13 +2332,13 @@ function TSortedDictionary<TKey, TValue>.WalkToTheRight(const ANode: TNode): TNo
 begin
   Result := ANode;
 
-  if Result = nil then
+  if not Assigned(Result) then
     Exit;
 
   { Navigate further in the tree }
-  if Result.FRight = nil then
+  if not Assigned(Result.FRight) then
   begin
-    while ((Result.FParent <> nil) and (Result = Result.FParent.FRight)) do
+    while (Assigned(Result.FParent) and (Result = Result.FParent.FRight)) do
       Result := Result.FParent;
 
     Result := Result.FParent;
@@ -2360,7 +2346,7 @@ begin
   begin
     Result := Result.FRight;
 
-    while Result.FLeft <> nil do
+    while Assigned(Result.FLeft) do
       Result := Result.FLeft;
   end;
 end;
@@ -2421,7 +2407,7 @@ begin
      ExceptionHelper.Throw_CollectionChangedError();
 
   { Do not continue on last node }
-  if FNext = nil then
+  if not Assigned(FNext) then
     Exit(false);
 
   { Get the current value }
@@ -2467,7 +2453,7 @@ begin
      ExceptionHelper.Throw_CollectionChangedError();
 
   { Do not continue on last node }
-  if FNext = nil then
+  if not Assigned(FNext) then
     Exit(false);
 
   { Get the current value }
@@ -2513,7 +2499,7 @@ begin
      ExceptionHelper.Throw_CollectionChangedError();
 
   { Do not continue on last node }
-  if FNext = nil then
+  if not Assigned(FNext) then
     Exit(false);
 
   { Get the current value }
@@ -2564,7 +2550,7 @@ begin
   { Find the left-most node }
   LNode := FDict.FindLeftMostNode();
 
-  while (LNode <> nil) do
+  while Assigned(LNode) do
   begin
     { Get the AKey }
     AArray[X] := LNode.FKey;
@@ -2616,7 +2602,7 @@ begin
   { Find the left-most node }
   LNode := FDict.FindLeftMostNode();
 
-  while (LNode <> nil) do
+  while Assigned(LNode) do
   begin
     { Get the AKey }
     AArray[X] := LNode.FValue;

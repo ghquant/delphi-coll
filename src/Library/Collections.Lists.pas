@@ -120,23 +120,23 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="AInitialCapacity">The list's initial capacity.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -557,31 +557,27 @@ type
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the list.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the list.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <param name="AInitialCapacity">Specifies the initial capacity of the list.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the list.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the list.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -949,18 +945,18 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">The rule set used for the lists' elements.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="ARules">The rule set used for the lists' elements.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="ARules">The rule set used for the lists' elements.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -1353,7 +1349,7 @@ end;
 
 function TList<T>.Copy(const AStartIndex, ACount: NativeInt): TList<T>;
 var
-  NewList: TList<T>;
+  LNewList: TList<T>;
   I: NativeInt;
 begin
 //TODO: redo this function
@@ -1373,15 +1369,15 @@ begin
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new list }
-  NewList := TList<T>.Create(ElementRules, ACount);
+  LNewList := TList<T>.Create(ElementRules, ACount);
 
   { Copy all elements safely }
   for I := 0 to ACount - 1 do
-    NewList.FArray[I] := FArray[AStartIndex + I];
+    LNewList.FArray[I] := FArray[AStartIndex + I];
 
   { Set new count }
-  NewList.FLength := ACount;
-  Result := NewList;
+  LNewList.FLength := ACount;
+  Result := LNewList;
 end;
 
 procedure TList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
@@ -1406,16 +1402,13 @@ begin
   Create(ARules, CDefaultSize);
 end;
 
-constructor TList<T>.Create(const ARules: TRules<T>;
-  const ACollection: IEnumerable<T>);
-var
-  V: T;
+constructor TList<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 begin
   { Call upper constructor }
   Create(ARules, CDefaultSize);
 
   { Initialize instance }
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   Add(ACollection);
@@ -1476,17 +1469,17 @@ end;
 
 function TList<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  V: T;
+  LValue: T;
   I: NativeInt;
 begin
   I := 0;
 
-  for V in ACollection do
+  for LValue in ACollection do
   begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[I], V) then
+    if not ElementRules.AreEqual(FArray[I], LValue) then
       Exit(false);
 
     Inc(I);
@@ -1591,7 +1584,7 @@ end;
 
 procedure TList<T>.Insert(const AIndex: NativeInt; const AValue: T);
 var
-  I, Cap: NativeInt;
+  I: NativeInt;
 begin
   if (AIndex > FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
@@ -1613,21 +1606,22 @@ end;
 
 procedure TList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
   I: NativeInt;
 begin
+  //TODO: needs optimizing
   if (AIndex > FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   I := AIndex;
-  
+
   { Enumerate and add }
-  for V in ACollection do
+  for LValue in ACollection do
   begin
-    Insert(I, V);
+    Insert(I, LValue);
     Inc(I);
   end;
 end;
@@ -1715,7 +1709,7 @@ procedure TList<T>.QuickSort(ALeft, ARight: NativeInt; const ASortProc: TCompari
 {$IFNDEF OPTIMIZED_SORT}
 var
   I, J: NativeInt;
-  Pivot, Temp: T;
+  LPivot, LTemp: T;
 begin
   ASSERT(Assigned(ASortProc));
 
@@ -1723,13 +1717,13 @@ begin
     I := ALeft;
     J := ARight;
 
-    Pivot := FArray[(ALeft + ARight) div 2];
+    LPivot := FArray[(ALeft + ARight) div 2];
 
     repeat
-      while ASortProc(FArray[I], Pivot) < 0 do
+      while ASortProc(FArray[I], LPivot) < 0 do
         Inc(I);
 
-      while ASortProc(FArray[J], Pivot) > 0 do
+      while ASortProc(FArray[J], LPivot) > 0 do
         Dec(J);
 
       if I <= J then
@@ -1737,9 +1731,9 @@ begin
 
         if I <> J then
         begin
-          Temp := FArray[I];
+          LTemp := FArray[I];
           FArray[I] := FArray[J];
-          FArray[J] := Temp;
+          FArray[J] := LTemp;
         end;
 
         Inc(I);
@@ -1757,53 +1751,53 @@ begin
 end;
 {$ELSE}
 var
-  SubArray, SubLeft, SubRight: NativeInt;
-  Pivot, Temp: T;
-  Stack: TQuickSortStack;
+  LSubArray, LSubLeft, LSubRight: NativeInt;
+  LPivot, LTemp: T;
+  LStack: TQuickSortStack;
 begin
   ASSERT(Assigned(ASortProc));
 
-  SubArray := 0;
+  LSubArray := 0;
 
-  Stack[SubArray].First := ALeft;
-  Stack[SubArray].Last := ARight;
+  LStack[LSubArray].First := ALeft;
+  LStack[LSubArray].Last := ARight;
 
   repeat
-    ALeft  := Stack[SubArray].First;
-    ARight := Stack[SubArray].Last;
-    Dec(SubArray);
+    ALeft  := LStack[LSubArray].First;
+    ARight := LStack[LSubArray].Last;
+    Dec(LSubArray);
     repeat
-      SubLeft := ALeft;
-      SubRight := ARight;
-      Pivot:= FArray[(ALeft + ARight) shr 1];
+      LSubLeft := ALeft;
+      LSubRight := ARight;
+      LPivot:= FArray[(ALeft + ARight) shr 1];
 
       repeat
-        while ASortProc(FArray[SubLeft], Pivot) < 0 do
-          Inc(SubLeft);
+        while ASortProc(FArray[LSubLeft], LPivot) < 0 do
+          Inc(LSubLeft);
 
-        while ASortProc(FArray[SubRight], Pivot) > 0 do
-          Dec(SubRight);
+        while ASortProc(FArray[LSubRight], LPivot) > 0 do
+          Dec(LSubRight);
 
-        if SubLeft <= SubRight then
+        if LSubLeft <= LSubRight then
         begin
-          Temp := FArray[SubLeft];
-          FArray[SubLeft] := FArray[SubRight];
-          FArray[SubRight] := Temp;
-          Inc(SubLeft);
-          Dec(SubRight);
+          LTemp := FArray[LSubLeft];
+          FArray[LSubLeft] := FArray[LSubRight];
+          FArray[LSubRight] := LTemp;
+          Inc(LSubLeft);
+          Dec(LSubRight);
         end;
-      until SubLeft > SubRight;
+      until LSubLeft > LSubRight;
 
-      if SubLeft < ARight then
+      if LSubLeft < ARight then
       begin
-        Inc(SubArray);
-        Stack[SubArray].First := SubLeft;
-        Stack[SubArray].Last  := ARight;
+        Inc(LSubArray);
+        LStack[LSubArray].First := LSubLeft;
+        LStack[LSubArray].Last  := ARight;
       end;
 
-      ARight := SubRight;
+      ARight := LSubRight;
     until ALeft >= ARight;
-  until SubArray < 0;
+  until LSubArray < 0;
 end;
 {$ENDIF}
 
@@ -1835,26 +1829,26 @@ end;
 
 procedure TList<T>.Remove(const AValue: T);
 var
-  I, FoundIndex: NativeInt;
+  I, LFoundIndex: NativeInt;
 begin
   { Defaults }
   if (FLength = 0) then Exit;
-  FoundIndex := -1;
+  LFoundIndex := -1;
 
   for I := 0 to FLength - 1 do
   begin
     if ElementRules.AreEqual(FArray[I], AValue) then
     begin
-      FoundIndex := I;
+      LFoundIndex := I;
       Break;
     end;
   end;
 
-  if FoundIndex > -1 then
+  if LFoundIndex > -1 then
   begin
     { Move the list }
     if FLength > 1 then
-      for I := FoundIndex to FLength - 2 do
+      for I := LFoundIndex to FLength - 2 do
         FArray[I] := FArray[I + 1];
 
     Dec(FLength);
@@ -1886,7 +1880,7 @@ end;
 procedure TList<T>.Reverse(const AStartIndex, ACount: NativeInt);
 var
   I: NativeInt;
-  V: T;
+  LValue: T;
 begin
   { Check for indexes }
   if AStartIndex < 0 then
@@ -1904,9 +1898,9 @@ begin
   { Reverse the array }
   for I := 0 to (ACount div 2) - 1 do
   begin
-    V := FArray[AStartIndex + I];
+    LValue := FArray[AStartIndex + I];
     FArray[AStartIndex + I] := FArray[AStartIndex + ACount - I - 1];
-    FArray[AStartIndex + ACount - I - 1] := V;
+    FArray[AStartIndex + ACount - I - 1] := LValue;
   end;
 end;
 
@@ -2094,7 +2088,7 @@ end;
 
 procedure TSortedList<T>.Insert(const AIndex: NativeInt; const AValue: T);
 var
-  I, Cap: NativeInt;
+  I: NativeInt;
 begin
   if (AIndex > FLength) or (AIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
@@ -2104,8 +2098,8 @@ begin
 
   { Move the array to the right }
   if AIndex < FLength then
-     for I := FLength downto (AIndex + 1) do
-         FArray[I] := FArray[I - 1];
+    for I := FLength downto (AIndex + 1) do
+      FArray[I] := FArray[I - 1];
 
   Inc(FLength);
 
@@ -2116,14 +2110,14 @@ end;
 
 procedure TSortedList<T>.Add(const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
 begin
-  if (ACollection = nil) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Enumerate and add, preserving order}
-  for V in ACollection do
-    Add(V);
+  for LValue in ACollection do
+    Add(LValue);
 end;
 
 function TSortedList<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
@@ -2202,18 +2196,18 @@ end;
 
 procedure TSortedList<T>.Add(const AValue: T);
 var
-  I, Sign: NativeInt;
+  I, LSign: NativeInt;
 begin
   if FAscending then
-     Sign := 1
+     LSign := 1
   else
-     Sign := -1;
+     LSign := -1;
 
   I := 0;
 
   while I < FLength do
   begin
-    if ((ElementRules.Compare(AValue, FArray[I]) * Sign) < 0) then
+    if ((ElementRules.Compare(AValue, FArray[I]) * LSign) < 0) then
        Break;
 
     Inc(I);
@@ -2248,7 +2242,7 @@ end;
 
 function TSortedList<T>.Copy(const AStartIndex, ACount: NativeInt): TSortedList<T>;
 var
-  NewList: TSortedList<T>;
+  LNewList: TSortedList<T>;
   I: NativeInt;
 begin
   //TODO: remake;
@@ -2268,16 +2262,16 @@ begin
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new list }
-  NewList := TSortedList<T>.Create(ElementRules, ACount);
+  LNewList := TSortedList<T>.Create(ElementRules, ACount);
 
   { Copy all elements safely }
   for I := 0 to ACount - 1 do
-    NewList.FArray[I] := FArray[AStartIndex + I];
+    LNewList.FArray[I] := FArray[AStartIndex + I];
 
   { Set new count }
-  NewList.FLength := ACount;
+  LNewList.FLength := ACount;
 
-  Result := NewList;
+  Result := LNewList;
 end;
 
 function TSortedList<T>.Copy: TSortedList<T>;
@@ -2311,21 +2305,18 @@ end;
 constructor TSortedList<T>.Create(const ARules: TRules<T>;
   const ACollection: IEnumerable<T>; const AAscending: Boolean);
 var
-  V: T;
+  LValue: T;
 begin
   { Call upper constructor }
   Create(ARules, CDefaultSize, AAscending);
 
   { Initialize instance }
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Try to copy the given Enumerable }
-  for V in ACollection do
-  begin
-    { Perform a simple push }
-    Add(V);
-  end;
+  for LValue in ACollection do
+    Add(LValue);
 end;
 
 constructor TSortedList<T>.Create(const AAscending: Boolean);
@@ -2386,17 +2377,17 @@ end;
 
 function TSortedList<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  V: T;
+  LValue: T;
   I: NativeInt;
 begin
   I := 0;
 
-  for V in ACollection do
+  for LValue in ACollection do
   begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[I], V) then
+    if not ElementRules.AreEqual(FArray[I], LValue) then
       Exit(false);
 
     Inc(I);
@@ -2535,11 +2526,12 @@ begin
     Inc(J, AStartIndex);
 
   for I := J - 1 downto AStartIndex do
-      if not ElementRules.AreEqual(AValue, FArray[I]) then
-      begin
-        Result := I + 1;
-        Exit;
-      end;
+    if not ElementRules.AreEqual(AValue, FArray[I]) then
+    begin
+      Result := I + 1;
+      Exit;
+    end;
+
   Result := J;
 end;
 
@@ -2642,26 +2634,26 @@ end;
 
 procedure TSortedList<T>.Remove(const AValue: T);
 var
-  I, FoundIndex: NativeInt;
+  I, LFoundIndex: NativeInt;
 begin
   { Defaults }
   if (FLength = 0) then Exit;
-  FoundIndex := -1;
+  LFoundIndex := -1;
 
   for I := 0 to FLength - 1 do
   begin
     if ElementRules.AreEqual(FArray[I], AValue) then
     begin
-      FoundIndex := I;
+      LFoundIndex := I;
       Break;
     end;
   end;
 
-  if FoundIndex > -1 then
+  if LFoundIndex > -1 then
   begin
     { Move the list }
     if FLength > 1 then
-      for I := FoundIndex to FLength - 2 do
+      for I := LFoundIndex to FLength - 2 do
         FArray[I] := FArray[I + 1];
 
     Dec(FLength);
@@ -2694,9 +2686,7 @@ procedure TSortedList<T>.Shrink;
 begin
   { Cut the capacity if required }
   if FLength < Capacity then
-  begin
     SetLength(FArray, FLength);
-  end;
 end;
 
 function TSortedList<T>.Single: T;
@@ -2801,28 +2791,27 @@ end;
 
 destructor TLinkedListNode<T>.Destroy;
 begin
-
   { Link the parent with the next and skip me! }
-  if (FPrev <> nil) then
+  if Assigned(FPrev) then
   begin
     FPrev.FNext := FNext;
 
     { Chnage the last element if required }
-    if (FNext = nil) and (FList <> nil) then
+    if (not Assigned(FNext)) and Assigned(FList) then
        FList.FLast := FPrev;
   end else
   begin
     { This is the first element - update parent list }
-    if (FList <> nil) then
+    if Assigned(FList) then
        FList.FFirst := FNext;
   end;
 
   { Update back link }
-  if (FNext <> nil) then
+  if Assigned(FNext) then
      FNext.FPrev := FPrev;
 
   { Changethe value of the count property in the parent list }
-  if (FList <> nil) then
+  if Assigned(FList) then
   begin
     { Clean myself up }
     if not FRemoved then
@@ -2849,36 +2838,35 @@ end;
 
 procedure TLinkedList<T>.AddAfter(const ARefNode: TLinkedListNode<T>; const ANode: TLinkedListNode<T>);
 var
-  Current: TLinkedListNode<T>;
+  LCurrent: TLinkedListNode<T>;
 begin
-  if ARefNode = nil then
+  if not Assigned(ARefNode) then
      ExceptionHelper.Throw_ArgumentNilError('ARefNode');
 
-  if ANode = nil then
+  if not Assigned(ANode) then
      ExceptionHelper.Throw_ArgumentNilError('ANode');
 
   if ARefNode.FList <> Self then
      ExceptionHelper.Throw_ElementNotPartOfCollectionError('ARefNode');
 
-  if ANode.FList <> nil then
+  if Assigned(ANode.FList) then
      ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError('ANode');
 
   { Test for immediate value }
-  if (FFirst = nil) then Exit;
+  if not Assigned(FFirst) then Exit;
 
   { Start value }
-  Current := FFirst;
+  LCurrent := FFirst;
 
-  while Current <> nil do
+  while Assigned(LCurrent) do
   begin
-
-    if (Current = ARefNode) then
+    if (LCurrent = ARefNode) then
     begin
-      ANode.FPrev := Current;
-      ANode.FNext := Current.FNext;
-      Current.FNext := ANode;
+      ANode.FPrev := LCurrent;
+      ANode.FNext := LCurrent.FNext;
+      LCurrent.FNext := ANode;
 
-      if (ANode.FNext <> nil) then
+      if Assigned(ANode.FNext) then
           ANode.FNext.FPrev := ANode
       else
           FLast := ANode;
@@ -2890,7 +2878,7 @@ begin
       Exit;
     end;
 
-    Current := Current.FNext;
+    LCurrent := LCurrent.FNext;
   end;
 end;
 
@@ -2902,36 +2890,35 @@ end;
 
 procedure TLinkedList<T>.AddBefore(const ARefNode: TLinkedListNode<T>; const ANode: TLinkedListNode<T>);
 var
-  Current: TLinkedListNode<T>;
+  LCurrent: TLinkedListNode<T>;
 begin
-  if ARefNode = nil then
+  if not Assigned(ARefNode) then
      ExceptionHelper.Throw_ArgumentNilError('ARefNode');
 
-  if ANode = nil then
+  if not Assigned(ANode) then
      ExceptionHelper.Throw_ArgumentNilError('ANode');
 
   if ARefNode.FList <> Self then
      ExceptionHelper.Throw_ElementNotPartOfCollectionError('ARefNode');
 
-  if ANode.FList <> nil then
+  if Assigned(ANode.FList) then
      ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError('ANode');
 
   { Test for immediate value }
-  if (FFirst = nil) then Exit;
+  if not Assigned(FFirst) then Exit;
 
   { Start value }
-  Current := FFirst;
+  LCurrent := FFirst;
 
-  while Current <> nil do
+  while Assigned(LCurrent) do
   begin
-
-    if (Current = ARefNode) then
+    if (LCurrent = ARefNode) then
     begin
-      ANode.FNext := Current;
-      ANode.FPrev := Current.FPrev;
-      Current.FPrev := ANode;
+      ANode.FNext := LCurrent;
+      ANode.FPrev := LCurrent.FPrev;
+      LCurrent.FPrev := ANode;
 
-      if ANode.FPrev <> nil then
+      if Assigned(ANode.FPrev) then
          ANode.FPrev.FNext := ANode;
 
       Inc(FCount);
@@ -2939,13 +2926,13 @@ begin
 
       ANode.FList := Self;
 
-      if Current = FFirst then
+      if LCurrent = FFirst then
          FFirst := ANode;
 
       Exit;
     end;
 
-    Current := Current.FNext;
+    LCurrent := LCurrent.FNext;
   end;
 end;
 
@@ -2957,21 +2944,21 @@ end;
 
 procedure TLinkedList<T>.AddFirst(const ANode: TLinkedListNode<T>);
 begin
-  if ANode = nil then
+  if not Assigned(ANode) then
      ExceptionHelper.Throw_ArgumentNilError('ANode');
 
-  if ANode.FList <> nil then
+  if Assigned(ANode.FList) then
      ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError('ANode');
 
   { Plug in the new node }
   ANode.FNext := FFirst;
 
-  if FFirst <> nil then
+  if Assigned(FFirst) then
      FFirst.FPrev := ANode;
 
   FFirst := ANode;
 
-  if (FLast = nil) then
+  if not Assigned(FLast) then
       FLast := FFirst;
 
   ANode.FList := Self;
@@ -2988,7 +2975,7 @@ end;
 
 function TLinkedList<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -2999,24 +2986,24 @@ begin
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Default one }
-  Node := FFirst;
-  Result := Node.FData;
+  LNode := FFirst;
+  Result := LNode.FData;
 
   while True do
   begin
-    Node := Node.FNext;
+    LNode := LNode.FNext;
 
-    if Node = nil then
+    if not Assigned(LNode) then
       Exit;
 
     { Aggregate a value }
-    Result := AAggregator(Result, Node.FData);
+    Result := AAggregator(Result, LNode.FData);
   end;
 end;
 
 function TLinkedList<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
 begin
   { Check arguments }
   if not Assigned(AAggregator) then
@@ -3027,37 +3014,37 @@ begin
     Exit(ADefault);
 
   { Default one }
-  Node := FFirst;
-  Result := Node.FData;
+  LNode := FFirst;
+  Result := LNode.FData;
 
   while True do
   begin
-    Node := Node.FNext;
+    LNode := LNode.FNext;
 
-    if Node = nil then
+    if not Assigned(LNode) then
       Exit;
 
     { Aggregate a value }
-    Result := AAggregator(Result, Node.FData);
+    Result := AAggregator(Result, LNode.FData);
   end;
 end;
 
 function TLinkedList<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Default one }
-  Node := FFirst;
-  while Node <> nil do
+  LNode := FFirst;
+  while Assigned(LNode) do
   begin
-    if not APredicate(Node.FData) then
+    if not APredicate(LNode.FData) then
       Exit(false);
 
-    Node := Node.FNext;
+    LNode := LNode.FNext;
   end;
 
   Result := true;
@@ -3065,20 +3052,20 @@ end;
 
 function TLinkedList<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Default one }
-  Node := FFirst;
-  while Node <> nil do
+  LNode := FFirst;
+  while Assigned(LNode) do
   begin
-    if APredicate(Node.FData) then
+    if APredicate(LNode.FData) then
       Exit(true);
 
-    Node := Node.FNext;
+    LNode := LNode.FNext;
   end;
 
   Result := false;
@@ -3086,21 +3073,21 @@ end;
 
 procedure TLinkedList<T>.AddLast(const ANode: TLinkedListNode<T>);
 begin
-  if ANode = nil then
+  if not Assigned(ANode) then
      ExceptionHelper.Throw_ArgumentNilError('ANode');
 
-  if ANode.FList <> nil then
+  if Assigned(ANode.FList) then
      ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError('ANode');
 
   { Plug in the new node }
   ANode.FPrev := FLast;
 
-  if FLast <> nil then
+  if Assigned(FLast) then
      FLast.FNext := ANode;
 
   FLast := ANode;
 
-  if (FFirst = nil) then
+  if not Assigned(FFirst) then
       FFirst := FLast;
 
   ANode.FList := Self;
@@ -3112,20 +3099,20 @@ end;
 procedure TLinkedList<T>.Clear;
 begin
   { Delete one-by-one }
-  while FFirst <> nil do
-        FFirst.Free();
+  while Assigned(FFirst) do
+    FFirst.Free();
 end;
 
 function TLinkedList<T>.Contains(const AValue: T): Boolean;
 begin
   { Simply re-route }
-  Result := (Find(AValue) <> nil);
+  Result := Assigned(Find(AValue));
 end;
 
 procedure TLinkedList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
-  Current: TLinkedListNode<T>;
-  Index: NativeInt;
+  LCurrent: TLinkedListNode<T>;
+  LIndex: NativeInt;
 begin
   if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
@@ -3134,17 +3121,17 @@ begin
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Test for immediate value }
-  if (FFirst = nil) then Exit;
+  if not Assigned(FFirst) then Exit;
 
   { Start value }
-  Current := FFirst;
-  Index := AStartIndex;
+  LCurrent := FFirst;
+  LIndex := AStartIndex;
 
-  while Current <> nil do
+  while Assigned(LCurrent) do
   begin
-    AArray[Index] := Current.Value;
-    Current := Current.FNext;
-    Inc(Index);
+    AArray[LIndex] := LCurrent.Value;
+    LCurrent := LCurrent.FNext;
+    Inc(LIndex);
   end;
 end;
 
@@ -3172,20 +3159,17 @@ end;
 constructor TLinkedList<T>.Create(const ARules: TRules<T>;
   const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
 begin
   { Call upper constructor }
   Create(ARules);
 
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Try to copy the given Enumerable }
-  for V in ACollection do
-  begin
-    { Perform a simple copy }
-    AddLast(V);
-  end;
+  for LValue in ACollection do
+    AddLast(LValue);
 end;
 
 function TLinkedList<T>.GetCount: NativeInt;
@@ -3218,49 +3202,49 @@ end;
 
 function TLinkedList<T>.Max: T;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
 begin
   { Check length }
   if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Default one }
-  Node := FFirst;
-  Result := Node.FData;
+  LNode := FFirst;
+  Result := LNode.FData;
 
   while True do
   begin
-    Node := Node.FNext;
+    LNode := LNode.FNext;
 
-    if Node = nil then
+    if not Assigned(LNode) then
       Exit;
 
-    if ElementRules.Compare(Node.FData, Result) > 0 then
-      Result := Node.FData;
+    if ElementRules.Compare(LNode.FData, Result) > 0 then
+      Result := LNode.FData;
   end;
 end;
 
 function TLinkedList<T>.Min: T;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
 begin
   { Check length }
   if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Default one }
-  Node := FFirst;
-  Result := Node.FData;
+  LNode := FFirst;
+  Result := LNode.FData;
 
   while True do
   begin
-    Node := Node.FNext;
+    LNode := LNode.FNext;
 
-    if Node = nil then
+    if not Assigned(LNode) then
       Exit;
 
-    if ElementRules.Compare(Node.FData, Result) < 0 then
-      Result := Node.FData;
+    if ElementRules.Compare(LNode.FData, Result) < 0 then
+      Result := LNode.FData;
   end;
 end;
 
@@ -3274,19 +3258,19 @@ end;
 
 function TLinkedList<T>.ElementAt(const AIndex: NativeInt): T;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
   I: NativeInt;
 begin
   { Default one }
-  Node := FFirst;
+  LNode := FFirst;
   I := 0;
 
-  while Node <> nil do
+  while Assigned(LNode) do
   begin
     if I = AIndex then
-      Exit(Node.FData);
+      Exit(LNode.FData);
 
-    Node := Node.FNext;
+    LNode := LNode.FNext;
     Inc(I);
   end;
 
@@ -3295,19 +3279,19 @@ end;
 
 function TLinkedList<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 var
-  Node: TLinkedListNode<T>;
+  LNode: TLinkedListNode<T>;
   I: NativeInt;
 begin
   { Default one }
-  Node := FFirst;
+  LNode := FFirst;
   I := 0;
 
-  while Node <> nil do
+  while Assigned(LNode) do
   begin
     if I = AIndex then
-      Exit(Node.FData);
+      Exit(LNode.FData);
 
-    Node := Node.FNext;
+    LNode := LNode.FNext;
     Inc(I);
   end;
 
@@ -3321,23 +3305,23 @@ end;
 
 function TLinkedList<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  Node: TLinkedListNode<T>;
-  V: T;
+  LNode: TLinkedListNode<T>;
+  LValue: T;
 begin
-  Node := FFirst;
+  LNode := FFirst;
 
-  for V in ACollection do
+  for LValue in ACollection do
   begin
-    if Node = nil then
+    if not Assigned(LNode) then
       Exit(false);
 
-    if not ElementRules.AreEqual(Node.FData, V) then
+    if not ElementRules.AreEqual(LNode.FData, LValue) then
       Exit(false);
 
-    Node := Node.FNext;
+    LNode := LNode.FNext;
   end;
 
-  if Node <> nil then
+  if Assigned(LNode) then
     Exit(false);
 
   Result := true;
@@ -3345,54 +3329,52 @@ end;
 
 function TLinkedList<T>.Find(const AValue: T): TLinkedListNode<T>;
 var
-  Current: TLinkedListNode<T>;
+  LCurrent: TLinkedListNode<T>;
 begin
   Result := nil;
 
   { Test for immediate value }
-  if (FFirst = nil) then Exit;
+  if not Assigned(FFirst) then Exit;
 
   { Start value }
-  Current := FFirst;
+  LCurrent := FFirst;
 
-  while Current <> nil do
+  while Assigned(LCurrent) do
   begin
 
-    if ElementRules.AreEqual(Current.FData, AValue) then
+    if ElementRules.AreEqual(LCurrent.FData, AValue) then
     begin
-      Result := Current;
+      Result := LCurrent;
       exit;
     end;
 
-    Current := Current.FNext;
+    LCurrent := LCurrent.FNext;
   end;
-
 end;
 
 function TLinkedList<T>.FindLast(const AValue: T): TLinkedListNode<T>;
 var
-  Current: TLinkedListNode<T>;
+  LCurrent: TLinkedListNode<T>;
 begin
   Result := nil;
 
   { Test for immediate value }
-  if (FLast = nil) then Exit;
+  if not Assigned(FLast) then Exit;
 
   { Start value }
-  Current := FLast;
+  LCurrent := FLast;
 
-  while Current <> nil do
+  while Assigned(LCurrent) do
   begin
 
-    if ElementRules.AreEqual(Current.FData, AValue) then
+    if ElementRules.AreEqual(LCurrent.FData, AValue) then
     begin
-      Result := Current;
+      Result := LCurrent;
       exit;
     end;
 
-    Current := Current.FPrev;
+    LCurrent := LCurrent.FPrev;
   end;
-
 end;
 
 function TLinkedList<T>.First: T;
@@ -3415,23 +3397,23 @@ end;
 
 procedure TLinkedList<T>.Remove(const AValue: T);
 var
-  FoundNode: TLinkedListNode<T>;
+  LFoundNode: TLinkedListNode<T>;
 begin
   { Find the node }
-  FoundNode := Find(AValue);
+  LFoundNode := Find(AValue);
 
   { Free if found }
-  if (FoundNode <> nil) then
+  if Assigned(LFoundNode) then
   begin
-    FoundNode.FRemoved := true;
-    FoundNode.Free();
+    LFoundNode.FRemoved := true;
+    LFoundNode.Free();
   end;
 end;
 
 function TLinkedList<T>.RemoveAndReturnFirst: T;
 begin
   { Check if there is a First and remove it }
-  if FFirst <> nil then
+  if Assigned(FFirst) then
   begin
     FFirst.FRemoved := true;
     Result := FFirst.FData;
@@ -3444,7 +3426,7 @@ end;
 function TLinkedList<T>.RemoveAndReturnLast: T;
 begin
   { Check if there is a Last and remove it }
-  if FLast <> nil then
+  if Assigned(FLast) then
   begin
     FLast.FRemoved := true;
     Result := FLast.FData;
@@ -3457,14 +3439,14 @@ end;
 procedure TLinkedList<T>.RemoveFirst;
 begin
   { Check if there is a First and remove it }
-  if FFirst <> nil then
+  if Assigned(FFirst) then
      FFirst.Free();
 end;
 
 procedure TLinkedList<T>.RemoveLast;
 begin
   { Check if there is a First and remove it }
-  if FLast <> nil then
+  if Assigned(FLast) then
      FLast.Free();
 end;
 
@@ -3492,28 +3474,28 @@ end;
 
 procedure TLinkedList<T>.AddAfter(const ARefValue, AValue: T);
 var
-  FoundNode: TLinkedListNode<T>;
+  LFoundNode: TLinkedListNode<T>;
 begin
   { Find the node }
-  FoundNode := Find(ARefValue);
+  LFoundNode := Find(ARefValue);
 
-  if FoundNode = nil then
+  if not Assigned(LFoundNode) then
      ExceptionHelper.Throw_ElementNotPartOfCollectionError('ARefValue');
 
-  AddAfter(FoundNode, TLinkedListNode<T>.Create(AValue));
+  AddAfter(LFoundNode, TLinkedListNode<T>.Create(AValue));
 end;
 
 procedure TLinkedList<T>.AddBefore(const ARefValue, AValue: T);
 var
-  FoundNode: TLinkedListNode<T>;
+  LFoundNode: TLinkedListNode<T>;
 begin
   { Find the node }
-  FoundNode := Find(ARefValue);
+  LFoundNode := Find(ARefValue);
 
-  if FoundNode = nil then
+  if not Assigned(LFoundNode) then
      ExceptionHelper.Throw_ElementNotPartOfCollectionError('ARefValue');
 
-  AddBefore(FoundNode, TLinkedListNode<T>.Create(AValue));
+  AddBefore(LFoundNode, TLinkedListNode<T>.Create(AValue));
 end;
 
 constructor TLinkedList<T>.Create(const AArray: array of T);
@@ -3558,7 +3540,7 @@ begin
   if FVer <> FLinkedList.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
-  if FCurrentNode <> nil then
+  if Assigned(FCurrentNode) then
      Result := FCurrentNode.FData
   else
      Result := default(T);
@@ -3569,12 +3551,12 @@ begin
   if FVer <> FLinkedList.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
-  if FCurrentNode = nil then
+  if not Assigned(FCurrentNode) then
      FCurrentNode := FLinkedList.FirstNode
   else
      FCurrentNode := FCurrentNode.FNext;
 
-  Result := (FCurrentNode <> nil);
+  Result := Assigned(FCurrentNode);
 end;
 
 { TObjectLinkedList<T> }

@@ -108,21 +108,18 @@ type
     constructor Create(const AArray: array of T); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -328,24 +325,21 @@ type
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set decribing the elements in the bag.</param>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
   end;
 
@@ -373,15 +367,15 @@ implementation
 
 procedure TAbstractBag<T>.Add(const AValue: T; const AWeight: NativeInt);
 var
-  OldCount: NativeInt;
+  LOldCount: NativeInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
     Exit;
 
   { Add or update count }
-  if FDictionary.TryGetValue(AValue, OldCount) then
-    FDictionary[AValue] := OldCount + AWeight
+  if FDictionary.TryGetValue(AValue, LOldCount) then
+    FDictionary[AValue] := LOldCount + AWeight
   else
     FDictionary.Add(AValue, AWeight);
 
@@ -403,7 +397,7 @@ end;
 
 procedure TAbstractBag<T>.Clear;
 begin
-  if FDictionary <> nil then
+  if Assigned(FDictionary) then
   begin
     { Simply clear the dictionary }
     FDictionary.Clear();
@@ -415,19 +409,19 @@ end;
 
 function TAbstractBag<T>.Contains(const AValue: T; const AWeight: NativeInt): Boolean;
 var
-  InCount: NativeInt;
+  LInCount: NativeInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
     Exit(true);
 
   { Check the counts in the bag }
-  Result := (FDictionary.TryGetValue(AValue, InCount)) and (InCount >= AWeight);
+  Result := (FDictionary.TryGetValue(AValue, LInCount)) and (LInCount >= AWeight);
 end;
 
 procedure TAbstractBag<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
-  TempArray: array of TPair<T, NativeInt>;
+  LTempArray: array of TPair<T, NativeInt>;
   I, X, Y: NativeInt;
 begin
   if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
@@ -442,18 +436,18 @@ begin
     Exit;
 
   { Initialize the temporary array }
-  SetLength(TempArray, FDictionary.Count);
-  FDictionary.CopyTo(TempArray);
+  SetLength(LTempArray, FDictionary.Count);
+  FDictionary.CopyTo(LTempArray);
 
   X := AStartIndex;
 
   { OK! Now let's simply copy }
-  for I := 0 to Length(TempArray) - 1 do
+  for I := 0 to Length(LTempArray) - 1 do
   begin
     { Copy one value for a number of counts }
-    for Y := 0 to TempArray[I].Value - 1 do
+    for Y := 0 to LTempArray[I].Value - 1 do
     begin
-      AArray[X] := TempArray[I].Key;
+      AArray[X] := LTempArray[I].Key;
       Inc(X);
     end;
   end;
@@ -473,17 +467,17 @@ end;
 
 constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
 var
-  V: T;
+  LValue: T;
 begin
-  if (ACollection = nil) then
+  if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Call upper constructor }
   Create(ARules);
 
   { Iterate and add }
-  for V in ACollection do
-    Add(V);
+  for LValue in ACollection do
+    Add(LValue);
 end;
 
 constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const AArray: array of T);
@@ -574,7 +568,7 @@ function TAbstractBag<T>.GetWeight(const AValue: T): NativeInt;
 begin
   { Get the count }
   if not FDictionary.TryGetValue(AValue, Result) then
-     Result := 0;
+    Result := 0;
 end;
 
 function TAbstractBag<T>.GetEnumerator: IEnumerator<T>;
@@ -584,26 +578,26 @@ end;
 
 procedure TAbstractBag<T>.Remove(const AValue: T; const AWeight: NativeInt);
 var
-  OldCount: NativeInt;
+  LOldCount: NativeInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
     Exit;
 
   { Check that the key os present in the dictionary first }
-  if not FDictionary.TryGetValue(AValue, OldCount) then
+  if not FDictionary.TryGetValue(AValue, LOldCount) then
     Exit;
 
-  if OldCount < AWeight then
-    OldCount := 0
+  if LOldCount < AWeight then
+    LOldCount := 0
   else
-    OldCount := OldCount - AWeight;
+    LOldCount := LOldCount - AWeight;
 
   { Update the counts }
-  if OldCount = 0 then
+  if LOldCount = 0 then
     FDictionary.Remove(AValue)
   else
-    FDictionary[AValue] := OldCount;
+    FDictionary[AValue] := LOldCount;
 
   Dec(FKnownCount, AWeight);
   Inc(FVer);
@@ -611,21 +605,21 @@ end;
 
 procedure TAbstractBag<T>.RemoveAll(const AValue: T);
 var
-  OldCount: NativeInt;
+  LOldCount: NativeInt;
 begin
   { Check that the key is present in the dictionary first }
-  if not FDictionary.TryGetValue(AValue, OldCount) then
+  if not FDictionary.TryGetValue(AValue, LOldCount) then
     Exit;
 
   FDictionary.Remove(AValue);
 
-  Dec(FKnownCount, OldCount);
+  Dec(FKnownCount, LOldCount);
   Inc(FVer);
 end;
 
 procedure TAbstractBag<T>.SetWeight(const AValue: T; const AWeight: NativeInt);
 var
-  OldValue: NativeInt;
+  LOldValue: NativeInt;
 begin
   { Check count > 0 }
   if Count = 0 then
@@ -633,16 +627,16 @@ begin
 
   if FDictionary.ContainsKey(AValue) then
   begin
-    OldValue := FDictionary[AValue];
+    LOldValue := FDictionary[AValue];
     FDictionary[AValue] := AWeight;
   end else
   begin
-    OldValue := 0;
+    LOldValue := 0;
     FDictionary.Add(AValue, AWeight);
   end;
 
   { Change the counts }
-  FKnownCount := FKnownCount - OldValue + AWeight;
+  FKnownCount := FKnownCount - LOldValue + AWeight;
   Inc(FVer);
 end;
 
@@ -684,7 +678,7 @@ end;
 function TAbstractBag<T>.TEnumerator.GetCurrent: T;
 begin
   if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
+    ExceptionHelper.Throw_CollectionChangedError();
 
   Result := FValue;
 end;
@@ -695,7 +689,7 @@ begin
   while True do
   begin
     if FVer <> FDict.FVer then
-       ExceptionHelper.Throw_CollectionChangedError();
+      ExceptionHelper.Throw_CollectionChangedError();
 
     { We're still in the same KV? }
     if FCurrentCount <> 0 then
