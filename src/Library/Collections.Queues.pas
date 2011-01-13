@@ -28,6 +28,7 @@
 unit Collections.Queues;
 interface
 uses SysUtils,
+     Generics.Defaults,
      Generics.Collections,
      Collections.Lists,
      Collections.Base;
@@ -878,7 +879,7 @@ begin
 
   while I <> FTail do
   begin
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       Result := True;
       Break;
@@ -1029,7 +1030,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[LH], LValue) then
+    if not ElementsAreEqual(FArray[LH], LValue) then
       Exit(false);
 
     LH := (LH + 1) mod Length(FArray);
@@ -1156,7 +1157,7 @@ begin
 
   for I := 1 to FLength - 1 do
   begin
-    if ElementRules.Compare(FArray[LH], Result) > 0 then
+    if CompareElements(FArray[LH], Result) > 0 then
       Result := FArray[I];
 
     { Circulate Head }
@@ -1180,7 +1181,7 @@ begin
 
   for I := 1 to FLength - 1 do
   begin
-    if ElementRules.Compare(FArray[LH], Result) < 0 then
+    if CompareElements(FArray[LH], Result) < 0 then
       Result := FArray[I];
 
     { Circulate Head }
@@ -1565,7 +1566,7 @@ begin
   { Check whether the thing contains what we need }
   if FCount > 0 then
     for I := 0 to FCount - 1 do
-      if ValueRules.AreEqual(FArray[I].FValue, AValue) then
+      if ValuesAreEqual(FArray[I].FValue, AValue) then
         Exit(true);
 
   { Nope ... }
@@ -1727,7 +1728,7 @@ begin
       X := 0;
 
     { Check for exit }
-    if (I = 0) or ((KeyRules.Compare(FArray[X].FPriority, APriority) * FSign) > 0) then
+    if (I = 0) or ((CompareKeys(FArray[X].FPriority, APriority) * FSign) > 0) then
       break;
 
     FArray[I] := FArray[X];
@@ -1816,7 +1817,7 @@ begin
   else
     LStart := 0;
 
-  while ((KeyRules.Compare(LTemp.FPriority, FArray[LStart].FPriority) * FSign) > 0) do
+  while ((CompareKeys(LTemp.FPriority, FArray[LStart].FPriority) * FSign) > 0) do
   begin
     FArray[I] := FArray[LStart];
     I := LStart;
@@ -1833,10 +1834,10 @@ begin
     begin
       X := (I * 2) + 1;
 
-      if ((X < FCount - 1) and ((KeyRules.Compare(FArray[X].FPriority, FArray[X + 1].FPriority) * FSign) < 0)) then
+      if ((X < FCount - 1) and ((CompareKeys(FArray[X].FPriority, FArray[X + 1].FPriority) * FSign) < 0)) then
         Inc(X);
 
-      if ((KeyRules.Compare(FArray[X].FPriority, LTemp.FPriority) * FSign) <= 0) then
+      if ((CompareKeys(FArray[X].FPriority, LTemp.FPriority) * FSign) <= 0) then
           break;
 
       FArray[I] := FArray[X];

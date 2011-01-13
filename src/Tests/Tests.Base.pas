@@ -66,13 +66,9 @@ type
 
   TTestRules = class(TTestCaseEx)
   published
-    procedure Test_AreEqual;
-    procedure Test_GetHashCode;
-    procedure Test_Compare;
     procedure Test_Create;
     procedure Test_Custom;
     procedure Test_Default;
-    procedure Test_Default2;
   end;
 
 implementation
@@ -344,50 +340,6 @@ end;
 
 { TTestRules }
 
-procedure TTestRules.Test_AreEqual;
-var
-  LIntRules: TRules<Integer>;
-  LStrRules: TRules<string>;
-begin
-  LIntRules := TRules<Integer>.Default;
-
-  CheckTrue(LIntRules.AreEqual(1, 1));
-  CheckTrue(LIntRules.AreEqual(-100, -100));
-  CheckTrue(LIntRules.AreEqual(MaxInt, MaxInt));
-  CheckFalse(LIntRules.AreEqual(MaxInt, 0));
-  CheckFalse(LIntRules.AreEqual(-1, 1));
-
-  LStrRules := TRules<string>.Default;
-
-  CheckTrue(LStrRules.AreEqual('1', '1'));
-  CheckTrue(LStrRules.AreEqual('Haha', 'Haha'));
-  CheckTrue(LStrRules.AreEqual('', ''));
-  CheckFalse(LStrRules.AreEqual('Abra', 'abra'));
-  CheckFalse(LStrRules.AreEqual('', '--'));
-end;
-
-procedure TTestRules.Test_Compare;
-var
-  LIntRules: TRules<Integer>;
-  LStrRules: TRules<string>;
-begin
-  LIntRules := TRules<Integer>.Default;
-
-  CheckTrue(LIntRules.Compare(1, 1) = 0);
-  CheckTrue(LIntRules.Compare(-100, -100) = 0);
-  CheckTrue(LIntRules.Compare(MaxInt, MaxInt) = 0);
-  CheckTrue(LIntRules.Compare(MaxInt, 0) > 0);
-  CheckTrue(LIntRules.Compare(-1, 1) < 0);
-
-  LStrRules := TRules<string>.Default;
-
-  CheckTrue(LStrRules.Compare('1', '1') = 0);
-  CheckTrue(LStrRules.Compare('Haha', 'Haha') = 0);
-  CheckTrue(LStrRules.Compare('', '') = 0);
-  CheckTrue(LStrRules.Compare('abra', 'Abra') > 0);
-  CheckTrue(LStrRules.Compare('', '--') < 0);
-end;
-
 procedure TTestRules.Test_Create;
 var
   LStrRules: TRules<string>;
@@ -409,19 +361,7 @@ begin
   );
 
   LStrRules := TRules<string>.Create(TComparer<string>.Default, StringCaseInsensitiveComparer);
-  CheckTrue(LStrRules.AreEqual('ION', 'ion'));
-  CheckTrue(LStrRules.AreEqual('ION', 'ION'));
-  CheckTrue(LStrRules.Compare('ION', 'ion') <> 0);
-  CheckTrue(LStrRules.Compare('ION', 'ION') = 0);
-  CheckTrue(LStrRules.GetHashCode('ION') = LStrRules.GetHashCode('ion'));
-
-
   LStrRules := TRules<string>.Create(StringCaseInsensitiveComparer, TEqualityComparer<string>.Default);
-  CheckFalse(LStrRules.AreEqual('ION', 'ion'));
-  CheckTrue(LStrRules.AreEqual('ION', 'ION'));
-  CheckTrue(LStrRules.Compare('ION', 'ion') = 0);
-  CheckTrue(LStrRules.Compare('ION', 'ION') = 0);
-  CheckTrue(LStrRules.GetHashCode('ION') <> LStrRules.GetHashCode('ion'));
 end;
 
 procedure TTestRules.Test_Custom;
@@ -437,11 +377,6 @@ begin
   );
 
   LStrRules := TRules<string>.Custom(StringCaseInsensitiveComparer);
-  CheckTrue(LStrRules.AreEqual('ION', 'ion'));
-  CheckTrue(LStrRules.AreEqual('ION', 'ION'));
-  CheckTrue(LStrRules.Compare('ION', 'ion') = 0);
-  CheckTrue(LStrRules.Compare('ION', 'ION') = 0);
-  CheckTrue(LStrRules.GetHashCode('ION') = LStrRules.GetHashCode('ion'));
 end;
 
 procedure TTestRules.Test_Default;
@@ -449,33 +384,8 @@ var
   LStrRules: TRules<string>;
 begin
   LStrRules := TRules<string>.Default;
-  CheckFalse(LStrRules.AreEqual('ION', 'ion'));
-  CheckTrue(LStrRules.AreEqual('ION', 'ION'));
-  CheckFalse(LStrRules.Compare('ION', 'ion') = 0);
-  CheckTrue(LStrRules.Compare('ION', 'ION') = 0);
-  CheckFalse(LStrRules.GetHashCode('ION') = LStrRules.GetHashCode('ion'));
 end;
 
-procedure TTestRules.Test_Default2;
-var
-  LStrRules: TRules<string>;
-begin
-  CheckFalse(LStrRules.AreEqual('ION', 'ion'));
-  CheckTrue(LStrRules.AreEqual('ION', 'ION'));
-  CheckFalse(LStrRules.Compare('ION', 'ion') = 0);
-  CheckTrue(LStrRules.Compare('ION', 'ION') = 0);
-  CheckFalse(LStrRules.GetHashCode('ION') = LStrRules.GetHashCode('ion'));
-end;
-
-procedure TTestRules.Test_GetHashCode;
-var
-  LStrRules: TRules<string>;
-begin
-  LStrRules := TRules<string>.Default;
-
-  CheckFalse(LStrRules.GetHashCode('') = LStrRules.GetHashCode('  '));
-  CheckFalse(LStrRules.GetHashCode('a') = LStrRules.GetHashCode('A'));
-end;
 
 initialization
   TestFramework.RegisterTest(TTestBase.Suite);

@@ -28,6 +28,8 @@
 unit Collections.Stacks;
 interface
 uses SysUtils,
+     Generics.Defaults,
+     Generics.Collections,
      Collections.Lists,
      Collections.Base;
 
@@ -638,7 +640,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       Result := True;
       Exit;
@@ -751,7 +753,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[I], LValue) then
+    if not ElementsAreEqual(FArray[I], LValue) then
       Exit(false);
 
     Inc(I);
@@ -839,7 +841,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) > 0 then
+    if CompareElements(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -855,7 +857,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) < 0 then
+    if CompareElements(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -901,7 +903,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       LFoundIndex := I;
       Break;

@@ -27,11 +27,11 @@
 
 unit Collections.BidiMaps;
 interface
-uses
-  SysUtils,
-  Generics.Collections,
-  Collections.Base,
-  Collections.MultiMaps;
+uses SysUtils,
+     Generics.Defaults,
+     Generics.Collections,
+     Collections.Base,
+     Collections.MultiMaps;
 
 type
   ///  <summary>The base abstract class for all <c>bidi-maps</c> in this package.</summary>

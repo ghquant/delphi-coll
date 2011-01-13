@@ -30,6 +30,7 @@ unit Collections.Lists;
 interface
 uses SysUtils,
      Generics.Defaults,
+     Generics.Collections,
      Collections.Base;
 
 type
@@ -1479,7 +1480,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[I], LValue) then
+    if not ElementsAreEqual(FArray[I], LValue) then
       Exit(false);
 
     Inc(I);
@@ -1575,7 +1576,7 @@ begin
 
   { Search for the AValue }
   for I := AStartIndex to ((AStartIndex + ACount) - 1) do
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       Result := I;
       Exit;
@@ -1668,7 +1669,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) > 0 then
+    if CompareElements(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -1684,7 +1685,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) < 0 then
+    if CompareElements(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -1694,13 +1695,13 @@ begin
     QuickSort(ALeft, ARight,
       function(const ALeft, ARight: T): Integer
       begin
-        Exit(ElementRules.Compare(ALeft, ARight));
+        Exit(CompareElements(ALeft, ARight));
       end
     ) else                        { Descending sort }
     QuickSort(ALeft, ARight,
       function(const ALeft, ARight: T): Integer
       begin
-        Exit(-ElementRules.Compare(ALeft, ARight));
+        Exit(-CompareElements(ALeft, ARight));
       end
     )
 end;
@@ -1820,7 +1821,7 @@ begin
 
   { Search for the AValue }
   for I := ((AStartIndex + ACount) - 1) downto AStartIndex do
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       Result := I;
       Exit;
@@ -1837,7 +1838,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       LFoundIndex := I;
       Break;
@@ -2207,7 +2208,7 @@ begin
 
   while I < FLength do
   begin
-    if ((ElementRules.Compare(AValue, FArray[I]) * LSign) < 0) then
+    if ((CompareElements(AValue, FArray[I]) * LSign) < 0) then
        Break;
 
     Inc(I);
@@ -2387,7 +2388,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[I], LValue) then
+    if not ElementsAreEqual(FArray[I], LValue) then
       Exit(false);
 
     Inc(I);
@@ -2484,7 +2485,7 @@ begin
   while (LLeft <= LRight) do
   begin
     LMiddle := (LLeft + LRight) div 2;
-    LCompareResult := ElementRules.Compare(FArray[LMiddle], AElement);
+    LCompareResult := CompareElements(FArray[LMiddle], AElement);
 
     if not AAscending then
        LCompareResult := LCompareResult * -1;
@@ -2526,7 +2527,7 @@ begin
     Inc(J, AStartIndex);
 
   for I := J - 1 downto AStartIndex do
-    if not ElementRules.AreEqual(AValue, FArray[I]) then
+    if not ElementsAreEqual(AValue, FArray[I]) then
     begin
       Result := I + 1;
       Exit;
@@ -2577,7 +2578,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) > 0 then
+    if CompareElements(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -2593,7 +2594,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) < 0 then
+    if CompareElements(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -2623,7 +2624,7 @@ begin
     Inc(J, AStartIndex);
 
   for I := J + 1 to AStartIndex + ACount - 1 do
-    if not ElementRules.AreEqual(AValue, FArray[I]) then
+    if not ElementsAreEqual(AValue, FArray[I]) then
     begin
       Result := I - 1;
       Exit;
@@ -2642,7 +2643,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       LFoundIndex := I;
       Break;
@@ -3219,7 +3220,7 @@ begin
     if not Assigned(LNode) then
       Exit;
 
-    if ElementRules.Compare(LNode.FData, Result) > 0 then
+    if CompareElements(LNode.FData, Result) > 0 then
       Result := LNode.FData;
   end;
 end;
@@ -3243,7 +3244,7 @@ begin
     if not Assigned(LNode) then
       Exit;
 
-    if ElementRules.Compare(LNode.FData, Result) < 0 then
+    if CompareElements(LNode.FData, Result) < 0 then
       Result := LNode.FData;
   end;
 end;
@@ -3315,7 +3316,7 @@ begin
     if not Assigned(LNode) then
       Exit(false);
 
-    if not ElementRules.AreEqual(LNode.FData, LValue) then
+    if not ElementsAreEqual(LNode.FData, LValue) then
       Exit(false);
 
     LNode := LNode.FNext;
@@ -3342,7 +3343,7 @@ begin
   while Assigned(LCurrent) do
   begin
 
-    if ElementRules.AreEqual(LCurrent.FData, AValue) then
+    if ElementsAreEqual(LCurrent.FData, AValue) then
     begin
       Result := LCurrent;
       exit;
@@ -3367,7 +3368,7 @@ begin
   while Assigned(LCurrent) do
   begin
 
-    if ElementRules.AreEqual(LCurrent.FData, AValue) then
+    if ElementsAreEqual(LCurrent.FData, AValue) then
     begin
       Result := LCurrent;
       exit;

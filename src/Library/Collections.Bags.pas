@@ -28,6 +28,7 @@
 unit Collections.Bags;
 interface
 uses SysUtils,
+     Generics.Defaults,
      Generics.Collections,
      Collections.Base,
      Collections.Dictionaries;

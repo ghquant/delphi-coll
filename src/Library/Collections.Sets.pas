@@ -28,6 +28,8 @@
 unit Collections.Sets;
 interface
 uses SysUtils,
+     Generics.Defaults,
+     Generics.Collections,
      Collections.Base;
 
 type
@@ -811,7 +813,7 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = LHashCode) and ElementRules.AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = LHashCode) and ElementsAreEqual(FEntryArray[I].FKey, AKey) then
          begin Result := I; Exit; end;
 
       I := FEntryArray[I].FNext;
@@ -833,7 +835,7 @@ function THashSet<T>.Hash(const AKey: T): NativeInt;
 const
   PositiveMask = not NativeInt(1 shl (SizeOf(NativeInt) * 8 - 1));
 begin
-  Result := PositiveMask and ((PositiveMask and ElementRules.GetHashCode(AKey)) + 1);
+  Result := PositiveMask and ((PositiveMask and GetElementHashCode(AKey)) + 1);
 end;
 
 procedure THashSet<T>.InitializeInternals(const ACapacity: NativeInt);
@@ -870,7 +872,7 @@ begin
 
   while I >= 0 do
   begin
-    if (FEntryArray[I].FHashCode = LHashCode) and ElementRules.AreEqual(FEntryArray[I].FKey, AKey) then
+    if (FEntryArray[I].FHashCode = LHashCode) and ElementsAreEqual(FEntryArray[I].FKey, AKey) then
     begin
       if (ShouldAdd) then
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
@@ -928,7 +930,7 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = LHashCode) and ElementRules.AreEqual(FEntryArray[I].FKey, AValue) then
+      if (FEntryArray[I].FHashCode = LHashCode) and ElementsAreEqual(FEntryArray[I].FKey, AValue) then
       begin
 
         if LRemIndex < 0 then
@@ -1546,7 +1548,7 @@ begin
 
   while Assigned(LNode) do
   begin
-	  LCompareResult := ElementRules.Compare(AValue, LNode.FKey) * FSignFix;
+	  LCompareResult := CompareElements(AValue, LNode.FKey) * FSignFix;
 
     { Navigate left, right or find! }
     if LCompareResult < 0 then
@@ -1625,7 +1627,7 @@ begin
 
   while true do
   begin
-	  LCompareResult := ElementRules.Compare(AValue, LNode.FKey) * FSignFix;
+	  LCompareResult := CompareElements(AValue, LNode.FKey) * FSignFix;
 
     if LCompareResult < 0 then
     begin
@@ -2162,7 +2164,7 @@ begin
   { Search for the value }
   if FLength > 0 then
     for I := 0 to FLength - 1 do
-      if ElementRules.AreEqual(FArray[I], AValue) then
+      if ElementsAreEqual(FArray[I], AValue) then
       begin
         Result := true;
         Exit;
@@ -2275,7 +2277,7 @@ begin
     if I >= FLength then
       Exit(false);
 
-    if not ElementRules.AreEqual(FArray[I], LValue) then
+    if not ElementsAreEqual(FArray[I], LValue) then
       Exit(false);
 
     Inc(I);
@@ -2360,7 +2362,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) > 0 then
+    if CompareElements(FArray[I], Result) > 0 then
       Result := FArray[I];
 end;
 
@@ -2376,7 +2378,7 @@ begin
   Result := FArray[0];
 
   for I := 1 to FLength - 1 do
-    if ElementRules.Compare(FArray[I], Result) < 0 then
+    if CompareElements(FArray[I], Result) < 0 then
       Result := FArray[I];
 end;
 
@@ -2390,7 +2392,7 @@ begin
 
   for I := 0 to FLength - 1 do
   begin
-    if ElementRules.AreEqual(FArray[I], AValue) then
+    if ElementsAreEqual(FArray[I], AValue) then
     begin
       LFoundIndex := I;
       Break;

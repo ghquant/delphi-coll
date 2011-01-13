@@ -81,7 +81,6 @@ type
     function GetEnumerator(): IEnumerator<T>;
   end;
 
-type
   ///  <summary>A special record designed to hold both a comparer and an equality
   ///  comparer. All collections require this type in order to function properly.</summary>
   ///  <remarks>The collection provided in this package provides extended functionality (Enex), which
@@ -94,31 +93,6 @@ type
     FEqComparer: IEqualityComparer<T>;
 
   public
-    ///  <summary>Compares two values for equality.</summary>
-    ///  <param name="ALeft">The first value.</param>
-    ///  <param name="ARight">The second value.</param>
-    ///  <returns><c>True</c> if the values are equal; <c>False</c> otherwise.</returns>
-    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided,
-    ///  a default one is requested.</remarks>
-    function AreEqual(const ALeft, ARight: T): Boolean;
-
-    ///  <summary>Generates a hash code for the given value.</summary>
-    ///  <param name="AValue">The value.</param>
-    ///  <returns>The calculated hash code.</returns>
-    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided,
-    ///  a default one is requested.</remarks>
-    function GetHashCode(const AValue: T): NativeInt;
-
-    ///  <summary>Compares two values.</summary>
-    ///  <param name="ALeft">The first value.</param>
-    ///  <param name="ARight">The second value.</param>
-    ///  <returns>A value less than zero if <paramref name="ALeft"/> is less than <paramref name="ARight"/>.
-    ///  A value greater than zero if <paramref name="ALeft"/> is greater than <paramref name="ARight"/>. Zero if
-    ///  <paramref name="ALeft"/> is equal to <paramref name="ARight"/>.</returns>
-    ///  <remarks>This method uses the comparer. If such a comparer was not provided,
-    ///  a default one is requested.</remarks>
-    function Compare(const ALeft, ARight: T): NativeInt;
-
     ///  <summary>Initializes a rule set with the given comparers.</summary>
     ///  <param name="AComparer">The comparer.</param>
     ///  <param name="AEqualityComparer">The equality comparer.</param>
@@ -203,7 +177,7 @@ type
   ///  <summary>Offers an extended set of Enex operations.</summary>
   ///  <remarks>This type is exposed by Enex collections, and serves simply as a bridge between the interfaces
   ///  and some advanced operations that require parameterized methods. For example, expressions such as
-  ///  <c>List.Op.Cast&lt;Integer&gt;</c> are based on this type.</remarks>
+  ///  <c>List.Op.Select&lt;Integer&gt;</c> are based on this type.</remarks>
   TEnexExtOps<T> = record
   private
     FRules: TRules<T>;
@@ -636,7 +610,7 @@ type
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     function SkipWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
 
-    ///  <summary>Exposes a type that provides extended Enex operations such as "select" or "cast".</summary>
+    ///  <summary>Exposes a type that provides extended Enex operations such as "select".</summary>
     ///  <returns>A record that exposes more Enex operations that otherwise would be impossible.</returns>
     function Op: TEnexExtOps<T>;
   end;
@@ -1507,6 +1481,31 @@ type
     ///  <returns>The notification method.</returns>
     property RemoveNotification: TRemoveNotification<T> read FRemoveNotification write FRemoveNotification;
 
+    ///  <summary>Compares two values for equality.</summary>
+    ///  <param name="ALeft">The first value.</param>
+    ///  <param name="ARight">The second value.</param>
+    ///  <returns><c>True</c> if the values are equal; <c>False</c> otherwise.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function ElementsAreEqual(const ALeft, ARight: T): Boolean;
+
+    ///  <summary>Compares two values.</summary>
+    ///  <param name="ALeft">The first value.</param>
+    ///  <param name="ARight">The second value.</param>
+    ///  <returns>A value less than zero if <paramref name="ALeft"/> is less than <paramref name="ARight"/>.
+    ///  A value greater than zero if <paramref name="ALeft"/> is greater than <paramref name="ARight"/>. Zero if
+    ///  <paramref name="ALeft"/> is equal to <paramref name="ARight"/>.</returns>
+    ///  <remarks>This method uses the comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function CompareElements(const ALeft, ARight: T): NativeInt;
+
+    ///  <summary>Generates a hash code for the given value.</summary>
+    ///  <param name="AValue">The value.</param>
+    ///  <returns>The calculated hash code.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function GetElementHashCode(const AValue: T): NativeInt; overload;
+
     ///  <summary>Specifies the rule set that describes the stored elements.</summary>
     ///  <returns>A rule set describing the stored elements.</returns>
     property ElementRules: TRules<T> read FElementRules;
@@ -1915,7 +1914,7 @@ type
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     function SkipWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
 
-    ///  <summary>Exposes a type that provides extended Enex operations such as "select" or "cast".</summary>
+    ///  <summary>Exposes a type that provides extended Enex operations such as "select".</summary>
     ///  <returns>A record that exposes more Enex operations that otherwise would be impossible.</returns>
     function Op: TEnexExtOps<T>;
 
@@ -1989,6 +1988,56 @@ type
     ///  collection when values are removed.</summary>
     ///  <returns>The notification method.</returns>
     property ValueRemoveNotification: TRemoveNotification<TValue> read FValueRemoveNotification write FValueRemoveNotification;
+
+    ///  <summary>Compares two keys for equality.</summary>
+    ///  <param name="ALeft">The first key.</param>
+    ///  <param name="ARight">The second key.</param>
+    ///  <returns><c>True</c> if the keys are equal; <c>False</c> otherwise.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function KeysAreEqual(const ALeft, ARight: TKey): Boolean;
+
+    ///  <summary>Compares two keys.</summary>
+    ///  <param name="ALeft">The first key.</param>
+    ///  <param name="ARight">The second key.</param>
+    ///  <returns>A value less than zero if <paramref name="ALeft"/> is less than <paramref name="ARight"/>.
+    ///  A value greater than zero if <paramref name="ALeft"/> is greater than <paramref name="ARight"/>. Zero if
+    ///  <paramref name="ALeft"/> is equal to <paramref name="ARight"/>.</returns>
+    ///  <remarks>This method uses the comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function CompareKeys(const ALeft, ARight: TKey): NativeInt;
+
+    ///  <summary>Generates a hash code for the given key.</summary>
+    ///  <param name="AValue">The key.</param>
+    ///  <returns>The calculated hash code.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function GetKeyHashCode(const AValue: TKey): NativeInt; overload;
+
+    ///  <summary>Compares two values for equality.</summary>
+    ///  <param name="ALeft">The first value.</param>
+    ///  <param name="ARight">The second value.</param>
+    ///  <returns><c>True</c> if the keys are equal; <c>False</c> otherwise.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function ValuesAreEqual(const ALeft, ARight: TValue): Boolean;
+
+    ///  <summary>Compares two values.</summary>
+    ///  <param name="ALeft">The first value.</param>
+    ///  <param name="ARight">The second value.</param>
+    ///  <returns>A value less than zero if <paramref name="ALeft"/> is less than <paramref name="ARight"/>.
+    ///  A value greater than zero if <paramref name="ALeft"/> is greater than <paramref name="ARight"/>. Zero if
+    ///  <paramref name="ALeft"/> is equal to <paramref name="ARight"/>.</returns>
+    ///  <remarks>This method uses the comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function CompareValues(const ALeft, ARight: TValue): NativeInt;
+
+    ///  <summary>Generates a hash code for the given value.</summary>
+    ///  <param name="AValue">The value.</param>
+    ///  <returns>The calculated hash code.</returns>
+    ///  <remarks>This method uses the equality comparer. If such a comparer was not provided
+    ///  a default one is requested.</remarks>
+    function GetValueHashCode(const AValue: TValue): NativeInt; overload;
 
     ///  <summary>Specifies the rule set that describes the keys of the stored pairs.</summary>
     ///  <returns>A rule set describing the keys.</returns>
@@ -2171,6 +2220,12 @@ type
 
   ///  <summary>Thrown when a <see cref="Collections.Base|TRefCountedObject">Collections.Base.TRefCountedObject</see> tries to keep itself alive.</summary>
   ECannotSelfReferenceException = class(Exception);
+
+{$IF RTLVersion < 22}
+  ///  <summary>Thrown when a given argument is <c>nil</c>.</summary>
+  ///  <remarks>This exception is normally provided by Delphi XE's SysUtils.pas.</remarks>
+  EArgumentNilException = class(EArgumentException);
+{$IFEND}
 
   ///  <summary>Thrown when a given argument combination specifies a smaller range than required.</summary>
   ///  <remarks>This exception is usually used by collections. The exception is thrown when there is not enough
@@ -3259,9 +3314,17 @@ begin
   Result := false;
 end;
 
+function TEnexCollection<T>.CompareElements(const ALeft, ARight: T): NativeInt;
+begin
+  { Lazy init }
+  if not Assigned(FElementRules.FComparer) then
+    FElementRules.FComparer := TComparer<T>.Default;
+
+  Result := FElementRules.FComparer.Compare(ALeft, ARight);
+end;
+
 function TEnexCollection<T>.CompareTo(AObject: TObject): Integer;
 var
-  LRules: TRules<T>;
   LIterSelf, LIterTo: IEnumerator<T>;
   LMovSelf, LMovTo: Boolean;
 begin
@@ -3271,9 +3334,6 @@ begin
   else begin
     { Assume equality }
     Result := 0;
-
-    { Get the type }
-    LRules := ElementRules;
 
     { Get enumerators }
     LIterSelf := GetEnumerator();
@@ -3302,7 +3362,7 @@ begin
         Break;
 
       { Verify both values are identical }
-      Result := LRules.Compare(LIterSelf.Current, LIterTo.Current);
+      Result := CompareElements(LIterSelf.Current, LIterTo.Current);
       if Result <> 0 then
         Break;
     end;
@@ -3379,6 +3439,15 @@ begin
   Result := ADefault;
 end;
 
+function TEnexCollection<T>.ElementsAreEqual(const ALeft, ARight: T): Boolean;
+begin
+  { Lazy init }
+  if not Assigned(FElementRules.FEqComparer) then
+    FElementRules.FEqComparer := TEqualityComparer<T>.Default;
+
+  Result := FElementRules.FEqComparer.Equals(ALeft, ARight);
+end;
+
 function TEnexCollection<T>.Equals(Obj: TObject): Boolean;
 begin
   { Call comparison }
@@ -3387,16 +3456,12 @@ end;
 
 function TEnexCollection<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
-  LRules: TRules<T>;
   LEnumerator1, LEnumerator2: IEnumerator<T>;
   LMoved1, LMoved2: Boolean;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Get the type }
-  LRules := ElementRules;
 
   { Get enumerators }
   LEnumerator1 := GetEnumerator();
@@ -3417,7 +3482,7 @@ begin
       break;
 
     { Verify both values are identical }
-    if not LRules.AreEqual(LEnumerator1.Current, LEnumerator2.Current) then
+    if not ElementsAreEqual(LEnumerator1.Current, LEnumerator2.Current) then
       Exit(false);
   end;
 
@@ -3508,171 +3573,116 @@ begin
 end;
 
 function TEnexCollection<T>.FirstWhereBetween(const ALower, AHigher: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := (LRules.Compare(Arg1, ALower) >= 0) and
-                (LRules.Compare(Arg1, AHigher) <= 0)
+      Result := (CompareElements(Arg1, ALower) >= 0) and
+                (CompareElements(Arg1, AHigher) <= 0)
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereBetweenOrDefault(const ALower, AHigher, ADefault: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := (LRules.Compare(Arg1, ALower) >= 0) and
-                (LRules.Compare(Arg1, AHigher) <= 0)
+      Result := (CompareElements(Arg1, ALower) >= 0) and
+                (CompareElements(Arg1, AHigher) <= 0)
     end,
     ADefault
   );
 end;
 
 function TEnexCollection<T>.FirstWhereGreater(const ABound: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) > 0;
+      Result := CompareElements(Arg1, ABound) > 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereGreaterOrDefault(const ABound, ADefault: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) > 0;
+      Result := CompareElements(Arg1, ABound) > 0;
     end,
     ADefault
   );
 end;
 
 function TEnexCollection<T>.FirstWhereGreaterOrEqual(const ABound: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) >= 0;
+      Result := CompareElements(Arg1, ABound) >= 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereGreaterOrEqualOrDefault(const ABound, ADefault: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) >= 0;
+      Result := CompareElements(Arg1, ABound) >= 0;
     end,
     ADefault
   );
 end;
 
 function TEnexCollection<T>.FirstWhereLower(const ABound: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) < 0;
+      Result := CompareElements(Arg1, ABound) < 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereLowerOrDefault(const ABound, ADefault: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) < 0;
+      Result := CompareElements(Arg1, ABound) < 0;
     end,
     ADefault
   );
 end;
 
 function TEnexCollection<T>.FirstWhereLowerOrEqual(const ABound: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhere(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) <= 0;
+      Result := CompareElements(Arg1, ABound) <= 0;
     end
   );
 end;
 
 function TEnexCollection<T>.FirstWhereLowerOrEqualOrDefault(const ABound, ADefault: T): T;
-var
-  LRules: TRules<T>;
 begin
-  { Get the type }
-  LRules := ElementRules;
-
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
     begin
-      Result := LRules.Compare(Arg1, ABound) <= 0;
+      Result := CompareElements(Arg1, ABound) <= 0;
     end,
     ADefault
   );
 end;
 
 function TEnexCollection<T>.FirstWhereNot(const APredicate: TFunc<T, Boolean>): T;
-var
-  LRules: TRules<T>;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
-
-  { Get the type }
-  LRules := ElementRules;
 
   Result := FirstWhere(
     function(Arg1: T): Boolean
@@ -3684,14 +3694,9 @@ end;
 
 function TEnexCollection<T>.FirstWhereNotOrDefault(
   const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
-var
-  LRules: TRules<T>;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
-
-  { Get the type }
-  LRules := ElementRules;
 
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
@@ -3721,24 +3726,31 @@ begin
   Result := ADefault;
 end;
 
+function TEnexCollection<T>.GetElementHashCode(const AValue: T): NativeInt;
+begin
+  { Lazy init }
+  if not Assigned(FElementRules.FEqComparer) then
+    FElementRules.FEqComparer := TEqualityComparer<T>.Default;
+
+  Result := FElementRules.FEqComparer.GetHashCode(AValue);
+end;
+
 function TEnexCollection<T>.GetHashCode: Integer;
 const
   CMagic = $0F;
 
 var
   LEnumerator: IEnumerator<T>;
-  LRules: TRules<T>;
 begin
   { Obtain the enumerator }
   LEnumerator := GetEnumerator();
-  LRules := ElementRules;
 
   { Start at 0 }
   Result := 0;
 
   { ... }
   while LEnumerator.MoveNext() do
-    Result := CMagic * Result + LRules.GetHashCode(LEnumerator.Current);
+    Result := CMagic * Result + GetElementHashCode(LEnumerator.Current);
 end;
 
 procedure TEnexCollection<T>.HandleElementRemoved(const AElement: T);
@@ -3802,12 +3814,10 @@ end;
 
 function TEnexCollection<T>.Max: T;
 var
-  LRules: TRules<T>;
   LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object and type }
   LEnumerator := GetEnumerator();
-  LRules := ElementRules;
 
   { Get the first object in the enumeration, otherwise fail! }
   if not LEnumerator.MoveNext() then
@@ -3819,7 +3829,7 @@ begin
   { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if LRules.Compare(LEnumerator.Current, Result) > 0 then
+    if CompareElements(LEnumerator.Current, Result) > 0 then
       Result := LEnumerator.Current;
 
     { Exit if we hit the last element }
@@ -3830,12 +3840,10 @@ end;
 
 function TEnexCollection<T>.Min: T;
 var
-  LRules: TRules<T>;
   LEnumerator: IEnumerator<T>;
 begin
   { Retrieve the enumerator object and type }
   LEnumerator := GetEnumerator();
-  LRules := ElementRules;
 
   { Get the first object in the enumeration, otherwise fail! }
   if not LEnumerator.MoveNext() then
@@ -3847,7 +3855,7 @@ begin
   { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if LRules.Compare(LEnumerator.Current, Result) < 0 then
+    if CompareElements(LEnumerator.Current, Result) < 0 then
       Result := LEnumerator.Current;
 
     { Exit if we hit the last element }
@@ -3914,18 +3922,16 @@ end;
 function TEnexCollection<T>.SkipWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
 var
   LLower, LHigher: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
-  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
+      Exit((CompareElements(Arg1, LLower) >= 0) and (CompareElements(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -3933,17 +3939,15 @@ end;
 function TEnexCollection<T>.SkipWhileGreater(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) > 0);
+      Exit(CompareElements(Arg1, LBound) > 0);
     end
   );
 end;
@@ -3951,17 +3955,15 @@ end;
 function TEnexCollection<T>.SkipWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) >= 0);
+      Exit(CompareElements(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -3969,17 +3971,15 @@ end;
 function TEnexCollection<T>.SkipWhileLower(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) < 0);
+      Exit(CompareElements(Arg1, LBound) < 0);
     end
   );
 end;
@@ -3987,17 +3987,15 @@ end;
 function TEnexCollection<T>.SkipWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use SkipWhile() and pass an anonymous function }
   Result := SkipWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) <= 0);
+      Exit(CompareElements(Arg1, LBound) <= 0);
     end
   );
 end;
@@ -4049,18 +4047,16 @@ end;
 function TEnexCollection<T>.TakeWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
 var
   LLower, LHigher: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
-  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
+      Exit((CompareElements(Arg1, LLower) >= 0) and (CompareElements(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -4068,17 +4064,15 @@ end;
 function TEnexCollection<T>.TakeWhileGreater(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) > 0);
+      Exit(CompareElements(Arg1, LBound) > 0);
     end
   );
 end;
@@ -4086,17 +4080,15 @@ end;
 function TEnexCollection<T>.TakeWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) >= 0);
+      Exit(CompareElements(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -4104,17 +4096,15 @@ end;
 function TEnexCollection<T>.TakeWhileLower(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) < 0);
+      Exit(CompareElements(Arg1, LBound) < 0);
     end
   );
 end;
@@ -4122,17 +4112,15 @@ end;
 function TEnexCollection<T>.TakeWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use TakeWhile() and pass an anonymous function }
   Result := TakeWhile(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) <= 0);
+      Exit(CompareElements(Arg1, LBound) <= 0);
     end
   );
 end;
@@ -4172,18 +4160,16 @@ end;
 function TEnexCollection<T>.WhereBetween(const ALower, AHigher: T): IEnexCollection<T>;
 var
   LLower, LHigher: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
-  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
+      Exit((CompareElements(Arg1, LLower) >= 0) and (CompareElements(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -4191,17 +4177,15 @@ end;
 function TEnexCollection<T>.WhereGreater(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) > 0);
+      Exit(CompareElements(Arg1, LBound) > 0);
     end
   );
 end;
@@ -4209,17 +4193,15 @@ end;
 function TEnexCollection<T>.WhereGreaterOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) >= 0);
+      Exit(CompareElements(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -4227,17 +4209,15 @@ end;
 function TEnexCollection<T>.WhereLower(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) < 0);
+      Exit(CompareElements(Arg1, LBound) < 0);
     end
   );
 end;
@@ -4245,17 +4225,15 @@ end;
 function TEnexCollection<T>.WhereLowerOrEqual(const ABound: T): IEnexCollection<T>;
 var
   LBound: T;
-  LRules: TRules<T>;
 begin
   { Locals }
   LBound := ABound;
-  LRules := ElementRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: T): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) <= 0);
+      Exit(CompareElements(Arg1, LBound) <= 0);
     end
   );
 end;
@@ -4278,6 +4256,24 @@ begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default);
 end;
 
+function TEnexAssociativeCollection<TKey, TValue>.CompareKeys(const ALeft, ARight: TKey): NativeInt;
+begin
+  { Lazy init }
+  if not Assigned(FKeyRules.FComparer) then
+    FKeyRules.FComparer := TComparer<TKey>.Default;
+
+  Result := FKeyRules.FComparer.Compare(ALeft, ARight);
+end;
+
+function TEnexAssociativeCollection<TKey, TValue>.CompareValues(const ALeft, ARight: TValue): NativeInt;
+begin
+  { Lazy init }
+  if not Assigned(FValueRules.FComparer) then
+    FValueRules.FComparer := TComparer<TValue>.Default;
+
+  Result := FValueRules.FComparer.Compare(ALeft, ARight);
+end;
+
 constructor TEnexAssociativeCollection<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
   FKeyRules := AKeyRules;
@@ -4292,6 +4288,24 @@ end;
 function TEnexAssociativeCollection<TKey, TValue>.DistinctByValues: IEnexAssociativeCollection<TKey, TValue>;
 begin
   Result := TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Create(Self);
+end;
+
+function TEnexAssociativeCollection<TKey, TValue>.GetKeyHashCode(const AValue: TKey): NativeInt;
+begin
+  { Lazy init }
+  if not Assigned(FKeyRules.FEqComparer) then
+    FKeyRules.FEqComparer := TEqualityComparer<TKey>.Default;
+
+  Result := FKeyRules.FEqComparer.GetHashCode(AValue);
+end;
+
+function TEnexAssociativeCollection<TKey, TValue>.GetValueHashCode(const AValue: TValue): NativeInt;
+begin
+  { Lazy init }
+  if not Assigned(FValueRules.FEqComparer) then
+    FValueRules.FEqComparer := TEqualityComparer<TValue>.Default;
+
+  Result := FValueRules.FEqComparer.GetHashCode(AValue);
 end;
 
 procedure TEnexAssociativeCollection<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
@@ -4332,13 +4346,22 @@ begin
   { Iterate till the last element in the LEnumerator }
   while LEnumerator.MoveNext do
   begin
-    if KeyRules.AreEqual(LEnumerator.Current.Key, AKey) and
-       ValueRules.AreEqual(LEnumerator.Current.Value, AValue) then
+    if KeysAreEqual(LEnumerator.Current.Key, AKey) and
+       ValuesAreEqual(LEnumerator.Current.Value, AValue) then
       Exit(true);
   end;
 
   { No found! }
   Result := false;
+end;
+
+function TEnexAssociativeCollection<TKey, TValue>.KeysAreEqual(const ALeft, ARight: TKey): Boolean;
+begin
+  { Lazy init }
+  if not Assigned(FKeyRules.FEqComparer) then
+    FKeyRules.FEqComparer := TEqualityComparer<TKey>.Default;
+
+  Result := FKeyRules.FEqComparer.Equals(ALeft, ARight);
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.MaxKey: TKey;
@@ -4358,7 +4381,7 @@ begin
   { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if KeyRules.Compare(LEnumerator.Current.Key, Result) > 0 then
+    if CompareKeys(LEnumerator.Current.Key, Result) > 0 then
       Result := LEnumerator.Current.Key;
 
     { Exit if we hit the last element }
@@ -4384,7 +4407,7 @@ begin
   { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if ValueRules.Compare(LEnumerator.Current.Value, Result) > 0 then
+    if CompareValues(LEnumerator.Current.Value, Result) > 0 then
       Result := LEnumerator.Current.Value;
 
     { Exit if we hit the last element }
@@ -4410,7 +4433,7 @@ begin
   { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if KeyRules.Compare(LEnumerator.Current.Key, Result) < 0 then
+    if CompareKeys(LEnumerator.Current.Key, Result) < 0 then
       Result := LEnumerator.Current.Key;
 
     { Exit if we hit the last element }
@@ -4436,7 +4459,7 @@ begin
   { Iterate till the last element in the LEnumerator }
   while true do
   begin
-    if ValueRules.Compare(LEnumerator.Current.Value, Result) < 0 then
+    if CompareValues(LEnumerator.Current.Value, Result) < 0 then
       Result := LEnumerator.Current.Value;
 
     { Exit if we hit the last element }
@@ -4490,12 +4513,21 @@ begin
   { Iterate till the last element in the LEnumerator }
   while LEnumerator.MoveNext do
   begin
-    if KeyRules.AreEqual(LEnumerator.Current.Key, AKey) then
+    if KeysAreEqual(LEnumerator.Current.Key, AKey) then
       Exit(LEnumerator.Current.Value);
   end;
 
   { If nothing found, simply raise an exception }
   ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
+function TEnexAssociativeCollection<TKey, TValue>.ValuesAreEqual(const ALeft, ARight: TValue): Boolean;
+begin
+  { Lazy init }
+  if not Assigned(FValueRules.FEqComparer) then
+    FValueRules.FEqComparer := TEqualityComparer<TValue>.Default;
+
+  Result := FValueRules.FEqComparer.Equals(ALeft, ARight);
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.Where(
@@ -4513,19 +4545,16 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyBetween(const ALower,
   AHigher: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LLower, LHigher: TKey;
-  LRules: TRules<TKey>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
 
-  LRules := KeyRules;
-
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit((LRules.Compare(Arg1, LLower) >= 0) and (LRules.Compare(Arg1, LHigher) <= 0));
+      Exit((CompareKeys(Arg1, LLower) >= 0) and (CompareKeys(Arg1, LHigher) <= 0));
     end
   );
 end;
@@ -4534,18 +4563,15 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyGreater(
   const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TKey;
-  LRules: TRules<TKey>;
 begin
   { Locals }
   LBound := ABound;
-
-  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) > 0);
+      Exit(CompareKeys(Arg1, LBound) > 0);
     end
   );
 end;
@@ -4554,18 +4580,15 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyGreaterOrEqual(
   const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TKey;
-  LRules: TRules<TKey>;
 begin
   { Locals }
   LBound := ABound;
-
-  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) >= 0);
+      Exit(CompareKeys(Arg1, LBound) >= 0);
     end
   );
 end;
@@ -4579,13 +4602,11 @@ begin
   { Locals }
   LBound := ABound;
 
-  LRules := KeyRules;
-
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) < 0);
+      Exit(CompareKeys(Arg1, LBound) < 0);
     end
   );
 end;
@@ -4594,18 +4615,15 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereKeyLowerOrEqual(
   const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TKey;
-  LRules: TRules<TKey>;
 begin
   { Locals }
   LBound := ABound;
-
-  LRules := KeyRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg1, LBound) <= 0);
+      Exit(CompareKeys(Arg1, LBound) <= 0);
     end
   );
 end;
@@ -4625,19 +4643,16 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueBetween(
   const ALower, AHigher: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LLower, LHigher: TValue;
-  LRules: TRules<TValue>;
 begin
   { Locals }
   LLower := ALower;
   LHigher := AHigher;
 
-  LRules := ValueRules;
-
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit((LRules.Compare(Arg2, LLower) >= 0) and (LRules.Compare(Arg2, LHigher) <= 0));
+      Exit((CompareValues(Arg2, LLower) >= 0) and (CompareValues(Arg2, LHigher) <= 0));
     end
   );
 end;
@@ -4646,18 +4661,15 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueGreater(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
-
-  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg2, LBound) > 0);
+      Exit(CompareValues(Arg2, LBound) > 0);
     end
   );
 end;
@@ -4666,18 +4678,15 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueGreaterOrEqual(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
-
-  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg2, LBound) >= 0);
+      Exit(CompareValues(Arg2, LBound) >= 0);
     end
   );
 end;
@@ -4686,18 +4695,15 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueLower(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
-
-  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg2, LBound) < 0);
+      Exit(CompareValues(Arg2, LBound) < 0);
     end
   );
 end;
@@ -4706,18 +4712,15 @@ function TEnexAssociativeCollection<TKey, TValue>.WhereValueLowerOrEqual(
   const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
 var
   LBound: TValue;
-  LRules: TRules<TValue>;
 begin
   { Locals }
   LBound := ABound;
-
-  LRules := ValueRules;
 
   { Use Where() and pass an anonymous function }
   Result := Where(
     function(Arg1: TKey; Arg2: TValue): Boolean
     begin
-      Exit(LRules.Compare(Arg2, LBound) <= 0);
+      Exit(CompareValues(Arg2, LBound) <= 0);
     end
   );
 end;
@@ -5547,7 +5550,7 @@ begin
     if I >= FCount then
       Exit(false);
 
-    if not ElementRules.AreEqual(FElement, LValue) then
+    if not ElementsAreEqual(FElement, LValue) then
       Exit(false);
 
     Inc(I);
@@ -6439,24 +6442,6 @@ end;
 
 { TRules<T> }
 
-function TRules<T>.AreEqual(const ALeft, ARight: T): Boolean;
-begin
-  { Lazy init in some cases }
-  if not Assigned(FEqComparer) then
-    FEqComparer := TEqualityComparer<T>.Default;
-
-  Result := FEqComparer.Equals(ALeft, ARight);
-end;
-
-function TRules<T>.Compare(const ALeft, ARight: T): NativeInt;
-begin
-  { Lazy init in some cases }
-  if not Assigned(FComparer) then
-    FComparer := TComparer<T>.Default;
-
-  Result := FComparer.Compare(ALeft, ARight);
-end;
-
 class function TRules<T>.Create(const AComparer: IComparer<T>;
   const AEqualityComparer: IEqualityComparer<T>): TRules<T>;
 begin
@@ -6486,15 +6471,6 @@ begin
   { Init with proper stuff }
   Result.FComparer := TComparer<T>.Default;
   Result.FEqComparer := TEqualityComparer<T>.Default;
-end;
-
-function TRules<T>.GetHashCode(const AValue: T): NativeInt;
-begin
-  { Lazy init in some cases }
-  if not Assigned(FEqComparer) then
-    FEqComparer := TEqualityComparer<T>.Default;
-
-  Result := FEqComparer.GetHashCode(AValue);
 end;
 
 { TRefCountedObject }

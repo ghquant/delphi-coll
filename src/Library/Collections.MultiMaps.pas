@@ -28,6 +28,7 @@
 unit Collections.MultiMaps;
 interface
 uses SysUtils,
+     Generics.Defaults,
      Generics.Collections,
      Collections.Base,
      Collections.Lists,
@@ -1215,7 +1216,7 @@ begin
   { Try to look-up what we need. Create a new LList and add it if required. }
   if not FDictionary.TryGetValue(AKey, LList) then
   begin
-    LList := CreateList(FValueRules);
+    LList := CreateList(ValueRules);
     FDictionary[AKey] := LList;
   end;
 
@@ -1776,7 +1777,7 @@ begin
   { Try to look up what we need. Create a new list and add it if required. }
   if not FDictionary.TryGetValue(AKey, LSet) then
   begin
-    LSet := CreateSet(FValueRules);
+    LSet := CreateSet(ValueRules);
     FDictionary[AKey] := LSet;
   end;
 

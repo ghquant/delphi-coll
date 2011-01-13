@@ -28,6 +28,7 @@
 unit Collections.Dictionaries;
 interface
 uses SysUtils,
+     Generics.Defaults,
      Generics.Collections,
      Collections.Base;
 
@@ -766,7 +767,7 @@ begin
 
   for I := 0 to FCount - 1 do
   begin
-    if (FEntryArray[I].FHashCode >= 0) and (ValueRules.AreEqual(FEntryArray[I].FValue, AValue)) then
+    if (FEntryArray[I].FHashCode >= 0) and (ValuesAreEqual(FEntryArray[I].FValue, AValue)) then
        begin Result := True; Exit; end;
 
   end;
@@ -885,7 +886,7 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = LHashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = LHashCode) and KeysAreEqual(FEntryArray[I].FKey, AKey) then
          begin Result := I; Exit; end;
 
       I := FEntryArray[I].FNext;
@@ -913,7 +914,7 @@ function TDictionary<TKey, TValue>.Hash(const AKey: TKey): NativeInt;
 const
   PositiveMask = not NativeInt(1 shl (SizeOf(NativeInt) * 8 - 1));
 begin
-  Result := PositiveMask and ((PositiveMask and KeyRules.GetHashCode(AKey)) + 1);
+  Result := PositiveMask and ((PositiveMask and GetKeyHashCode(AKey)) + 1);
 end;
 
 procedure TDictionary<TKey, TValue>.InitializeInternals(
@@ -952,7 +953,7 @@ begin
 
   while I >= 0 do
   begin
-    if (FEntryArray[I].FHashCode = LHashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
+    if (FEntryArray[I].FHashCode = LHashCode) and KeysAreEqual(FEntryArray[I].FKey, AKey) then
     begin
       if (ShouldAdd) then
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
@@ -1000,7 +1001,7 @@ function TDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: T
 var
   LValue: TValue;
 begin
-  Result := TryGetValue(AKey, LValue) and ValueRules.AreEqual(LValue, AValue);
+  Result := TryGetValue(AKey, LValue) and ValuesAreEqual(LValue, AValue);
 end;
 
 procedure TDictionary<TKey, TValue>.Remove(const AKey: TKey);
@@ -1020,7 +1021,7 @@ begin
 
     while I >= 0 do
     begin
-      if (FEntryArray[I].FHashCode = LHashCode) and KeyRules.AreEqual(FEntryArray[I].FKey, AKey) then
+      if (FEntryArray[I].FHashCode = LHashCode) and KeysAreEqual(FEntryArray[I].FKey, AKey) then
       begin
 
         if LRemIndex < 0 then
@@ -1788,7 +1789,7 @@ begin
   while Assigned(LNode) do
   begin
     { Verify existance }
-    if ValueRules.AreEqual(LNode.FValue, AValue) then
+    if ValuesAreEqual(LNode.FValue, AValue) then
       Exit(true);
 
     { Navigate further in the tree }
@@ -1911,7 +1912,7 @@ begin
 
   while Assigned(LNode) do
   begin
-	  LCompareResult := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
+	  LCompareResult := CompareKeys(AKey, LNode.FKey) * FSignFix;
 
     { Navigate left, right or find! }
     if LCompareResult < 0 then
@@ -1978,7 +1979,7 @@ begin
 
   while true do
   begin
-	  LCompareResult := KeyRules.Compare(AKey, LNode.FKey) * FSignFix;
+	  LCompareResult := CompareKeys(AKey, LNode.FKey) * FSignFix;
 
     if LCompareResult < 0 then
     begin
@@ -2038,7 +2039,7 @@ function TSortedDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AVa
 var
   LValue: TValue;
 begin
-  Result := TryGetValue(AKey, LValue) and ValueRules.AreEqual(LValue, AValue);
+  Result := TryGetValue(AKey, LValue) and ValuesAreEqual(LValue, AValue);
 end;
 
 function TSortedDictionary<TKey, TValue>.MakeNode(const AKey: TKey; const AValue: TValue; const ARoot: TNode): TNode;
