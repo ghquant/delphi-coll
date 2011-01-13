@@ -73,8 +73,8 @@ type
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the queue can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this method is greater or equal to the amount of elements in the queue. If this value
-    ///  is greater then the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this method is greater than or equal to the amount of elements in the queue. If this value
+    ///  is greater than the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
@@ -118,18 +118,18 @@ type
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes rule set's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the queue and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
     procedure Enqueue(const AValue: T);
 
-    ///  <summary>Retreives the element from the bottom of the queue.</summary>
+    ///  <summary>Retrieves the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
@@ -137,7 +137,7 @@ type
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
-    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
+    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads its value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): T;
 
@@ -153,13 +153,13 @@ type
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the queue can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this property is greater or equal to the amount of elements in the queue. If this value
-    ///  if greater then the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this property is greater than or equal to the amount of elements in the queue. If this value
+    ///  if greater than the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
     property Capacity: NativeInt read GetCapacity;
 
     ///  <summary>Removes the excess capacity from the queue.</summary>
     ///  <remarks>This method can be called manually to force the queue to drop the extra capacity it might hold. For example,
-    ///  after performing some massive operations of a big list, call this method to ensure that all extra memory held by the
+    ///  after performing some massive operations on a big list, call this method to ensure that all extra memory held by the
     ///  queue is released.</remarks>
     procedure Shrink();
 
@@ -169,7 +169,7 @@ type
     procedure Grow();
 
     ///  <summary>Returns a new enumerator object used to enumerate this queue.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the queue.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<T>; override;
@@ -179,7 +179,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the queue.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the queue is empty.</summary>
@@ -202,9 +202,9 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function First(): T; override;
 
-    ///  <summary>Returns the first element or a default if the queue is empty.</summary>
+    ///  <summary>Returns the first element or a default, if the queue is empty.</summary>
     ///  <param name="ADefault">The default value returned if the queue is empty.</param>
-    ///  <returns>The first element in queue if the queue is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The first element in the queue if the queue is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function FirstOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the last element.</summary>
@@ -214,18 +214,18 @@ type
 
     ///  <summary>Returns the last element or a default if the queue is empty.</summary>
     ///  <param name="ADefault">The default value returned if the queue is empty.</param>
-    ///  <returns>The last element in queue if the queue is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The last element in the queue if the queue is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function LastOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the single element stored in the queue.</summary>
-    ///  <returns>The element in queue.</returns>
+    ///  <returns>The element in the queue.</returns>
     ///  <remarks>This method checks if the queue contains just one element, in which case it is returned.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the queue.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the queue, or a default value.</summary>
-    ///  <param name="ADefault">The default value returned if there is less or more elements in the queue.</param>
+    ///  <param name="ADefault">The default value returned if there are less or more elements in the queue.</param>
     ///  <returns>The element in the queue if the condition is satisfied; <paramref name="ADefault"/> is returned otherwise.</returns>
     ///  <remarks>This method checks if the queue contains just one element, in which case it is returned. Otherwise
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
@@ -236,7 +236,7 @@ type
     ///  <returns>A value that contains the queue's aggregated value.</returns>
     ///  <remarks>This method returns the first element if the queue only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
@@ -248,14 +248,14 @@ type
     ///  <returns>A value that contains the queue's aggregated value. If the queue is empty, <paramref name="ADefault"/> is returned.</returns>
     ///  <remarks>This method returns the first element if the queue only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation, where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
-    ///  <returns>The element from the specified position.</returns>
+    ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
@@ -263,13 +263,13 @@ type
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the queue is empty.</param>
-    ///  <returns>The element from the specified position if the queue is not empty and the position is not out of bounds; otherwise
+    ///  <returns>The element at the specified position if the queue is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
     function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
-    ///  <summary>Check whether at least one element in the queue satisfies a given predicate.</summary>
+    ///  <summary>Checks whether at least one element in the queue satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
-    ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
+    ///  <returns><c>True</c> if at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
@@ -286,9 +286,9 @@ type
     ///  <summary>Checks whether the elements in this queue are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
-    ///  <remarks>This methods checks that each element at position X in this queue is equal to an element at position X in
-    ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the rule set used by this queue. This means that comparing this collection
+    ///  <remarks>This method checks that each element at position X in this queue is equal to an element at position X in
+    ///  the provided collection. If the number of elements in both collections is different, then the collections are considered different.
+    ///  Note that the comparisons of elements is done using the rule set used by this queue. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
@@ -355,18 +355,18 @@ type
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes rule set's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the queue and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
     procedure Enqueue(const AValue: T);
 
-    ///  <summary>Retreives the element from the bottom of the queue.</summary>
+    ///  <summary>Retrieves the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
@@ -374,7 +374,7 @@ type
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
-    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
+    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads its value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): T;
 
@@ -388,7 +388,7 @@ type
     property Count: NativeInt read GetCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this queue.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the queue.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<T>; override;
@@ -398,7 +398,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the queue.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the queue is empty.</summary>
@@ -421,9 +421,9 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function First(): T; override;
 
-    ///  <summary>Returns the first element or a default if the queue is empty.</summary>
+    ///  <summary>Returns the first element or a default, if the queue is empty.</summary>
     ///  <param name="ADefault">The default value returned if the queue is empty.</param>
-    ///  <returns>The first element in queue if the queue is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The first element in the queue if the queue is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function FirstOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the last element.</summary>
@@ -431,20 +431,20 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Last(): T; override;
 
-    ///  <summary>Returns the last element or a default if the queue is empty.</summary>
+    ///  <summary>Returns the last element or a default, if the queue is empty.</summary>
     ///  <param name="ADefault">The default value returned if the queue is empty.</param>
     ///  <returns>The last element in queue if the queue is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function LastOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the single element stored in the queue.</summary>
-    ///  <returns>The element in queue.</returns>
+    ///  <returns>The element in the queue.</returns>
     ///  <remarks>This method checks if the queue contains just one element, in which case it is returned.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the queue.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the queue, or a default value.</summary>
-    ///  <param name="ADefault">The default value returned if there is less or more elements in the queue.</param>
+    ///  <param name="ADefault">The default value returned if there are less or more elements in the queue.</param>
     ///  <returns>The element in the queue if the condition is satisfied; <paramref name="ADefault"/> is returned otherwise.</returns>
     ///  <remarks>This method checks if the queue contains just one element, in which case it is returned. Otherwise
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
@@ -455,7 +455,7 @@ type
     ///  <returns>A value that contains the queue's aggregated value.</returns>
     ///  <remarks>This method returns the first element if the queue only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation, where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
@@ -467,14 +467,14 @@ type
     ///  <returns>A value that contains the queue's aggregated value. If the queue is empty, <paramref name="ADefault"/> is returned.</returns>
     ///  <remarks>This method returns the first element if the queue only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation, where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
-    ///  <returns>The element from the specified position.</returns>
+    ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
@@ -482,13 +482,13 @@ type
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the queue is empty.</param>
-    ///  <returns>The element from the specified position if the queue is not empty and the position is not out of bounds; otherwise
+    ///  <returns>The element at the specified position if the queue is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
     function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
-    ///  <summary>Check whether at least one element in the queue satisfies a given predicate.</summary>
+    ///  <summary>Checks whether at least one element in the queue satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
-    ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
+    ///  <returns><c>True</c> if at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
@@ -505,9 +505,9 @@ type
     ///  <summary>Checks whether the elements in this queue are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
-    ///  <remarks>This methods checks that each element at position X in this queue is equal to an element at position X in
-    ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the rule set used by this queue. This means that comparing this collection
+    ///  <remarks>This method checks that each element at position X in this queue is equal to an element at position X in
+    ///  the provided collection. If the number of elements in the collections is different, then the collections are considered different.
+    ///  Note that the comparison of elements is done using the rule set used by this queue. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
@@ -578,44 +578,44 @@ type
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the queue can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this method is greater or equal to the amount of elements in the queue. If this value
-    ///  is greater then the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this method is greater than or equal to the amount of elements in the queue. If this value
+    ///  is greater than the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set for the operated type is used.</remarks>
     constructor Create(const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     ///  <param name="AInitialCapacity">Specifies the initial capacity of the queue.</param>
     ///  <remarks>The default rule set for the operated type is used.</remarks>
     constructor Create(const AInitialCapacity: NativeInt; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection of priority/value pairs to copy elements from.</param>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set for the operated type is used.</remarks>
     constructor Create(const ACollection: IEnumerable<TPair<TPriority, TValue>>; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array of priority/value pairs to copy elements from.</param>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set for the operated type is used.</remarks>
     constructor Create(const AArray: array of TPair<TPriority, TValue>; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
     ///  <param name="AValueRules">The rule set used for the queues' values.</param>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
     ///  <param name="AValueRules">The rule set used for the queues' values.</param>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     ///  <param name="AInitialCapacity">Specifies the initial capacity of the queue.</param>
     constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
       const AInitialCapacity: NativeInt; const AAscending: Boolean = True); overload;
@@ -624,7 +624,7 @@ type
     ///  <param name="ACollection">A collection of priority/value pairs to copy elements from.</param>
     ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
     ///  <param name="AValueRules">The rule set used for the queues' values.</param>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TPriority, TValue>>; const AAscending: Boolean = True); overload;
@@ -633,12 +633,12 @@ type
     ///  <param name="AArray">An array of priority/value pairs to copy elements from.</param>
     ///  <param name="APriorityRules">The rule set used for the queues' priorities.</param>
     ///  <param name="AValueRules">The rule set used for the queues' values.</param>
-    ///  <param name="AAscending">Specifies the comparison order of the priorities. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies the comparison order of the priorities. The default is <c>True</c>.</param>
     constructor Create(const APriorityRules: TRules<TPriority>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TPriority, TValue>; const AAscending: Boolean = True); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
@@ -649,7 +649,7 @@ type
     ///  <returns><c>True</c> if the value was found in the queue; <c>False</c> otherwise.</returns>
     function Contains(const AValue: TValue): Boolean;
 
-    ///  <summary>Appends an element to the queue with the default priority set to type's default value.</summary>
+    ///  <summary>Appends an element to the queue with the default priority set to the type's default value.</summary>
     ///  <param name="AValue">The value to append.</param>
     ///  <remarks>Depending on the sorting order specified at creation time, the element is either pushed to the
     ///  front or the tail of the queue.</remarks>
@@ -662,7 +662,7 @@ type
     ///  or the specified priority.</remarks>
     procedure Enqueue(const AValue: TValue; const APriority: TPriority); overload;
 
-    ///  <summary>Retreives the element from the bottom of the queue.</summary>
+    ///  <summary>Retrieves the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
@@ -670,7 +670,7 @@ type
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
-    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
+    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads its value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): TValue; overload;
 
@@ -681,19 +681,19 @@ type
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the queue can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this property is greater or equal to the amount of elements in the queue. If this value
-    ///  if greater then the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this property is greater than or equal to the amount of elements in the queue. If this value
+    ///  if greater than the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
     property Capacity: NativeInt read GetCapacity;
 
     ///  <summary>Returns a new enumerator object used to enumerate this queue.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the queue.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator() : IEnumerator<TPair<TPriority, TValue>>; override;
 
     ///  <summary>Removes the excess capacity from the queue.</summary>
     ///  <remarks>This method can be called manually to force the queue to drop the extra capacity it might hold. For example,
-    ///  after performing some massive operations of a big list, call this method to ensure that all extra memory held by the
+    ///  after performing some massive operations on a big list, call this method to ensure that all extra memory held by the
     ///  queue is released.</remarks>
     procedure Shrink();
 
@@ -707,7 +707,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the queue.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TPriority, TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the biggest priority associated with an element in the queue.</summary>

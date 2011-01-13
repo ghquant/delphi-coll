@@ -71,7 +71,7 @@ type
     ///  <summary>Returns the number of elements in the bag.</summary>
     ///  <returns>A positive value specifying the number of elements in the bag.</returns>
     ///  <remarks>The returned value is calculated by taking each key and multiplying it to its weight in
-    ///  the bag. For example an item that has a weight of <c>20</c> will increse the count with <c>20</c>.</remarks>
+    ///  the bag. For example, an item that has a weight of <c>20</c> will increse the count with <c>20</c>.</remarks>
     function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the weight of an element.</param>
@@ -123,17 +123,17 @@ type
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the bag.</summary>
-    ///  <remarks>This method clears the bag and invokes rule set's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the bag and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the bag.</summary>
     ///  <param name="AValue">The element to add.</param>
     ///  <param name="AWeight">The weight of the element.</param>
-    ///  <remarks>If the bag already contains the given value, it's stored weight is incremented to by <paramref name="AWeight"/>.
+    ///  <remarks>If the bag already contains the given value, its stored weight is incremented to by <paramref name="AWeight"/>.
     ///  If the value of <paramref name="AWeight"/> is zero, nothing happens.</remarks>
     procedure Add(const AValue: T; const AWeight: NativeInt = 1);
 
@@ -141,12 +141,12 @@ type
     ///  <param name="AValue">The value to remove.</param>
     ///  <param name="AWeight">The weight to remove.</param>
     ///  <remarks>This method decreses the weight of the stored item by <paramref name="AWeight"/>. If the resulting weight is less
-    ///  than zero or zero, the element is removed for the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
+    ///  than zero or zero, the element is removed from the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
     procedure Remove(const AValue: T; const AWeight: NativeInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>This method completely removes an item from the bag ignoring it's stored weight. Nothing happens if the given value
+    ///  <remarks>This method completely removes an item from the bag ignoring its stored weight. Nothing happens if the given value
     ///  is not in the bag to begin with.</remarks>
     procedure RemoveAll(const AValue: T);
 
@@ -167,11 +167,11 @@ type
     ///  <summary>Returns the number of elements in the bag.</summary>
     ///  <returns>A positive value specifying the number of elements in the bag.</returns>
     ///  <remarks>The returned value is calculated by taking each key and multiplying it to its weight in
-    ///  the bag. For example an item that has a weight of <c>20</c> will increse the count with <c>20</c>.</remarks>
+    ///  the bag. For example, an item that has a weight of <c>20</c> will increase the count with <c>20</c>.</remarks>
     property Count: NativeInt read FKnownCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this bag.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the bag.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<T>; override;
@@ -181,7 +181,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the bag.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the bag is empty.</summary>
@@ -204,9 +204,9 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
     function First(): T; override;
 
-    ///  <summary>Returns the first element or a default if the bag is empty.</summary>
+    ///  <summary>Returns the first element or a default, if the bag is empty.</summary>
     ///  <param name="ADefault">The default value returned if the bag is empty.</param>
-    ///  <returns>The first element in bag if the bag is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The first element in the bag if the bag is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function FirstOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the last element.</summary>
@@ -214,28 +214,28 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
     function Last(): T; override;
 
-    ///  <summary>Returns the last element or a default if the bag is empty.</summary>
+    ///  <summary>Returns the last element or a default, if the bag is empty.</summary>
     ///  <param name="ADefault">The default value returned if the bag is empty.</param>
-    ///  <returns>The last element in bag if the bag is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The last element in the bag if the bag is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function LastOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the single element stored in the bag.</summary>
-    ///  <returns>The element in bag.</returns>
-    ///  <remarks>This method checks if the bag contains just one element, in which case it is returned.</remarks>
+    ///  <returns>The element in the bag.</returns>
+    ///  <remarks>This method checks whether the bag contains just one element, in which case it is returned.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The bag is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the bag.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the bag, or a default value.</summary>
-    ///  <param name="ADefault">The default value returned if there is less or more elements in the bag.</param>
+    ///  <param name="ADefault">The default value returned if there are less or more elements in the bag.</param>
     ///  <returns>The element in the bag if the condition is satisfied; <paramref name="ADefault"/> is returned otherwise.</returns>
-    ///  <remarks>This method checks if the bag contains just one element, in which case it is returned. Otherwise
+    ///  <remarks>This method checks whether the bag contains just one element, in which case it is returned. Otherwise
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
     function SingleOrDefault(const ADefault: T): T; override;
 
-    ///  <summary>Check whether at least one element in the bag satisfies a given predicate.</summary>
+    ///  <summary>Checks whether at least one element in the bag satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
-    ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
+    ///  <returns><c>True</c> if at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole bag and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
@@ -307,39 +307,39 @@ type
     function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the bag.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the bag.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
   end;
 
@@ -357,7 +357,7 @@ type
   public
     ///  <summary>Specifies whether this bag owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the bag owns its objects; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the bag controls the life-time of the stored objects.</remarks>
+    ///  <remarks>This property specifies the way the bag controls the life-time of the stored objects.</remarks>
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 

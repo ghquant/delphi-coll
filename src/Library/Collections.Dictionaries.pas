@@ -172,7 +172,7 @@ type
     function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to try to retreive the value.</param>
+    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <returns>The value associated with the key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
     function GetItem(const AKey: TKey): TValue;
@@ -237,7 +237,7 @@ type
       const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
@@ -258,7 +258,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>This invokes rule set's cleaning routines for value
+    ///  <remarks>This invokes the rule set's cleaning routines for a value
     ///  associated with the key. If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
@@ -273,13 +273,13 @@ type
     function ContainsValue(const AValue: TValue): Boolean;
 
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
-    ///  <param name="AKey">The key for which to try to retreive the value.</param>
+    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
     function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
 
     ///  <summary>Gets or sets the value for a given key.</summary>
-    ///  <param name="AKey">The key for to operate on.</param>
+    ///  <param name="AKey">The key to operate on.</param>
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
     ///  otherwise the value of the specified key is modified.</remarks>
@@ -300,7 +300,7 @@ type
     property Values: IEnexCollection<TValue> read FValueCollection;
 
     ///  <summary>Returns a new enumerator object used to enumerate this dictionary.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the dictionary.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<TPair<TKey,TValue>>; override;
@@ -310,7 +310,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
@@ -329,7 +329,7 @@ type
     ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
     function SelectKeys(): IEnexCollection<TKey>; override;
 
-    ///  <summary>Returns a Enex collection that contains only the values.</summary>
+    ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
     function SelectValues(): IEnexCollection<TValue>; override;
   end;
@@ -351,20 +351,20 @@ type
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the dictionary controls the life-time of the stored keys. The value of
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored keys. The value of
     ///  this property has effect only if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this dictionary owns the values.</summary>
     ///  <returns><c>True</c> if the dictionary owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the dictionary controls the life-time of the stored values. The value of
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored values. The value of
     ///  this property has effect only if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
 type
   ///  <summary>The generic <c>sorted dictionary</c> collection.</summary>
-  ///  <remarks>This type uses an AVL-tree to store its key-value pairs.</remarks>
+  ///  <remarks>This type uses an AVL tree to store its key-value pairs.</remarks>
   TSortedDictionary<TKey, TValue> = class(TEnexAssociativeCollection<TKey, TValue>, IDictionary<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
@@ -514,7 +514,7 @@ type
     function GetCount(): NativeInt; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to try to retreive the value.</param>
+    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <returns>The value associated with the key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
     function GetItem(const AKey: TKey): TValue;
@@ -527,13 +527,13 @@ type
     procedure SetItem(const AKey: TKey; const Value: TValue);
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
@@ -541,7 +541,7 @@ type
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
@@ -549,14 +549,15 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>    
+    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
@@ -566,17 +567,17 @@ type
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    ///  <remarks>This method clears the dictionary and invokes rule set's cleaning
+    ///  <remarks>This method clears the dictionary and invokes the rule set's cleaning
     ///  routines for each key and value.</remarks>
     procedure Clear();
 
@@ -593,7 +594,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>This invokes rule set's cleaning routines for value
+    ///  <remarks>This invokes the rule set's cleaning routines for a value
     ///  associated with the key. If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
@@ -608,13 +609,13 @@ type
     function ContainsValue(const AValue: TValue): Boolean;
 
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
-    ///  <param name="AKey">The key for which to try to retreive the value.</param>
+    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
     function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
 
     ///  <summary>Gets or sets the value for a given key.</summary>
-    ///  <param name="AKey">The key for to operate on.</param>
+    ///  <param name="AKey">The key to operate on.</param>
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
     ///  otherwise the value of the specified key is modified.</remarks>
@@ -635,7 +636,7 @@ type
     property Values: IEnexCollection<TValue> read FValueCollection;
 
     ///  <summary>Returns a new enumerator object used to enumerate this dictionary.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the dictionary.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<TPair<TKey,TValue>>; override;
@@ -645,7 +646,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the dictionary.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
@@ -674,13 +675,13 @@ type
     ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
     function SelectKeys(): IEnexCollection<TKey>; override;
 
-    ///  <summary>Returns a Enex collection that contains only the values.</summary>
+    ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
     function SelectValues(): IEnexCollection<TValue>; override;
   end;
 
   ///  <summary>The generic <c>sorted dictionary</c> collection designed to store objects.</summary>
-  ///  <remarks>This type uses an AVL-tree to store its key-value pairs.</remarks>
+  ///  <remarks>This type uses an AVL tree to store its key-value pairs.</remarks>
   TObjectSortedDictionary<TKey, TValue> = class(TSortedDictionary<TKey, TValue>)
   private
     FOwnsKeys, FOwnsValues: Boolean;
@@ -696,13 +697,13 @@ type
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the dictionary controls the life-time of the stored keys. The value of
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored keys. The value of
     ///  this property has effect only if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this dictionary owns the values.</summary>
     ///  <returns><c>True</c> if the dictionary owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the dictionary controls the life-time of the stored values. The value of
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored values. The value of
     ///  this property has effect only if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;

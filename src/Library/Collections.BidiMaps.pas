@@ -115,7 +115,7 @@ type
           const AArray: array of TPair<TKey,TValue>); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the bidi-map.</summary>
@@ -128,7 +128,7 @@ type
     procedure Add(const APair: TPair<TKey, TValue>); overload;
 
     ///  <summary>Adds a key-value pair to the bidi-map.</summary>
-    ///  <param name="AKey">The key of pair.</param>
+    ///  <param name="AKey">The key of the pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
     procedure Add(const AKey: TKey; const AValue: TValue); overload;
@@ -136,31 +136,31 @@ type
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key (and its associated values) to remove.</param>
     ///  <remarks>This method removes all the values that are associated with the given key. The rule set's cleanup
-    ///  routines are used to cleanup the values that are dropped from the bidi-map.</remarks>
+    ///  routines are used to clean up the values that are dropped from the bidi-map.</remarks>
     procedure RemoveKey(const AKey: TKey);
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
-    ///  <param name="AKey">The key of pair.</param>
-    ///  <remarks>This invokes rule set's cleaning routines for value
+    ///  <param name="AKey">The key of the pair.</param>
+    ///  <remarks>This invokes the rule set's cleaning routines for the value
     ///  associated with the key. If the specified key was not found in the bidi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
     ///  <summary>Removes a key-value pair using a given value.</summary>
     ///  <param name="AValue">The value (and its associated keys) to remove.</param>
     ///  <remarks>This method removes all the keys that are associated with the given value. The rule set's cleanup
-    ///  routines are used to cleanup the keys that are dropped from the bidi-map.</remarks>
+    ///  routines are used to clean up the keys that are dropped from the bidi-map.</remarks>
     procedure RemoveValue(const AValue: TValue);
 
     ///  <summary>Removes a specific key-value combination.</summary>
     ///  <param name="AKey">The key to remove.</param>
     ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>This method only remove a key-value combination if that combination actually exists in the bidi-map.
+    ///  <remarks>This method only removes a key-value combination if that combination actually exists in the bidi-map.
     ///  If the key is associated with another value, nothing happens.</remarks>
     procedure Remove(const AKey: TKey; const AValue: TValue); overload;
 
     ///  <summary>Removes a key-value combination.</summary>
     ///  <param name="APair">The pair to remove.</param>
-    ///  <remarks>This method only remove a key-value combination if that combination actually exists in the bidi-map.
+    ///  <remarks>This method only removes a key-value combination if that combination actually exists in the bidi-map.
     ///  If the key is associated with another value, nothing happens.</remarks>
     procedure Remove(const APair: TPair<TKey, TValue>); overload;
 
@@ -210,7 +210,7 @@ type
     property Count: NativeInt read GetCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this bidi-map.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the bidi-map.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
@@ -220,7 +220,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the bidi-map.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns the value associated with the given key.</summary>
@@ -239,7 +239,7 @@ type
     ///  <returns>An Enex collection that contains all the keys stored in the bidi-map.</returns>
     function SelectKeys(): IEnexCollection<TKey>; override;
 
-    ///  <summary>Returns a Enex collection that contains only the values.</summary>
+    ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the bidi-map.</returns>
     function SelectValues(): IEnexCollection<TValue>; override;
   end;
@@ -296,13 +296,13 @@ type
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the map controls the life-time of the stored keys. The value of this property has effect only
+    ///  <remarks>This property specififies the way the map controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this map owns the values.</summary>
     ///  <returns><c>True</c> if the map owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the map controls the life-time of the stored values. The value of this property has effect only
+    ///  <remarks>This property specififes the way the map controls the life-time of the stored values. The value of this property has effect only
     ///  if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
@@ -330,27 +330,27 @@ type
       const AKeyRules: TRules<TKey>): IDistinctMultiMap<TValue, TKey>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscending: Boolean = true); overload;
 
@@ -358,7 +358,7 @@ type
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
@@ -367,7 +367,7 @@ type
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
 
@@ -399,13 +399,13 @@ type
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the map controls the life-time of the stored keys. The value of this property has effect only
+    ///  <remarks>This propertyspecififes the way the map controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this map owns the values.</summary>
     ///  <returns><c>True</c> if the map owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the map controls the life-time of the stored values. The value of this property has effect only
+    ///  <remarks>This property specifies the way the map controls the life-time of the stored values. The value of this property has effect only
     ///  if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
@@ -434,15 +434,15 @@ type
 
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>;
@@ -450,8 +450,8 @@ type
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of TPair<TKey,TValue>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
@@ -459,8 +459,8 @@ type
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
 
@@ -468,8 +468,8 @@ type
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscendingKeys: Boolean = true;
@@ -479,8 +479,8 @@ type
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in asceding order. Default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in asceding order. Default is <c>True</c>.</param>
+    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
       const AArray: array of TPair<TKey,TValue>; const AAscendingKeys: Boolean = true;
       const AAscendingValues: Boolean = true); overload;
@@ -513,13 +513,13 @@ type
   public
     ///  <summary>Specifies whether this map owns the keys.</summary>
     ///  <returns><c>True</c> if the map owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the map controls the life-time of the stored keys. The value of this property has effect only
+    ///  <remarks>This property specififes the way the map controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this map owns the values.</summary>
     ///  <returns><c>True</c> if the map owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the map controls the life-time of the stored values. The value of this property has effect only
+    ///  <remarks>This property specifies the way the map controls the life-time of the stored values. The value of this property has effect only
     ///  if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
@@ -572,13 +572,13 @@ end;
 
 function TAbstractBidiMap<TKey, TValue>.ContainsPair(const APair: TPair<TKey, TValue>): Boolean;
 begin
-  { The the by-key relation since it is correct always }
+  { The by-key relation since it is always correct }
   Result := FByKeyMap.ContainsValue(APair.Key, APair.Value);
 end;
 
 function TAbstractBidiMap<TKey, TValue>.ContainsPair(const AKey: TKey; const AValue: TValue): Boolean;
 begin
-  { The the by-key relation since it is correct always }
+  { The by-key relation since it is always correct }
   Result := FByKeyMap.ContainsValue(AKey, AValue);
 end;
 
@@ -610,7 +610,7 @@ end;
 
 function TAbstractBidiMap<TKey, TValue>.GetCount: NativeInt;
 begin
-  { The cound follows the map properties }
+  { The count follows the map properties }
   Result := FByKeyMap.Count;
 end;
 
@@ -692,7 +692,7 @@ begin
   { And finally remove the key }
   FByValueMap.Remove(AValue);
 
-//  { Cleanup the value if necessary }
+//  { Clean up the value if necessary }
 //  if ValueRules.Management = tmManual then
 //    ValueRules.Cleanup(LValue);
 end;
@@ -940,7 +940,7 @@ constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
   const AArray: array of TPair<TKey, TValue>; const AAscendingKeys,
   AAscendingValues: Boolean);
 begin
-  { Do da dew and continue! }
+  { Do the dew and continue! }
   FAscKeys := AAscendingKeys;
   FAscValues := AAscendingValues;
 
@@ -949,7 +949,7 @@ end;
 
 constructor TDoubleSortedBidiMap<TKey, TValue>.Create(const AAscendingKeys, AAscendingValues: Boolean);
 begin
-  { Do da dew and continue! }
+  { Do the dew and continue! }
   FAscKeys := AAscendingKeys;
   FAscValues := AAscendingValues;
 
@@ -960,7 +960,7 @@ constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
   const ACollection: IEnumerable<TPair<TKey, TValue>>;
   const AAscendingKeys, AAscendingValues: Boolean);
 begin
-  { Do da dew and continue! }
+  { Do the dew and continue! }
   FAscKeys := AAscendingKeys;
   FAscValues := AAscendingValues;
 
@@ -972,7 +972,7 @@ constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
   const AArray: array of TPair<TKey, TValue>; const AAscendingKeys,
   AAscendingValues: Boolean);
 begin
-  { Do da dew and continue! }
+  { Do the dew and continue! }
   FAscKeys := AAscendingKeys;
   FAscValues := AAscendingValues;
 
@@ -983,7 +983,7 @@ constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
   const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
   const AAscendingKeys, AAscendingValues: Boolean);
 begin
-  { Do da dew and continue! }
+  { Do the dew and continue! }
   FAscKeys := AAscendingKeys;
   FAscValues := AAscendingValues;
 
@@ -995,7 +995,7 @@ constructor TDoubleSortedBidiMap<TKey, TValue>.Create(
   const ACollection: IEnumerable<TPair<TKey, TValue>>;
   const AAscendingKeys, AAscendingValues: Boolean);
 begin
-  { Do da dew and continue! }
+  { Do the dew and continue! }
   FAscKeys := AAscendingKeys;
   FAscValues := AAscendingValues;
 

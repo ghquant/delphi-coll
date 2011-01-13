@@ -76,7 +76,7 @@ type
     procedure QuickSort(ALeft, ARight: NativeInt; const AAscending: Boolean); overload;
     {$HINTS ON}
   protected
-    ///  <summary>Returns the item from a given index.</summary>
+    ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
@@ -95,8 +95,8 @@ type
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this method is greater or equal to the amount of elements in the list. If this value
-    ///  is greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this method is greater than or equal to the amount of elements in the list. If this value
+    ///  is greater than the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
@@ -140,11 +140,11 @@ type
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the list and invokes rule set's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the list.</summary>
@@ -188,13 +188,13 @@ type
     ///  <param name="AStartIndex">The start index.</param>
     ///  <param name="ACount">The count of elements.</param>
     ///  <remarks>This method reverses <paramref name="ACount"/> number of elements in
-    ///  the the list, starting with <paramref name="AStartIndex"/> element.</remarks>
+    ///  the list, starting with the <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     procedure Reverse(const AStartIndex, ACount: NativeInt); overload;
 
     ///  <summary>Reverses the elements in this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
-    ///  <remarks>This method reverses all elements in the list, starting with <paramref name="AStartIndex"/> element.</remarks>
+    ///  <remarks>This method reverses all elements in the list, starting with the <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     procedure Reverse(const AStartIndex: NativeInt); overload;
 
@@ -204,21 +204,21 @@ type
     ///  <summary>Sorts the contents of this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
     ///  <param name="ACount">The count of elements.</param>
-    ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. The default is <c>True</c>.</param>
     ///  <remarks>This method sorts <paramref name="ACount"/> number of elements in
-    ///  the list, starting with <paramref name="AStartIndex"/> element.</remarks>
+    ///  the list, starting with the <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     procedure Sort(const AStartIndex, ACount: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Sorts the contents of this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
-    ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. Default is <c>True</c>.</param>
-    ///  <remarks>This method sorts all elements in the list, starting with <paramref name="AStartIndex"/> element.</remarks>
+    ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. The default is <c>True</c>.</param>
+    ///  <remarks>This method sorts all elements in the list, starting with the <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     procedure Sort(const AStartIndex: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Sorts the contents of this list.</summary>
-    ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether ascending or descending sorting is performed. The default is <c>True</c>.</param>
     procedure Sort(const AAscending: Boolean = true); overload;
 
     ///  <summary>Sorts the contents of this list using a given comparison method.</summary>
@@ -226,7 +226,7 @@ type
     ///  <param name="ACount">The count of elements.</param>
     ///  <param name="ASortProc">The method used to compare elements.</param>
     ///  <remarks>This method sorts <paramref name="ACount"/> number of elements in
-    ///  the list, starting with <paramref name="AStartIndex"/> element.</remarks>
+    ///  the list, starting with the <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
     procedure Sort(const AStartIndex, ACount: NativeInt; const ASortProc: TComparison<T>); overload;
@@ -234,7 +234,7 @@ type
     ///  <summary>Sorts the contents of this list using a given comparison method.</summary>
     ///  <param name="AStartIndex">The start index.</param>
     ///  <param name="ASortProc">The method used to compare elements.</param>
-    ///  <remarks>This method sorts all elements in the list, starting with <paramref name="AStartIndex"/> element.</remarks>
+    ///  <remarks>This method sorts all elements in the list, starting with the <paramref name="AStartIndex"/> element.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
     procedure Sort(const AStartIndex: NativeInt; const ASortProc: TComparison<T>); overload;
@@ -252,7 +252,7 @@ type
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
@@ -260,7 +260,7 @@ type
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
@@ -272,7 +272,7 @@ type
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
@@ -280,7 +280,7 @@ type
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
@@ -297,25 +297,25 @@ type
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this property is greater or equal to the amount of elements in the list. If this value
-    ///  if greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this property is greater than or equal to the amount of elements in the list. If this value
+    ///  if greater than the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
     property Capacity: NativeInt read GetCapacity;
 
-    ///  <summary>Returns the item from a given index.</summary>
+    ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     property Items[const AIndex: NativeInt]: T read GetItem; default;
 
     ///  <summary>Returns a new enumerator object used to enumerate this list.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the list.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<T>; override;
 
     ///  <summary>Removes the excess capacity from the list.</summary>
     ///  <remarks>This method can be called manually to force the list to drop the extra capacity it might hold. For example,
-    ///  after performing some massive operations of a big list, call this method to ensure that all extra memory held by the
+    ///  after performing some massive operations on a big list, call this method to ensure that all extra memory held by the
     ///  list is released.</remarks>
     procedure Shrink();
 
@@ -325,14 +325,14 @@ type
     procedure Grow();
 
     ///  <summary>Copies the specified elements into a new list.</summary>
-    ///  <param name="AStartIndex">The index to from which the copy starts.</param>
+    ///  <param name="AStartIndex">The index from which the copying starts.</param>
     ///  <param name="ACount">The number of elements to copy.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is invalid.</exception>
     function Copy(const AStartIndex: NativeInt; const ACount: NativeInt): TList<T>; overload;
 
     ///  <summary>Copies the specified elements into a new list.</summary>
-    ///  <param name="AStartIndex">The index to from which the copy starts.</param>
+    ///  <param name="AStartIndex">The index from which the copying starts.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function Copy(const AStartIndex: NativeInt): TList<T>; overload;
@@ -346,7 +346,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the list.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the list is empty.</summary>
@@ -369,9 +369,9 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     function First(): T; override;
 
-    ///  <summary>Returns the first element or a default if the list is empty.</summary>
+    ///  <summary>Returns the first element or a default, if the list is empty.</summary>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The first element in list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The first element in the list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function FirstOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the last element.</summary>
@@ -379,20 +379,20 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     function Last(): T; override;
 
-    ///  <summary>Returns the last element or a default if the list is empty.</summary>
+    ///  <summary>Returns the last element or a default, if the list is empty.</summary>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The last element in list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The last element in the list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function LastOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the single element stored in the list.</summary>
-    ///  <returns>The element in list.</returns>
+    ///  <returns>The element in the list.</returns>
     ///  <remarks>This method checks if the list contains just one element, in which case it is returned.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the list.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the list, or a default value.</summary>
-    ///  <param name="ADefault">The default value returned if there is less or more elements in the list.</param>
+    ///  <param name="ADefault">The default value returned if there are less or more elements in the list.</param>
     ///  <returns>The element in the list if the condition is satisfied; <paramref name="ADefault"/> is returned otherwise.</returns>
     ///  <remarks>This method checks if the list contains just one element, in which case it is returned. Otherwise
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
@@ -403,7 +403,7 @@ type
     ///  <returns>A value that contains the list's aggregated value.</returns>
     ///  <remarks>This method returns the first element if the list only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation, where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
@@ -415,14 +415,14 @@ type
     ///  <returns>A value that contains the list's aggregated value. If the list is empty, <paramref name="ADefault"/> is returned.</returns>
     ///  <remarks>This method returns the first element if the list only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
-    ///  <returns>The element from the specified position.</returns>
+    ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
@@ -430,13 +430,13 @@ type
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The element from the specified position if the list is not empty and the position is not out of bounds; otherwise
+    ///  <returns>The element at the specified position if the list is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
     function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
-    ///  <summary>Check whether at least one element in the list satisfies a given predicate.</summary>
+    ///  <summary>Checks whether at least one element in the list satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
-    ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
+    ///  <returns><c>True</c> if at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole list and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
@@ -453,9 +453,9 @@ type
     ///  <summary>Checks whether the elements in this list are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
-    ///  <remarks>This methods checks that each element at position X in this list is equal to an element at position X in
-    ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the rule set used by this list. This means that comparing this collection
+    ///  <remarks>This method checks that each element at position X in this list is equal to an element at position X in
+    ///  the provided collection. If the number of elements in both collections is different, then the collections are considered different.
+    ///  Note that the comparison of elements is done using the rule set used by this list. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
@@ -475,7 +475,7 @@ type
   public
     ///  <summary>Specifies whether this list owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the list owns its objects; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the list controls the life-time of the stored objects.</remarks>
+    ///  <remarks>This property specifies the way the list controls the life-time of the stored objects.</remarks>
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
@@ -515,7 +515,7 @@ type
      function BinarySearch(const AElement: T; const AStartIndex, ACount: NativeInt;
        const AAscending: Boolean): NativeInt;
   protected
-    ///  <summary>Returns the item from a given index.</summary>
+    ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
@@ -528,69 +528,69 @@ type
     ///  <summary>Returns the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this method is greater or equal to the amount of elements in the list. If this value
-    ///  is greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this method is greater than or equal to the amount of elements in the list. If this value
+    ///  is greater than the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <param name="AInitialCapacity">Specifies the initial capacity of the list.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <param name="AInitialCapacity">Specifies the initial capacity of the list.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the list and invokes rule set's cleaning routines for each element.</remarks>
+    ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the list.</summary>
     ///  <param name="AValue">The value to add.</param>
-    ///  <remarks>The added value is not appended. The list tries to figure out whre to insert it to keep its elements
+    ///  <remarks>The added value is not appended. The list tries to figure out where to insert it to keep its elements
     ///  ordered at all times.</remarks>
     procedure Add(const AValue: T); overload;
 
@@ -615,53 +615,53 @@ type
     ///  <summary>Checks whether the list contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
-    ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
+    ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     function Contains(const AValue: T): Boolean;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
+    ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
+    ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
+    ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     function IndexOf(const AValue: T): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
+    ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
     function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
+    ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <remarks>This method uses binary search beacause the list is always sorted.</remarks>
+    ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     function LastIndexOf(const AValue: T): NativeInt; overload;
 
     ///  <summary>Specifies the number of elements in the list.</summary>
@@ -671,8 +671,8 @@ type
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the list can hold before it
     ///  needs to grow again.</returns>
-    ///  <remarks>The value of this property is greater or equal to the amount of elements in the list. If this value
-    ///  if greater then the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
+    ///  <remarks>The value of this property is greater than or equal to the amount of elements in the list. If this value
+    ///  if greater than the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
     property Capacity: NativeInt read GetCapacity;
 
     ///  <summary>Returns the item from a given index.</summary>
@@ -682,14 +682,14 @@ type
     property Items[const AIndex: NativeInt]: T read GetItem; default;
 
     ///  <summary>Returns a new enumerator object used to enumerate this list.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the list.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<T>; override;
 
     ///  <summary>Removes the excess capacity from the list.</summary>
     ///  <remarks>This method can be called manually to force the list to drop the extra capacity it might hold. For example,
-    ///  after performing some massive operations of a big list, call this method to ensure that all extra memory held by the
+    ///  after performing some massive operations on a big list, call this method to ensure that all the extra memory held by the
     ///  list is released.</remarks>
     procedure Shrink();
 
@@ -699,14 +699,14 @@ type
     procedure Grow();
 
     ///  <summary>Copies the specified elements into a new list.</summary>
-    ///  <param name="AStartIndex">The index to from which the copy starts.</param>
+    ///  <param name="AStartIndex">The index from which the copying starts.</param>
     ///  <param name="ACount">The number of elements to copy.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is invalid.</exception>
     function Copy(const AStartIndex: NativeInt; const ACount: NativeInt): TSortedList<T>; overload;
 
     ///  <summary>Copies the specified elements into a new list.</summary>
-    ///  <param name="AStartIndex">The index to from which the copy starts.</param>
+    ///  <param name="AStartIndex">The index from which the copying starts.</param>
     ///  <returns>A new list containing the copied elements.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     function Copy(const AStartIndex: NativeInt): TSortedList<T>; overload;
@@ -720,7 +720,7 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the list.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Checks whether the list is empty.</summary>
@@ -743,7 +743,7 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     function First(): T; override;
 
-    ///  <summary>Returns the first element or a default if the list is empty.</summary>
+    ///  <summary>Returns the first element or a default, if the list is empty.</summary>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
     ///  <returns>The first element in list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function FirstOrDefault(const ADefault: T): T; override;
@@ -753,20 +753,20 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     function Last(): T; override;
 
-    ///  <summary>Returns the last element or a default if the list is empty.</summary>
+    ///  <summary>Returns the last element or a default, if the list is empty.</summary>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The last element in list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The last element in the list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function LastOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the single element stored in the list.</summary>
-    ///  <returns>The element in list.</returns>
+    ///  <returns>The element in the list.</returns>
     ///  <remarks>This method checks if the list contains just one element, in which case it is returned.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the list.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the list, or a default value.</summary>
-    ///  <param name="ADefault">The default value returned if there is less or more elements in the list.</param>
+    ///  <param name="ADefault">The default value returned if there are less or more elements in the list.</param>
     ///  <returns>The element in the list if the condition is satisfied; <paramref name="ADefault"/> is returned otherwise.</returns>
     ///  <remarks>This method checks if the list contains just one element, in which case it is returned. Otherwise
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
@@ -777,7 +777,7 @@ type
     ///  <returns>A value that contains the list's aggregated value.</returns>
     ///  <remarks>This method returns the first element if the list only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation, where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
@@ -789,14 +789,14 @@ type
     ///  <returns>A value that contains the list's aggregated value. If the list is empty, <paramref name="ADefault"/> is returned.</returns>
     ///  <remarks>This method returns the first element if the list only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
-    ///  <returns>The element from the specified position.</returns>
+    ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
@@ -804,13 +804,13 @@ type
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The element from the specified position if the list is not empty and the position is not out of bounds; otherwise
+    ///  <returns>The element at the specified position if the list is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
     function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
-    ///  <summary>Check whether at least one element in the list satisfies a given predicate.</summary>
+    ///  <summary>Checks whether at least one element in the list satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
-    ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
+    ///  <returns><c>True</c> if at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole list and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
@@ -827,9 +827,9 @@ type
     ///  <summary>Checks whether the elements in this list are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
-    ///  <remarks>This methods checks that each element at position X in this list is equal to an element at position X in
-    ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the rule set used by this list. This means that comparing this collection
+    ///  <remarks>This method checks that each element at position X in this list is equal to an element at position X in
+    ///  the provided collection. If the number of elements in both collections is different, then the collections are considered different.
+    ///  Note that the comparison of elements is done using the rule set used by this list. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
@@ -849,7 +849,7 @@ type
   public
     ///  <summary>Specifies whether this list owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the list owns its objects; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the list controls the life-time of the stored objects.</remarks>
+    ///  <remarks>This property specifies the way the list controls the life-time of the stored objects.</remarks>
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
@@ -872,7 +872,7 @@ type
     ///  <param name="AValue">The value to store in the node.</param>
     constructor Create(const AValue: T);
 
-    ///  <summary>Destroys this node and updates the parent list if attached.</summary>
+    ///  <summary>Destroys this node and updates the parent list, if attached.</summary>
     destructor Destroy(); override;
 
     ///  <summary>Returns the node to the right of this one.</summary>
@@ -882,15 +882,15 @@ type
 
     ///  <summary>Returns the node to the left of this one.</summary>
     ///  <returns>A value of <c>nil</c> is returned if this node is the first in the list, or if it was not attached to a list.
-    ///  Otherwise the return value is another node that preceeds this one in the list.</returns>
+    ///  Otherwise the return value is another node that precedes this one in the list.</returns>
     property Previous: TLinkedListNode<T> read FPrev;
 
     ///  <summary>Returns the list that contains this node.</summary>
     ///  <returns>A value of <c>nil</c> is returned if this node was not attached to a list. Otherwise the list is returned.</returns>
     property List: TLinkedList<T> read FList;
 
-    ///  <summary>The values stored in this node.</summary>
-    ///  <returns>Rethurns the value stored in this node. It is the same value that was passed in the constructor.</returns>
+    ///  <summary>The value stored in this node.</summary>
+    ///  <returns>Returns the value stored in this node. It is the same value that was passed in the constructor.</returns>
     property Value: T read FData write FData;
   end;
 
@@ -960,7 +960,7 @@ type
     constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
 
     ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly, call <c>Free</c> instead.</remarks>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Inserts a node right after another node.</summary>
@@ -977,7 +977,7 @@ type
     ///  <param name="AValue">The value to insert.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARefNode"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EElementNotPartOfCollection"><paramref name="ARefNode"/> is not attached to this list.</exception>
-    ///  <remarks>A new node is created and the given value assigned to it.</remarks>
+    ///  <remarks>A new node is created and the given value is assigned to it.</remarks>
     procedure AddAfter(const ARefNode: TLinkedListNode<T>; const AValue: T); overload;
 
     ///  <summary>Inserts a value right after another value.</summary>
@@ -986,7 +986,7 @@ type
     ///  <exception cref="Collections.Base|EElementNotPartOfCollection"><paramref name="ARefValue"/> is
     ///  not located in this collection.</exception>
     ///  <remarks>The reference node is searched for using the reference value. A new node is created
-    ///  and the given value assigned to it.</remarks>
+    ///  and the given value is assigned to it.</remarks>
     procedure AddAfter(const ARefValue: T; const AValue: T); overload;
 
     ///  <summary>Inserts a node right before another node.</summary>
@@ -1003,7 +1003,7 @@ type
     ///  <param name="AValue">The value to insert.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARefNode"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EElementNotPartOfCollection"><paramref name="ARefNode"/> is not attached to this list.</exception>
-    ///  <remarks>A new node is created and the given value assigned to it.</remarks>
+    ///  <remarks>A new node is created and the given value is assigned to it.</remarks>
     procedure AddBefore(const ARefNode: TLinkedListNode<T>; const AValue: T); overload;
 
     ///  <summary>Inserts a value right before another value.</summary>
@@ -1012,7 +1012,7 @@ type
     ///  <exception cref="Collections.Base|EElementNotPartOfCollection"><paramref name="ARefValue"/> is
     ///  not located in this collection.</exception>
     ///  <remarks>The reference node is searched for using the reference value. A new node is created
-    ///  and the given value assigned to it.</remarks>
+    ///  and the given value is assigned to it.</remarks>
     procedure AddBefore(const ARefValue: T; const AValue: T); overload;
 
     ///  <summary>Inserts the given node to the front of the list.</summary>
@@ -1023,7 +1023,7 @@ type
 
     ///  <summary>Inserts the given value to the front of the list.</summary>
     ///  <param name="AValue">The value to add.</param>
-    ///  <remarks>A new node is created and the given value assigned to it.</remarks>
+    ///  <remarks>A new node is created and the given value is assigned to it.</remarks>
     procedure AddFirst(const AValue: T); overload;
 
     ///  <summary>Appends the given node to the end of the list.</summary>
@@ -1034,7 +1034,7 @@ type
 
     ///  <summary>Appends the given value to the end of the list.</summary>
     ///  <param name="AValue">The value to add.</param>
-    ///  <remarks>A new node is created and the given value assigned to it.</remarks>
+    ///  <remarks>A new node is created and the given value is assigned to it.</remarks>
     procedure AddLast(const AValue: T); overload;
 
     ///  <summary>Clears the contents of the list.</summary>
@@ -1068,12 +1068,12 @@ type
     ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
     function Contains(const AValue: T): Boolean;
 
-    ///  <summary>Searches for the given value and returns the first node that hold it.</summary>
+    ///  <summary>Searches for the given value and returns the first node that holds it.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <returns>If the value was not found, <c>nil</c> is returned. Otherwise the node holding the value is returned.</returns>
     function Find(const AValue: T): TLinkedListNode<T>;
 
-    ///  <summary>Searches for the given value and returns the last node that hold it.</summary>
+    ///  <summary>Searches for the given value and returns the last node that holds it.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <returns>If the value was not found, <c>nil</c> is returned. Otherwise the node holding the value is returned.</returns>
     function FindLast(const AValue: T): TLinkedListNode<T>;
@@ -1095,11 +1095,11 @@ type
     ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
     ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the list.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">There array is not long enough.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
 
     ///  <summary>Returns a new enumerator object used to enumerate this list.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to create an enumerator
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
     ///  object that is used to actually traverse the list.</remarks>
     ///  <returns>An enumerator object.</returns>
     function GetEnumerator(): IEnumerator<T>; override;
@@ -1124,9 +1124,9 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     function First(): T; override;
 
-    ///  <summary>Returns the first element or a default if the list is empty.</summary>
+    ///  <summary>Returns the first element or a default, if the list is empty.</summary>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The first element in list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The first element in the list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function FirstOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the last element.</summary>
@@ -1134,20 +1134,20 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     function Last(): T; override;
 
-    ///  <summary>Returns the last element or a default if the list is empty.</summary>
+    ///  <summary>Returns the last element or a default, if the list is empty.</summary>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The last element in list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    ///  <returns>The last element in the list if the list is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
     function LastOrDefault(const ADefault: T): T; override;
 
     ///  <summary>Returns the single element stored in the list.</summary>
-    ///  <returns>The element in list.</returns>
+    ///  <returns>The element in the list.</returns>
     ///  <remarks>This method checks if the list contains just one element, in which case it is returned.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the list.</exception>
     function Single(): T; override;
 
     ///  <summary>Returns the single element stored in the list, or a default value.</summary>
-    ///  <param name="ADefault">The default value returned if there is less or more elements in the list.</param>
+    ///  <param name="ADefault">The default value returned if there are less or more elements in the list.</param>
     ///  <returns>The element in the list if the condition is satisfied; <paramref name="ADefault"/> is returned otherwise.</returns>
     ///  <remarks>This method checks if the list contains just one element, in which case it is returned. Otherwise
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
@@ -1158,7 +1158,7 @@ type
     ///  <returns>A value that contains the list's aggregated value.</returns>
     ///  <remarks>This method returns the first element if the list only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation, where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
@@ -1170,14 +1170,14 @@ type
     ///  <returns>A value that contains the list's aggregated value. If the list is empty, <paramref name="ADefault"/> is returned.</returns>
     ///  <remarks>This method returns the first element if the list only has one element. Otherwise,
     ///  <paramref name="AAggregator"/> is invoked for each two elements (first and second; then the result of the first two
-    ///  and the third, and so on). The simples example of aggregation is the "sum" operation where you can obtain the sum of all
+    ///  and the third, and so on). The simplest example of aggregation is the "sum" operation where you can obtain the sum of all
     ///  elements in the value.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AAggregator"/> is <c>nil</c>.</exception>
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
 
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
-    ///  <returns>The element from the specified position.</returns>
+    ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ElementAt(const AIndex: NativeInt): T; override;
@@ -1185,13 +1185,13 @@ type
     ///  <summary>Returns the element at a given position.</summary>
     ///  <param name="AIndex">The index from which to return the element.</param>
     ///  <param name="ADefault">The default value returned if the list is empty.</param>
-    ///  <returns>The element from the specified position if the list is not empty and the position is not out of bounds; otherwise
+    ///  <returns>The element at the specified position if the list is not empty and the position is not out of bounds; otherwise
     ///  the value of <paramref name="ADefault"/> is returned.</returns>
     function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
 
-    ///  <summary>Check whether at least one element in the list satisfies a given predicate.</summary>
+    ///  <summary>Checks whether at least one element in the list satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
-    ///  <returns><c>True</c> if the at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
+    ///  <returns><c>True</c> if at least one element satisfies a given predicate; <c>False</c> otherwise.</returns>
     ///  <remarks>This method traverses the whole list and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
@@ -1208,9 +1208,9 @@ type
     ///  <summary>Checks whether the elements in this list are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
-    ///  <remarks>This methods checks that each element at position X in this list is equal to an element at position X in
-    ///  the provided collection. If the number of elements in both collections are different, then the collections are considered different.
-    ///  Note that comparison of element is done using the rule set used by this list. This means that comparing this collection
+    ///  <remarks>This method checks that each element at position X in this list is equal to an element at position X in
+    ///  the provided collection. If the number of elements in both collections is different, then the collections are considered different.
+    ///  Note that the comparison of elements is done using the rule set used by this list. This means that comparing this collection
     ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
@@ -1229,7 +1229,7 @@ type
   public
     ///  <summary>Specifies whether this queue owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the list owns its objects; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property controls the way the queue controls the life-time of the stored objects.</remarks>
+    ///  <remarks>This property specifies the way the queue controls the life-time of the stored objects.</remarks>
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
@@ -1327,7 +1327,7 @@ procedure TList<T>.Clear;
 var
   I: NativeInt;
 begin
-  { Should cleanup each element individually }
+  { Should clean up each element individually }
   for I := 0 to FLength - 1 do
     NotifyElementRemoved(FArray[I]);
 
@@ -1865,7 +1865,7 @@ begin
 
   if (FLength = 0) then Exit;
 
-  { Cleanup the element at the specified AIndex if required }
+  { Clean up the element at the specified AIndex, if required }
   NotifyElementRemoved(FArray[AIndex]);
 
   { Move the list }
@@ -1950,7 +1950,7 @@ end;
 
 procedure TList<T>.Shrink;
 begin
-  { Cut the capacity if required }
+  { Cut the capacity, if required }
   if FLength < Capacity then
   begin
     SetLength(FArray, FLength);
