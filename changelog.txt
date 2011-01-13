@@ -1,4 +1,19 @@
 ﻿========================
+= Minor Release: 1.0.1 =
+======================== 
+
+    * Do not expose AreEqual, Compare and GetHashCode in TRules<T>.
+    * Add protected methods ElementsAreEqual, CompareElements, GetElementHashCode
+      to TEnexCollection<T>.
+    * Add protected methods KeysAreEqual, CompareKeys, GetKeyHashCode
+      to TEnexAssociativeCollection<TKey, TValue>.
+    * Add protected methods ValuessAreEqual, CompareValues, GetValueHashCode
+      to TEnexAssociativeCollection<TKey, TValue>.
+    * Do not use ElementRules, KeyRules and ValueRules in code directly.
+    * Define EArgumentNilException if RTL version is less than 22 (2010).
+    * Fixed grammar and spelling errors (by Denisa Ilascu).
+ 
+========================
 =  Major Release: 1.0  =
 ======================== 
 
