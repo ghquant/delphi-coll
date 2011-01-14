@@ -10,7 +10,7 @@
     * Add protected methods ValuessAreEqual, CompareValues, GetValueHashCode
       to TEnexAssociativeCollection<TKey, TValue>.
     * Do not use ElementRules, KeyRules and ValueRules in code directly.
-    * Define EArgumentNilException if RTL version is less than 22 ( 2010 ).
+    * Define EArgumentNilException if RTL version is less than 22 (2010).
     * Fixed grammar and spelling errors (by Denisa Ilascu).
  
 ========================
