@@ -19,6 +19,7 @@ uses
   TestFramework,
   GUITestRunner,
   TextTestRunner,
+  Tests.Base in 'Tests.Base.pas',
   Tests.Bag in 'Tests.Bag.pas',
   Tests.BidiMap in 'Tests.BidiMap.pas',
   Tests.Dictionary in 'Tests.Dictionary.pas',
@@ -31,6 +32,8 @@ uses
   Tests.LinkedQueue in 'Tests.LinkedQueue.pas',
   Tests.LinkedStack in 'Tests.LinkedStack.pas',
   Tests.List in 'Tests.List.pas',
+  Tests.LinkedDictionary in 'Tests.LinkedDictionary.pas',
+  Tests.LinkedSet in 'Tests.LinkedSet.pas',
   Tests.MultiMap in 'Tests.MultiMap.pas',
   Tests.PriorityQueue in 'Tests.PriorityQueue.pas',
   Tests.Queue in 'Tests.Queue.pas',
@@ -44,7 +47,7 @@ uses
   Tests.Stack in 'Tests.Stack.pas',
   Tests.Utils in 'Tests.Utils.pas',
   Tests.Enex in 'Tests.Enex.pas',
-  Tests.Base in 'Tests.Base.pas';
+  Tests.SortedLinkedList in 'Tests.SortedLinkedList.pas';
 
 {$R *.RES}
 

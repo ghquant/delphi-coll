@@ -1,4 +1,24 @@
 ﻿========================
+=  Major Release: 1.1  =
+========================
+    * Implement T(Object)LinkedDictionary<TKey, TValue> that used a hash/linked list approach.
+      Guarantees insert order preservation of elements.
+    * Implement T(Object)LinkedSet<T> that used a hash/linked list approach.
+      Guarantees insert order preservation of elements.                                        
+    * Add ISortedSet<T> interface now implemented by TSortedSet<T>.
+    * Implement T(Object)SortedLinkedList<T>. This class uses a linked list to store its elements. It also
+      implements IList interface and provides access to the index based functions (slow).
+    * Optimized TList<T>.Add(collection) a lot. Should be a big boost to all dependant functions.
+    * TLinkedStack<T> now uses an internal linked list and not the much "loved" TLinkedList class. This should
+      bring quite some speed improvements into the game.
+    * TLinkedQueue<T> now uses an internal linked list and not the much "loved" TLinkedList class. This should
+      bring quite some speed improvements into the game.
+    * TLinkedList<T> was completely rewritten. It's no longer .NET-like, it looks just like a simple TList<T> but
+      stores its elements in a linked list. A lot of indexing methods are supported but are dead slow!
+    * Fixed TSortedList.Copy to also copy the ascending/descending flag from the original list.
+    * Updated multiple tests.
+
+========================
 = Minor Release: 1.0.1 =
 ======================== 
 

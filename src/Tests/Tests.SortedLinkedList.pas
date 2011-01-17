@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2011, Ciobanu Alexandru
+* Copyright (c) 2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-unit Tests.SortedList;
+unit Tests.SortedLinkedList;
 interface
 uses SysUtils,
      Tests.Utils,
@@ -35,7 +35,7 @@ uses SysUtils,
      Collections.Lists;
 
 type
-  TTestSortedList = class(TTestCaseEx)
+  TTestSortedLinkedList = class(TTestCaseEx)
   published
     procedure TestCreationAndDestroy();
     procedure TestCountClearAddRemove();
@@ -43,7 +43,6 @@ type
     procedure TestCopyTo();
     procedure TestCopy();
     procedure TestIndexer();
-    procedure TestIDynamic();
     procedure TestEnumerator();
     procedure TestExceptions();
     procedure TestBigCounts();
@@ -55,12 +54,12 @@ implementation
 
 { TTestQueue }
 
-procedure TTestSortedList.TestCountClearAddRemove;
+procedure TTestSortedLinkedList.TestCountClearAddRemove;
 var
-  List  : TSortedList<String>;
+  List  : TSortedLinkedList<String>;
   Stack : TStack<String>;
 begin
-  List := TSortedList<String>.Create(0);
+  List := TSortedLinkedList<String>.Create();
   Stack := TStack<String>.Create();
 
   Stack.Push('s2');
@@ -127,11 +126,11 @@ begin
   Stack.Free;
 end;
 
-procedure TTestSortedList.TestCopy;
+procedure TTestSortedLinkedList.TestCopy;
 var
-  List1, List2 : TSortedList<Integer>;
+  List1, List2 : TSortedLinkedList<Integer>;
 begin
-  List1 := TSortedList<Integer>.Create(False);
+  List1 := TSortedLinkedList<Integer>.Create(False);
 
   List1.Add(4);
   List1.Add(2);
@@ -180,12 +179,12 @@ begin
   List1.Free();
 end;
 
-procedure TTestSortedList.TestCopyTo;
+procedure TTestSortedLinkedList.TestCopyTo;
 var
-  List  : TSortedList<Integer>;
+  List  : TSortedLinkedList<Integer>;
   IL    : array of Integer;
 begin
-  List := TSortedList<Integer>.Create(False);
+  List := TSortedLinkedList<Integer>.Create(False);
 
   { Add elements to the list }
   List.Add(1);
@@ -232,20 +231,20 @@ begin
   List.Free();
 end;
 
-procedure TTestSortedList.TestCorrectOrdering;
+procedure TTestSortedLinkedList.TestCorrectOrdering;
 const
   MaxNr = 1000;
   MaxRnd = 10000;
 
 var
-  AscList, DescList: TSortedList<Integer>;
+  AscList, DescList: TSortedLinkedList<Integer>;
   I, PI  : Integer;
 begin
   { One ascending }
-  AscList := TSortedList<Integer>.Create(true);
+  AscList := TSortedLinkedList<Integer>.Create(true);
 
   { ... and one not }
-  DescList := TSortedList<Integer>.Create(false);
+  DescList := TSortedLinkedList<Integer>.Create(false);
 
   Randomize;
 
@@ -276,14 +275,14 @@ begin
   DescList.Free;
 end;
 
-procedure TTestSortedList.TestBigCounts;
+procedure TTestSortedLinkedList.TestBigCounts;
 const
   NrItems = 1000;
 var
-  List    : TSortedList<Integer>;
+  List    : TSortedLinkedList<Integer>;
   I, SumK : Integer;
 begin
-  List := TSortedList<Integer>.Create();
+  List := TSortedLinkedList<Integer>.Create();
 
   SumK := 0;
 
@@ -313,11 +312,11 @@ begin
   List.Free;
 end;
 
-procedure TTestSortedList.TestContainsIndexOfLastIndexOf;
+procedure TTestSortedLinkedList.TestContainsIndexOfLastIndexOf;
 var
-  List  : TSortedList<Integer>;
+  List  : TSortedLinkedList<Integer>;
 begin
-  List := TSortedList<Integer>.Create();
+  List := TSortedLinkedList<Integer>.Create();
 
   List.Add(2);
   List.Add(1);
@@ -362,29 +361,17 @@ begin
   List.Free();
 end;
 
-procedure TTestSortedList.TestCreationAndDestroy;
+procedure TTestSortedLinkedList.TestCreationAndDestroy;
 var
-  List : TSortedList<Integer>;
+  List : TSortedLinkedList<Integer>;
   Stack : TStack<Integer>;
   IL    : array of Integer;
 begin
   { With default capacity }
-  List := TSortedList<Integer>.Create(False);
+  List := TSortedLinkedList<Integer>.Create(False);
 
   List.Add(40);
   List.Add(20);
-  List.Add(30);
-  List.Add(10);
-
-  Check(List.Count = 4, 'List count expected to be 4)');
-
-  List.Free();
-
-  { With preset capacity }
-  List := TSortedList<Integer>.Create(0, True);
-
-  List.Add(20);
-  List.Add(40);
   List.Add(30);
   List.Add(10);
 
@@ -399,7 +386,7 @@ begin
   Stack.Push(3);
   Stack.Push(1);
 
-  List := TSortedList<Integer>.Create(Stack, False);
+  List := TSortedLinkedList<Integer>.Create(Stack, False);
 
   Check(List.Count = 4, 'List count expected to be 4)');
   Check(List[0] = 4, 'List[0] expected to be 4)');
@@ -419,7 +406,7 @@ begin
   IL[3] := 1;
   IL[4] := 4;
 
-  List := TSortedList<Integer>.Create(IL, True);
+  List := TSortedLinkedList<Integer>.Create(IL, True);
 
   Check(List.Count = 5, 'List count expected to be 5');
 
@@ -432,12 +419,12 @@ begin
   List.Free;
 end;
 
-procedure TTestSortedList.TestEnumerator;
+procedure TTestSortedLinkedList.TestEnumerator;
 var
-  List : TSortedList<Integer>;
+  List : TSortedLinkedList<Integer>;
   I, X  : Integer;
 begin
-  List := TSortedList<Integer>.Create();
+  List := TSortedLinkedList<Integer>.Create();
 
   List.Add(30);
   List.Add(10);
@@ -480,22 +467,22 @@ begin
   List.Free();
 end;
 
-procedure TTestSortedList.TestExceptions;
+procedure TTestSortedLinkedList.TestExceptions;
 var
-  List, NullList : TSortedList<Integer>;
+  List, NullList : TSortedLinkedList<Integer>;
 begin
   NullList := nil;
 
   CheckException(EArgumentNilException,
     procedure()
     begin
-      List := TSortedList<Integer>.Create(TRules<Integer>.Default, NullList);
+      List := TSortedLinkedList<Integer>.Create(TRules<Integer>.Default, NullList);
       List.Free();
     end,
     'EArgumentNilException not thrown in constructor (nil enum).'
   );
 
-  List := TSortedList<Integer>.Create();
+  List := TSortedLinkedList<Integer>.Create();
 
   CheckException(EArgumentNilException,
     procedure() begin List.Add(NullList); end,
@@ -548,63 +535,11 @@ begin
   List.Free();
 end;
 
-procedure TTestSortedList.TestIDynamic;
-const
-  NrElem = 1000;
-
+procedure TTestSortedLinkedList.TestIndexer;
 var
-  AList: TSortedList<Integer>;
-  I: Integer;
+  List : TSortedLinkedList<Integer>;
 begin
-  { With intitial capacity }
-  AList := TSortedList<Integer>.Create(100);
-
-  AList.Shrink();
-  Check(AList.Capacity = 0, 'Capacity expected to be 0');
-  Check(AList.GetCapacity() = AList.Capacity, 'GetCapacity() expected to be equal to Capacity');
-
-  AList.Grow();
-  Check(AList.Capacity > 0, 'Capacity expected to be > 0');
-  Check(AList.GetCapacity() = AList.Capacity, 'GetCapacity() expected to be equal to Capacity');
-
-  AList.Shrink();
-  AList.Add(10);
-  AList.Add(20);
-  AList.Add(30);
-  Check(AList.Capacity > AList.Count, 'Capacity expected to be > Count');
-  Check(AList.GetCapacity() = AList.Capacity, 'GetCapacity() expected to be equal to Capacity');
-
-  AList.Shrink();
-  Check(AList.Capacity = AList.Count, 'Capacity expected to be = Count');
-  Check(AList.GetCapacity() = AList.Capacity, 'GetCapacity() expected to be equal to Capacity');
-
-  AList.Grow();
-  Check(AList.Capacity > AList.Count, 'Capacity expected to be > Count');
-  Check(AList.GetCapacity() = AList.Capacity, 'GetCapacity() expected to be equal to Capacity');
-
-  AList.Clear();
-  AList.Shrink();
-  Check(AList.Capacity = 0, 'Capacity expected to be = 0');
-  Check(AList.GetCapacity() = AList.Capacity, 'GetCapacity() expected to be equal to Capacity');
-
-
-  for I := 0 to NrElem - 1 do
-    AList.Add(I);
-
-  for I := 0 to NrElem - 1 do
-    AList.Remove(I);
-
-  Check(AList.Capacity > NrElem, 'Capacity expected to be > NrElem');
-  Check(AList.GetCapacity() = AList.Capacity, 'GetCapacity() expected to be equal to Capacity');
-
-  AList.Free;
-end;
-
-procedure TTestSortedList.TestIndexer;
-var
-  List : TSortedList<Integer>;
-begin
-  List := TSortedList<Integer>.Create(True);
+  List := TSortedLinkedList<Integer>.Create(True);
 
   List.Add(6);
   List.Add(2);
@@ -634,13 +569,13 @@ begin
   List.Free();
 end;
 
-procedure TTestSortedList.TestObjectVariant;
+procedure TTestSortedLinkedList.TestObjectVariant;
 var
-  ObjList: TObjectSortedList<TTestObject>;
+  ObjList: TObjectSortedLinkedList<TTestObject>;
   TheObject: TTestObject;
   ObjectDied: Boolean;
 begin
-  ObjList := TObjectSortedList<TTestObject>.Create();
+  ObjList := TObjectSortedLinkedList<TTestObject>.Create();
   Check(not ObjList.OwnsObjects, 'OwnsObjects must be false!');
 
   TheObject := TTestObject.Create(@ObjectDied);
@@ -659,6 +594,6 @@ begin
 end;
 
 initialization
-  TestFramework.RegisterTest(TTestSortedList.Suite);
+  TestFramework.RegisterTest(TTestSortedLinkedList.Suite);
 
 end.

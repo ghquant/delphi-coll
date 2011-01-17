@@ -317,9 +317,40 @@ type
   ///  <summary>The generic <c>queue (FIFO)</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
   TLinkedQueue<T> = class(TEnexCollection<T>, IQueue<T>)
-  private var
-    FList: TLinkedList<T>;
+  private type
+    {$REGION 'Internal Types'}
+    PEntry = ^TEntry;
+    TEntry = record
+      FPrev, FNext: PEntry;
+      FValue: T;
+    end;
 
+    TEnumerator = class(TEnumerator<T>)
+    private
+      FVer: NativeInt;
+      FQueue: TLinkedQueue<T>;
+      FCurrentEntry: PEntry;
+      FValue: T;
+    public
+      { Constructor }
+      constructor Create(const AQueue: TLinkedQueue<T>);
+
+      { Destructor }
+      destructor Destroy(); override;
+
+      function GetCurrent(): T; override;
+      function MoveNext(): Boolean; override;
+    end;
+    {$ENDREGION}
+
+  private var
+    FFirst, FLast, FFirstFree: PEntry;
+    FCount, FFreeCount: NativeInt;
+    FVer: NativeInt;
+
+    { Caching }
+    function NeedEntry(const AValue: T): PEntry;
+    procedure ReleaseEntry(const AEntry: PEntry);
   protected
     ///  <summary>Returns the number of elements in the queue.</summary>
     ///  <returns>A positive value specifying the number of elements in the queue.</returns>
@@ -386,7 +417,7 @@ type
 
     ///  <summary>Specifies the number of elements in the queue.</summary>
     ///  <returns>A positive value specifying the number of elements in the queue.</returns>
-    property Count: NativeInt read GetCount;
+    property Count: NativeInt read FCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this queue.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -1326,46 +1357,148 @@ end;
 { TLinkedQueue<T> }
 
 function TLinkedQueue<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Aggregate(AAggregator);
+  { Check arguments }
+  if not Assigned(AAggregator) then
+    ExceptionHelper.Throw_ArgumentNilError('AAggregator');
+
+  if not Assigned(FFirst) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  { Select the first element as comparison base }
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  { Iterate over the last N - 1 elements }
+  while Assigned(LCurrent) do
+  begin
+    Result := AAggregator(Result, LCurrent^.FValue);
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 function TLinkedQueue<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.AggregateOrDefault(AAggregator, ADefault);
+  { Check arguments }
+  if not Assigned(AAggregator) then
+    ExceptionHelper.Throw_ArgumentNilError('AAggregator');
+
+  { Select the first element as comparison base }
+  if not Assigned(FFirst) then
+    Exit(ADefault);
+
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  { Iterate over the last N - 1 elements }
+  while Assigned(LCurrent) do
+  begin
+    Result := AAggregator(Result, LCurrent^.FValue);
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 function TLinkedQueue<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.All(APredicate);
+  if not Assigned(APredicate) then
+    ExceptionHelper.Throw_ArgumentNilError('APredicate');
+
+  LCurrent := FFirst;
+
+  while Assigned(LCurrent) do
+  begin
+    if not APredicate(LCurrent^.FValue) then
+      Exit(false);
+
+    LCurrent := LCurrent^.FNext;
+  end;
+
+  Result := true;
 end;
 
 function TLinkedQueue<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Any(APredicate);
+  if not Assigned(APredicate) then
+    ExceptionHelper.Throw_ArgumentNilError('APredicate');
+
+  LCurrent := FFirst;
+
+  while Assigned(LCurrent) do
+  begin
+    if APredicate(LCurrent^.FValue) then
+      Exit(true);
+
+    LCurrent := LCurrent^.FNext;
+  end;
+
+  Result := false;
 end;
 
 procedure TLinkedQueue<T>.Clear;
+var
+  LCurrent, LNext: PEntry;
 begin
-  { Clear the internal list }
-  if Assigned(FList) then
-    FList.Clear();
+  LCurrent := FFirst;
+  while Assigned(LCurrent) do
+  begin
+    NotifyElementRemoved(LCurrent^.FValue);
+
+    { Release}
+    LNext := LCurrent^.FNext;
+    ReleaseEntry(LCurrent);
+    LCurrent := LNext;
+  end;
+
+  FFirst := nil;
+  FLast := nil;
+  FCount := 0;
+  Inc(FVer);
 end;
 
 function TLinkedQueue<T>.Contains(const AValue: T): Boolean;
+var
+  LCurrent: PEntry;
 begin
-  { Use the list }
-  Result := FList.Contains(AValue);
+  LCurrent := FFirst;
+  Result := False;
+
+  while Assigned(LCurrent) do
+  begin
+    if ElementsAreEqual(AValue, LCurrent^.FValue) then
+      Exit(True);
+
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 procedure TLinkedQueue<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+var
+  X: NativeInt;
+  LCurrent: PEntry;
 begin
-  { Invoke the copy-to from the list below }
-  FList.CopyTo(AArray, AStartIndex);
+  { Check for indexes }
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if (Length(AArray) - AStartIndex) < FCount then
+     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
+
+  X := AStartIndex;
+  LCurrent := FFirst;
+  while Assigned(LCurrent) do
+  begin
+    AArray[X] := LCurrent^.FValue;
+    Inc(X);
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 constructor TLinkedQueue<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
@@ -1396,122 +1529,289 @@ end;
 
 constructor TLinkedQueue<T>.Create(const ARules: TRules<T>);
 begin
-  { Initialize internals }
+  { Initialize instance }
   inherited Create(ARules);
 
-  FList := TLinkedList<T>.Create(ElementRules);
-  FList.RemoveNotification := NotifyElementRemoved;
+  FFirst := nil;
+  FLast := nil;
+  FFirstFree := nil;
+  FFreeCount := 0;
+  FCount := 0;
+  FVer := 0;
 end;
 
 function TLinkedQueue<T>.ElementAt(const AIndex: NativeInt): T;
+var
+  LCurrent: PEntry;
+  LIndex: NativeInt;
 begin
-  { Call the one from the list }
-  Result := FList.ElementAt(AIndex);
+  { Check range }
+  if (AIndex >= FCount) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  LCurrent := FFirst;
+  LIndex := 0;
+  while Assigned(LCurrent) do
+  begin
+    if LIndex = AIndex then
+      Exit(LCurrent^.FValue);
+
+    LCurrent := LCurrent^.FNext;
+    Inc(LIndex);
+  end;
+
+  { Should never happen }
+  ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
 function TLinkedQueue<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
+var
+  LCurrent: PEntry;
+  LIndex: NativeInt;
 begin
-  { Call the one from the list }
-  Result := FList.ElementAtOrDefault(AIndex, ADefault);
+  { Check range }
+  if AIndex < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  if AIndex >= FCount then
+    Exit(ADefault);
+
+  LCurrent := FFirst;
+  LIndex := 0;
+  while Assigned(LCurrent) do
+  begin
+    if LIndex = AIndex then
+      Exit(LCurrent^.FValue);
+
+    LCurrent := LCurrent^.FNext;
+    Inc(LIndex);
+  end;
+
+  { Should never happen }
+  Result := ADefault;
 end;
 
 function TLinkedQueue<T>.Empty: Boolean;
 begin
   { Call the one from the list }
-  Result := FList.Empty;
+  Result := not Assigned(FLast);
 end;
 
 procedure TLinkedQueue<T>.Enqueue(const AValue: T);
+var
+  LNew: PEntry;
 begin
-  { Add a new node to the linked list }
-  FList.AddLast(AValue);
+  LNew := NeedEntry(AValue);
+  LNew^.FPrev := FLast;
+  LNew^.FNext := nil;
+
+  if Assigned(FLast) then
+    FLast^.FNext := LNew;
+
+  FLast := LNew;
+
+  if not Assigned(FFirst) then
+    FFirst := LNew;
+
+  Inc(FVer);
+  Inc(FCount);
 end;
 
 function TLinkedQueue<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
+var
+  LValue: T;
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.EqualsTo(ACollection);
+  LCurrent := FFirst;
+  for LValue in ACollection do
+  begin
+    if not Assigned(LCurrent) then
+      Exit(false);
+
+    if not ElementsAreEqual(LCurrent^.FValue, LValue) then
+      Exit(false);
+
+    LCurrent := LCurrent^.FNext;
+  end;
+
+  Result := not Assigned(LCurrent);
 end;
 
 function TLinkedQueue<T>.First: T;
 begin
-  { Call the one from the list }
-  Result := FList.First;
+  if not Assigned(FFirst) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FFirst^.FValue;
 end;
 
 function TLinkedQueue<T>.FirstOrDefault(const ADefault: T): T;
 begin
-  { Call the one from the list }
-  Result := FList.FirstOrDefault(ADefault);
+  if not Assigned(FFirst) then
+    Result := ADefault
+  else
+    Result := FFirst^.FValue;
 end;
 
 destructor TLinkedQueue<T>.Destroy;
+var
+  LNext: PEntry;
 begin
-  { Cleanup }
+  { Some cleanup }
   Clear();
+
+  { Clear the cached entries too }
+  if FFreeCount > 0 then
+    while Assigned(FFirstFree) do
+    begin
+      LNext := FFirstFree^.FNext;
+      Dispose(FFirstFree);
+      FFirstFree := LNext;
+    end;
 
   inherited;
 end;
 
 function TLinkedQueue<T>.Dequeue: T;
+var
+  LEntry: PEntry;
 begin
-  { Call the list ... again! }
-  Result := FList.RemoveAndReturnFirst();
+  if not Assigned(FFirst) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  LEntry := FFirst;
+  Result := LEntry^.FValue;
+  FFirst := LEntry^.FNext;
+
+  if FLast = LEntry then
+    FLast := FFirst;
+
+  ReleaseEntry(LEntry);
+
+  Inc(FVer);
+  Dec(FCount);
 end;
 
 function TLinkedQueue<T>.GetCount: NativeInt;
 begin
-  Result := FList.Count;
+  Result := FCount;
 end;
 
 function TLinkedQueue<T>.GetEnumerator: IEnumerator<T>;
 begin
-  { Get the list enumerator }
-  Result := FList.GetEnumerator();
+  Result := TEnumerator.Create(Self);
 end;
 
 function TLinkedQueue<T>.Last: T;
 begin
-  { Call the one from the list }
-  Result := FList.Last;
+  if not Assigned(FLast) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FLast^.FValue;
 end;
 
 function TLinkedQueue<T>.LastOrDefault(const ADefault: T): T;
 begin
-  { Call the one from the list }
-  Result := FList.LastOrDefault(ADefault);
+  if not Assigned(FLast) then
+    Result := ADefault
+  else
+    Result := FLast^.FValue;
 end;
 
 function TLinkedQueue<T>.Max: T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Max;
+  if not Assigned(FLast) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  while Assigned(LCurrent) do
+  begin
+    if CompareElements(LCurrent^.FValue, Result) > 0 then
+      Result := LCurrent^.FValue;
+
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 function TLinkedQueue<T>.Min: T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Min;
+  if not Assigned(FLast) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  while Assigned(LCurrent) do
+  begin
+    if CompareElements(LCurrent^.FValue, Result) < 0 then
+      Result := LCurrent^.FValue;
+
+    LCurrent := LCurrent^.FNext;
+  end;
+end;
+
+function TLinkedQueue<T>.NeedEntry(const AValue: T): PEntry;
+begin
+  if FFreeCount > 0 then
+  begin
+    Result := FFirstFree;
+    FFirstFree := FFirstFree^.FNext;
+
+    Dec(FFreeCount);
+  end else
+    Result := AllocMem(SizeOf(TEntry));
+
+  { Initialize the node }
+  Result^.FValue := AValue;
 end;
 
 function TLinkedQueue<T>.Peek: T;
 begin
-  if not Assigned(FList.FirstNode) then
+  if not Assigned(FFirst) then
     ExceptionHelper.Throw_CollectionEmptyError();
 
-  Result := FList.FirstNode.Value;
+  Result := FFirst^.FValue;
+end;
+
+procedure TLinkedQueue<T>.ReleaseEntry(const AEntry: PEntry);
+begin
+  if FFreeCount = CDefaultSize then
+    Dispose(AEntry)
+  else begin
+    { Place the entry into the cache }
+    AEntry^.FNext := FFirstFree;
+    FFirstFree := AEntry;
+
+    Inc(FFreeCount);
+  end;
 end;
 
 function TLinkedQueue<T>.Single: T;
 begin
-  { Call the one from the list }
-  Result := FList.Single;
+  { Check length }
+  if not Assigned(FFirst) then
+    ExceptionHelper.Throw_CollectionEmptyError()
+  else if FFirst <> FLast then
+    ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
+  else
+    Result := FFirst^.FValue;
 end;
 
 function TLinkedQueue<T>.SingleOrDefault(const ADefault: T): T;
 begin
-  { Call the one from the list }
-  Result := FList.SingleOrDefault(ADefault);
+  { Check length }
+  if not Assigned(FFirst) then
+    Result := ADefault
+  else if FFirst <> FLast then
+    ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
+  else
+    Result := FFirst^.FValue;
 end;
 
 constructor TLinkedQueue<T>.Create(const AArray: array of T);
@@ -1530,6 +1830,45 @@ begin
   for I := 0 to Length(AArray) - 1 do
   begin
     Enqueue(AArray[I]);
+  end;
+end;
+
+{ TLinkedQueue<T>.TEnumerator }
+
+constructor TLinkedQueue<T>.TEnumerator.Create(const AQueue: TLinkedQueue<T>);
+begin
+  FQueue := AQueue;
+  KeepObjectAlive(FQueue);
+
+  FVer := AQueue.FVer;
+  FCurrentEntry := AQueue.FFirst;
+end;
+
+destructor TLinkedQueue<T>.TEnumerator.Destroy;
+begin
+  ReleaseObject(FQueue);
+  inherited;
+end;
+
+function TLinkedQueue<T>.TEnumerator.GetCurrent: T;
+begin
+  if FVer <> FQueue.FVer then
+    ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := FValue;
+end;
+
+function TLinkedQueue<T>.TEnumerator.MoveNext: Boolean;
+begin
+  if FVer <> FQueue.FVer then
+    ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := Assigned(FCurrentEntry);
+
+  if Result then
+  begin
+    FValue := FCurrentEntry^.FValue;
+    FCurrentEntry := FCurrentEntry^.FNext;
   end;
 end;
 

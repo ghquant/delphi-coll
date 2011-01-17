@@ -173,6 +173,7 @@ type
   ISet<T> = interface;
   IDictionary<TKey, TValue> = interface;
   IEnexCollection<T> = interface;
+  IEnexGroupingCollection<TKey, T> = interface;
 
   ///  <summary>Offers an extended set of Enex operations.</summary>
   ///  <remarks>This type is exposed by Enex collections, and serves simply as a bridge between the interfaces
@@ -212,6 +213,9 @@ type
     ///  "TMyObject" instances.</remarks>
     ///  <exception cref="Collections.Base|ETypeException">The collection's elements are not objects.</exception>
     function Select<TOut: class>(): IEnexCollection<TOut>; overload;
+
+    //TODO: document me
+    function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IEnexGroupingCollection<TKey, T>>;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
@@ -615,6 +619,17 @@ type
     function Op: TEnexExtOps<T>;
   end;
 
+  ///  <summary>Enex collection that is presumed to be grouped by a certain key.</summary>
+  IEnexGroupingCollection<TKey, T> = interface(IEnexCollection<T>)
+    ///  <summary>Returns the key under which all elements in this collection are grouped.</summary>
+    ///  <returns>The key of this grouping.</returns>
+    function GetKey(): TKey;
+
+    ///  <summary>Returns the key under which all elements in this collection are grouped.</summary>
+    ///  <returns>The key of this grouping.</returns>
+    property Key: TKey read GetKey;
+  end;
+
   ///  <summary>The Enex interface implemented in collections that allow indexed element access.</summary>
   ///  <remarks>This interface is inherited by other more specific interfaces such as lists. Indexed collections
   ///  allow their elements to be accesed given a numeric index.</remarks>
@@ -892,6 +907,20 @@ type
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
     function Contains(const AValue: T): Boolean;
+  end;
+
+  ///  <summary>The Enex interface that defines the behavior of a <c>sorted set</c>.</summary>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>sorted set</c>.</remarks>
+  ISortedSet<T> = interface(ISet<T>)
+    ///  <summary>Returns the biggest set element.</summary>
+    ///  <returns>An element from the set considered to have the biggest value.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The set is empty.</exception>
+    function Max(): T;
+
+    ///  <summary>Returns the smallest set element.</summary>
+    ///  <returns>An element from the set considered to have the smallest value.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The set is empty.</exception>
+    function Min(): T;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>bag</c>.</summary>
@@ -2308,14 +2337,6 @@ type
 
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_ElementNotPartOfCollectionError(const ArgName: String);
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_ElementAlreadyPartOfCollectionError(const ArgName: String);
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_TypeNotAClassError(const TypeName: String);
   end;
 
@@ -2331,8 +2352,6 @@ resourcestring
   SEmptyCollection = 'The collection is empty! The operation cannot be performed!';
   SCollectionHasMoreThanOneElements = 'The collection has more than one element!';
   SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
-  SElementNotInCollection = 'The element given in the "%s" parameter is not a part of this collection!';
-  SElementAlreadyInAnotherCollection = 'The element given in the "%s" parameter is already a part of another collection!';
   STypeNotAClass = 'The type "%s" on which the operation was invoked is not a class!';
 {$ENDREGION}
 
@@ -2883,6 +2902,51 @@ type
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
+  { The "Group By" collection }
+  TEnexGroupByCollection<T, TBy> = class sealed(TEnexCollection<IEnexGroupingCollection<TBy, T>>)
+  private type
+    TEnexGroupingCollection = class(TEnexCollection<T>, IEnexGroupingCollection<TBy, T>)
+    private
+      FBy: TBy;
+      FList: IList<T>;
+    public
+      function GetKey(): TBy;
+      function GetCount(): NativeInt; override;
+      function GetEnumerator(): IEnumerator<T>; override;
+      procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
+      function Empty(): Boolean; override;
+      function Max(): T; override;
+      function Min(): T; override;
+      function First(): T; override;
+      function FirstOrDefault(const ADefault: T): T; override;
+      function Last(): T; override;
+      function LastOrDefault(const ADefault: T): T; override;
+      function Single(): T; override;
+      function SingleOrDefault(const ADefault: T): T; override;
+      function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
+      function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
+      function ElementAt(const AIndex: NativeInt): T; override;
+      function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
+      function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
+      function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+      function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
+    end;
+
+  private var
+    FCollection: TEnexCollection<T>;
+    FSelector: TFunc<T, TBy>;
+
+  public
+    { Constructors }
+    constructor Create(const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TBy>);
+
+    { Destructor }
+    destructor Destroy(); override;
+
+    { IEnumerable<T> }
+    function GetEnumerator(): IEnumerator<IEnexGroupingCollection<TBy, T>>; override;
+  end;
+
   { The "Select Keys" collection }
   TEnexSelectKeysCollection<TKey, TValue> = class sealed(TEnexCollection<TKey>)
   private
@@ -3080,6 +3144,16 @@ uses
   Collections.Dictionaries;
 
 { TEnexExtOps<T> }
+
+function TEnexExtOps<T>.GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IEnexGroupingCollection<TKey, T>>;
+begin
+  { Check arguments }
+  if not Assigned(ASelector) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector');
+
+  { Create an intermediate collection that will lazy-create the actual stuff }
+  Result := TEnexGroupByCollection<T, TKey>.Create(FInstance, ASelector);
+end;
 
 function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
 var
@@ -5980,6 +6054,190 @@ begin
     Result := FEnumerator.MoveNext;
 end;
 
+{ TEnexGroupByCollection<T, TGroup> }
+
+constructor TEnexGroupByCollection<T, TBy>.Create(
+  const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TBy>);
+begin
+  { Check arguments }
+  if not Assigned(ASelector) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector');
+
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  { Install the type (some default type) }
+  inherited Create();
+
+  { Assign internals }
+  FCollection := ACollection;
+  KeepObjectAlive(FCollection);
+
+  FSelector := ASelector;
+end;
+
+destructor TEnexGroupByCollection<T, TBy>.Destroy;
+begin
+  { Delete the enumerable if required }
+  ReleaseObject(FCollection, false);
+
+  inherited;
+end;
+
+function TEnexGroupByCollection<T, TBy>.GetEnumerator: IEnumerator<IEnexGroupingCollection<TBy, T>>;
+var
+  LDictionary: IDictionary<TBy, IList<T>>;
+  LList: IList<T>;
+  LSrcEnumerator: IEnumerator<T>;
+  LDictEnumerator: IEnumerator<TPair<TBy, IList<T>>>;
+  LGroup: TBy;
+  LOutList: IList<IEnexGroupingCollection<TBy, T>>;
+  LGrouping: TEnexGroupingCollection;
+begin
+  { Initialize the dictionary (need one that preserves the input order) }
+  LDictionary := TLinkedDictionary<TBy, IList<T>>.Create();
+
+  { Obtain the source enumerator }
+  LSrcEnumerator := FCollection.GetEnumerator();
+  while LSrcEnumerator.MoveNext() do
+  begin
+    LGroup := FSelector(LSrcEnumerator.Current);
+
+    { Try to get the list of groupet input elements }
+    if not LDictionary.TryGetValue(LGroup, LList) then
+    begin
+      LList := TList<T>.Create();
+      LDictionary.Add(LGroup, LList);
+    end;
+
+    { Add the element that was grouped into the list, and move on ... }
+    LList.Add(LSrcEnumerator.Current);
+  end;
+
+  { Build result and such things }
+  LOutList := TList<IEnexGroupingCollection<TBy, T>>.Create();
+
+  { Get the dictionary enumerator and build output }
+  LDictEnumerator := LDictionary.GetEnumerator();
+  while LDictEnumerator.MoveNext() do
+  begin
+    { Initialize the grouping structure }
+    LGrouping := TEnexGroupingCollection.Create;
+    LGrouping.FBy := LDictEnumerator.Current.Key;
+    LGrouping.FList := LDictEnumerator.Current.Value;
+
+    { Place it into output }
+    LOutList.Add(LGrouping);
+  end;
+
+  { Finally, provide the enumerator }
+  Result := LOutList.GetEnumerator();
+end;
+
+
+{ TEnexGroupByCollection<T, TKey>.TEnexGroupingCollection }
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Aggregate(const AAggregator: TFunc<T, T, T>): T;
+begin
+  Result := FList.Aggregate(AAggregator);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
+begin
+  Result := FList.AggregateOrDefault(AAggregator, ADefault);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.All(const APredicate: TFunc<T, Boolean>): Boolean;
+begin
+  Result := FList.All(APredicate);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+begin
+  Result := FList.Any(APredicate);
+end;
+
+procedure TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+begin
+  FList.CopyTo(AArray, AStartIndex);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.ElementAt(const AIndex: NativeInt): T;
+begin
+  Result := FList.ElementAt(AIndex);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
+begin
+  Result := FList.ElementAtOrDefault(AIndex, ADefault);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Empty: Boolean;
+begin
+  Result := FList.Empty;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
+begin
+  Result := FList.EqualsTo(ACollection);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.First: T;
+begin
+  Result := FList.First;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.FirstOrDefault(const ADefault: T): T;
+begin
+  Result := FList.FirstOrDefault(ADefault);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.GetCount: NativeInt;
+begin
+  Result := FList.Count;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.GetEnumerator: IEnumerator<T>;
+begin
+  Result := FList.GetEnumerator();
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.GetKey: TBy;
+begin
+  Result := FBy;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Last: T;
+begin
+  Result := FList.Last;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.LastOrDefault(const ADefault: T): T;
+begin
+  Result := FList.LastOrDefault(ADefault);
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Max: T;
+begin
+  Result := FList.Max;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Min: T;
+begin
+  Result := FList.Min;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Single: T;
+begin
+  Result := FList.Single;
+end;
+
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.SingleOrDefault(const ADefault: T): T;
+begin
+  Result := FList.SingleOrDefault(ADefault);
+end;
+
+
 { TEnexSelectKeysCollection<TKey, TValue> }
 
 constructor TEnexSelectKeysCollection<TKey, TValue>.Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>);
@@ -5993,7 +6251,6 @@ begin
 
   { Assign internals }
   FCollection := ACollection;
-
   KeepObjectAlive(FCollection);
 end;
 
@@ -6625,16 +6882,6 @@ end;
 class procedure ExceptionHelper.Throw_DuplicateKeyError(const ArgName: String);
 begin
   raise EDuplicateKeyException.CreateFmt(SDuplicateKey, [ArgName]);
-end;
-
-class procedure ExceptionHelper.Throw_ElementAlreadyPartOfCollectionError(const ArgName: String);
-begin
-  raise EElementAlreadyInACollection.CreateFmt(SElementAlreadyInAnotherCollection, [ArgName]);
-end;
-
-class procedure ExceptionHelper.Throw_ElementNotPartOfCollectionError(const ArgName: String);
-begin
-  raise EElementNotPartOfCollection.CreateFmt(SElementNotInCollection, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_KeyNotFoundError(const ArgName: String);

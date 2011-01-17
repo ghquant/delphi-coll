@@ -191,8 +191,169 @@ type
 
 type
   ///  <summary>The generic <c>set</c> collection.</summary>
+  ///  <remarks>This type uses hashing techniques and linked lists to store its values.</remarks>
+  TLinkedSet<T> = class(TEnexCollection<T>, ISet<T>)
+  private type
+    {$REGION 'Internal Types'}
+
+    PEntry = ^TEntry;
+    TEntry = record
+      FHashCode: NativeInt;
+      FNext, FPrev: PEntry;
+      FValue: T;
+    end;
+
+    TBucketArray = TArray<PEntry>;
+
+    TEnumerator = class(TEnumerator<T>)
+    private
+      FVer: NativeInt;
+      FDict: TLinkedSet<T>;
+      FCurrentEntry: PEntry;
+      FValue: T;
+    public
+      { Constructor }
+      constructor Create(const ADict: TLinkedSet<T>);
+
+      { Destructor }
+      destructor Destroy(); override;
+
+      function GetCurrent(): T; override;
+      function MoveNext(): Boolean; override;
+    end;
+
+    {$ENDREGION}
+
+  private var
+    FBucketArray: TBucketArray;
+    FCount, FFreeCount: NativeInt;
+    FVer: NativeInt;
+    FHead, FTail, FFirstFree: PEntry;
+
+    { Internal }
+    procedure InitializeInternals(const ACapacity: NativeInt);
+    procedure Insert(const AValue: T; const AShouldAdd: Boolean = true);
+    procedure ReInsert(const AEntry: PEntry; const ACapacity: NativeInt);
+
+    function FindEntry(const AValue: T): PEntry;
+    function Hash(const AValue: T): NativeInt;
+
+    { Caching }
+    function NeedEntry(const AValue: T; const AHash: NativeInt): PEntry;
+    procedure ReleaseEntry(const AEntry: PEntry);
+  protected
+    ///  <summary>Returns the number of elements in the set.</summary>
+    ///  <returns>A positive value specifying the number of elements in the set.</returns>
+    function GetCount(): NativeInt; override;
+  public
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AInitialCapacity">The set's initial capacity.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const AInitialCapacity: NativeInt); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const AArray: array of T); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    constructor Create(const ARules: TRules<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AInitialCapacity">The set's initial capacity.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
+    ///  <summary>Clears the contents of the set.</summary>
+    ///  <remarks>This method clears the set and invokes the rule set's cleaning routines for each element.</remarks>
+    procedure Clear();
+
+    ///  <summary>Adds an element to the set.</summary>
+    ///  <param name="AValue">The value to add.</param>
+    ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
+    procedure Add(const AValue: T);
+
+    ///  <summary>Removes a given value from the set.</summary>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
+    procedure Remove(const AValue: T);
+
+    ///  <summary>Checks whether the set contains a given value.</summary>
+    ///  <param name="AValue">The value to check.</param>
+    ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
+    function Contains(const AValue: T): Boolean;
+
+    ///  <summary>Specifies the number of elements in the set.</summary>
+    ///  <returns>A positive value specifying the number of elements in the set.</returns>
+    property Count: NativeInt read FCount;
+
+    ///  <summary>Returns a new enumerator object used to enumerate this set.</summary>
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
+    ///  object that is used to actually traverse the set.</remarks>
+    ///  <returns>An enumerator object.</returns>
+    function GetEnumerator() : IEnumerator<T>; override;
+
+    ///  <summary>Copies the values stored in the set to a given array.</summary>
+    ///  <param name="AArray">An array where to copy the contents of the set.</param>
+    ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
+    ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the set.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
+    procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
+
+    ///  <summary>Checks whether the set is empty.</summary>
+    ///  <returns><c>True</c> if the set is empty; <c>False</c> otherwise.</returns>
+    ///  <remarks>This method is the recommended way of detecting if the set is empty.</remarks>
+    function Empty(): Boolean; override;
+  end;
+
+  ///  <summary>The generic <c>set</c> collection designed to store objects.</summary>
+  ///  <remarks>This type uses hashing techniques and linked lists to store its objects.</remarks>
+  TObjectLinkedSet<T: class> = class(TLinkedSet<T>)
+  private
+    FOwnsObjects: Boolean;
+
+  protected
+    ///  <summary>Frees the object that was removed from the collection.</summary>
+    ///  <param name="AElement">The object that was removed from the collection.</param>
+    procedure HandleElementRemoved(const AElement: T); override;
+  public
+    ///  <summary>Specifies whether this set owns the objects stored in it.</summary>
+    ///  <returns><c>True</c> if the set owns its objects; <c>False</c> otherwise.</returns>
+    ///  <remarks>This property controls the way the set controls the life-time of the stored objects.</remarks>
+    property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
+  end;
+
+type
+  ///  <summary>The generic <c>set</c> collection.</summary>
   ///  <remarks>This type uses an AVL tree to store its values.</remarks>
-  TSortedSet<T> = class(TEnexCollection<T>, ISet<T>)
+  TSortedSet<T> = class(TEnexCollection<T>, ISet<T>, ISortedSet<T>)
   private type
     {$REGION 'Internal Types'}
     TBalanceAct = (baStart, baLeft, baRight, baLoop, baEnd);
@@ -667,7 +828,6 @@ type
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
-
 implementation
 
 { THashSet<T> }
@@ -1051,6 +1211,509 @@ end;
 { TObjectHashSet<T> }
 
 procedure TObjectHashSet<T>.HandleElementRemoved(const AElement: T);
+begin
+  if FOwnsObjects then
+    TObject(AElement).Free;
+end;
+
+
+{ TLinkedSet<T> }
+
+procedure TLinkedSet<T>.Add(const AValue: T);
+begin
+ { Call insert }
+ Insert(AValue, False);
+end;
+
+procedure TLinkedSet<T>.Clear;
+var
+  LEntry, LCurr: PEntry;
+begin
+  LEntry := FHead;
+
+  while Assigned(LEntry) do
+  begin
+    NotifyElementRemoved(LEntry.FValue);
+
+    { Next and kill }
+    LCurr := LEntry;
+    LEntry := LEntry^.FNext;
+
+    ReleaseEntry(LCurr);
+  end;
+
+  { Clear nodes }
+  FHead := nil;
+  FTail := nil;
+
+  { Clear array }
+  FillChar(FBucketArray[0], Length(FBucketArray) * SizeOf(PEntry), 0);
+  FCount := 0;
+
+  Inc(FVer);
+end;
+
+function TLinkedSet<T>.Contains(const AValue: T): Boolean;
+begin
+  Result := Assigned(FindEntry(AValue));
+end;
+
+procedure TLinkedSet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+var
+  X: NativeInt;
+  LEntry: PEntry;
+begin
+  { Check for indexes }
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if (Length(AArray) - AStartIndex) < Count then
+     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
+
+  X := AStartIndex;
+  LEntry := FHead;
+
+  while Assigned(LEntry) do
+  begin
+    { Copy it }
+    AArray[X] := LEntry^.FValue;
+
+    { Go to next }
+    Inc(X);
+    LEntry := LEntry^.FNext;
+  end;
+end;
+
+constructor TLinkedSet<T>.Create;
+begin
+  Create(TRules<T>.Default);
+end;
+
+constructor TLinkedSet<T>.Create(const AInitialCapacity: NativeInt);
+begin
+  Create(TRules<T>.Default, AInitialCapacity);
+end;
+
+constructor TLinkedSet<T>.Create(const ACollection: IEnumerable<T>);
+begin
+  Create(TRules<T>.Default, ACollection);
+end;
+
+constructor TLinkedSet<T>.Create(const AArray: array of T);
+begin
+  Create(TRules<T>.Default, AArray);
+end;
+
+constructor TLinkedSet<T>.Create(const ARules: TRules<T>; const AArray: array of T);
+var
+  I: NativeInt;
+begin
+  { Call upper constructor }
+  Create(ARules, CDefaultSize);
+
+  { Copy all in }
+  for I := 0 to Length(AArray) - 1 do
+    Add(AArray[I]);
+end;
+
+constructor TLinkedSet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
+begin
+  { Call the upper constructor}
+  inherited Create(ARules);
+
+  FVer := 0;
+  FCount := 0;
+  FFreeCount := 0;
+
+  FHead := nil;
+  FTail := nil;
+  FFirstFree := nil;
+
+  { Check for proper capacity }
+  if AInitialCapacity <= 0 then
+    InitializeInternals(CDefaultSize)
+  else
+    InitializeInternals(AInitialCapacity)
+end;
+
+constructor TLinkedSet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
+var
+  LValue: T;
+begin
+  { Call upper constructor }
+  Create(ARules, CDefaultSize);
+
+  if not Assigned(ACollection) then
+     ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  { Pump in all items }
+  for LValue in ACollection do
+    Add(LValue);
+end;
+
+constructor TLinkedSet<T>.Create(const ARules: TRules<T>);
+begin
+  { Call upper constructor }
+  Create(ARules, CDefaultSize);
+end;
+
+destructor TLinkedSet<T>.Destroy;
+var
+  LNext: PEntry;
+begin
+  { Clear first }
+  Clear();
+
+  { Clear the cached entries too }
+  if FFreeCount > 0 then
+    while Assigned(FFirstFree) do
+    begin
+      LNext := FFirstFree^.FNext;
+      Dispose(FFirstFree);
+      FFirstFree := LNext;
+    end;
+
+  inherited;
+end;
+
+function TLinkedSet<T>.Empty: Boolean;
+begin
+  Result := (FCount = 0);
+end;
+
+function TLinkedSet<T>.FindEntry(const AValue: T): PEntry;
+var
+  LHashCode, LCapacity: NativeInt;
+  LEntry: PEntry;
+begin
+  { Init }
+  Result := nil;
+  LHashCode := Hash(AValue);
+  LCapacity := Length(FBucketArray);
+  LEntry := FBucketArray[LHashCode mod LCapacity];
+
+  while Assigned(LEntry) and
+    ((LEntry^.FHashCode mod LCapacity) = (LHashCode mod LCapacity)) do
+  begin
+    { Check the key }
+    if ElementsAreEqual(LEntry^.FValue, AValue) then
+      Exit(LEntry);
+
+    { Go to next }
+    LEntry := LEntry^.FNext;
+  end;
+end;
+
+function TLinkedSet<T>.GetCount: NativeInt;
+begin
+  Result := FCount;
+end;
+
+function TLinkedSet<T>.GetEnumerator: IEnumerator<T>;
+begin
+  Result := TLinkedSet<T>.TEnumerator.Create(Self);
+end;
+
+function TLinkedSet<T>.Hash(const AValue: T): NativeInt;
+const
+  PositiveMask = not NativeInt(1 shl (SizeOf(NativeInt) * 8 - 1));
+begin
+  Result := PositiveMask and ((PositiveMask and GetElementHashCode(AValue)) + 1);
+end;
+
+procedure TLinkedSet<T>.InitializeInternals(const ACapacity: NativeInt);
+begin
+  { Initialize and clear the dictionary }
+  SetLength(FBucketArray, ACapacity);
+  FillChar(FBucketArray[0], ACapacity * SizeOf(PEntry), 0);
+end;
+
+procedure TLinkedSet<T>.Insert(const AValue: T; const AShouldAdd: Boolean);
+var
+  LHashCode, LNewLength, LCapacity: NativeInt;
+  LEntry, LNewEntry: PEntry;
+begin
+  { Initialize stuff }
+  LHashCode := Hash(AValue);
+
+  while True do
+  begin
+    LCapacity := Length(FBucketArray);
+    LEntry := FBucketArray[LHashCode mod LCapacity];
+
+    { Case 1: we have a free spot and can insert directly }
+    if not Assigned(LEntry) then
+    begin
+      { Insert the entry }
+      LNewEntry := NeedEntry(AValue, LHashCode);
+      LNewEntry^.FPrev := FTail;
+      LNewEntry^.FNext := nil;
+
+      if Assigned(FTail) then
+        FTail^.FNext := LNewEntry;
+
+      FTail := LNewEntry;
+
+      if not Assigned(FHead) then
+        FHead := LNewEntry;
+
+      FBucketArray[LHashCode mod LCapacity] := LNewEntry;
+
+      Inc(FVer);
+      Inc(FCount);
+
+      Exit;
+    end;
+
+    { Case 2: The spot is filled but capacity is sufficient }
+    if FCount < LCapacity then
+    begin
+      { Search for a place to insert the node into }
+
+      while True do
+      begin
+        { Check the key }
+        if ElementsAreEqual(LEntry^.FValue, AValue) then
+        begin
+          if AShouldAdd then
+            ExceptionHelper.Throw_DuplicateKeyError('AKey');
+
+          LEntry^.FValue := AValue;
+
+          Inc(FVer);
+          Exit;
+        end;
+
+        if not Assigned(LEntry^.FNext) or
+           ((LEntry^.FNext^.FHashCode mod LCapacity) <> (LHashCode mod LCapacity)) then Break;
+
+        { Go to next }
+        LEntry := LEntry^.FNext;
+      end;
+
+      { Insert the entry }
+      LNewEntry := NeedEntry(AValue, LHashCode);
+
+      { Get our entry in }
+      LNewEntry^.FNext := LEntry^.FNext;
+      LNewEntry^.FPrev := LEntry;
+
+      if Assigned(LEntry^.FNext) then
+        LEntry^.FNext^.FPrev := LNewEntry;
+
+      LEntry^.FNext := LNewEntry;
+
+      if LEntry = FTail then
+        FTail := LNewEntry;
+
+      Inc(FVer);
+      Inc(FCount);
+
+      Exit;
+    end;
+
+    { Case 3: The spot is filled but capacity is not sufficient }
+    if FCount >= LCapacity then
+    begin
+      { Reset the bucket list }
+      LNewLength := FCount * 2;
+      SetLength(FBucketArray, LNewLength);
+      FillChar(FBucketArray[0], LNewLength * SizeOf(PEntry), 0);
+
+      { Rehash! }
+      LEntry := FHead;
+      FHead := nil;
+      FTail := nil;
+
+      { Rehash the whole list using new capacity }
+      while Assigned(LEntry) do
+      begin
+        LNewEntry := LEntry^.FNext;
+        ReInsert(LEntry, LNewLength);
+
+        LEntry := LNewEntry;
+      end;
+    end;
+  end;
+end;
+
+function TLinkedSet<T>.NeedEntry(const AValue: T; const AHash: NativeInt): PEntry;
+begin
+  if FFreeCount > 0 then
+  begin
+    Result := FFirstFree;
+    FFirstFree := FFirstFree^.FNext;
+
+    Dec(FFreeCount);
+  end else
+    Result := AllocMem(SizeOf(TEntry));
+
+  { Initialize the node }
+  Result^.FHashCode := AHash;
+  Result^.FValue := AValue;
+end;
+
+procedure TLinkedSet<T>.ReInsert(const AEntry: PEntry; const ACapacity: NativeInt);
+var
+  LEntry: PEntry;
+begin
+  { Initialize stuff }
+  LEntry := FBucketArray[AEntry^.FHashCode mod ACapacity];
+
+  { Case 1: we have a free spot and can insert directly }
+  if not Assigned(LEntry) then
+  begin
+    AEntry^.FPrev := FTail;
+    AEntry^.FNext := nil;
+
+    if Assigned(FTail) then
+      FTail^.FNext := AEntry;
+
+    FTail := AEntry;
+
+    if not Assigned(FHead) then
+      FHead := AEntry;
+
+    FBucketArray[AEntry^.FHashCode mod ACapacity] := AEntry;
+
+    Exit;
+  end;
+
+  { Case 2: The spot is filled but capacity is sufficient }
+  while True do
+  begin
+    { Check the key }
+    ASSERT(not ElementsAreEqual(LEntry^.FValue, AEntry^.FValue));
+
+    if not Assigned(LEntry^.FNext) or
+       ((LEntry^.FNext^.FHashCode mod ACapacity) <> (AEntry^.FHashCode mod ACapacity)) then Break;
+
+    { Go to next }
+    LEntry := LEntry^.FNext;
+  end;
+
+  { Get our entry in }
+  AEntry^.FNext := LEntry^.FNext;
+  AEntry^.FPrev := LEntry;
+
+  if Assigned(LEntry^.FNext) then
+    LEntry^.FNext^.FPrev := AEntry;
+
+  LEntry^.FNext := AEntry;
+
+  if LEntry = FTail then
+    FTail := AEntry;
+end;
+
+procedure TLinkedSet<T>.ReleaseEntry(const AEntry: PEntry);
+begin
+  if FFreeCount = CDefaultSize then
+    Dispose(AEntry)
+  else begin
+    { Place the entry into the cache }
+    AEntry^.FNext := FFirstFree;
+    FFirstFree := AEntry;
+
+    Inc(FFreeCount);
+  end;
+end;
+
+procedure TLinkedSet<T>.Remove(const AValue: T);
+var
+  LHashCode, LCapacity: NativeInt;
+  LEntry: PEntry;
+begin
+  { Generate the hash code }
+  LHashCode := Hash(AValue);
+  LCapacity := Length(FBucketArray);
+  LEntry := FBucketArray[LHashCode mod LCapacity];
+
+  while Assigned(LEntry) and
+       ((LEntry^.FHashCode mod LCapacity) = (LHashCode mod LCapacity)) do
+  begin
+    { Check the key }
+    if ElementsAreEqual(LEntry^.FValue, AValue) then
+    begin
+      { Remove self from the linked list }
+      if Assigned(LEntry^.FPrev) then
+        LEntry^.FPrev^.FNext := LEntry^.FNext;
+
+      if Assigned(LEntry^.FNext) then
+        LEntry^.FNext^.FPrev := LEntry^.FPrev;
+
+      if LEntry = FBucketArray[LHashCode mod LCapacity] then
+      begin
+        { This entry is the first for the given hash code. Set the next if it has same hash. }
+        if Assigned(LEntry^.FNext) and ((LEntry^.FNext^.FHashCode mod LCapacity) = (LEntry^.FHashCode mod LCapacity)) then
+          FBucketArray[LHashCode mod LCapacity] := LEntry^.FNext
+        else
+          FBucketArray[LHashCode mod LCapacity] := nil;
+      end;
+
+      if FTail = LEntry then
+        FTail := LEntry^.FPrev;
+
+      if FHead = LEntry then
+        FHead := LEntry^.FNext;
+
+      { Kill this entry }
+      NotifyElementRemoved(LEntry^.FValue);
+      ReleaseEntry(LEntry);
+      Dec(FCount);
+      Inc(FVer);
+
+      { All done, let's exit }
+      Exit;
+    end;
+
+    { Go to next }
+    LEntry := LEntry^.FNext;
+  end;
+end;
+
+{ TLinkedSet<T>.TPairEnumerator }
+
+constructor TLinkedSet<T>.TEnumerator.Create(const ADict : TLinkedSet<T>);
+begin
+  { Initialize }
+  FDict := ADict;
+  KeepObjectAlive(FDict);
+
+  FCurrentEntry := ADict.FHead;
+  FVer := ADict.FVer;
+end;
+
+destructor TLinkedSet<T>.TEnumerator.Destroy;
+begin
+  ReleaseObject(FDict);
+  inherited;
+end;
+
+function TLinkedSet<T>.TEnumerator.GetCurrent: T;
+begin
+  if FVer <> FDict.FVer then
+    ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := FValue;
+end;
+
+function TLinkedSet<T>.TEnumerator.MoveNext: Boolean;
+begin
+  if FVer <> FDict.FVer then
+    ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := Assigned(FCurrentEntry);
+
+  if Result then
+  begin
+    FValue := FCurrentEntry^.FValue;
+    FCurrentEntry := FCurrentEntry^.FNext;
+  end;
+end;
+
+{ TObjectLinkedSet<T> }
+
+procedure TObjectLinkedSet<T>.HandleElementRemoved(const AElement: T);
 begin
   if FOwnsObjects then
     TObject(AElement).Free;

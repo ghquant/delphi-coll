@@ -106,6 +106,7 @@ type
    procedure InternalTestMax(const Collection: IEnexCollection<Integer>);
    procedure InternalTestFirst(const Collection: IEnexCollection<Integer>);
    procedure InternalTestFirstOrDefault(const Collection: IEnexCollection<Integer>);
+   procedure InternalTestGroupBy(const Collection: IEnexCollection<Integer>);
 
    procedure InternalTestFirstWhere(const Collection: IEnexCollection<Integer>);
    procedure InternalTestFirstWhereOrDefault(const Collection: IEnexCollection<Integer>);
@@ -193,7 +194,7 @@ type
    procedure TestSkipWhileCollection();
    procedure TestTakeWhileCollection();
    procedure TestFillCollection();
-   procedure TestIntervalCollection();
+   procedure TestGroupByCollection();
 
    { Associative collections }
    procedure TestSelectKeysCollection();
@@ -246,6 +247,7 @@ type
    procedure TestIncludes();
    procedure TestSelect2();
    procedure TestSelect3();
+   procedure TestGroupBy();
 
    procedure TestAssocWhere();
    procedure TestAssocWhereNot();
@@ -329,10 +331,12 @@ var
    { All types of pre-made collections }
    LList_Full,
    LSortedList_Full,
+   LLnkSortedList_Full,
    LAraySet_Full,
    LBag_Full,
    LSortedBag_Full,
    LHashSet_Full,
+   LLinkedSet_Full,
    LSortedSet_Full,
    LLinkedList_Full,
    LQueue_Full,
@@ -356,6 +360,8 @@ var
    LSelectValuesColl_Full,
    LDictKey_Full,
    LDictVal_Full,
+   LLnkDictKey_Full,
+   LLnkDictVal_Full,
    LSoDictKey_Full,
    LSoDictVal_Full,
    LSoMMKey_Full,
@@ -379,10 +385,12 @@ var
 
    LList_One,
    LSortedList_One,
+   LLnkSortedList_One,
    LAraySet_One,
    LBag_One,
    LSortedBag_One,
    LHashSet_One,
+   LLinkedSet_One,
    LSortedSet_One,
    LLinkedList_One,
    LQueue_One,
@@ -406,6 +414,8 @@ var
    LSelectValuesColl_One,
    LDictKey_One,
    LDictVal_One,
+   LLnkDictKey_One,
+   LLnkDictVal_One,
    LSoDictKey_One,
    LSoDictVal_One,
    LSoMMKey_One,
@@ -429,10 +439,12 @@ var
 
    LList_Empty,
    LSortedList_Empty,
+   LLnkSortedList_Empty,
    LAraySet_Empty,
    LBag_Empty,
    LSortedBag_Empty,
    LHashSet_Empty,
+   LLinkedSet_Empty,
    LSortedSet_Empty,
    LLinkedList_Empty,
    LQueue_Empty,
@@ -455,6 +467,8 @@ var
    LSelectValuesColl_Empty,
    LDictKey_Empty,
    LDictVal_Empty,
+   LLnkDictKey_Empty,
+   LLnkDictVal_Empty,
    LSoDictKey_Empty,
    LSoDictVal_Empty,
    LSoMMKey_Empty,
@@ -494,6 +508,10 @@ var
    LDictionary_Full,
    LDictionary_One,
    LDictionary_Empty: TDictionary<Integer, Integer>;
+
+   LLinkedDictionary_Full,
+   LLinkedDictionary_One,
+   LLinkedDictionary_Empty: TLinkedDictionary<Integer, Integer>;
 
    LSortedDictionary_Full,
    LSortedDictionary_One,
@@ -1713,6 +1731,61 @@ begin
       Result := LLast = Arg1;
     end, -100));
   end;
+end;
+
+procedure TTestEnex.InternalTestGroupBy(const Collection: IEnexCollection<Integer>);
+var
+  LOdd, LEven: IEnexCollection<Integer>;
+  LGrouped: IEnexCollection<IEnexGroupingCollection<Boolean, Integer>>;
+  LSelector: TFunc<Integer, Boolean>;
+  LGrouping: IEnexGroupingCollection<Boolean, Integer>;
+  LWasTrue, LWasFalse: Boolean;
+begin
+  { Make a list }
+  LSelector := function(AValue: Integer): Boolean
+  begin
+    Result := Odd(AValue);
+  end;
+
+  { Verify constructors }
+  CheckException(EArgumentNilException,
+    procedure() begin
+      Collection.Op.GroupBy<Boolean>(nil);
+    end,
+    'EArgumentNilException not thrown in GroupBy (nil predicate).'
+  );
+
+  { Calculate stuff }
+  LOdd := Collection.Where(function(AValue: Integer): Boolean begin Exit(Odd(AValue)); end);
+  LEven := Collection.Where(function(AValue: Integer): Boolean begin Exit(not Odd(AValue)); end);
+  LGrouped := Collection.Op.GroupBy<Boolean>(LSelector);
+
+  LWasTrue := false;
+  LWasFalse := false;
+  for LGrouping in LGrouped do
+  begin
+    if LGrouping.Key then
+    begin
+      CheckFalse(LWasTrue, 'Did not expect another TRUE group');
+      CheckTrue(LGrouping.EqualsTo(LOdd), 'ODD failed');
+
+      LWasTrue := True;
+    end;
+
+    if not LGrouping.Key then
+    begin
+      CheckFalse(LWasFalse, 'Did not expect another FALSE group');
+      CheckTrue(LGrouping.EqualsTo(LEven), 'EVEN failed');
+
+      LWasFalse := True;
+    end;
+  end;
+
+  if not LOdd.Empty then
+    CheckTrue(LWasTrue);
+
+  if not LEven.Empty then
+    CheckTrue(LWasFalse);
 end;
 
 procedure TTestEnex.InternalEnexTestGetCount(const Collection: IEnexCollection<Integer>);
@@ -3161,6 +3234,7 @@ begin
   { With real data }
   TestProc(LPrioQueue_Full);
   TestProc(LDictionary_Full);
+  TestProc(LLinkedDictionary_Full);
   TestProc(LSortedDictionary_Full);
   TestProc(LMM_Full);
   TestProc(LSoMM_Full);
@@ -3178,6 +3252,7 @@ begin
   { With one element }
   TestProc(LPrioQueue_One);
   TestProc(LDictionary_One);
+  TestProc(LLinkedDictionary_One);
   TestProc(LSortedDictionary_One);
   TestProc(LMM_One);
   TestProc(LSoMM_One);
@@ -3195,6 +3270,7 @@ begin
   { With no data }
   TestProc(LPrioQueue_Empty);
   TestProc(LDictionary_Empty);
+  TestProc(LLinkedDictionary_Empty);
   TestProc(LSortedDictionary_Empty);
   TestProc(LMM_Empty);
   TestProc(LSoMM_Empty);
@@ -3215,10 +3291,12 @@ begin
   { With real data }
   TestProc(LList_Full);
   TestProc(LSortedList_Full);
+  TestProc(LLnkSortedList_Full);
   TestProc(LAraySet_Full);
   TestProc(LBag_Full);
   TestProc(LSortedBag_Full);
   TestProc(LHashSet_Full);
+  TestProc(LLinkedSet_Full);
   TestProc(LSortedSet_Full);
   TestProc(LLinkedList_Full);
   TestProc(LQueue_Full);
@@ -3242,6 +3320,8 @@ begin
   TestProc(LSelectValuesColl_Full);
   TestProc(LDictKey_Full);
   TestProc(LDictVal_Full);
+  TestProc(LLnkDictKey_Full);
+  TestProc(LLnkDictVal_Full);
   TestProc(LSoDictKey_Full);
   TestProc(LSoDictVal_Full);
   TestProc(LMMKey_Full);
@@ -3266,10 +3346,12 @@ begin
   { With one element }
   TestProc(LList_One);
   TestProc(LSortedList_One);
+  TestProc(LLnkSortedList_One);
   TestProc(LAraySet_One);
   TestProc(LBag_One);
   TestProc(LSortedBag_One);
   TestProc(LHashSet_One);
+  TestProc(LLinkedSet_One);
   TestProc(LSortedSet_One);
   TestProc(LLinkedList_One);
   TestProc(LQueue_One);
@@ -3293,6 +3375,8 @@ begin
   TestProc(LSelectValuesColl_One);
   TestProc(LDictKey_One);
   TestProc(LDictVal_One);
+  TestProc(LLnkDictKey_One);
+  TestProc(LLnkDictVal_One);
   TestProc(LSoDictKey_One);
   TestProc(LSoDictVal_One);
   TestProc(LMMKey_One);
@@ -3317,10 +3401,12 @@ begin
   { With no data }
   TestProc(LList_Empty);
   TestProc(LSortedList_Empty);
+  TestProc(LLnkSortedList_Empty);
   TestProc(LAraySet_Empty);
   TestProc(LBag_Empty);
   TestProc(LSortedBag_Empty);
   TestProc(LHashSet_Empty);
+  TestProc(LLinkedSet_Empty);
   TestProc(LSortedSet_Empty);
   TestProc(LLinkedList_Empty);
   TestProc(LQueue_Empty);
@@ -3343,6 +3429,8 @@ begin
   TestProc(LSelectValuesColl_Empty);
   TestProc(LDictKey_Empty);
   TestProc(LDictVal_Empty);
+  TestProc(LLnkDictKey_Empty);
+  TestProc(LLnkDictVal_Empty);
   TestProc(LSoDictKey_Empty);
   TestProc(LSoDictVal_Empty);
   TestProc(LMMKey_Empty);
@@ -3369,6 +3457,71 @@ procedure TTestEnex.TestGetCount;
 begin
   TestGenericEnexCollection(InternalEnexTestGetCount);
   TestGenericAssocEnexCollection(InternalAssocEnexTestGetCount);
+end;
+
+procedure TTestEnex.TestGroupBy;
+begin
+  TestGenericEnexCollection(InternalTestGroupBy);
+end;
+
+procedure TTestEnex.TestGroupByCollection;
+var
+  LEnum, LOdd, LEven: IEnexCollection<Integer>;
+  LGrouped: IEnexCollection<IEnexGroupingCollection<Boolean, Integer>>;
+  LSelector: TFunc<Integer, Boolean>;
+  LGrouping: IEnexGroupingCollection<Boolean, Integer>;
+  LWasTrue, LWasFalse: Boolean;
+begin
+  { Make a list }
+  LEnum := MakeOrderedIntegerList(0, 100);
+  LSelector := function(AValue: Integer): Boolean
+  begin
+    Result := Odd(AValue);
+  end;
+
+  { Verify constructors }
+  CheckException(EArgumentNilException,
+    procedure() begin
+      TEnexGroupByCollection<Integer, Boolean>.Create(__(LEnum), nil);
+    end,
+    'EArgumentNilException not thrown in Create (nil predicate).'
+  );
+
+  CheckException(EArgumentNilException,
+    procedure() begin
+      TEnexGroupByCollection<Integer, Boolean>.Create(nil, LSelector);
+    end,
+    'EArgumentNilException not thrown in Create (nil enum).'
+  );
+
+  { Calculate stuff }
+  LOdd := LEnum.Where(function(AValue: Integer): Boolean begin Exit(Odd(AValue)); end);
+  LEven := LEnum.Where(function(AValue: Integer): Boolean begin Exit(not Odd(AValue)); end);
+  LGrouped := TEnexGroupByCollection<Integer, Boolean>.Create(__(LEnum), LSelector);
+
+  LWasTrue := false;
+  LWasFalse := false;
+  for LGrouping in LGrouped do
+  begin
+    if LGrouping.Key then
+    begin
+      CheckFalse(LWasTrue, 'Did not expect another TRUE group');
+      CheckTrue(LGrouping.EqualsTo(LOdd), 'ODD failed');
+
+      LWasTrue := True;
+    end;
+
+    if not LGrouping.Key then
+    begin
+      CheckFalse(LWasFalse, 'Did not expect another FALSE group');
+      CheckTrue(LGrouping.EqualsTo(LEven), 'EVEN failed');
+
+      LWasFalse := True;
+    end;
+  end;
+
+  CheckTrue(LWasTrue);
+  CheckTrue(LWasFalse);
 end;
 
 procedure TTestEnex.TestIncludes;
@@ -3432,11 +3585,6 @@ begin
 end;
 
 procedure TTestEnex.TestInterval;
-begin
-
-end;
-
-procedure TTestEnex.TestIntervalCollection;
 begin
 
 end;
@@ -4234,10 +4382,12 @@ begin
   { With real data }
   LList_Full := TList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedList_Full := TSortedList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
+  LLnkSortedList_Full := TSortedLinkedList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LAraySet_Full := TArraySet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LBag_Full := TBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedBag_Full := TSortedBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LHashSet_Full := THashSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
+  LLinkedSet_Full := TLinkedSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedSet_Full := TSortedSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LLinkedList_Full := TLinkedList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LQueue_Full := TQueue<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
@@ -4254,6 +4404,15 @@ begin
   end;
   LDictKey_Full := LDictionary_Full.Keys;
   LDictVal_Full := LDictionary_Full.Values;
+
+  LLinkedDictionary_Full := TLinkedDictionary<Integer, Integer>.Create();
+  (LLinkedDictionary_Full as IInterface)._AddRef();
+  for I in MakeRandomIntegerList(ListElements, ListMax) do
+  begin
+     LLinkedDictionary_Full[I] := Random(ListMax);
+  end;
+  LLnkDictKey_Full := LLinkedDictionary_Full.Keys;
+  LLnkDictVal_Full := LLinkedDictionary_Full.Values;
 
   LSortedDictionary_Full := TSortedDictionary<Integer, Integer>.Create();
   (LSortedDictionary_Full as IInterface)._AddRef();
@@ -4359,10 +4518,12 @@ begin
   { With one element }
   LList_One := TList<Integer>.Create([1]);
   LSortedList_One := TSortedList<Integer>.Create([2]);
+  LLnkSortedList_One := TSortedLinkedList<Integer>.Create([222]);
   LAraySet_One := TArraySet<Integer>.Create([3]);
   LBag_One := TBag<Integer>.Create([4]);
   LSortedBag_One := TSortedBag<Integer>.Create([4]);
   LHashSet_One := THashSet<Integer>.Create([5]);
+  LLinkedSet_One := TLinkedSet<Integer>.Create([5]);
   LSortedSet_One := TSortedSet<Integer>.Create([5]);
   LLinkedList_One := TLinkedList<Integer>.Create([6]);
   LQueue_One := TQueue<Integer>.Create([7]);
@@ -4375,6 +4536,12 @@ begin
   LDictionary_One.Add(9,9);
   LDictKey_One := LDictionary_One.Keys;
   LDictVal_One := LDictionary_One.Values;
+
+  LLinkedDictionary_One := TLinkedDictionary<Integer, Integer>.Create();
+  (LLinkedDictionary_One as IInterface)._AddRef();
+  LLinkedDictionary_One.Add(9,9);
+  LLnkDictKey_One := LLinkedDictionary_One.Keys;
+  LLnkDictVal_One := LLinkedDictionary_One.Values;
 
   LSortedDictionary_One := TSortedDictionary<Integer, Integer>.Create();
   (LSortedDictionary_One as IInterface)._AddRef();
@@ -4446,10 +4613,12 @@ begin
   { With no data }
   LList_Empty := TList<Integer>.Create();
   LSortedList_Empty := TSortedList<Integer>.Create();
+  LLnkSortedList_Empty := TSortedLinkedList<Integer>.Create();
   LAraySet_Empty := TArraySet<Integer>.Create();
   LBag_Empty := TBag<Integer>.Create();
   LSortedBag_Empty := TSortedBag<Integer>.Create();
   LHashSet_Empty := THashSet<Integer>.Create();
+  LLinkedSet_Empty := TLinkedSet<Integer>.Create();
   LSortedSet_Empty := TSortedSet<Integer>.Create();
   LLinkedList_Empty := TLinkedList<Integer>.Create();
   LQueue_Empty := TQueue<Integer>.Create();
@@ -4461,6 +4630,11 @@ begin
   (LDictionary_Empty as IInterface)._AddRef();
   LDictKey_Empty := LDictionary_Empty.Keys;
   LDictVal_Empty := LDictionary_Empty.Values;
+
+  LLinkedDictionary_Empty := TLinkedDictionary<Integer, Integer>.Create();
+  (LLinkedDictionary_Empty as IInterface)._AddRef();
+  LLnkDictKey_Empty := LLinkedDictionary_Empty.Keys;
+  LLnkDictVal_Empty := LLinkedDictionary_Empty.Values;
 
   LSortedDictionary_Empty := TSortedDictionary<Integer, Integer>.Create();
   (LSortedDictionary_Empty as IInterface)._AddRef();

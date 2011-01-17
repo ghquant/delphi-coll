@@ -318,9 +318,40 @@ type
   ///  <summary>The generic <c>stack (LIFO)</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
   TLinkedStack<T> = class(TEnexCollection<T>, IStack<T>)
-  private var
-    FList: TLinkedList<T>;
+  private type
+    {$REGION 'Internal Types'}
+    PEntry = ^TEntry;
+    TEntry = record
+      FPrev, FNext: PEntry;
+      FValue: T;
+    end;
 
+    TEnumerator = class(TEnumerator<T>)
+    private
+      FVer: NativeInt;
+      FStack: TLinkedStack<T>;
+      FCurrentEntry: PEntry;
+      FValue: T;
+    public
+      { Constructor }
+      constructor Create(const AStack: TLinkedStack<T>);
+
+      { Destructor }
+      destructor Destroy(); override;
+
+      function GetCurrent(): T; override;
+      function MoveNext(): Boolean; override;
+    end;
+    {$ENDREGION}
+
+  private var
+    FFirst, FLast, FFirstFree: PEntry;
+    FCount, FFreeCount: NativeInt;
+    FVer: NativeInt;
+
+    { Caching }
+    function NeedEntry(const AValue: T): PEntry;
+    procedure ReleaseEntry(const AEntry: PEntry);
   protected
     ///  <summary>Returns the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
@@ -391,7 +422,7 @@ type
 
     ///  <summary>Specifies the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
-    property Count: NativeInt read GetCount;
+    property Count: NativeInt read FCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this stack.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -1019,46 +1050,148 @@ end;
 { TLinkedStack<T> }
 
 function TLinkedStack<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Aggregate(AAggregator);
+  { Check arguments }
+  if not Assigned(AAggregator) then
+    ExceptionHelper.Throw_ArgumentNilError('AAggregator');
+
+  if not Assigned(FFirst) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  { Select the first element as comparison base }
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  { Iterate over the last N - 1 elements }
+  while Assigned(LCurrent) do
+  begin
+    Result := AAggregator(Result, LCurrent^.FValue);
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 function TLinkedStack<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.AggregateOrDefault(AAggregator, ADefault);
+  { Check arguments }
+  if not Assigned(AAggregator) then
+    ExceptionHelper.Throw_ArgumentNilError('AAggregator');
+
+  { Select the first element as comparison base }
+  if not Assigned(FFirst) then
+    Exit(ADefault);
+
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  { Iterate over the last N - 1 elements }
+  while Assigned(LCurrent) do
+  begin
+    Result := AAggregator(Result, LCurrent^.FValue);
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 function TLinkedStack<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.All(APredicate);
+  if not Assigned(APredicate) then
+    ExceptionHelper.Throw_ArgumentNilError('APredicate');
+
+  LCurrent := FFirst;
+
+  while Assigned(LCurrent) do
+  begin
+    if not APredicate(LCurrent^.FValue) then
+      Exit(false);
+
+    LCurrent := LCurrent^.FNext;
+  end;
+
+  Result := true;
 end;
 
 function TLinkedStack<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Any(APredicate);
+  if not Assigned(APredicate) then
+    ExceptionHelper.Throw_ArgumentNilError('APredicate');
+
+  LCurrent := FFirst;
+
+  while Assigned(LCurrent) do
+  begin
+    if APredicate(LCurrent^.FValue) then
+      Exit(true);
+
+    LCurrent := LCurrent^.FNext;
+  end;
+
+  Result := false;
 end;
 
 procedure TLinkedStack<T>.Clear;
+var
+  LCurrent, LNext: PEntry;
 begin
-  { Clear the internal list }
-  if Assigned(FList) then
-    FList.Clear();
+  LCurrent := FFirst;
+  while Assigned(LCurrent) do
+  begin
+    NotifyElementRemoved(LCurrent^.FValue);
+
+    { Release}
+    LNext := LCurrent^.FNext;
+    ReleaseEntry(LCurrent);
+    LCurrent := LNext;
+  end;
+
+  FFirst := nil;
+  FLast := nil;
+  FCount := 0;
+  Inc(FVer);
 end;
 
 function TLinkedStack<T>.Contains(const AValue: T): Boolean;
+var
+  LCurrent: PEntry;
 begin
-  { Use the list }
-  Result := FList.Contains(AValue);
+  LCurrent := FFirst;
+  Result := False;
+
+  while Assigned(LCurrent) do
+  begin
+    if ElementsAreEqual(AValue, LCurrent^.FValue) then
+      Exit(True);
+
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 procedure TLinkedStack<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+var
+  X: NativeInt;
+  LCurrent: PEntry;
 begin
-  { Invoke the copy-to from the list below }
-  FList.CopyTo(AArray, AStartIndex);
+  { Check for indexes }
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if (Length(AArray) - AStartIndex) < FCount then
+     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
+
+  X := AStartIndex;
+  LCurrent := FFirst;
+  while Assigned(LCurrent) do
+  begin
+    AArray[X] := LCurrent^.FValue;
+    Inc(X);
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
@@ -1092,129 +1225,317 @@ begin
   { Initialize instance }
   inherited Create(ARules);
 
-  FList := TLinkedList<T>.Create(ElementRules);
-  FList.RemoveNotification := NotifyElementRemoved;
+  FFirst := nil;
+  FLast := nil;
+  FFirstFree := nil;
+  FFreeCount := 0;
+  FCount := 0;
+  FVer := 0;
 end;
 
 destructor TLinkedStack<T>.Destroy;
+var
+  LNext: PEntry;
 begin
   { Some cleanup }
   Clear();
 
-  { Free the list }
-  FList.Free;
+  { Clear the cached entries too }
+  if FFreeCount > 0 then
+    while Assigned(FFirstFree) do
+    begin
+      LNext := FFirstFree^.FNext;
+      Dispose(FFirstFree);
+      FFirstFree := LNext;
+    end;
 
   inherited;
 end;
 
 function TLinkedStack<T>.ElementAt(const AIndex: NativeInt): T;
+var
+  LCurrent: PEntry;
+  LIndex: NativeInt;
 begin
-  { Call the one from the list }
-  Result := FList.ElementAt(AIndex);
+  { Check range }
+  if (AIndex >= FCount) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  LCurrent := FFirst;
+  LIndex := 0;
+  while Assigned(LCurrent) do
+  begin
+    if LIndex = AIndex then
+      Exit(LCurrent^.FValue);
+
+    LCurrent := LCurrent^.FNext;
+    Inc(LIndex);
+  end;
+
+  { Should never happen }
+  ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
 function TLinkedStack<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
+var
+  LCurrent: PEntry;
+  LIndex: NativeInt;
 begin
-  { Call the one from the list }
-  Result := FList.ElementAtOrDefault(AIndex, ADefault);
+  { Check range }
+  if AIndex < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  if AIndex >= FCount then
+    Exit(ADefault);
+
+  LCurrent := FFirst;
+  LIndex := 0;
+  while Assigned(LCurrent) do
+  begin
+    if LIndex = AIndex then
+      Exit(LCurrent^.FValue);
+
+    LCurrent := LCurrent^.FNext;
+    Inc(LIndex);
+  end;
+
+  { Should never happen }
+  Result := ADefault;
 end;
 
 function TLinkedStack<T>.Empty: Boolean;
 begin
   { Call the one from the list }
-  Result := FList.Empty;
+  Result := not Assigned(FFirst);
 end;
 
 function TLinkedStack<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
+var
+  LValue: T;
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.EqualsTo(ACollection);
+  LCurrent := FFirst;
+  for LValue in ACollection do
+  begin
+    if not Assigned(LCurrent) then
+      Exit(false);
+
+    if not ElementsAreEqual(LCurrent^.FValue, LValue) then
+      Exit(false);
+
+    LCurrent := LCurrent^.FNext;
+  end;
+
+  Result := not Assigned(LCurrent);
 end;
 
 function TLinkedStack<T>.First: T;
 begin
-  { Call the one from the list }
-  Result := FList.First;
+  if not Assigned(FFirst) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FFirst^.FValue;
 end;
 
 function TLinkedStack<T>.FirstOrDefault(const ADefault: T): T;
 begin
-  { Call the one from the list }
-  Result := FList.FirstOrDefault(ADefault);
+  if not Assigned(FFirst) then
+    Result := ADefault
+  else
+    Result := FFirst^.FValue;
 end;
 
 function TLinkedStack<T>.GetCount: NativeInt;
 begin
   { Use the variable }
-  Result := FList.Count;
+  Result := FCount;
 end;
 
 function TLinkedStack<T>.GetEnumerator: IEnumerator<T>;
 begin
-  { Even use the enumerator provided by the linked list! }
-  Result := FList.GetEnumerator();
+  Result := TEnumerator.Create(Self);
 end;
 
 function TLinkedStack<T>.Last: T;
 begin
-  { Call the one from the list }
-  Result := FList.Last;
+  if not Assigned(FLast) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FLast^.FValue;
 end;
 
 function TLinkedStack<T>.LastOrDefault(const ADefault: T): T;
 begin
-  { Call the one from the list }
-  Result := FList.LastOrDefault(ADefault);
+  if not Assigned(FLast) then
+    Result := ADefault
+  else
+    Result := FLast^.FValue;
 end;
 
 function TLinkedStack<T>.Max: T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Max;
+  if not Assigned(FLast) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  while Assigned(LCurrent) do
+  begin
+    if CompareElements(LCurrent^.FValue, Result) > 0 then
+      Result := LCurrent^.FValue;
+
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 function TLinkedStack<T>.Min: T;
+var
+  LCurrent: PEntry;
 begin
-  { Call the one from the list }
-  Result := FList.Min;
+  if not Assigned(FLast) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FFirst^.FValue;
+  LCurrent := FFirst^.FNext;
+
+  while Assigned(LCurrent) do
+  begin
+    if CompareElements(LCurrent^.FValue, Result) < 0 then
+      Result := LCurrent^.FValue;
+
+    LCurrent := LCurrent^.FNext;
+  end;
+end;
+
+function TLinkedStack<T>.NeedEntry(const AValue: T): PEntry;
+begin
+  if FFreeCount > 0 then
+  begin
+    Result := FFirstFree;
+    FFirstFree := FFirstFree^.FNext;
+
+    Dec(FFreeCount);
+  end else
+    Result := AllocMem(SizeOf(TEntry));
+
+  { Initialize the node }
+  Result^.FValue := AValue;
 end;
 
 function TLinkedStack<T>.Peek: T;
 begin
-  if not Assigned(FList.LastNode) then
+  if not Assigned(FLast) then
     ExceptionHelper.Throw_CollectionEmptyError();
 
-  Result := FList.LastNode.Value;
+  Result := FLast^.FValue;
 end;
 
 function TLinkedStack<T>.Pop: T;
+var
+  LEntry: PEntry;
 begin
-  { Call the list ... again! }
-  Result := FList.RemoveAndReturnLast();
+  if not Assigned(FLast) then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  LEntry := FLast;
+  Result := LEntry^.FValue;
+  FLast := LEntry^.FPrev;
+
+  if FFirst = LEntry then
+    FFirst := FLast;
+
+  ReleaseEntry(LEntry);
+
+  Inc(FVer);
+  Dec(FCount);
 end;
 
 procedure TLinkedStack<T>.Push(const AValue: T);
+var
+  LNew: PEntry;
 begin
-  { Add a new node to the linked list }
-  FList.AddLast(AValue);
+  LNew := NeedEntry(AValue);
+  LNew^.FPrev := FLast;
+  LNew^.FNext := nil;
+
+  if Assigned(FLast) then
+    FLast^.FNext := LNew;
+
+  FLast := LNew;
+
+  if not Assigned(FFirst) then
+    FFirst := LNew;
+
+  Inc(FVer);
+  Inc(FCount);
+end;
+
+procedure TLinkedStack<T>.ReleaseEntry(const AEntry: PEntry);
+begin
+  if FFreeCount = CDefaultSize then
+    Dispose(AEntry)
+  else begin
+    { Place the entry into the cache }
+    AEntry^.FNext := FFirstFree;
+    FFirstFree := AEntry;
+
+    Inc(FFreeCount);
+  end;
 end;
 
 procedure TLinkedStack<T>.Remove(const AValue: T);
+var
+  LCurrent: PEntry;
 begin
-  { Simply use the list }
-  FList.Remove(AValue);
+  LCurrent := FFirst;
+
+  while Assigned(LCurrent) do
+  begin
+    if ElementsAreEqual(AValue, LCurrent^.FValue) then
+    begin
+      { Remove the node }
+      if Assigned(LCurrent^.FPrev) then
+        LCurrent^.FPrev^.FNext := LCurrent^.FNext;
+      if Assigned(LCurrent^.FNext) then
+        LCurrent^.FNext^.FPrev := LCurrent^.FPrev;
+      if FFirst = LCurrent then
+        FFirst := LCurrent^.FNext;
+      if FLast = LCurrent then
+        FLast := LCurrent^.FPrev;
+
+      ReleaseEntry(LCurrent);
+      Inc(FVer);
+      Dec(FCount);
+      Exit;
+    end;
+
+    LCurrent := LCurrent^.FNext;
+  end;
 end;
 
 function TLinkedStack<T>.Single: T;
 begin
-  { Call the one from the list }
-  Result := FList.Single;
+  { Check length }
+  if not Assigned(FFirst) then
+    ExceptionHelper.Throw_CollectionEmptyError()
+  else if FFirst <> FLast then
+    ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
+  else
+    Result := FFirst^.FValue;
 end;
 
 function TLinkedStack<T>.SingleOrDefault(const ADefault: T): T;
 begin
-  { Call the one from the list }
-  Result := FList.SingleOrDefault(ADefault);
+  { Check length }
+  if not Assigned(FFirst) then
+    Result := ADefault
+  else if FFirst <> FLast then
+    ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
+  else
+    Result := FFirst^.FValue;
 end;
 
 constructor TLinkedStack<T>.Create(const AArray: array of T);
@@ -1236,6 +1557,46 @@ begin
   end;
 end;
 
+
+{ TLinkedStack<T>.TEnumerator }
+
+constructor TLinkedStack<T>.TEnumerator.Create(const AStack: TLinkedStack<T>);
+begin
+  FStack := AStack;
+  KeepObjectAlive(FStack);
+
+  FVer := AStack.FVer;
+  FCurrentEntry := AStack.FFirst;
+end;
+
+destructor TLinkedStack<T>.TEnumerator.Destroy;
+begin
+  ReleaseObject(FStack);
+  inherited;
+end;
+
+function TLinkedStack<T>.TEnumerator.GetCurrent: T;
+begin
+  if FVer <> FStack.FVer then
+    ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := FValue;
+end;
+
+function TLinkedStack<T>.TEnumerator.MoveNext: Boolean;
+begin
+  if FVer <> FStack.FVer then
+    ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := Assigned(FCurrentEntry);
+
+  if Result then
+  begin
+    FValue := FCurrentEntry^.FValue;
+    FCurrentEntry := FCurrentEntry^.FNext;
+  end;
+end;
+
 { TObjectLinkedStack<T> }
 
 procedure TObjectLinkedStack<T>.HandleElementRemoved(const AElement: T);
@@ -1243,5 +1604,6 @@ begin
   if FOwnsObjects then
     TObject(AElement).Free;
 end;
+
 
 end.

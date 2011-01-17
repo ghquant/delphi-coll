@@ -174,10 +174,10 @@ begin
 
   { With Copy }
   List := TLinkedList<TPair<Integer, Integer>>.Create();
-  List.AddLast(TPair<Integer, Integer>.Create(11, 1));
-  List.AddLast(TPair<Integer, Integer>.Create(2, 2));
-  List.AddLast(TPair<Integer, Integer>.Create(3, 3));
-  List.AddLast(TPair<Integer, Integer>.Create(10, 4));
+  List.Add(TPair<Integer, Integer>.Create(11, 1));
+  List.Add(TPair<Integer, Integer>.Create(2, 2));
+  List.Add(TPair<Integer, Integer>.Create(3, 3));
+  List.Add(TPair<Integer, Integer>.Create(10, 4));
 
   Queue := TPriorityQueue<Integer, Integer>.Create(List);
 

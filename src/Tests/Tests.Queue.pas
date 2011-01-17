@@ -193,10 +193,10 @@ begin
 
   { With Copy }
   List := TLinkedList<Integer>.Create();
-  List.AddLast(1);
-  List.AddLast(2);
-  List.AddLast(3);
-  List.AddLast(4);
+  List.Add(1);
+  List.Add(2);
+  List.Add(3);
+  List.Add(4);
 
   Queue := TQueue<Integer>.Create(List);
 
