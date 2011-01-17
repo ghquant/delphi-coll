@@ -39,6 +39,7 @@ type
   published
     procedure TestCreationAndDestroy();
     procedure TestCountClearAddRemove();
+    procedure TestDummyInsert();
     procedure TestContainsIndexOfLastIndexOf();
     procedure TestCopyTo();
     procedure TestCopy();
@@ -432,6 +433,49 @@ begin
   List.Free;
 end;
 
+procedure TTestSortedList.TestDummyInsert;
+var
+  List: TSortedList<String>;
+  Stack: TStack<String>;
+begin
+  List := TSortedList<String>.Create(0);
+  Stack := TStack<String>.Create();
+
+  Stack.Push('s2');
+  Stack.Push('s1');
+  Stack.Push('s3');
+
+  List.Insert(0, '3');
+  List.Insert(1, '1');
+  List.Insert(0, '2');
+
+  Check((List.Count = 3) and (List.Count = List.GetCount()), 'List count expected to be 3');
+
+  { 1 2 3 }
+  List.Insert(3, '0');
+
+  { 0 1 2 3 }
+  List.Insert(4, '-1');
+
+  { 0 -1 1 2 3 }
+  List.Insert(2, '5');
+
+  Check((List.Count = 6) and (List.Count = List.GetCount()), 'List count expected to be 6');
+
+  List.Insert(2, Stack);
+
+  Check((List.Count = 9) and (List.Count = List.GetCount()), 'List count expected to be 9');
+
+  Check(List[6] = 's1', 'List[6] expected to be "s1"');
+  Check(List[7] = 's2', 'List[7] expected to be "s2"');
+  Check(List[8] = 's3', 'List[8] expected to be "s3"');
+
+  List.Insert(0, 'Back1');
+
+  List.Free;
+  Stack.Free;
+end;
+
 procedure TTestSortedList.TestEnumerator;
 var
   List : TSortedList<Integer>;
@@ -543,6 +587,44 @@ begin
   CheckException(EArgumentOutOfRangeException,
     procedure() begin List[1]; end,
     'EArgumentOutOfRangeException not thrown in List.Items (index out of).'
+  );
+
+  List.Add(2);
+  CheckException(EArgumentOutOfRangeException,
+    procedure()
+    begin
+      List.Insert(-1, 2);
+    end,
+    'EArgumentOutOfRangeException not thrown in constructor Insert(-1).'
+  );
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure()
+    begin
+      List.Insert(3, 99);
+    end,
+    'EArgumentOutOfRangeException not thrown in constructor Insert(2).'
+  );
+
+  CheckException(EArgumentNilException,
+    procedure() begin List.Insert(0, NullList); end,
+    'EArgumentNilException not thrown in Insert (nil enum).'
+  );
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure()
+    begin
+      List.Insert(-1, NullList);
+    end,
+    'EArgumentOutOfRangeException not thrown in constructor Insert(-1, nil).'
+  );
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure()
+    begin
+      List.Insert(3, NullList);
+    end,
+    'EArgumentOutOfRangeException not thrown in constructor Insert(2, nil).'
   );
 
   List.Free();

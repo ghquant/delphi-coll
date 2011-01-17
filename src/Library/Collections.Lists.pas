@@ -36,7 +36,7 @@ uses SysUtils,
 type
   ///  <summary>The generic <c>list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IUnorderedList<T>, IDynamic)
+  TList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
 {$IFDEF OPTIMIZED_SORT}
@@ -483,7 +483,7 @@ type
 type
   ///  <summary>The generic <c>sorted list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TSortedList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IOrderedList<T>, IDynamic)
+  TSortedList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, ISortedList<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
@@ -511,7 +511,7 @@ type
     FAscending: Boolean;
 
      { Internal insertion }
-     procedure Insert(const AIndex: NativeInt; const AValue: T);
+     procedure InternalInsert(const AIndex: NativeInt; const AValue: T);
      function BinarySearch(const AElement: T; const AStartIndex, ACount: NativeInt;
        const AAscending: Boolean): NativeInt;
   protected
@@ -587,6 +587,24 @@ type
     ///  <summary>Clears the contents of the list.</summary>
     ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
+
+    ///  <summary>Adds an element to the list.</summary>
+    ///  <param name="AValue">The value to add.</param>
+    ///  <param name="AIndex">Ignored.</param>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <remarks>This method is provided purely for <c>IList</c> compatiblity reasons. It will not actually insert anything. This operation is
+    ///  equivalent to <c>Add</c>.</remarks>
+    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
+
+    ///  <summary>Add the elements from a collection to the list.</summary>
+    ///  <param name="ACollection">The values to add.</param>
+    ///  <param name="AIndex">Ignored.</param>
+    ///  <remarks>The added values are not appended. The list tries to figure out where to insert the new values
+    ///  to keep its elements ordered at all times.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>This method is provided purely for <c>IList</c> compatiblity reasons. It will not actually insert anything. This operation is
+    ///  equivalent to <c>Add</c>.</remarks>
+    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Adds an element to the list.</summary>
     ///  <param name="AValue">The value to add.</param>
@@ -856,7 +874,7 @@ type
 type
   ///  <summary>The generic <c>linked list</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
-  TLinkedList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IUnorderedList<T>)
+  TLinkedList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>)
   private type
     {$REGION 'Internal Types'}
     PEntry = ^TEntry;
@@ -1269,7 +1287,7 @@ type
 type
   ///  <summary>The generic <c>sorted linked list</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
-  TSortedLinkedList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IOrderedList<T>)
+  TSortedLinkedList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, ISortedList<T>)
   private type
     {$REGION 'Internal Types'}
     PEntry = ^TEntry;
@@ -1360,6 +1378,24 @@ type
     ///  <summary>Clears the contents of the list.</summary>
     ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
+
+    ///  <summary>Adds an element to the list.</summary>
+    ///  <param name="AValue">The value to add.</param>
+    ///  <param name="AIndex">Ignored.</param>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <remarks>This method is provided purely for <c>IList</c> compatiblity reasons. It will not actually insert anything. This operation is
+    ///  equivalent to <c>Add</c>.</remarks>
+    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
+
+    ///  <summary>Add the elements from a collection to the list.</summary>
+    ///  <param name="ACollection">The values to add.</param>
+    ///  <param name="AIndex">Ignored.</param>
+    ///  <remarks>The added values are not appended. The list tries to figure out where to insert the new values
+    ///  to keep its elements ordered at all times.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>This method is provided purely for <c>IList</c> compatiblity reasons. It will not actually insert anything. This operation is
+    ///  equivalent to <c>Add</c>.</remarks>
+    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Adds an element to the list.</summary>
     ///  <param name="AValue">The value to add.</param>
@@ -2477,7 +2513,7 @@ end;
 
 { TSortedList<T> }
 
-procedure TSortedList<T>.Insert(const AIndex: NativeInt; const AValue: T);
+procedure TSortedList<T>.InternalInsert(const AIndex: NativeInt; const AValue: T);
 var
   I: NativeInt;
 begin
@@ -2598,7 +2634,7 @@ begin
     Inc(I);
   end;
 
-  Insert(I, AValue);
+  InternalInsert(I, AValue);
 end;
 
 procedure TSortedList<T>.Clear;
@@ -2840,6 +2876,22 @@ function TSortedList<T>.IndexOf(const AValue: T): NativeInt;
 begin
   { Call more generic function }
   Result := IndexOf(AValue, 0, FLength);
+end;
+
+procedure TSortedList<T>.Insert(const AIndex: NativeInt; const AValue: T);
+begin
+  if (AIndex > FLength) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  Add(AValue);
+end;
+
+procedure TSortedList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
+begin
+  if (AIndex > FLength) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  Add(ACollection);
 end;
 
 function TSortedList<T>.IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt;
@@ -3609,6 +3661,22 @@ end;
 function TSortedLinkedList<T>.IndexOf(const AValue: T): NativeInt;
 begin
   Result := IndexOf(AValue, 0, FCount);
+end;
+
+procedure TSortedLinkedList<T>.Insert(const AIndex: NativeInt; const AValue: T);
+begin
+  if (AIndex > FCount) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  Add(AValue);
+end;
+
+procedure TSortedLinkedList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
+begin
+  if (AIndex > FCount) or (AIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  Add(ACollection);
 end;
 
 function TSortedLinkedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;

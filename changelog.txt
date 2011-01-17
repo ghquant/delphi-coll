@@ -16,6 +16,10 @@
     * TLinkedList<T> was completely rewritten. It's no longer .NET-like, it looks just like a simple TList<T> but
       stores its elements in a linked list. A lot of indexing methods are supported but are dead slow!
     * Fixed TSortedList.Copy to also copy the ascending/descending flag from the original list.
+    * New GroupedBy<T>() extended operation and IEnexGroupingCollection<TKey, T>.
+    * Removed IUnorderedList<T>. All lists implement IList<T> now (that includes Insert!).
+    * IList<T> now includes Insert().
+    * Renamed IOrderedList<T> into ISortedList<T>.
     * Updated multiple tests.
 
 ========================

@@ -354,6 +354,7 @@ var
    LRangeColl_Full,
    LSkipColl_Full,
    LTakeColl_Full,
+   LGroupingColl_Full,
    LSkipWhileColl_Full,
    LTakeWhileColl_Full,
    LSelectKeysColl_Full,
@@ -408,6 +409,7 @@ var
    LRangeColl_One,
    LSkipColl_One,
    LTakeColl_One,
+   LGroupingColl_One,
    LSkipWhileColl_One,
    LTakeWhileColl_One,
    LSelectKeysColl_One,
@@ -3314,6 +3316,7 @@ begin
   TestProc(LRangeColl_Full);
   TestProc(LSkipColl_Full);
   TestProc(LTakeColl_Full);
+  TestProc(LGroupingColl_Full);
   TestProc(LSkipWhileColl_Full);
   TestProc(LTakeWhileColl_Full);
   TestProc(LSelectKeysColl_Full);
@@ -3369,6 +3372,7 @@ begin
   TestProc(LRangeColl_One);
   TestProc(LSkipColl_One);
   TestProc(LTakeColl_One);
+  TestProc(LGroupingColl_One);
   TestProc(LSkipWhileColl_One);
   TestProc(LTakeWhileColl_One);
   TestProc(LSelectKeysColl_One);
@@ -4722,6 +4726,13 @@ begin
       Exit(Arg1 > (ListMax div 2));
     end, False);
 
+  LGroupingColl_Full := LList_Full.Op.GroupBy<Boolean>(
+    function(AValue: Integer): Boolean
+    begin
+      Result := Odd(AValue);
+    end
+  ).First();
+
   LAssocDByKeysColl_Full := TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.Create(LMM_Full);
   LAssocDByValuesColl_Full := TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.Create(LMM_Full);
 
@@ -4751,6 +4762,13 @@ begin
     function(Arg1, Arg2: Integer): Boolean begin
       Exit(Arg1 > (ListMax div 2));
     end, False);
+
+  LGroupingColl_One := LList_One.Op.GroupBy<Boolean>(
+    function(AValue: Integer): Boolean
+    begin
+      Result := True
+    end
+  ).First();
 
   LAssocDByKeysColl_One := TEnexAssociativeDistinctByKeysCollection<Integer, Integer>.Create(LMM_One);
   LAssocDByValuesColl_One := TEnexAssociativeDistinctByValuesCollection<Integer, Integer>.Create(LMM_One);

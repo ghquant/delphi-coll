@@ -214,7 +214,13 @@ type
     ///  <exception cref="Collections.Base|ETypeException">The collection's elements are not objects.</exception>
     function Select<TOut: class>(): IEnexCollection<TOut>; overload;
 
-    //TODO: document me
+    ///  <summary>Groups all elements in the collection by a given key.</summary>
+    ///  <param name="ASelector">The selector function. Returns the key (based on each collection element) that serves for grouping purposes.</param>
+    ///  <returns>A collection of grouping collections.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will call <paramref name="ASelector"/> for each element in the collection and retrieve a "key". Using this key,
+    ///  the elements are grouped into new collections called groupings. The result of this operation is a collection of groupings. Each grouping
+    ///  contains the elements from the original collection that have the same group and a key (which is the group value used).</remarks>
     function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IEnexGroupingCollection<TKey, T>>;
   end;
 
@@ -521,7 +527,7 @@ type
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 
-    ///  <summary>Select the elements that whose indexed are located in the given range.</summary>
+    ///  <summary>Select the elements that whose indexes are located in the given range.</summary>
     ///  <param name="AStart">The lower bound.</param>
     ///  <param name="AEnd">The upper bound.</param>
     ///  <returns>A new collection that contains the elements whose indexes in this collection are locate between <paramref name="AStart"/>
@@ -1223,6 +1229,23 @@ type
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     procedure Add(const ACollection: IEnumerable<T>); overload;
 
+    ///  <summary>Inserts an element into the list.</summary>
+    ///  <param name="AIndex">The index to insert to.</param>
+    ///  <param name="AValue">The value to insert.</param>
+    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
+    ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
+
+    ///  <summary>Inserts the elements of a collection into the list.</summary>
+    ///  <param name="AIndex">The index to insert to.</param>
+    ///  <param name="ACollection">The values to insert.</param>
+    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by the length of
+    ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
+
     ///  <summary>Checks whether the list contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
@@ -1280,32 +1303,11 @@ type
     function LastIndexOf(const AValue: T): NativeInt; overload;
   end;
 
-  ///  <summary>The Enex interface that defines the behavior of an <c>unordered list</c>.</summary>
-  ///  <remarks>This interface is implemented by all collections that provide the functionality of an <c>unordered list</c>.</remarks>
-  IUnorderedList<T> = interface(IList<T>)
-    ///  <summary>Inserts an element into the list.</summary>
-    ///  <param name="AIndex">The index to insert to.</param>
-    ///  <param name="AValue">The value to insert.</param>
-    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
-    ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
-
-    ///  <summary>Inserts the elements of a collection into the list.</summary>
-    ///  <param name="AIndex">The index to insert to.</param>
-    ///  <param name="ACollection">The values to insert.</param>
-    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by the length of
-    ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
-  end;
-
   ///  <summary>The Enex interface that defines the behavior of a <c>sorted list</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>sorted list</c>.
   ///  A <c>sorted list</c> maintains its elements in an ordered fashion at all times. Whenever a new element is added, it is
   ///  automatically inserted in the right position.</remarks>
-  IOrderedList<T> = interface(IList<T>)
+  ISortedList<T> = interface(IList<T>)
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the list considered to have the biggest value. This is either the
     ///  last or the first element (depending on the sorting order).</returns>

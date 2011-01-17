@@ -44,10 +44,10 @@ uses
   Tests.SortedList in 'Tests.SortedList.pas',
   Tests.SortedMultiMap in 'Tests.SortedMultiMap.pas',
   Tests.SortedSet in 'Tests.SortedSet.pas',
+  Tests.SortedLinkedList in 'Tests.SortedLinkedList.pas',
   Tests.Stack in 'Tests.Stack.pas',
   Tests.Utils in 'Tests.Utils.pas',
-  Tests.Enex in 'Tests.Enex.pas',
-  Tests.SortedLinkedList in 'Tests.SortedLinkedList.pas';
+  Tests.Enex in 'Tests.Enex.pas';
 
 {$R *.RES}
 
