@@ -20,7 +20,9 @@
     * Removed IUnorderedList<T>. All lists implement IList<T> now (that includes Insert!).
     * IList<T> now includes Insert().
     * Renamed IOrderedList<T> into ISortedList<T>.
-    * Updated multiple tests.
+    * TArraySet<T> is not a sorted set. It's been optimized.
+    * TSortedList<T>'s methods have been optimized to use binary search.
+    * Updated multiple tests. Add missing test cases for TArraySet<T>
 
 ========================
 = Minor Release: 1.0.1 =
