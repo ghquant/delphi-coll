@@ -332,7 +332,7 @@ var
    LList_Full,
    LSortedList_Full,
    LLnkSortedList_Full,
-   LAraySet_Full,
+   LArraySet_Full,
    LBag_Full,
    LSortedBag_Full,
    LHashSet_Full,
@@ -387,7 +387,7 @@ var
    LList_One,
    LSortedList_One,
    LLnkSortedList_One,
-   LAraySet_One,
+   LArraySet_One,
    LBag_One,
    LSortedBag_One,
    LHashSet_One,
@@ -442,7 +442,7 @@ var
    LList_Empty,
    LSortedList_Empty,
    LLnkSortedList_Empty,
-   LAraySet_Empty,
+   LArraySet_Empty,
    LBag_Empty,
    LSortedBag_Empty,
    LHashSet_Empty,
@@ -3294,7 +3294,7 @@ begin
   TestProc(LList_Full);
   TestProc(LSortedList_Full);
   TestProc(LLnkSortedList_Full);
-  TestProc(LAraySet_Full);
+  TestProc(LArraySet_Full);
   TestProc(LBag_Full);
   TestProc(LSortedBag_Full);
   TestProc(LHashSet_Full);
@@ -3350,7 +3350,7 @@ begin
   TestProc(LList_One);
   TestProc(LSortedList_One);
   TestProc(LLnkSortedList_One);
-  TestProc(LAraySet_One);
+  TestProc(LArraySet_One);
   TestProc(LBag_One);
   TestProc(LSortedBag_One);
   TestProc(LHashSet_One);
@@ -3406,7 +3406,7 @@ begin
   TestProc(LList_Empty);
   TestProc(LSortedList_Empty);
   TestProc(LLnkSortedList_Empty);
-  TestProc(LAraySet_Empty);
+  TestProc(LArraySet_Empty);
   TestProc(LBag_Empty);
   TestProc(LSortedBag_Empty);
   TestProc(LHashSet_Empty);
@@ -4387,7 +4387,7 @@ begin
   LList_Full := TList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedList_Full := TSortedList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LLnkSortedList_Full := TSortedLinkedList<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
-  LAraySet_Full := TArraySet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
+  LArraySet_Full := TArraySet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LBag_Full := TBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedBag_Full := TSortedBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LHashSet_Full := THashSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
@@ -4523,7 +4523,7 @@ begin
   LList_One := TList<Integer>.Create([1]);
   LSortedList_One := TSortedList<Integer>.Create([2]);
   LLnkSortedList_One := TSortedLinkedList<Integer>.Create([222]);
-  LAraySet_One := TArraySet<Integer>.Create([3]);
+  LArraySet_One := TArraySet<Integer>.Create([3]);
   LBag_One := TBag<Integer>.Create([4]);
   LSortedBag_One := TSortedBag<Integer>.Create([4]);
   LHashSet_One := THashSet<Integer>.Create([5]);
@@ -4618,7 +4618,7 @@ begin
   LList_Empty := TList<Integer>.Create();
   LSortedList_Empty := TSortedList<Integer>.Create();
   LLnkSortedList_Empty := TSortedLinkedList<Integer>.Create();
-  LAraySet_Empty := TArraySet<Integer>.Create();
+  LArraySet_Empty := TArraySet<Integer>.Create();
   LBag_Empty := TBag<Integer>.Create();
   LSortedBag_Empty := TSortedBag<Integer>.Create();
   LHashSet_Empty := THashSet<Integer>.Create();

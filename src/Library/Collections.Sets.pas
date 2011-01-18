@@ -561,7 +561,7 @@ type
 type
   ///  <summary>The generic <c>set</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TArraySet<T> = class(TEnexCollection<T>, ISet<T>, IDynamic)
+  TArraySet<T> = class(TEnexCollection<T>, ISet<T>, ISortedSet<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
@@ -584,9 +584,12 @@ type
 
   private var
     FArray: TArray<T>;
-    FLength: NativeInt;
+    FCount: NativeInt;
     FVer: NativeInt;
+    FSignFix: NativeInt;
 
+    { Inserts an element into a position }
+    function BinarySearch(const AElement: T): NativeInt;
   protected
     ///  <summary>Returns the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
@@ -600,44 +603,55 @@ type
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
+    constructor Create(const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt); overload;
+    constructor Create(const AInitialCapacity: NativeInt; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
+    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
+    constructor Create(const AArray: array of T; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>); overload;
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    constructor Create(const ARules: TRules<T>; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt;
+      const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>;
+      const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
+    constructor Create(const ARules: TRules<T>; const AArray: array of T;
+      const AAscending: Boolean = True); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
@@ -664,7 +678,7 @@ type
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    property Count: NativeInt read FLength;
+    property Count: NativeInt read FCount;
 
     ///  <summary>Specifies the current capacity.</summary>
     ///  <returns>A positive number that specifies the number of elements that the set can hold before it
@@ -2657,9 +2671,7 @@ begin
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
-  begin
     Add(AArray[I]);
-  end;
 end;
 
 { TSortedSet<T>.TEnumerator }
@@ -2718,18 +2730,48 @@ end;
 { TArraySet<T> }
 
 procedure TArraySet<T>.Add(const AValue: T);
+var
+  LLeft, LRight, LMiddle, I: NativeInt;
+  LCompareResult: NativeInt;
 begin
-  if Contains(AValue) then
-     Exit;
+  { Case 1, empty list, optimize }
+  if FCount > 0 then
+  begin
+    { Check for valid type support }
+    LLeft := 0;
+    LRight := LLeft + FCount - 1;
 
-  if FLength = Length(FArray) then
+    while (LLeft <= LRight) do
+    begin
+      LMiddle := (LLeft + LRight) div 2;
+      LCompareResult := CompareElements(FArray[LMiddle], AValue) * FSignFix;
+
+      if LCompareResult > 0 then
+        LRight := LMiddle - 1
+      else if LCompareResult < 0 then
+        LLeft := LMiddle + 1
+      else
+        Exit; { Element already contained in the array, exit }
+    end;
+
+    if LCompareResult < 0 then
+      Inc(LMiddle);
+  end else
+    LMiddle := 0;
+
+  if FCount = Length(FArray) then
     Grow();
 
-  { Put the element into the new position }
-  FArray[FLength] := AValue;
+  { Move the array to the right }
+  if LMiddle < FCount then
+    for I := FCount downto (LMiddle + 1) do
+      FArray[I] := FArray[I - 1];
 
-  Inc(FLength);
+  { Put the element into the new position }
+  FArray[LMiddle] := AValue;
+
   Inc(FVer);
+  Inc(FCount);
 end;
 
 function TArraySet<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
@@ -2740,14 +2782,14 @@ begin
   if not Assigned(AAggregator) then
     ExceptionHelper.Throw_ArgumentNilError('AAggregator');
 
-  if FLength = 0 then
+  if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   { Select the first element as comparison base }
   Result := FArray[0];
 
   { Iterate over the last N - 1 elements }
-  for I := 1 to FLength - 1 do
+  for I := 1 to FCount - 1 do
   begin
     { Aggregate a value }
     Result := AAggregator(Result, FArray[I]);
@@ -2762,14 +2804,14 @@ begin
   if not Assigned(AAggregator) then
     ExceptionHelper.Throw_ArgumentNilError('AAggregator');
 
-  if FLength = 0 then
+  if FCount = 0 then
     Exit(ADefault);
 
   { Select the first element as comparison base }
   Result := FArray[0];
 
   { Iterate over the last N - 1 elements }
-  for I := 1 to FLength - 1 do
+  for I := 1 to FCount - 1 do
   begin
     { Aggregate a value }
     Result := AAggregator(Result, FArray[I]);
@@ -2783,8 +2825,8 @@ begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
-  if FLength > 0 then
-    for I := 0 to FLength - 1 do
+  if FCount > 0 then
+    for I := 0 to FCount - 1 do
       if not APredicate(FArray[I]) then
         Exit(false);
 
@@ -2798,12 +2840,47 @@ begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
-  if FLength > 0 then
-    for I := 0 to FLength - 1 do
+  if FCount > 0 then
+    for I := 0 to FCount - 1 do
       if APredicate(FArray[I]) then
         Exit(true);
 
   Result := false;
+end;
+
+function TArraySet<T>.BinarySearch(const AElement: T): NativeInt;
+var
+  LLeft, LRight, LMiddle: NativeInt;
+  LCompareResult: NativeInt;
+begin
+  Result := -1;
+
+  { Optimized cases }
+  if FCount = 0 then
+    Exit;
+
+  if (FCount = 1) and (CompareElements(FArray[0], AElement) = 0) then
+    Exit(0);
+
+  { The actual binary search }
+
+  LLeft := 0;
+  LRight := LLeft + FCount - 1;
+
+  while (LLeft <= LRight) do
+  begin
+    LMiddle := (LLeft + LRight) div 2;
+    LCompareResult := CompareElements(FArray[LMiddle], AElement) * FSignFix;
+
+    if LCompareResult > 0 then
+      LRight := LMiddle - 1
+    else if LCompareResult < 0 then
+      LLeft := LMiddle + 1
+    else begin
+      Result := LMiddle;
+      Exit;
+    end;
+  end;
 end;
 
 procedure TArraySet<T>.Clear;
@@ -2811,27 +2888,16 @@ var
   I: NativeInt;
 begin
   { If we need to cleanup }
-  for I := 0 to FLength - 1 do
+  for I := 0 to FCount - 1 do
     NotifyElementRemoved(FArray[I]);
 
   { Reset the length }
-  FLength := 0;
+  FCount := 0;
 end;
 
 function TArraySet<T>.Contains(const AValue: T): Boolean;
-var
-  I: NativeInt;
 begin
-  Result := false;
-
-  { Search for the value }
-  if FLength > 0 then
-    for I := 0 to FLength - 1 do
-      if ElementsAreEqual(FArray[I], AValue) then
-      begin
-        Result := true;
-        Exit;
-      end;
+  Result := BinarySearch(AValue) > -1;
 end;
 
 procedure TArraySet<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
@@ -2842,36 +2908,37 @@ begin
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
   { Check for indexes }
-  if (Length(AArray) - AStartIndex) < FLength then
+  if (Length(AArray) - AStartIndex) < FCount then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   { Copy all elements safely }
-  for I := 0 to FLength - 1 do
+  for I := 0 to FCount - 1 do
     AArray[AStartIndex + I] := FArray[I];
 end;
 
-constructor TArraySet<T>.Create(const ACollection: IEnumerable<T>);
+constructor TArraySet<T>.Create(const ACollection: IEnumerable<T>; const AAscending: Boolean);
 begin
-  Create(TRules<T>.Default, ACollection);
+  Create(TRules<T>.Default, ACollection, AAscending);
 end;
 
-constructor TArraySet<T>.Create(const AInitialCapacity: NativeInt);
+constructor TArraySet<T>.Create(const AInitialCapacity: NativeInt; const AAscending: Boolean);
 begin
-  Create(TRules<T>.Default, AInitialCapacity);
+  Create(TRules<T>.Default, AInitialCapacity, AAscending);
 end;
 
-constructor TArraySet<T>.Create;
+constructor TArraySet<T>.Create(const AAscending: Boolean);
 begin
-  Create(TRules<T>.Default);
+  Create(TRules<T>.Default, AAscending);
 end;
 
-constructor TArraySet<T>.Create(const ARules: TRules<T>);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
-  Create(ARules, CDefaultSize);
+  Create(ARules, CDefaultSize, AAscending);
 end;
 
-constructor TArraySet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>;
+  const AAscending: Boolean);
 var
   LValue: T;
 begin
@@ -2887,13 +2954,20 @@ begin
     Add(LValue);
 end;
 
-constructor TArraySet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt;
+  const AAscending: Boolean);
 begin
   { Call the upper constructor }
   inherited Create(ARules);
 
-  FLength := 0;
+  FCount := 0;
   FVer := 0;
+
+  if AAscending then
+    FSignFix := 1
+  else
+    FSignFix := -1;
+
   SetLength(FArray, AInitialCapacity);
 end;
 
@@ -2908,7 +2982,7 @@ end;
 function TArraySet<T>.ElementAt(const AIndex: NativeInt): T;
 begin
   { Simply use the getter }
-  if (AIndex >= FLength) or (AIndex < 0) then
+  if (AIndex >= FCount) or (AIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
   Result := FArray[AIndex];
@@ -2917,7 +2991,7 @@ end;
 function TArraySet<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   { Check range }
-  if (AIndex >= FLength) or (AIndex < 0) then
+  if (AIndex >= FCount) or (AIndex < 0) then
      Result := ADefault
   else
      Result := FArray[AIndex];
@@ -2925,7 +2999,7 @@ end;
 
 function TArraySet<T>.Empty: Boolean;
 begin
-  Result := (FLength = 0);
+  Result := FCount = 0;
 end;
 
 function TArraySet<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
@@ -2937,7 +3011,7 @@ begin
 
   for LValue in ACollection do
   begin
-    if I >= FLength then
+    if I >= FCount then
       Exit(false);
 
     if not ElementsAreEqual(FArray[I], LValue) then
@@ -2946,7 +3020,7 @@ begin
     Inc(I);
   end;
 
-  if I < FLength then
+  if I < FCount then
     Exit(false);
 
   Result := true;
@@ -2955,7 +3029,7 @@ end;
 function TArraySet<T>.First: T;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
   Result := FArray[0];
@@ -2964,7 +3038,7 @@ end;
 function TArraySet<T>.FirstOrDefault(const ADefault: T): T;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     Result := ADefault
   else
     Result := FArray[0];
@@ -2977,7 +3051,7 @@ end;
 
 function TArraySet<T>.GetCount: NativeInt;
 begin
-  Result := FLength;
+  Result := FCount;
 end;
 
 function TArraySet<T>.GetEnumerator: IEnumerator<T>;
@@ -2989,28 +3063,28 @@ end;
 procedure TArraySet<T>.Grow;
 begin
   { Grow the array }
-  if FLength < CDefaultSize then
-     SetLength(FArray, FLength + CDefaultSize)
+  if FCount < CDefaultSize then
+    SetLength(FArray, FCount + CDefaultSize)
   else
-     SetLength(FArray, FLength * 2);
+    SetLength(FArray, FCount * 2);
 end;
 
 function TArraySet<T>.Last: T;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
-  Result := FArray[FLength - 1];
+  Result := FArray[FCount - 1];
 end;
 
 function TArraySet<T>.LastOrDefault(const ADefault: T): T;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     Result := ADefault
   else
-    Result := FArray[FLength - 1];
+    Result := FArray[FCount - 1];
 end;
 
 function TArraySet<T>.Max: T;
@@ -3018,15 +3092,14 @@ var
   I: NativeInt;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
-  { Default one }
-  Result := FArray[0];
-
-  for I := 1 to FLength - 1 do
-    if CompareElements(FArray[I], Result) > 0 then
-      Result := FArray[I];
+  { Optimized get }
+  if FSignFix = 1 then
+    Result := FArray[FCount - 1]
+  else
+    Result := FArray[0];
 end;
 
 function TArraySet<T>.Min: T;
@@ -3034,15 +3107,14 @@ var
   I: NativeInt;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
 
-  { Default one }
-  Result := FArray[0];
-
-  for I := 1 to FLength - 1 do
-    if CompareElements(FArray[I], Result) < 0 then
-      Result := FArray[I];
+  { Optimized get }
+  if FSignFix = 1 then
+    Result := FArray[0]
+  else
+    Result := FArray[FCount - 1];
 end;
 
 procedure TArraySet<T>.Remove(const AValue: T);
@@ -3050,26 +3122,14 @@ var
   I, LFoundIndex: NativeInt;
 begin
   { Defaults }
-  if (FLength = 0) then Exit;
-  LFoundIndex := -1;
-
-  for I := 0 to FLength - 1 do
-  begin
-    if ElementsAreEqual(FArray[I], AValue) then
-    begin
-      LFoundIndex := I;
-      Break;
-    end;
-  end;
-
+  LFoundIndex := BinarySearch(AValue);
   if LFoundIndex > -1 then
   begin
     { Move the list }
-    if FLength > 1 then
-      for I := LFoundIndex to FLength - 2 do
-        FArray[I] := FArray[I + 1];
+    for I := LFoundIndex to FCount - 2 do
+      FArray[I] := FArray[I + 1];
 
-    Dec(FLength);
+    Dec(FCount);
     Inc(FVer);
   end;
 end;
@@ -3077,16 +3137,16 @@ end;
 procedure TArraySet<T>.Shrink;
 begin
   { Cut the capacity if required }
-  if FLength < Capacity then
-    SetLength(FArray, FLength);
+  if FCount < Capacity then
+    SetLength(FArray, FCount);
 end;
 
 function TArraySet<T>.Single: T;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError()
-  else if FLength > 1 then
+  else if FCount > 1 then
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
   else
     Result := FArray[0];
@@ -3095,31 +3155,29 @@ end;
 function TArraySet<T>.SingleOrDefault(const ADefault: T): T;
 begin
   { Check length }
-  if FLength = 0 then
+  if FCount = 0 then
     Result := ADefault
-  else if FLength > 1 then
+  else if FCount > 1 then
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
   else
     Result := FArray[0];
 end;
               
-constructor TArraySet<T>.Create(const AArray: array of T);
+constructor TArraySet<T>.Create(const AArray: array of T; const AAscending: Boolean);
 begin
-  Create(TRules<T>.Default, AArray);
+  Create(TRules<T>.Default, AArray, AAscending);
 end;
 
-constructor TArraySet<T>.Create(const ARules: TRules<T>; const AArray: array of T);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean);
 var
   I: NativeInt;
 begin
   { Call upper constructor }
-  Create(ARules, CDefaultSize);
+  Create(ARules, CDefaultSize, AAscending);
 
   { Copy array contents }
   for I := 0 to Length(AArray) - 1 do
-  begin
     Add(AArray[I]);
-  end;
 end;
 
 { TArraySet<T>.TEnumerator }
@@ -3156,7 +3214,7 @@ begin
   if FVer <> FSet.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
-  Result := FCurrentIndex < FSet.FLength;
+  Result := FCurrentIndex < FSet.FCount;
   Inc(FCurrentIndex);
 end;
 

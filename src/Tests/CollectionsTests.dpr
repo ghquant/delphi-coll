@@ -37,6 +37,7 @@ uses
   Tests.MultiMap in 'Tests.MultiMap.pas',
   Tests.PriorityQueue in 'Tests.PriorityQueue.pas',
   Tests.Queue in 'Tests.Queue.pas',
+  Tests.ArraySet in 'Tests.ArraySet.pas',
   Tests.SortedBag in 'Tests.SortedBag.pas',
   Tests.SortedBidiMap in 'Tests.SortedBidiMap.pas',
   Tests.SortedDictionary in 'Tests.SortedDictionary.pas',

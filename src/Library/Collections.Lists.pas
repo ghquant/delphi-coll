@@ -2517,8 +2517,8 @@ procedure TSortedList<T>.InternalInsert(const AIndex: NativeInt; const AValue: T
 var
   I: NativeInt;
 begin
-  if (AIndex > FLength) or (AIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+  ASSERT(AIndex <= FLength);
+  ASSERT(AIndex >= 0);
 
   if FLength = Length(FArray) then
     Grow();
@@ -2617,24 +2617,43 @@ end;
 
 procedure TSortedList<T>.Add(const AValue: T);
 var
-  I, LSign: NativeInt;
+  LLeft, LRight, LMiddle: NativeInt;
+  LCompareResult, LSignFix: NativeInt;
 begin
-  if FAscending then
-     LSign := 1
+  { Case 1, empty list, optimize }
+  if FLength = 0 then
+    InternalInsert(0, AValue)
   else
-     LSign := -1;
-
-  I := 0;
-
-  while I < FLength do
   begin
-    if ((CompareElements(AValue, FArray[I]) * LSign) < 0) then
-       Break;
+    { Sign fix }
+    if FAscending then
+      LSignFix := 1
+    else
+      LSignFix := -1;
 
-    Inc(I);
+    { Check for valid type support }
+    LLeft := 0;
+    LRight := LLeft + FLength - 1;
+
+    while (LLeft <= LRight) do
+    begin
+      LMiddle := (LLeft + LRight) div 2;
+      LCompareResult := CompareElements(FArray[LMiddle], AValue) * LSignFix;
+
+      if LCompareResult > 0 then
+        LRight := LMiddle - 1
+      else if LCompareResult < 0 then
+        LLeft := LMiddle + 1
+      else
+        Break;
+    end;
+
+    { LMiddle is located on the approximative spot. Let's see }
+    if (LCompareResult = 0) or (LCompareResult > 0) then
+      InternalInsert(LMiddle, AValue)
+    else
+      InternalInsert(LMiddle + 1, AValue);
   end;
-
-  InternalInsert(I, AValue);
 end;
 
 procedure TSortedList<T>.Clear;
@@ -2913,7 +2932,6 @@ begin
     Exit;
   end;
 
-  { Check for valid type support }
   LLeft := AStartIndex;
   LRight := LLeft + ACount - 1;
 
@@ -3076,23 +3094,12 @@ var
 begin
   { Defaults }
   if (FLength = 0) then Exit;
-  LFoundIndex := -1;
-
-  for I := 0 to FLength - 1 do
-  begin
-    if ElementsAreEqual(FArray[I], AValue) then
-    begin
-      LFoundIndex := I;
-      Break;
-    end;
-  end;
+  LFoundIndex := BinarySearch(AValue, 0, FLength, FAscending);
 
   if LFoundIndex > -1 then
   begin
-    { Move the list }
-    if FLength > 1 then
-      for I := LFoundIndex to FLength - 2 do
-        FArray[I] := FArray[I + 1];
+    for I := LFoundIndex to FLength - 2 do
+      FArray[I] := FArray[I + 1];
 
     Dec(FLength);
     Inc(FVer);
