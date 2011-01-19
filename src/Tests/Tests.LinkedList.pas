@@ -52,6 +52,7 @@ type
     procedure TestExceptions();
     procedure TestBigCounts();
     procedure TestObjectVariant();
+    procedure Test_Bug0();
   end;
 
 implementation
@@ -701,6 +702,24 @@ begin
   Check(LinkedList[4] = 1, 'LinkedList[4] expected to be 5');
 
   LinkedList.Free();
+end;
+
+procedure TTestLinkedList.Test_Bug0;
+var
+  LList: TLinkedList<Integer>;
+begin
+  LList := TLinkedList<Integer>.Create();
+
+  CheckEquals(false, LList.Contains(1));
+  CheckEquals(-1, LList.IndexOf(1));
+  CheckEquals(-1, LList.IndexOf(1, 0));
+  CheckEquals(-1, LList.IndexOf(1, 0, 0));
+
+  CheckEquals(-1, LList.LastIndexOf(1));
+  CheckEquals(-1, LList.LastIndexOf(1, 0));
+  CheckEquals(-1, LList.LastIndexOf(1, 0, 0));
+
+  LList.Free;
 end;
 
 initialization

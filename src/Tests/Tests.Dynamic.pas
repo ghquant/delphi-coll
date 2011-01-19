@@ -376,26 +376,17 @@ var
   LObj: TCompositeObject;
   LRec: TCompositeRecord;
 begin
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<Integer, Integer>('haha');
-    end,
-    'ENotSupportedException not thrown in Member.Name<Integer, Integer>.'
-  );
+  Check(not Assigned(
+    Member.Name<Integer>('haha')
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeRecord, Integer>('Habla');
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeRecord, Integer>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeRecord>('Habla')
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeObject, Integer>('Habla');
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeObject, Integer>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeObject>('Habla')
+  ));
 
   LObj := TCompositeObject.Create(123, '123');
   LRec := TCompositeRecord.Create(123, '123');
@@ -416,26 +407,17 @@ var
   LObj: TCompositeObject;
   LRec: TCompositeRecord;
 begin
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<Integer>('haha');
-    end,
-    'ENotSupportedException not thrown in Member.Name<Integer>.'
-  );
+  Check(not Assigned(
+    Member.Name<Integer>('haha')
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeRecord>('Habla');
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeRecord>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeRecord>('Habla')
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeObject>('Habla');
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeObject>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeObject>('Habla')
+  ));
 
   LObj := TCompositeObject.Create(123, '123');
   LRec := TCompositeRecord.Create(123, '123');
@@ -457,47 +439,29 @@ var
   LRec: TCompositeRecord;
   LView: TView;
 begin
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<Integer>(['haha', 'buhu']);
-    end,
-    'ENotSupportedException not thrown in Member.Name<Integer>.'
-  );
+  Check(not Assigned(
+    Member.Name<Integer>(['haha', 'buhu'])
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<Integer>(['']);
-    end,
-    'ENotSupportedException not thrown in Member.Name<Integer>.'
-  );
+  Check(not Assigned(
+    Member.Name<Integer>([''])
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeRecord>(['']);
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeRecord>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeRecord>([''])
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeRecord>(['FInteger', 'minus']);
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeRecord>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeRecord>(['FInteger', 'minus'])
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeObject>(['']);
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeObject>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeObject>([''])
+  ));
 
-  CheckException(ENotSupportedException,
-    procedure() begin
-      Member.Name<TCompositeObject>(['FInteger', 'FStringy']);
-    end,
-    'ENotSupportedException not thrown in Member.Name<TCompositeObject>.'
-  );
+  Check(not Assigned(
+    Member.Name<TCompositeObject>(['FInteger', 'FStringy'])
+  ));
 
   LObj := TCompositeObject.Create(123, '123');
   LRec := TCompositeRecord.Create(123, '123');

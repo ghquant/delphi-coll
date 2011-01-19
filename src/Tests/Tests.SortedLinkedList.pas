@@ -49,6 +49,7 @@ type
     procedure TestBigCounts();
     procedure TestCorrectOrdering();
     procedure TestObjectVariant();
+    procedure Test_Bug0();
   end;
 
 implementation
@@ -673,6 +674,24 @@ begin
 
   Check(ObjectDied, 'The object should have been cleaned up!');
   ObjList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_Bug0;
+var
+  LList: TSortedLinkedList<Integer>;
+begin
+  LList := TSortedLinkedList<Integer>.Create();
+
+  CheckEquals(false, LList.Contains(1));
+  CheckEquals(-1, LList.IndexOf(1));
+  CheckEquals(-1, LList.IndexOf(1, 0));
+  CheckEquals(-1, LList.IndexOf(1, 0, 0));
+
+  CheckEquals(-1, LList.LastIndexOf(1));
+  CheckEquals(-1, LList.LastIndexOf(1, 0));
+  CheckEquals(-1, LList.LastIndexOf(1, 0, 0));
+
+  LList.Free;
 end;
 
 initialization

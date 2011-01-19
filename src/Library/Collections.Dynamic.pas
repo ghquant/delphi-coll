@@ -29,6 +29,7 @@ unit Collections.Dynamic;
 interface
 uses
   SysUtils,
+  Generics.Collections,
   Rtti,
   TypInfo;
 
@@ -49,6 +50,9 @@ type
 
   private type
     {$REGION 'Internal Types'}
+    TViewPair = TPair<string, TValue>;
+    TViewArray = TArray<TViewPair>;
+
     TSelector<T, K> = class(TInterfacedObject, TFunc<T, K>, TFunc<T, TValue>)
     private
       FContext: TRttiContext;
@@ -109,15 +113,9 @@ type
 
 implementation
 uses
-  Variants,
-  Generics.Collections,
-  Collections.Base,
-  Collections.Dictionaries;
+  Variants;
 
 type
-  { Declare the String/Variant dictionary that will hold the real data }
-  TViewDictionary = TDictionary<String, TValue>;
-
   { Mapping the TSVDictionary into TVarData structure }
   TViewDictionaryVarData = packed record
     { Var type, will be assigned at runtime }
@@ -125,7 +123,7 @@ type
     { Reserved stuff }
     Reserved1, Reserved2, Reserved3: Word;
     { A reference to the enclosed dictionary }
-    FDictionary: TViewDictionary;
+    FArray: Member.TViewArray;
     { Reserved stuff }
     Reserved4: LongWord;
   end;
@@ -146,7 +144,7 @@ begin
   V.VType := varEmpty;
 
   { And dispose the value }
-  FreeAndNil(TViewDictionaryVarData(V).FDictionary);
+  TViewDictionaryVarData(V).FArray := nil;
 end;
 
 procedure TViewDictionaryVariantType.Copy(var Dest: TVarData;
@@ -161,32 +159,33 @@ begin
       { Copy the variant type }
       VType := VarType;
 
-      { Create a new dictionary and copy contents }
-      FDictionary := TViewDictionary.Create(TViewDictionaryVarData(Source).FDictionary);
+      { Copy the reference }
+      FArray := TViewDictionaryVarData(Source).FArray;
     end;
   end;
 end;
 
 function TViewDictionaryVariantType.GetProperty(var Dest: TVarData; const V: TVarData; const Name: string): Boolean;
 var
-  LResult: TValue;
-  LVarResult: Variant;
+  LPair: Member.TViewPair;
+  LAsVar: Variant;
 begin
-  { Type cast to our data type }
+  { Iterate over our internal array and search for the requested property by name }
   with TViewDictionaryVarData(V) do
   begin
-    { Try to read the value from the dictionary }
-    if not FDictionary.TryGetValue(Name, LResult) then
-      Clear(Dest) //todo, throw exception
-    else begin
-      LVarResult := LResult.AsVariant;
-      Dest := TVarData(LVarResult);
-    end;
+    for LPair in FArray do
+      if AnsiSameStr(LPair.Key, Name) then
+      begin
+        LAsVar := LPair.Value.AsVariant;
+        Dest := TVarData(LAsVar);
 
+        Exit(True);
+      end;
   end;
 
-  { Return true in any possible case }
-  Result := True;
+  { Key not found, means error }
+  Clear(Dest);
+  Result := False;
 end;
 
 var
@@ -234,19 +233,27 @@ end;
 
 function Member.TViewSelector<T>.Invoke(AFrom: T): TView;
 var
-  I: NativeInt;
+  I, L: NativeInt;
+  LCalc: TViewArray;
 begin
   { Initialize a view }
   VarClear(Result);
 
+  L := Length(FFuncs);
+  SetLength(LCalc, L);
+
+  { Copy selected fields over }
+  for I := 0 to Length(FFuncs) - 1 do
+  begin
+    LCalc[I].Key := FNames[I];
+    LCalc[I].Value := FFuncs[I](AFrom);
+  end;
+
+  { Give the result to the guy standing on the chair ... }
   with TVarData(Result) do
   begin
     VType := Member.FViewVariantType;
-    VPointer := TViewDictionary.Create();
-
-    { Copy selected fields over }
-    for I := 0 to Length(FFuncs) - 1 do
-      TViewDictionary(VPointer)[FNames[I]] := FFuncs[I](AFrom);
+    Member.TViewArray(VPointer) := LCalc;
   end;
 end;
 
@@ -260,6 +267,8 @@ var
   LMember: TRttiMember;
   LSelector: TSelector<T, K>;
 begin
+  Result := nil;
+
   { Get the type }
   LT := TypeInfo(T);
   LK := TypeInfo(K);
@@ -268,14 +277,14 @@ begin
 
   { Check for correctness }
   if not Assigned(LType) or not (LType.TypeKind in [tkClass, tkRecord]) then
-    ExceptionHelper.Throw_TypeNotAClassOrRecordError(GetTypeName(LT));
+    Exit;
 
   if LType.TypeKind = tkRecord then
   begin
     LMember := LType.GetField(AName);
 
     if not Assigned(LMember) then
-      ExceptionHelper.Throw_TypeClassOrRecordDoesNotHaveMemberError(GetTypeName(LT), AName);
+      Exit;
 
     LSelector := TSelector<T, K>(TRecordFieldSelector<K>.Create());
   end else
@@ -289,7 +298,7 @@ begin
       LMember := LType.GetProperty(AName);
 
       if not Assigned(LMember) then
-        ExceptionHelper.Throw_TypeClassOrRecordDoesNotHaveMemberError(GetTypeName(LT), AName);
+        Exit;
 
       LSelector := TSelector<T, K>(TClassPropertySelector<K>.Create());
     end;
@@ -313,27 +322,29 @@ var
   LSelector: TViewSelector<T>;
   I, L: NativeInt;
 begin
+  Result := nil;
   LSelector := TViewSelector<T>.Create;
-  try
-    L := Length(ANames);
 
-    { Prepare the array of selectors }
-    SetLength(LSelector.FNames, L);
-    SetLength(LSelector.FFuncs, L);
+  L := Length(ANames);
 
-    { Create the array }
-    for I := 0 to L - 1 do
+  { Prepare the array of selectors }
+  SetLength(LSelector.FNames, L);
+  SetLength(LSelector.FFuncs, L);
+
+  { Create the array }
+  for I := 0 to L - 1 do
+  begin
+    LSelector.FNames[I] := AnsiUpperCase(ANames[I]);
+    LSelector.FFuncs[I] := Member.Name<T, TValue>(ANames[I]);
+
+    if not Assigned(LSelector.FFuncs[I]) then
     begin
-      LSelector.FNames[I] := AnsiUpperCase(ANames[I]);
-      LSelector.FFuncs[I] := Member.Name<T, TValue>(ANames[I]);
+      LSelector.Free;
+      Exit;
     end;
-
-    Result := LSelector;
-  except
-    LSelector.Free;
-
-    raise;
   end;
+
+  Result := LSelector;
 end;
 
 initialization

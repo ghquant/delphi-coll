@@ -1972,8 +1972,8 @@ var
 begin
   Result := -1;
 
-  if FLength = 0 then
-     Exit;
+  if ACount = 0 then
+    Exit;
   
   { Check for indexes }
   if (AStartIndex >= FLength) or (AStartIndex < 0) then
@@ -2237,8 +2237,8 @@ var
 begin
   Result := -1;
 
-  if FLength = 0 then
-     Exit;
+  if ACount = 0 then
+    Exit;
 
   { Check for indexes }
   if (AStartIndex >= FLength) or (AStartIndex < 0) then
@@ -2962,6 +2962,9 @@ var
 begin
   Result := -1;
 
+  if ACount = 0 then
+    Exit;
+
   { Check for indexes }
   if (AStartIndex >= FLength) or (AStartIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
@@ -2969,9 +2972,6 @@ begin
   { Check for indexes }
   if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
-  if FLength = 0 then
-     Exit;
 
   { Search for the value }
   J := BinarySearch(AValue, AStartIndex, ACount, FAscending);
@@ -3059,8 +3059,8 @@ var
 begin
   Result := -1;
 
-  if FLength = 0 then
-     Exit;
+  if ACount = 0 then
+    Exit;
 
   { Check for indexes }
   if (AStartIndex >= FLength) or (AStartIndex < 0) then
@@ -3690,7 +3690,7 @@ function TSortedLinkedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount
 var
   LCurrent: PEntry;
 begin
-  if FCount = 0 then
+  if ACount = 0 then
     Exit(-1);
 
   { Check for indexes }
@@ -3747,7 +3747,7 @@ function TSortedLinkedList<T>.LastIndexOf(const AValue: T; const AStartIndex, AC
 var
   LCurrent: PEntry;
 begin
-  if FCount = 0 then
+  if ACount = 0 then
     Exit(-1);
 
   { Check for indexes }
@@ -4360,7 +4360,7 @@ function TLinkedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: Nati
 var
   LCurrent: PEntry;
 begin
-  if FCount = 0 then
+  if ACount = 0 then
     Exit(-1);
 
   { Check for indexes }
@@ -4505,7 +4505,8 @@ function TLinkedList<T>.LastIndexOf(const AValue: T; const AStartIndex, ACount: 
 var
   LCurrent: PEntry;
 begin
-  if FCount = 0 then
+  { Special case }
+  if ACount = 0 then
     Exit(-1);
 
   { Check for indexes }

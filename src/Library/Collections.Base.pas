@@ -2354,11 +2354,7 @@ type
 
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_TypeNotAClassOrRecordError(const TypeName: String);
-
-    ///  <summary>Internal method. Do not call directly!</summary>
-    ///  <remarks>The interface of this function may change in the future.</remarks>
-    class procedure Throw_TypeClassOrRecordDoesNotHaveMemberError(const TypeName, MemberName: String);
+    class procedure Throw_TypeDoesNotExposeMember(const MemberName: String);
   end;
 
 resourcestring
@@ -2374,8 +2370,7 @@ resourcestring
   SCollectionHasMoreThanOneElements = 'The collection has more than one element!';
   SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
   STypeNotAClass = 'The type "%s" on which the operation was invoked is not a class!';
-  STypeNotAClassOrRecord = 'The type "%s" on which the operation was invoked is not a class or record!';
-  SClassOrRecordDoesNotHaveMember = 'The class or record type "%s" does not the requested member "%s"!';
+  STypeDoesNotExposeMember = 'The type the collection operates on does not expose member "%s"!';
 {$ENDREGION}
 
 {$REGION 'Enex Internal Enumerables'}
@@ -3179,15 +3174,31 @@ begin
 end;
 
 function TEnexExtOps<T>.Select(const AMemberName: string): IEnexCollection<TAny>;
+var
+  LSelector: TFunc<T, TAny>;
 begin
-  { Select the member by a name, as Rtti TValue }
-  Result := Select<TAny>(Member.Name<T>(AMemberName));
+  { Get selector }
+  LSelector := Member.Name<T>(AMemberName);
+
+  if not Assigned(LSelector) then
+    ExceptionHelper.Throw_TypeDoesNotExposeMember('AMemberName');
+
+  { Select the member by a name, as out type }
+  Result := Select<TAny>(LSelector);
 end;
 
 function TEnexExtOps<T>.Select<TOut>(const AMemberName: string): IEnexCollection<TOut>;
+var
+  LSelector: TFunc<T, TOut>;
 begin
+  { Get selector }
+  LSelector := Member.Name<T, TOut>(AMemberName);
+
+  if not Assigned(LSelector) then
+    ExceptionHelper.Throw_TypeDoesNotExposeMember('AMemberName');
+
   { Select the member by a name, as out type }
-  Result := Select<TOut>(Member.Name<T, TOut>(AMemberName));
+  Result := Select<TOut>(LSelector);
 end;
 
 function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
@@ -6923,20 +6934,14 @@ begin
   raise EKeyNotFoundException.CreateFmt(SKeyNotFound, [ArgName]);
 end;
 
-class procedure ExceptionHelper.Throw_TypeClassOrRecordDoesNotHaveMemberError(const TypeName, MemberName: String);
+class procedure ExceptionHelper.Throw_TypeDoesNotExposeMember(const MemberName: String);
 begin
-  raise ENotSupportedException.CreateFmt(SClassOrRecordDoesNotHaveMember, [TypeName, MemberName]);
+  raise ENotSupportedException.CreateFmt(STypeDoesNotExposeMember, [MemberName]);
 end;
 
 class procedure ExceptionHelper.Throw_TypeNotAClassError(const TypeName: String);
 begin
   raise ENotSupportedException.CreateFmt(STypeNotAClass, [TypeName]);
 end;
-
-class procedure ExceptionHelper.Throw_TypeNotAClassOrRecordError(const TypeName: String);
-begin
-  raise ENotSupportedException.CreateFmt(STypeNotAClassOrRecord, [TypeName]);
-end;
-
 
 end.

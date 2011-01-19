@@ -53,6 +53,7 @@ type
     procedure TestExceptions();
     procedure TestBigCounts();
     procedure TestObjectVariant();
+    procedure Test_Bug0();
   end;
 
 implementation
@@ -766,6 +767,24 @@ begin
   Check(List[4] = 1, 'List[4] expected to be 5');
 
   List.Free();
+end;
+
+procedure TTestList.Test_Bug0;
+var
+  LList: TList<Integer>;
+begin
+  LList := TList<Integer>.Create();
+
+  CheckEquals(false, LList.Contains(1));
+  CheckEquals(-1, LList.IndexOf(1));
+  CheckEquals(-1, LList.IndexOf(1, 0));
+  CheckEquals(-1, LList.IndexOf(1, 0, 0));
+
+  CheckEquals(-1, LList.LastIndexOf(1));
+  CheckEquals(-1, LList.LastIndexOf(1, 0));
+  CheckEquals(-1, LList.LastIndexOf(1, 0, 0));
+
+  LList.Free;
 end;
 
 initialization
