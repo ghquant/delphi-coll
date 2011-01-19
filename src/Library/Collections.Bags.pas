@@ -43,7 +43,7 @@ type
     private
       FVer: NativeInt;
       FDict: TAbstractBag<T>;
-      FCurrentKV: IEnumerator<TPair<T, NativeInt>>;
+      FCurrentKV: IEnumerator<TPair<T, NativeUInt>>;
       FCurrentCount: NativeInt;
       FValue: T;
 
@@ -60,14 +60,14 @@ type
     {$ENDREGION}
 
   private var
-    FDictionary: IDictionary<T, NativeInt>;
+    FDictionary: IDictionary<T, NativeUInt>;
     FVer: NativeInt;
     FKnownCount: NativeInt;
 
   protected
     ///  <summary>Specifies the internal dictionary used as back-end.</summary>
     ///  <returns>A dictionary of lists used as back-end.</summary>
-    property Dictionary: IDictionary<T, NativeInt> read FDictionary;
+    property Dictionary: IDictionary<T, NativeUInt> read FDictionary;
 
     ///  <summary>Returns the number of elements in the bag.</summary>
     ///  <returns>A positive value specifying the number of elements in the bag.</returns>
@@ -79,19 +79,19 @@ type
     ///  <param name="AValue">The value to check.</param>
     ///  <returns>The weight of the value.</returns>
     ///  <remarks>If the value is not found in the bag, zero is returned.</remarks>
-    function GetWeight(const AValue: T): NativeInt;
+    function GetWeight(const AValue: T): NativeUInt;
 
     ///  <summary>Sets the weight of an element.</param>
     ///  <param name="AValue">The value to set the weight for.</param>
     ///  <param name="AWeight">The new weight.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    procedure SetWeight(const AValue: T; const AWeight: NativeInt);
+    procedure SetWeight(const AValue: T; const AWeight: NativeUInt);
 
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
     ///  <param name="ARules">The rule set describing the elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; virtual; abstract;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; virtual; abstract;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -136,14 +136,14 @@ type
     ///  <param name="AWeight">The weight of the element.</param>
     ///  <remarks>If the bag already contains the given value, its stored weight is incremented to by <paramref name="AWeight"/>.
     ///  If the value of <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Add(const AValue: T; const AWeight: NativeInt = 1);
+    procedure Add(const AValue: T; const AWeight: NativeUInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <param name="AWeight">The weight to remove.</param>
     ///  <remarks>This method decreses the weight of the stored item by <paramref name="AWeight"/>. If the resulting weight is less
     ///  than zero or zero, the element is removed from the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Remove(const AValue: T; const AWeight: NativeInt = 1);
+    procedure Remove(const AValue: T; const AWeight: NativeUInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
@@ -157,13 +157,13 @@ type
     ///  <returns><c>True</c> if the condition is met; <c>False</c> otherwise.</returns>
     ///  <remarks>This method checks whether the bag contains the given value and that the contained value has at least the
     ///  given weight.</remarks>
-    function Contains(const AValue: T; const AWeight: NativeInt = 1): Boolean;
+    function Contains(const AValue: T; const AWeight: NativeUInt = 1): Boolean;
 
     ///  <summary>Sets or gets the weight of an item in the bag.</summary>
     ///  <param name="AValue">The value.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    property Weights[const AValue: T]: NativeInt read GetWeight write SetWeight; default;
+    property Weights[const AValue: T]: NativeUInt read GetWeight write SetWeight; default;
 
     ///  <summary>Returns the number of elements in the bag.</summary>
     ///  <returns>A positive value specifying the number of elements in the bag.</returns>
@@ -262,7 +262,7 @@ type
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
     ///  <param name="ARules">The rule set describing the bag's elements.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; override;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
@@ -305,7 +305,7 @@ type
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
     ///  <param name="ARules">The rule set describing the bag's elements.</param>
     ///  <remarks>This method creates an AVL-based dictionary used as the underlying back-end for the bag.</remarks>
-    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>; override;
+    function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
@@ -366,9 +366,9 @@ implementation
 
 { TAbstractBag<T> }
 
-procedure TAbstractBag<T>.Add(const AValue: T; const AWeight: NativeInt);
+procedure TAbstractBag<T>.Add(const AValue: T; const AWeight: NativeUInt);
 var
-  LOldCount: NativeInt;
+  LOldCount: NativeUInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
@@ -408,9 +408,9 @@ begin
   end;
 end;
 
-function TAbstractBag<T>.Contains(const AValue: T; const AWeight: NativeInt): Boolean;
+function TAbstractBag<T>.Contains(const AValue: T; const AWeight: NativeUInt): Boolean;
 var
-  LInCount: NativeInt;
+  LInCount: NativeUInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
@@ -422,7 +422,7 @@ end;
 
 procedure TAbstractBag<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
-  LTempArray: array of TPair<T, NativeInt>;
+  LTempArray: array of TPair<T, NativeUInt>;
   I, X, Y: NativeInt;
 begin
   if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
@@ -565,7 +565,7 @@ begin
   Result := FKnownCount;
 end;
 
-function TAbstractBag<T>.GetWeight(const AValue: T): NativeInt;
+function TAbstractBag<T>.GetWeight(const AValue: T): NativeUInt;
 begin
   { Get the count }
   if not FDictionary.TryGetValue(AValue, Result) then
@@ -577,9 +577,9 @@ begin
   Result := TEnumerator.Create(Self);
 end;
 
-procedure TAbstractBag<T>.Remove(const AValue: T; const AWeight: NativeInt);
+procedure TAbstractBag<T>.Remove(const AValue: T; const AWeight: NativeUInt);
 var
-  LOldCount: NativeInt;
+  LOldCount: NativeUInt;
 begin
   { Check count > 0 }
   if AWeight = 0 then
@@ -606,7 +606,7 @@ end;
 
 procedure TAbstractBag<T>.RemoveAll(const AValue: T);
 var
-  LOldCount: NativeInt;
+  LOldCount: NativeUInt;
 begin
   { Check that the key is present in the dictionary first }
   if not FDictionary.TryGetValue(AValue, LOldCount) then
@@ -618,9 +618,9 @@ begin
   Inc(FVer);
 end;
 
-procedure TAbstractBag<T>.SetWeight(const AValue: T; const AWeight: NativeInt);
+procedure TAbstractBag<T>.SetWeight(const AValue: T; const AWeight: NativeUInt);
 var
-  LOldValue: NativeInt;
+  LOldValue: NativeUInt;
 begin
   { Check count > 0 }
   if Count = 0 then
@@ -637,7 +637,7 @@ begin
   end;
 
   { Change the counts }
-  FKnownCount := FKnownCount - LOldValue + AWeight;
+  FKnownCount := FKnownCount - NativeInt(LOldValue + AWeight);
   Inc(FVer);
 end;
 
@@ -727,10 +727,10 @@ begin
   inherited Create(ARules);
 end;
 
-function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>;
+function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
 var
   LNewCapacity: NativeInt;
-  LDictionary: TDictionary<T, NativeInt>;
+  LDictionary: TDictionary<T, NativeUInt>;
 begin
   { Create a simple dictionary }
   if FInitialCapacity <= 0 then
@@ -738,7 +738,7 @@ begin
   else
     LNewCapacity := FInitialCapacity;
 
-  LDictionary := TDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, LNewCapacity);
+  LDictionary := TDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, LNewCapacity);
   LDictionary.KeyRemoveNotification := NotifyElementRemoved;
 
   Result := LDictionary;
@@ -754,12 +754,12 @@ end;
 
 { TSortedBag<T> }
 
-function TSortedBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeInt>;
+function TSortedBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
 var
-  LDictionary: TSortedDictionary<T, NativeInt>;
+  LDictionary: TSortedDictionary<T, NativeUInt>;
 begin
   { Create a sorted dictionary }
-  LDictionary := TSortedDictionary<T, NativeInt>.Create(ARules, TRules<NativeInt>.Default, FAscSort);
+  LDictionary := TSortedDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, FAscSort);
   LDictionary.KeyRemoveNotification := NotifyElementRemoved;
 
   Result := LDictionary;

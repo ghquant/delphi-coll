@@ -48,7 +48,8 @@ uses
   Tests.SortedLinkedList in 'Tests.SortedLinkedList.pas',
   Tests.Stack in 'Tests.Stack.pas',
   Tests.Utils in 'Tests.Utils.pas',
-  Tests.Enex in 'Tests.Enex.pas';
+  Tests.Enex in 'Tests.Enex.pas',
+  Tests.Dynamic in 'Tests.Dynamic.pas';
 
 {$R *.RES}
 

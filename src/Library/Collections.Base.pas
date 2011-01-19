@@ -29,9 +29,10 @@ unit Collections.Base;
 interface
 uses
   SysUtils,
+  Rtti,
+  Collections.Dynamic,
   Generics.Collections,
   Generics.Defaults;
-
 
 {$REGION 'Base Collection Interfaces'}
 type
@@ -204,6 +205,22 @@ type
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
     function Select<TOut>(const ASelector: TFunc<T, TOut>): IEnexCollection<TOut>; overload;
 
+    ///  <summary>Represents a "select" operation.</summary>
+    ///  <param name="AMemberName">A record or class field/property name that will be selected.</param>
+    ///  <returns>A new collection containing the selected values.</returns>
+    ///  <remarks>This method will only work for classes and record types!</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AMemberName"/> is not a real member of record or class.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
+    function Select<TOut>(const AMemberName: string): IEnexCollection<TOut>; overload;
+
+    ///  <summary>Represents a "select" operation.</summary>
+    ///  <param name="AMemberName">A record or class field/property name that will be selected.</param>
+    ///  <returns>A new collection containing the selected values represented as Rtti <c>TValue</c>s.</returns>
+    ///  <remarks>This method will only work for classes and record types!</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AMemberName"/> is not a real member of record or class.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
+    function Select(const AMemberName: string): IEnexCollection<TAny>; overload;
+
     ///  <summary>Represents a "where, select object" operation.</summary>
     ///  <returns>A new collection containing the selected values.</returns>
     ///  <remarks>This method can be used on a collection containing objects. The operation involves two steps,
@@ -211,7 +228,7 @@ type
     ///  cast to <c>TOut</c>. The result of the operation is a new collection that contains only the objects of a given
     ///  class. For example, <c>AList.Op.Select&lt;TMyObject&gt;</c> results in a new collection that only contains
     ///  "TMyObject" instances.</remarks>
-    ///  <exception cref="Collections.Base|ETypeException">The collection's elements are not objects.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects.</exception>
     function Select<TOut: class>(): IEnexCollection<TOut>; overload;
 
     ///  <summary>Groups all elements in the collection by a given key.</summary>
@@ -221,7 +238,7 @@ type
     ///  <remarks>This operation will call <paramref name="ASelector"/> for each element in the collection and retrieve a "key". Using this key,
     ///  the elements are grouped into new collections called groupings. The result of this operation is a collection of groupings. Each grouping
     ///  contains the elements from the original collection that have the same group and a key (which is the group value used).</remarks>
-    function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IEnexGroupingCollection<TKey, T>>;
+    function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IEnexGroupingCollection<TKey, T>>; overload;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
@@ -941,14 +958,14 @@ type
     ///  <param name="AWeight">The weight of the element.</param>
     ///  <remarks>If the bag already contains the given value, it's stored weight is incremented to by <paramref name="AWeight"/>.
     ///  If the value of <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Add(const AValue: T; const AWeight: NativeInt = 1);
+    procedure Add(const AValue: T; const AWeight: NativeUInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <param name="AWeight">The weight to remove.</param>
     ///  <remarks>This method decreses the weight of the stored item by <paramref name="AWeight"/>. If the resulting weight is less
     ///  than zero or zero, the element is removed for the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Remove(const AValue: T; const AWeight: NativeInt = 1);
+    procedure Remove(const AValue: T; const AWeight: NativeUInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
@@ -962,26 +979,26 @@ type
     ///  <returns><c>True</c> if the condition is met; <c>False</c> otherwise.</returns>
     ///  <remarks>This method checks whether the bag contains the given value and that the contained value has at least the
     ///  given weight.</remarks>
-    function Contains(const AValue: T; const AWeight: NativeInt = 1): Boolean;
+    function Contains(const AValue: T; const AWeight: NativeUInt = 1): Boolean;
 
     ///  <summary>Returns the weight of an element.</param>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns>The weight of the value.</returns>
     ///  <remarks>If the value is not found in the bag, zero is returned.</remarks>
-    function GetWeight(const AValue: T): NativeInt;
+    function GetWeight(const AValue: T): NativeUInt;
 
     ///  <summary>Sets the weight of an element.</param>
     ///  <param name="AValue">The value to set the weight for.</param>
     ///  <param name="AWeight">The new weight.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    procedure SetWeight(const AValue: T; const AWeight: NativeInt);
+    procedure SetWeight(const AValue: T; const AWeight: NativeUInt);
 
     ///  <summary>Sets or gets the weight of an item in the bag.</summary>
     ///  <param name="AValue">The value.</param>
     ///  <remarks>If the value is not found in the bag, this method acts like an <c>Add</c> operation; otherwise
     ///  the weight of the stored item is adjusted.</remarks>
-    property Weights[const AValue: T]: NativeInt read GetWeight write SetWeight; default;
+    property Weights[const AValue: T]: NativeUInt read GetWeight write SetWeight; default;
   end;
 
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections.</summary>
@@ -2285,12 +2302,6 @@ type
   ///  <summary>Thrown when the key (of a pair) is not found in the collection.</summary>
   EKeyNotFoundException = class(ECollectionException);
 
-  ///  <summary>Thrown when trying to operate on an element that is not a part of the parent collection.</summary>
-  EElementNotPartOfCollection = class(ECollectionException);
-
-  ///  <summary>Thrown when trying to add an element to a collection that already has it.</summary>
-  EElementAlreadyInACollection = class(ECollectionException);
-
   ///  <summary>A static class that offers methods for throwing exceptions.</summary>
   ///  <remarks><see cref="Collections.Base|ExceptionHelper">Collections.Base.ExceptionHelper</see> is used internally in this package to
   ///  throw all kinds of exceptions. This class is useful because it separates the exceptions
@@ -2340,6 +2351,14 @@ type
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_TypeNotAClassError(const TypeName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_TypeNotAClassOrRecordError(const TypeName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_TypeClassOrRecordDoesNotHaveMemberError(const TypeName, MemberName: String);
   end;
 
 resourcestring
@@ -2355,6 +2374,8 @@ resourcestring
   SCollectionHasMoreThanOneElements = 'The collection has more than one element!';
   SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
   STypeNotAClass = 'The type "%s" on which the operation was invoked is not a class!';
+  STypeNotAClassOrRecord = 'The type "%s" on which the operation was invoked is not a class or record!';
+  SClassOrRecordDoesNotHaveMember = 'The class or record type "%s" does not the requested member "%s"!';
 {$ENDREGION}
 
 {$REGION 'Enex Internal Enumerables'}
@@ -3155,6 +3176,18 @@ begin
 
   { Create an intermediate collection that will lazy-create the actual stuff }
   Result := TEnexGroupByCollection<T, TKey>.Create(FInstance, ASelector);
+end;
+
+function TEnexExtOps<T>.Select(const AMemberName: string): IEnexCollection<TAny>;
+begin
+  { Select the member by a name, as Rtti TValue }
+  Result := Select<TAny>(Member.Name<T>(AMemberName));
+end;
+
+function TEnexExtOps<T>.Select<TOut>(const AMemberName: string): IEnexCollection<TOut>;
+begin
+  { Select the member by a name, as out type }
+  Result := Select<TOut>(Member.Name<T, TOut>(AMemberName));
 end;
 
 function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
@@ -6239,7 +6272,6 @@ begin
   Result := FList.SingleOrDefault(ADefault);
 end;
 
-
 { TEnexSelectKeysCollection<TKey, TValue> }
 
 constructor TEnexSelectKeysCollection<TKey, TValue>.Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>);
@@ -6891,9 +6923,20 @@ begin
   raise EKeyNotFoundException.CreateFmt(SKeyNotFound, [ArgName]);
 end;
 
+class procedure ExceptionHelper.Throw_TypeClassOrRecordDoesNotHaveMemberError(const TypeName, MemberName: String);
+begin
+  raise ENotSupportedException.CreateFmt(SClassOrRecordDoesNotHaveMember, [TypeName, MemberName]);
+end;
+
 class procedure ExceptionHelper.Throw_TypeNotAClassError(const TypeName: String);
 begin
   raise ENotSupportedException.CreateFmt(STypeNotAClass, [TypeName]);
 end;
+
+class procedure ExceptionHelper.Throw_TypeNotAClassOrRecordError(const TypeName: String);
+begin
+  raise ENotSupportedException.CreateFmt(STypeNotAClassOrRecord, [TypeName]);
+end;
+
 
 end.

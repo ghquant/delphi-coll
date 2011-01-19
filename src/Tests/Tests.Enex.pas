@@ -3708,7 +3708,11 @@ begin
   );
 
   { Populate list 2 with strings }
-  List2 := TList<String>.Create(List.Op.Select<String>(function(Arg1: Integer): string begin Exit(IntToStr(Arg1)); end));
+  List2 := TList<String>.Create(
+    List.Op.Select<String>(TFunc<Integer, string>(
+      function(Arg1: Integer): string begin Exit(IntToStr(Arg1)); end
+    ))
+  );
 
   { Check lengths }
   Check(List.Count = List2.Count);

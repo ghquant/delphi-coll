@@ -94,6 +94,7 @@
 			<DCCReference Include="Tests.Stack.pas"/>
 			<DCCReference Include="Tests.Utils.pas"/>
 			<DCCReference Include="Tests.Enex.pas"/>
+			<DCCReference Include="Tests.Dynamic.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
