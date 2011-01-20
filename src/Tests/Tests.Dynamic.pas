@@ -48,6 +48,9 @@ type
   published
     procedure Test_Select_Exceptions;
 
+    procedure Test_Select_Class_TView;
+    procedure Test_Select_Record_TView;
+
     procedure Test_Select_Class_ByField_TValue;
     procedure Test_Select_Class_ByProp_TValue;
     procedure Test_Select_Record_ByField_TValue;
@@ -170,6 +173,40 @@ begin
   CheckEquals('888', LSelected[2].AsString);
   CheckEquals('444', LSelected[3].AsString);
   CheckEquals('999', LSelected[4].AsString);
+
+  LSelected.Free;
+  LList.Free;
+end;
+
+procedure TTestDynamic.Test_Select_Class_TView;
+var
+  LList: TObjectList<TCompositeObject>;
+  LSelected: TList<TView>;
+begin
+  LList := TObjectList<TCompositeObject>.Create;
+  LList.OwnsObjects := True;
+
+  { Populate }
+  LList.Add(TCompositeObject.Create(111, '111'));
+  LList.Add(TCompositeObject.Create(222, '222'));
+  LList.Add(TCompositeObject.Create(888, '888'));
+  LList.Add(TCompositeObject.Create(444, '444'));
+  LList.Add(TCompositeObject.Create(999, '999'));
+
+  { Select only integers }
+  LSelected := TList<TView>.Create(LList.Op.Select(['FInteger', '_String']));
+
+  CheckEquals(5, LSelected.Count);
+  CheckEquals(111, LSelected[0].FInteger);
+  CheckEquals(222, LSelected[1].FInteger);
+  CheckEquals(888, LSelected[2].FInteger);
+  CheckEquals(444, LSelected[3].FInteger);
+  CheckEquals(999, LSelected[4].FInteger);
+  CheckEquals('111', LSelected[0]._String);
+  CheckEquals('222', LSelected[1]._String);
+  CheckEquals('888', LSelected[2]._String);
+  CheckEquals('444', LSelected[3]._String);
+  CheckEquals('999', LSelected[4]._String);
 
   LSelected.Free;
   LList.Free;
@@ -369,6 +406,39 @@ begin
   LList.Free;
 end;
 
+procedure TTestDynamic.Test_Select_Record_TView;
+var
+  LList: TList<TCompositeRecord>;
+  LSelected: TList<TView>;
+begin
+  LList := TList<TCompositeRecord>.Create;
+
+  { Populate }
+  LList.Add(TCompositeRecord.Create(111, '111'));
+  LList.Add(TCompositeRecord.Create(222, '222'));
+  LList.Add(TCompositeRecord.Create(888, '888'));
+  LList.Add(TCompositeRecord.Create(444, '444'));
+  LList.Add(TCompositeRecord.Create(999, '999'));
+
+  { Select only integers }
+  LSelected := TList<TView>.Create(LList.Op.Select(['FInteger', 'FString']));
+
+  CheckEquals(5, LSelected.Count);
+  CheckEquals(111, LSelected[0].FInteger);
+  CheckEquals(222, LSelected[1].FInteger);
+  CheckEquals(888, LSelected[2].FInteger);
+  CheckEquals(444, LSelected[3].FInteger);
+  CheckEquals(999, LSelected[4].FInteger);
+  CheckEquals('111', LSelected[0].FString);
+  CheckEquals('222', LSelected[1].FString);
+  CheckEquals('888', LSelected[2].FString);
+  CheckEquals('444', LSelected[3].FString);
+  CheckEquals('999', LSelected[4].FString);
+
+  LSelected.Free;
+  LList.Free;
+end;
+
 { TTestMember }
 
 procedure TTestMember.Test_Name;
@@ -444,7 +514,15 @@ begin
   ));
 
   Check(not Assigned(
+    Member.Name<Integer>([])
+  ));
+
+  Check(not Assigned(
     Member.Name<Integer>([''])
+  ));
+
+  Check(not Assigned(
+    Member.Name<TCompositeRecord>([])
   ));
 
   Check(not Assigned(
@@ -453,6 +531,10 @@ begin
 
   Check(not Assigned(
     Member.Name<TCompositeRecord>(['FInteger', 'minus'])
+  ));
+
+  Check(not Assigned(
+    Member.Name<TCompositeObject>([])
   ));
 
   Check(not Assigned(

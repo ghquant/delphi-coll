@@ -96,18 +96,20 @@ type
   public
     ///  <summary>Generates a selector for a given member name.</summary>
     ///  <param name="AName">The field or property name to select from <c>T</c>.</param>
-    ///  <returns>A selector function that retrieves the field from a class or record.</returns>
-    ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AName"/> is not a real member of record or class.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException"><c>T</c> is not a record or class type.</exception>
+    ///  <returns>A selector function that retrieves the field/property from a class or record.
+    ///  <c>nil</c> is returned in case of error.</returns>
     class function Name<T, K>(const AName: string): TFunc<T, K>; overload; static;
 
     ///  <summary>Generates a selector for a given member name.</summary>
     ///  <param name="AName">The field or property name to select from <c>T</c>.</param>
-    ///  <returns>A selector function that retrieves the field from a class or record. The selected value is a <c>TValue</c> type.</returns>
-    ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AName"/> is not a real member of record or class.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException"><c>T</c> is not a record or class type.</exception>
+    ///  <returns>A selector function that retrieves the field/property from a class or record. The selected value is a <c>TValue</c> type.
+    ///  <c>nil</c> is returned in case of error.</returns>
     class function Name<T>(const AName: string): TFunc<T, TValue>; overload; static;
 
+    ///  <summary>Generates a selector for the given member names.</summary>
+    ///  <param name="ANames">The field or property names to select from <c>T</c>.</param>
+    ///  <returns>A selector function that retrieves the fields/properties from a class or record. The selected value is a <c>TView</c> type.
+    ///  <c>nil</c> is returned in case of error.</returns>
     class function Name<T>(const ANames: array of string): TFunc<T, TView>; overload; static;
   end;
 
@@ -323,9 +325,12 @@ var
   I, L: NativeInt;
 begin
   Result := nil;
-  LSelector := TViewSelector<T>.Create;
-
   L := Length(ANames);
+
+  if L = 0 then
+    Exit;
+
+  LSelector := TViewSelector<T>.Create;
 
   { Prepare the array of selectors }
   SetLength(LSelector.FNames, L);

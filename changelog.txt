@@ -22,7 +22,13 @@
     * Renamed IOrderedList<T> into ISortedList<T>.
     * TArraySet<T> is not a sorted set. It's been optimized.
     * TSortedList<T>'s methods have been optimized to use binary search.
-    * Updated multiple tests. Add missing test cases for TArraySet<T>
+    * Updated multiple tests. Add missing test cases for TArraySet<T>.
+    * Fixed a few bugs related to IndexOf in empty collections. Updated tests.
+    * Added a new unit Collections.Dynamic. This unit exposes a simple Member record that
+      allows generating selectors for class/record members.
+    * Added three new overloads to Op.Select (one with preset output type, one for TValue output and one for TView output).
+    * TView is a small type that can hold a number of fields/properties from a object or record. Looak at it as anonymous classes in C#.
+      It's not that pretty but it does the job in some cases.
 
 ========================
 = Minor Release: 1.0.1 =

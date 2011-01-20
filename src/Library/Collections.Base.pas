@@ -221,6 +221,14 @@ type
     ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
     function Select(const AMemberName: string): IEnexCollection<TAny>; overload;
 
+    ///  <summary>Represents a "select" operation.</summary>
+    ///  <param name="AMemberNames">A record or class field/property names that will be selected.</param>
+    ///  <returns>A new collection containing the selected values represented as a view.</returns>
+    ///  <remarks>This method will only work for classes and record types! The resulting view contains the selected members.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AMemberName"/> is not a real member of record or class.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
+    function Select(const AMemberNames: array of string): IEnexCollection<TView>; overload;
+
     ///  <summary>Represents a "where, select object" operation.</summary>
     ///  <returns>A new collection containing the selected values.</returns>
     ///  <remarks>This method can be used on a collection containing objects. The operation involves two steps,
@@ -3195,10 +3203,24 @@ begin
   LSelector := Member.Name<T, TOut>(AMemberName);
 
   if not Assigned(LSelector) then
-    ExceptionHelper.Throw_TypeDoesNotExposeMember('AMemberName');
+    ExceptionHelper.Throw_TypeDoesNotExposeMember(AMemberName);
 
   { Select the member by a name, as out type }
   Result := Select<TOut>(LSelector);
+end;
+
+function TEnexExtOps<T>.Select(const AMemberNames: array of string): IEnexCollection<TView>;
+var
+  LSelector: TFunc<T, TView>;
+begin
+  { Get selector }
+  LSelector := Member.Name<T>(AMemberNames);
+
+  if not Assigned(LSelector) then
+    ExceptionHelper.Throw_TypeDoesNotExposeMember('...');
+
+  { Select the member by a name, as out type }
+  Result := Select<TView>(LSelector);
 end;
 
 function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
