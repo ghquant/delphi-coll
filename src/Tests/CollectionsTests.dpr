@@ -49,7 +49,8 @@ uses
   Tests.Stack in 'Tests.Stack.pas',
   Tests.Utils in 'Tests.Utils.pas',
   Tests.Enex in 'Tests.Enex.pas',
-  Tests.Dynamic in 'Tests.Dynamic.pas';
+  Tests.Dynamic in 'Tests.Dynamic.pas',
+  Tests.BitSet in 'Tests.BitSet.pas';
 
 {$R *.RES}
 

@@ -842,6 +842,163 @@ type
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
+type
+  ///  <summary>The generic <c>set</c> collection.</summary>
+  ///  <remarks>This type uses an AVL tree to store its values.</remarks>
+  TBitSet = class(TEnexCollection<Word>, ISet<Word>, ISortedSet<Word>)
+  private type
+    {$REGION 'Internal Types'}
+    TAscendingEnumerator = class(TEnumerator<Word>)
+    private
+      FVer: NativeInt;
+      FSet: TBitSet;
+      FValue: Word;
+      FPageIndex, FBitIndex, FPage: NativeInt;
+
+    public
+      { Constructor }
+      constructor Create(const ASet: TBitSet);
+
+      { Destructor }
+      destructor Destroy(); override;
+
+      function GetCurrent(): Word; override;
+      function MoveNext(): Boolean; override;
+    end;
+
+    TDescendingEnumerator = class(TAscendingEnumerator)
+    private
+      FMask: NativeInt;
+    public
+      constructor Create(const ASet: TBitSet);
+      function MoveNext(): Boolean; override;
+    end;
+    {$ENDREGION}
+
+  private const
+    CPageSize = SizeOf(NativeInt);
+
+  private var
+    FCount: NativeInt;
+    FVer: NativeInt;
+    FBitArray: TArray<NativeInt>;
+    FAscending: Boolean;
+
+  public
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const AAscending: Boolean = true); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const ACollection: IEnumerable<Word>; const AAscending: Boolean = true); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(const AArray: array of Word; const AAscending: Boolean = true); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
+    ///  <summary>Clears the contents of the set.</summary>
+    ///  <remarks>This method clears the set and invokes the rule set's cleaning routines for each element.</remarks>
+    procedure Clear();
+
+    ///  <summary>Adds an element to the set.</summary>
+    ///  <param name="AValue">The value to add.</param>
+    ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
+    procedure Add(const AValue: Word);
+
+    ///  <summary>Removes a given value from the set.</summary>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
+    procedure Remove(const AValue: Word);
+
+    ///  <summary>Checks whether the set contains a given value.</summary>
+    ///  <param name="AValue">The value to check.</param>
+    ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
+    function Contains(const AValue: Word): Boolean;
+
+    ///  <summary>Returns the number of elements in the set.</summary>
+    ///  <returns>A positive value specifying the number of elements in the set.</returns>
+    function GetCount(): NativeInt; override;
+
+    ///  <summary>Specifies the number of elements in the set.</summary>
+    ///  <returns>A positive value specifying the number of elements in the set.</returns>
+    property Count: NativeInt read FCount;
+
+    ///  <summary>Returns a new enumerator object used to enumerate this set.</summary>
+    ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
+    ///  object that is used to actually traverse the set.</remarks>
+    ///  <returns>An enumerator object.</returns>
+    function GetEnumerator() : IEnumerator<Word>; override;
+
+    ///  <summary>Copies the values stored in the set to a given array.</summary>
+    ///  <param name="AArray">An array where to copy the contents of the set.</param>
+    ///  <param name="AStartIndex">The index into the array at which the copying begins.</param>
+    ///  <remarks>This method assumes that <paramref name="AArray"/> has enough space to hold the contents of the set.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
+    procedure CopyTo(var AArray: array of Word; const AStartIndex: NativeInt); overload; override;
+
+    ///  <summary>Checks whether the set is empty.</summary>
+    ///  <returns><c>True</c> if the set is empty; <c>False</c> otherwise.</returns>
+    ///  <remarks>This method is the recommended way of detecting if the set is empty.</remarks>
+    function Empty(): Boolean; override;
+
+    ///  <summary>Returns the biggest element.</summary>
+    ///  <returns>An element from the set considered to have the biggest value.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The set is empty.</exception>
+    function Max(): Word; override;
+
+    ///  <summary>Returns the smallest element.</summary>
+    ///  <returns>An element from the set considered to have the smallest value.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The set is empty.</exception>
+    function Min(): Word; override;
+
+    ///  <summary>Returns the first element.</summary>
+    ///  <returns>The first element in the set.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The set is empty.</exception>
+    function First(): Word; override;
+
+    ///  <summary>Returns the first element or a default, if the set is empty.</summary>
+    ///  <param name="ADefault">The default value returned if the set is empty.</param>
+    ///  <returns>The first element in the set if the set is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    function FirstOrDefault(const ADefault: Word): Word; override;
+
+    ///  <summary>Returns the last element.</summary>
+    ///  <returns>The last element in the set.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The set is empty.</exception>
+    function Last(): Word; override;
+
+    ///  <summary>Returns the last element or a default, if the set is empty.</summary>
+    ///  <param name="ADefault">The default value returned if the set is empty.</param>
+    ///  <returns>The last element in the set if the set is not empty; otherwise <paramref name="ADefault"/> is returned.</returns>
+    function LastOrDefault(const ADefault: Word): Word; override;
+
+    ///  <summary>Returns the single element stored in the set.</summary>
+    ///  <returns>The element in set.</returns>
+    ///  <remarks>This method checks if the set contains just one element, in which case it is returned.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The set is empty.</exception>
+    ///  <exception cref="Collections.Base|ECollectionNotOneException">There is more than one element in the set.</exception>
+    function Single(): Word; override;
+
+    ///  <summary>Returns the single element stored in the set, or a default value.</summary>
+    ///  <param name="ADefault">The default value returned if there are less or more elements in the set.</param>
+    ///  <returns>The element in the set if the condition is satisfied; <paramref name="ADefault"/> is returned otherwise.</returns>
+    ///  <remarks>This method checks if the set contains just one element, in which case it is returned. Otherwise
+    ///  the value in <paramref name="ADefault"/> is returned.</remarks>
+    function SingleOrDefault(const ADefault: Word): Word; override;
+  end;
+
+
 implementation
 
 { THashSet<T> }
@@ -3224,6 +3381,394 @@ procedure TObjectArraySet<T>.HandleElementRemoved(const AElement: T);
 begin
   if FOwnsObjects then
     TObject(AElement).Free;
+end;
+
+{ TBitSet }
+
+procedure TBitSet.Add(const AValue: Word);
+var
+  LPage, LBit, LMask: NativeInt;
+  LOldLength: NativeInt;
+begin
+  { Caculate the position of the bit }
+  LPage := AValue div (CPageSize * 8);
+  LBit := AValue mod (CPageSize * 8);
+  LMask := 1 shl LBit;
+
+  { Check if the page is mapped }
+  LOldLength := Length(FBitArray);
+  if LPage >= LOldLength then
+  begin
+    { We need to extend the bit array to the given page }
+    SetLength(FBitArray, LPage + 1);
+
+    { Fill the new part of the array with zeroes }
+    FillChar(FBitArray[LOldLength],
+      CPageSize * (Length(FBitArray) - LOldLength), 0);
+  end else
+  begin
+    { Verify if the bit was already set, and do nothing if so }
+    if (FBitArray[LPage] and LMask) = LMask then
+      Exit;
+  end;
+
+  { Now, set the bit }
+  FBitArray[LPage] := FBitArray[LPage] or LMask;
+
+  { Update internals }
+  Inc(FCount);
+  Inc(FVer);
+end;
+
+procedure TBitSet.Clear;
+var
+  LPage, LBit, LCurrent: NativeInt;
+begin
+  for LPage := 0 to Length(FBitArray) - 1 do
+  begin
+    LCurrent := FBitArray[LPage];
+    if LCurrent <> 0 then
+    begin
+      { Only process elements on the pages that have them }
+      for LBit := 0 to (CPageSize * 8) - 1 do
+        if (LCurrent and (1 shl LBit)) <> 0 then
+          NotifyElementRemoved(LBit + LPage * CPageSize * 8);
+    end;
+  end;
+
+  { Kill array }
+  SetLength(FBitArray, 0);
+end;
+
+function TBitSet.Contains(const AValue: Word): Boolean;
+var
+  LPage, LBit, LMask: NativeInt;
+begin
+  { Caculate the position of the bit }
+  LPage := AValue div (CPageSize * 8);
+  LBit := AValue mod (CPageSize * 8);
+
+  { Check if the page is mapped }
+  if LPage >= Length(FBitArray) then
+    Exit(False);
+
+  { The page is mapped, let's check the bit }
+  LMask := 1 shl LBit;
+  Result := (FBitArray[LPage] and LMask) = LMask;
+end;
+
+procedure TBitSet.CopyTo(var AArray: array of Word; const AStartIndex: NativeInt);
+var
+  LPage, LBit, LCurrent, X: NativeInt;
+begin
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  { Check for indexes }
+  if (Length(AArray) - AStartIndex) < FCount then
+     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
+
+  { Copy elements }
+  X := AStartIndex;
+  for LPage := 0 to Length(FBitArray) - 1 do
+  begin
+    LCurrent := FBitArray[LPage];
+
+    if LCurrent <> 0 then
+    begin
+      { Only process elements on the pages that have them }
+      for LBit := 0 to (CPageSize * 8) - 1 do
+        if (LCurrent and (1 shl LBit)) <> 0 then
+        begin
+          AArray[X] := (LBit + LPage * CPageSize * 8);
+          Inc(X);
+        end;
+    end;
+  end;
+end;
+
+constructor TBitSet.Create(const AAscending: Boolean);
+begin
+  { Bah! }
+  inherited Create(TRules<Word>.Default);
+
+  { Initialize internals }
+  FVer := 0;
+  FCount := 0;
+  FAscending := AAscending;
+end;
+
+constructor TBitSet.Create(const AArray: array of Word; const AAscending: Boolean);
+var
+  I: NativeInt;
+begin
+  { Call upper constructor }
+  Create(AAscending);
+
+  { Copy array contents }
+  for I := 0 to Length(AArray) - 1 do
+    Add(AArray[I]);
+end;
+
+constructor TBitSet.Create(const ACollection: IEnumerable<Word>; const AAscending: Boolean);
+var
+  LWord: Word;
+begin
+  { Call upper constructor }
+  Create(AAscending);
+
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  { Copy array contents }
+  for LWord in ACollection do
+    Add(LWord);
+end;
+
+destructor TBitSet.Destroy;
+begin
+  Clear();
+  inherited;
+end;
+
+function TBitSet.Empty: Boolean;
+begin
+  Result := FCount = 0;
+end;
+
+function TBitSet.First: Word;
+begin
+  if FCount = 0 then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := FirstOrDefault(0);
+end;
+
+function TBitSet.FirstOrDefault(const ADefault: Word): Word;
+var
+  LPage, LBit, LCurrent: NativeInt;
+begin
+  for LPage := 0 to Length(FBitArray) - 1 do
+  begin
+    LCurrent := FBitArray[LPage];
+    if LCurrent <> 0 then
+    begin
+      { Only process elements on the pages that have them }
+      for LBit := 0 to (CPageSize * 8) - 1 do
+        if (LCurrent and (1 shl LBit)) <> 0 then
+          Exit(LBit + LPage * CPageSize * 8);
+    end;
+  end;
+
+  Result := ADefault;
+end;
+
+function TBitSet.GetCount: NativeInt;
+begin
+  Result := FCount;
+end;
+
+function TBitSet.GetEnumerator: IEnumerator<Word>;
+begin
+  if FAscending then
+    Result := TAscendingEnumerator.Create(Self)
+  else
+    Result := TDescendingEnumerator.Create(Self);
+end;
+
+function TBitSet.Last: Word;
+begin
+  if FCount = 0 then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
+  Result := LastOrDefault(0);
+end;
+
+function TBitSet.LastOrDefault(const ADefault: Word): Word;
+var
+  LPage, LBit, LCurrent: NativeInt;
+begin
+  for LPage := Length(FBitArray) - 1 downto 0 do
+  begin
+    LCurrent := FBitArray[LPage];
+    if LCurrent <> 0 then
+    begin
+      { Only process elements on the pages that have them }
+      for LBit := (CPageSize * 8) - 1 downto 0 do
+        if (LCurrent and (1 shl LBit)) <> 0 then
+          Exit(LBit + LPage * CPageSize * 8);
+    end;
+  end;
+
+  Result := ADefault;
+end;
+
+function TBitSet.Max: Word;
+begin
+  if FAscending then
+    Result := Last()
+  else
+    Result := First();
+end;
+
+function TBitSet.Min: Word;
+begin
+  if FAscending then
+    Result := First()
+  else
+    Result := Last();
+end;
+
+procedure TBitSet.Remove(const AValue: Word);
+var
+  LPage, LBit, LMask: NativeInt;
+begin
+  { Caculate the position of the bit }
+  LPage := AValue div (CPageSize * 8);
+  LBit := AValue mod (CPageSize * 8);
+
+  { Check if the page is mapped. If the page is not mapped then the element
+    is surely not there. }
+  if LPage >= Length(FBitArray) then
+    Exit;
+
+  { The page is mapped, let's check the bit }
+  LMask := 1 shl LBit;
+  FBitArray[LPage] := FBitArray[LPage] and not LMask;
+
+  { Update internals }
+  Dec(FCount);
+  Inc(FVer);
+end;
+
+function TBitSet.Single: Word;
+begin
+  { Check length }
+  if FCount = 0 then
+    ExceptionHelper.Throw_CollectionEmptyError()
+  else if FCount > 1 then
+    ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
+
+  Result := First();
+end;
+
+function TBitSet.SingleOrDefault(const ADefault: Word): Word;
+begin
+  { Check length }
+  if FCount > 1 then
+    ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
+
+  if FCount = 0 then
+    Result := ADefault
+  else
+    Result := First();
+end;
+
+{ TBitSet.TEnumerator }
+
+constructor TBitSet.TAscendingEnumerator.Create(const ASet: TBitSet);
+begin
+  { Initialize }
+  FSet := ASet;
+  KeepObjectAlive(FSet);
+
+  FPageIndex := -1;
+  FPage := 0;
+  FVer := ASet.FVer;
+end;
+
+destructor TBitSet.TAscendingEnumerator.Destroy;
+begin
+  ReleaseObject(FSet);
+  inherited;
+end;
+
+function TBitSet.TAscendingEnumerator.GetCurrent: Word;
+begin
+  if FVer <> FSet.FVer then
+     ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := FValue;
+end;
+
+function TBitSet.TAscendingEnumerator.MoveNext: Boolean;
+begin
+  if FVer <> FSet.FVer then
+     ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := false;
+
+  while True do
+  begin
+    if FPage = 0 then
+    begin
+      { Move to the next page, check if it exists, otherwise we're finished }
+      Inc(FPageIndex);
+      if FPageIndex >= Length(FSet.FBitArray) then
+        Break;
+
+      { Reset all the data }
+      FBitIndex := 0;
+      FPage := FSet.FBitArray[FPageIndex];
+    end;
+
+    if (FPage and 1) = 1 then
+    begin
+      { The value is set }
+      FValue := FBitIndex + FPageIndex * CPageSize * 8;
+      Result := True;
+    end;
+
+    Inc(FBitIndex);
+    FPage := FPage shr 1;
+
+    if Result then
+      Break;
+  end;
+end;
+
+{ TBitSet.TDescendingEnumerator }
+
+constructor TBitSet.TDescendingEnumerator.Create(const ASet: TBitSet);
+begin
+  inherited Create(ASet);
+  FPageIndex := Length(ASet.FBitArray) + 1;
+  FMask := 1 shl ((CPageSize * 8) - 1);
+end;
+
+function TBitSet.TDescendingEnumerator.MoveNext: Boolean;
+begin
+  if FVer <> FSet.FVer then
+     ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := false;
+  while True do
+  begin
+    if FPage = 0 then
+    begin
+      { Move to the next page, check if it exists, otherwise we're finished }
+      Dec(FPageIndex);
+      if FPageIndex <= 0 then
+        Break;
+
+      { Reset all the data }
+      FBitIndex := (CPageSize * 8) - 1;
+      FPage := FSet.FBitArray[FPageIndex];
+    end;
+
+    if (FPage and FMask) = FMask then
+    begin
+      { The value is set }
+      FValue := FBitIndex + FPageIndex * CPageSize * 8;
+      Result := True;
+    end;
+
+    Dec(FBitIndex);
+    FPage := FPage shl 1;
+
+    if Result then
+      Break;
+  end;
 end;
 
 end.
