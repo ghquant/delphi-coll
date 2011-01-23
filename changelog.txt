@@ -29,6 +29,7 @@
     * Added three new overloads to Op.Select (one with preset output type, one for TValue output and one for TView output).
     * TView is a small type that can hold a number of fields/properties from a object or record. Looak at it as anonymous classes in C#.
       It's not that pretty but it does the job in some cases.
+    * TBitSet, a new Word-only type that uses an internal array of bits.
 
 ========================
 = Minor Release: 1.0.1 =

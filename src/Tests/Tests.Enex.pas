@@ -51,6 +51,48 @@ type
  TEnexCollectionInternalProc = procedure(const Collection: IEnexCollection<Integer>) of object;
  TEnexAssocCollectionInternalProc = procedure(const Collection: IEnexAssociativeCollection<Integer, Integer>) of object;
 
+  TBitSetAdapter = class(TEnexCollection<Integer>)
+  private type
+    TEnumerator = class(TEnumerator<Integer>)
+    private
+      FEnumerator: IEnumerator<Word>;
+
+    public
+      function GetCurrent(): Integer; override;
+      function MoveNext(): Boolean; override;
+    end;
+
+  private
+    FBitSet: ISet<Word>;
+
+    class function i2w(const AInt: Integer): Word;
+    class function w2i(const AWord: Word): Integer;
+
+  public
+    constructor Create(const AElements: IEnexCollection<Integer>); overload;
+    constructor Create(); overload;
+
+    function GetCount(): NativeInt; override;
+    function GetEnumerator(): IEnumerator<Integer>; override;
+    procedure CopyTo(var AArray: array of Integer; const AStartIndex: NativeInt); overload; override;
+    function Empty(): Boolean; override;
+    function Max(): Integer; override;
+    function Min(): Integer; override;
+    function First(): Integer; override;
+    function FirstOrDefault(const ADefault: Integer): Integer; override;
+    function Last(): Integer; override;
+    function LastOrDefault(const ADefault: Integer): Integer; override;
+    function Single(): Integer; override;
+    function SingleOrDefault(const ADefault: Integer): Integer; override;
+    function Aggregate(const AAggregator: TFunc<Integer, Integer, Integer>): Integer; override;
+    function AggregateOrDefault(const AAggregator: TFunc<Integer, Integer, Integer>; const ADefault: Integer): Integer; override;
+    function ElementAt(const AIndex: NativeInt): Integer; override;
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: Integer): Integer; override;
+    function Any(const APredicate: TFunc<Integer, Boolean>): Boolean; override;
+    function All(const APredicate: TFunc<Integer, Boolean>): Boolean; override;
+    function EqualsTo(const ACollection: IEnumerable<Integer>): Boolean; override;
+  end;
+
  TTestEnex = class(TTestCaseEx)
  private
    { Utilz }
@@ -335,6 +377,7 @@ var
    LArraySet_Full,
    LBag_Full,
    LSortedBag_Full,
+   LBitSet_Full,
    LHashSet_Full,
    LLinkedSet_Full,
    LSortedSet_Full,
@@ -390,6 +433,7 @@ var
    LArraySet_One,
    LBag_One,
    LSortedBag_One,
+   LBitSet_One,
    LHashSet_One,
    LLinkedSet_One,
    LSortedSet_One,
@@ -445,6 +489,7 @@ var
    LArraySet_Empty,
    LBag_Empty,
    LSortedBag_Empty,
+   LBitSet_Empty,
    LHashSet_Empty,
    LLinkedSet_Empty,
    LSortedSet_Empty,
@@ -3297,6 +3342,7 @@ begin
   TestProc(LArraySet_Full);
   TestProc(LBag_Full);
   TestProc(LSortedBag_Full);
+  TestProc(LBitSet_Full);
   TestProc(LHashSet_Full);
   TestProc(LLinkedSet_Full);
   TestProc(LSortedSet_Full);
@@ -3353,6 +3399,7 @@ begin
   TestProc(LArraySet_One);
   TestProc(LBag_One);
   TestProc(LSortedBag_One);
+  TestProc(LBitSet_One);
   TestProc(LHashSet_One);
   TestProc(LLinkedSet_One);
   TestProc(LSortedSet_One);
@@ -3409,6 +3456,7 @@ begin
   TestProc(LArraySet_Empty);
   TestProc(LBag_Empty);
   TestProc(LSortedBag_Empty);
+  TestProc(LBitSet_Empty);
   TestProc(LHashSet_Empty);
   TestProc(LLinkedSet_Empty);
   TestProc(LSortedSet_Empty);
@@ -4394,6 +4442,7 @@ begin
   LArraySet_Full := TArraySet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LBag_Full := TBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedBag_Full := TSortedBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
+  LBitSet_Full := TBitSetAdapter.Create(MakeRandomIntegerList(ListElements div 10, ListMax div 10));
   LHashSet_Full := THashSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LLinkedSet_Full := TLinkedSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedSet_Full := TSortedSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
@@ -4530,6 +4579,7 @@ begin
   LArraySet_One := TArraySet<Integer>.Create([3]);
   LBag_One := TBag<Integer>.Create([4]);
   LSortedBag_One := TSortedBag<Integer>.Create([4]);
+  LBitSet_One := TBitSetAdapter.Create(LSortedBag_One);
   LHashSet_One := THashSet<Integer>.Create([5]);
   LLinkedSet_One := TLinkedSet<Integer>.Create([5]);
   LSortedSet_One := TSortedSet<Integer>.Create([5]);
@@ -4625,6 +4675,7 @@ begin
   LArraySet_Empty := TArraySet<Integer>.Create();
   LBag_Empty := TBag<Integer>.Create();
   LSortedBag_Empty := TSortedBag<Integer>.Create();
+  LBitSet_Empty := TBitSetAdapter.Create();
   LHashSet_Empty := THashSet<Integer>.Create();
   LLinkedSet_Empty := TLinkedSet<Integer>.Create();
   LSortedSet_Empty := TSortedSet<Integer>.Create();
@@ -4923,6 +4974,200 @@ begin
   CheckNotEquals(X, L1.GetHashCode());
 
   L1.Free;
+end;
+
+{ TBitSetAdapter }
+
+function TBitSetAdapter.Aggregate(const AAggregator: TFunc<Integer, Integer, Integer>): Integer;
+begin
+  if not Assigned(AAggregator) then
+    Result := w2i(FBitSet.Aggregate(nil))
+  else
+    Result := w2i(FBitSet.Aggregate(
+      function(ALeft, ARight: Word): Word
+      begin
+        Result := i2w(AAggregator(w2i(ALeft), w2i(ARight)));
+      end
+    ));
+end;
+
+function TBitSetAdapter.AggregateOrDefault(
+  const AAggregator: TFunc<Integer, Integer, Integer>;
+  const ADefault: Integer): Integer;
+begin
+  if not Assigned(AAggregator) then
+    Result := w2i(FBitSet.AggregateOrDefault(nil, i2w(ADefault)))
+  else
+    Result := w2i(FBitSet.AggregateOrDefault(
+      function(ALeft, ARight: Word): Word
+      begin
+        Result := i2w(AAggregator(w2i(ALeft), w2i(ARight)));
+      end,
+      i2w(ADefault)
+    ));
+end;
+
+function TBitSetAdapter.All(const APredicate: TFunc<Integer, Boolean>): Boolean;
+begin
+  Result := FBitSet.All(
+    function(AValue: Word): Boolean
+    begin
+      Result := APredicate(w2i(AValue));
+    end
+  );
+end;
+
+function TBitSetAdapter.Any(const APredicate: TFunc<Integer, Boolean>): Boolean;
+begin
+  Result := FBitSet.Any(
+    function(AValue: Word): Boolean
+    begin
+      Result := APredicate(w2i(AValue));
+    end
+  );
+end;
+
+procedure TBitSetAdapter.CopyTo(var AArray: array of Integer; const AStartIndex: NativeInt);
+var
+  I: NativeInt;
+  LTemp: array of Word;
+begin
+  SetLength(LTemp, Length(AArray));
+  FBitSet.CopyTo(LTemp, AStartIndex);
+
+  for I := AStartIndex to AStartIndex + FBitSet.Count - 1 do
+    AArray[I] := w2i(LTemp[I]);
+end;
+
+constructor TBitSetAdapter.Create(const AElements: IEnexCollection<Integer>);
+var
+  LInt: Integer;
+begin
+  FBitSet := TBitSet.Create();
+
+  for LInt in AElements do
+    FBitSet.Add(i2w(LInt));
+end;
+
+constructor TBitSetAdapter.Create;
+begin
+  FBitSet := TBitSet.Create();
+end;
+
+function TBitSetAdapter.ElementAt(const AIndex: NativeInt): Integer;
+begin
+  Result := w2i(FBitSet.ElementAt(AIndex));
+end;
+
+function TBitSetAdapter.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: Integer): Integer;
+begin
+  Result := w2i(FBitSet.ElementAtOrDefault(AIndex, i2w(ADefault)));
+end;
+
+function TBitSetAdapter.Empty: Boolean;
+begin
+  Result := FBitSet.Empty;
+end;
+
+function TBitSetAdapter.EqualsTo(const ACollection: IEnumerable<Integer>): Boolean;
+var
+  LList: IList<Word>;
+  I: Integer;
+begin
+  LList := TList<Word>.Create;
+  for I in ACollection do
+    LList.Add(i2w(I));
+  Result := FBitSet.EqualsTo(LList);
+end;
+
+function TBitSetAdapter.First: Integer;
+begin
+  Result := w2i(FBitSet.First);
+end;
+
+function TBitSetAdapter.FirstOrDefault(const ADefault: Integer): Integer;
+begin
+  Result := w2i(FBitSet.FirstOrDefault(i2w(ADefault)));
+end;
+
+function TBitSetAdapter.GetCount: NativeInt;
+begin
+  Result := FBitSet.GetCount();
+end;
+
+function TBitSetAdapter.GetEnumerator: IEnumerator<Integer>;
+var
+  LEnum: TEnumerator;
+begin
+  LEnum := TEnumerator.Create;
+  LEnum.FEnumerator := FBitSet.GetEnumerator;
+  Result := LEnum;
+end;
+
+class function TBitSetAdapter.i2w(const AInt: Integer): Word;
+begin
+  Result := SmallInt(AInt);
+
+  {
+  if AInt = -1 then
+    Result := $FFFF
+  else
+    Result := AInt;
+  }
+end;
+
+function TBitSetAdapter.Last: Integer;
+begin
+  Result := w2i(FBitSet.Last);
+end;
+
+function TBitSetAdapter.LastOrDefault(const ADefault: Integer): Integer;
+begin
+  Result := w2i(FBitSet.LastOrDefault(i2w(ADefault)));
+end;
+
+function TBitSetAdapter.Max: Integer;
+begin
+  Result := w2i(FBitSet.Max);
+end;
+
+function TBitSetAdapter.Min: Integer;
+begin
+  Result := w2i(FBitSet.Min);
+end;
+
+function TBitSetAdapter.Single: Integer;
+begin
+  Result := w2i(FBitSet.Single);
+end;
+
+function TBitSetAdapter.SingleOrDefault(const ADefault: Integer): Integer;
+begin
+  Result := w2i(FBitSet.SingleOrDefault(i2w(ADefault)));
+end;
+
+class function TBitSetAdapter.w2i(const AWord: Word): Integer;
+begin
+  Result := SmallInt(AWord);
+
+  {
+  if AWord = $FFFF then
+    Result := -1
+  else
+    Result := AWord;
+    }
+end;
+
+{ TBitSetAdapter.TEnumerator }
+
+function TBitSetAdapter.TEnumerator.GetCurrent: Integer;
+begin
+  Result := w2i(FEnumerator.GetCurrent);
+end;
+
+function TBitSetAdapter.TEnumerator.MoveNext: Boolean;
+begin
+  Result := FEnumerator.MoveNext;
 end;
 
 initialization
