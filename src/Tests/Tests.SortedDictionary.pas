@@ -55,6 +55,8 @@ type
     procedure TestBigSize();
     procedure TestCorrectOrdering();
     procedure TestObjectVariant();
+
+    procedure Test_Bug1;
   end;
 
 implementation
@@ -537,6 +539,33 @@ begin
   Check(Dict.Values.Count = 0, 'Enumerator failed too late');
 
   Dict.Free();
+end;
+
+procedure TTestSortedDictionary.Test_Bug1;
+var
+  LDict: TObjectSortedDictionary<Integer, TTestObject>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LDict := TObjectSortedDictionary<Integer, TTestObject>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LDict.Add(1, LValue);
+  LDict[1] := nil;
+  CheckFalse(LValueDied);
+
+  { ----- }
+  LDict[1] := LValue;
+  LDict.OwnsValues := True;
+  LDict[1] := LValue;
+  CheckFalse(LValueDied);
+
+  LDict[1] := nil;
+  CheckTrue(LValueDied);
+
+  LDict.Free;
 end;
 
 procedure TTestSortedDictionary.TestValuesCopyTo;

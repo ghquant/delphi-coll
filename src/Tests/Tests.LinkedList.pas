@@ -52,7 +52,9 @@ type
     procedure TestExceptions();
     procedure TestBigCounts();
     procedure TestObjectVariant();
+
     procedure Test_Bug0();
+    procedure Test_Bug1();
   end;
 
 implementation
@@ -539,6 +541,16 @@ begin
   Check(LinkedList[4] = 5, 'LinkedList[4] expected to be 5');
   Check(LinkedList[5] = 6, 'LinkedList[5] expected to be 6');
 
+  LinkedList[3] := 44;
+  LinkedList[0] := 11;
+
+  Check(LinkedList[0] = 11, 'LinkedList[0] expected to be 11');
+  Check(LinkedList[1] = 2, 'LinkedList[1] expected to be 2');
+  Check(LinkedList[2] = 3, 'LinkedList[2] expected to be 3');
+  Check(LinkedList[3] = 44, 'LinkedList[3] expected to be 44');
+  Check(LinkedList[4] = 5, 'LinkedList[4] expected to be 5');
+  Check(LinkedList[5] = 6, 'LinkedList[5] expected to be 6');
+
   LinkedList.Free();
 end;
 
@@ -718,6 +730,36 @@ begin
   CheckEquals(-1, LList.LastIndexOf(1));
   CheckEquals(-1, LList.LastIndexOf(1, 0));
   CheckEquals(-1, LList.LastIndexOf(1, 0, 0));
+
+  LList.Free;
+end;
+
+procedure TTestLinkedList.Test_Bug1;
+var
+  LList: TObjectList<TTestObject>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectList<TTestObject>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(LValue);
+
+  LList[0] := nil;
+  CheckFalse(LValueDied);
+
+  { ---- }
+
+  LList[0] := LValue;
+  LList.OwnsObjects := true;
+
+  LList[0] := LValue;
+  CheckFalse(LValueDied);
+
+  LList[0] := nil;
+  CheckTrue(LValueDied);
 
   LList.Free;
 end;

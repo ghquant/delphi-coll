@@ -128,7 +128,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the bag.</summary>
-    ///  <remarks>This method clears the bag and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the bag.</summary>

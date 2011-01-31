@@ -119,7 +119,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the bidi-map.</summary>
-    ///  <remarks>This method clears the bidi-map and invokes rule set's cleaning routines for key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the bidi-map.</summary>
@@ -141,8 +140,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair.</param>
-    ///  <remarks>This invokes the rule set's cleaning routines for the value
-    ///  associated with the key. If the specified key was not found in the bidi-map, nothing happens.</remarks>
+    ///  <remarks>If the specified key was not found in the bidi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
     ///  <summary>Removes a key-value pair using a given value.</summary>

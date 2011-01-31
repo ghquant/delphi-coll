@@ -822,7 +822,6 @@ type
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>stack</c>.</remarks>
   IStack<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the stack.</summary>
-    ///  <remarks>This method clears the stack and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
@@ -855,7 +854,6 @@ type
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>queue</c>.</remarks>
   IQueue<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>
@@ -884,7 +882,6 @@ type
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>priority queue</c>.</remarks>
   IPriorityQueue<TPriority, TValue> = interface(IEnexAssociativeCollection<TPriority, TValue>)
     ///  <summary>Clears the contents of the priority queue.</summary>
-    ///  <remarks>This method clears the priority queue and invokes rule set's cleaning routines for each key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the priority queue.</summary>
@@ -921,7 +918,6 @@ type
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>set</c>.</remarks>
   ISet<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>This method clears the set and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the set.</summary>
@@ -958,7 +954,6 @@ type
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>bag</c>.</remarks>
   IBag<T> = interface(IEnexCollection<T>)
     ///  <summary>Clears the contents of the bag.</summary>
-    ///  <remarks>This method clears the bag and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the bag.</summary>
@@ -1013,7 +1008,6 @@ type
   ///  <remarks>This interface is inherited by all interfaces that provide <c>map</c>-like functionality.</remarks>
   IMap<TKey, TValue> = interface(IEnexAssociativeCollection<TKey, TValue>)
     ///  <summary>Clears the contents of the map.</summary>
-    ///  <remarks>This method clears the map and invokes rule set's cleaning routines for key and value.</remarks>
     procedure Clear();
 
 {$IF CompilerVersion < 22}
@@ -1031,8 +1025,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of pair.</param>
-    ///  <remarks>This invokes rule set's cleaning routines for value
-    ///  associated with the key. If the specified key was not found in the map, nothing happens.</remarks>
+    ///  <remarks>If the specified key was not found in the map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey);
 
     ///  <summary>Checks whether the map contains a key-value pair identified by the given key.</summary>
@@ -1336,7 +1329,6 @@ type
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>list</c>.</remarks>
   IList<T> = interface(IEnexIndexedCollection<T>)
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the set and invokes rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the list.</summary>

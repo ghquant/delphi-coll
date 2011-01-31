@@ -238,7 +238,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the multi-map.</summary>
-    ///  <remarks>This method clears the multi-map and invokes the rule set's cleaning routines for key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
@@ -254,8 +253,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of pair.</param>
-    ///  <remarks>This invokes the rule set's cleaning routines for a value
-    ///  associated with the key. If the specified key was not found in the multi-map, nothing happens.</remarks>
+    ///  <remarks>If the specified key was not found in the multi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
@@ -556,7 +554,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the multi-map.</summary>
-    ///  <remarks>This method clears the multi-map and invokes the rule set's cleaning routines for key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
@@ -572,8 +569,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair.</param>
-    ///  <remarks>This invokes the rule set's cleaning routines for a value
-    ///  associated with the key. If the specified key was not found in the multi-map, nothing happens.</remarks>
+    ///  <remarks>If the specified key was not found in the multi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
     ///  <summary>Removes a key-value pair using a given key and value.</summary>

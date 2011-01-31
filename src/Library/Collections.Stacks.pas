@@ -120,7 +120,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the stack.</summary>
-    ///  <remarks>This method clears the stack and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
@@ -392,7 +391,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the stack.</summary>
-    ///  <remarks>This method clears the stack and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Pushes an element to the top of the stack.</summary>

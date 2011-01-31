@@ -130,7 +130,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>This method clears the set and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the set.</summary>
@@ -291,7 +290,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>This method clears the set and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the set.</summary>
@@ -454,7 +452,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>This method clears the set and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the set.</summary>
@@ -658,7 +655,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>This method clears the set and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the set.</summary>
@@ -843,8 +839,8 @@ type
   end;
 
 type
-  ///  <summary>The generic <c>set</c> collection.</summary>
-  ///  <remarks>This type uses an AVL tree to store its values.</remarks>
+  ///  <summary>A specific 16-bit integer <c>set</c> collection.</summary>
+  ///  <remarks>This collection uses an internal bit array to store its values.</remarks>
   TBitSet = class(TEnexCollection<Word>, ISet<Word>, ISortedSet<Word>)
   private type
     {$REGION 'Internal Types'}
@@ -887,20 +883,20 @@ type
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <remarks>The default rules set is used. Custom rule sets are not allowed. Natural ordering is used and cannot be overridden.</remarks>
     constructor Create(const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <remarks>The default rules set is used. Custom rule sets are not allowed. Natural ordering is used and cannot be overridden.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const ACollection: IEnumerable<Word>; const AAscending: Boolean = true); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <remarks>The default rules set is used. Custom rule sets are not allowed. Natural ordering is used and cannot be overridden.</remarks>
     constructor Create(const AArray: array of Word; const AAscending: Boolean = true); overload;
 
     ///  <summary>Destroys this instance.</summary>
@@ -908,7 +904,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>This method clears the set and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the set.</summary>
@@ -997,7 +992,6 @@ type
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
     function SingleOrDefault(const ADefault: Word): Word; override;
   end;
-
 
 implementation
 

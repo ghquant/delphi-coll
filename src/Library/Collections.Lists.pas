@@ -99,6 +99,14 @@ type
     ///  <remarks>The value of this method is greater than or equal to the amount of elements in the list. If this value
     ///  is greater than the number of elements, it means that the list has some extra capacity to operate upon.</remarks>
     function GetCapacity(): NativeInt;
+
+    ///  <summary>Replaces a given item with a new one.</summary>
+    ///  <param name="ACurrent">The item to be replaced.</param>
+    ///  <param name="ANew">The item to be replaced with.</param>
+    ///  <remarks>This method is called by the list when an item at a specified index needs to be replaced with another.
+    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old item is
+    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
+    procedure ReplaceItem(var ACurrent: T; const ANew: T); virtual;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -145,7 +153,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the list.</summary>
@@ -306,7 +313,7 @@ type
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    property Items[const AIndex: NativeInt]: T read GetItem; default;
+    property Items[const AIndex: NativeInt]: T read GetItem write SetItem; default;
 
     ///  <summary>Returns a new enumerator object used to enumerate this list.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -473,6 +480,11 @@ type
     ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
+    ///  <summary>Replaces a given object with a new one.</summary>
+    ///  <param name="ACurrent">The object to be replaced.</param>
+    ///  <param name="ANew">The object to be replaced with.</param>
+    ///  <remarks>This method will check the objects by reference and free the current one if needed.</remarks>
+    procedure ReplaceItem(var ACurrent: T; const ANew: T); override;
   public
     ///  <summary>Specifies whether this list owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the list owns its objects; <c>False</c> otherwise.</returns>
@@ -585,7 +597,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the list.</summary>
@@ -929,6 +940,14 @@ type
     ///  <summary>Returns the number of elements in the list.</summary>
     ///  <returns>A positive value specifying the number of elements in the list.</returns>
     function GetCount(): NativeInt; override;
+
+    ///  <summary>Replaces a given item with a new one.</summary>
+    ///  <param name="ACurrent">The item to be replaced.</param>
+    ///  <param name="ANew">The item to be replaced with.</param>
+    ///  <remarks>This method is called by the list when an item at a specified index needs to be replaced with another.
+    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old item is
+    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
+    procedure ReplaceItem(var ACurrent: T; const ANew: T); virtual;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -965,7 +984,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the list.</summary>
@@ -1121,7 +1139,7 @@ type
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    property Items[const AIndex: NativeInt]: T read GetItem; default;
+    property Items[const AIndex: NativeInt]: T read GetItem write SetItem; default;
 
     ///  <summary>Returns a new enumerator object used to enumerate this list.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -1277,6 +1295,11 @@ type
     ///  <param name="AElement">The object that was removed from the collection.</param>
     procedure HandleElementRemoved(const AElement: T); override;
 
+    ///  <summary>Replaces a given object with a new one.</summary>
+    ///  <param name="ACurrent">The object to be replaced.</param>
+    ///  <param name="ANew">The object to be replaced with.</param>
+    ///  <remarks>This method will check the objects by reference and free the current one if needed.</remarks>
+    procedure ReplaceItem(var ACurrent: T; const ANew: T); override;
   public
     ///  <summary>Specifies whether this list owns the objects stored in it.</summary>
     ///  <returns><c>True</c> if the list owns its objects; <c>False</c> otherwise.</returns>
@@ -1376,7 +1399,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>This method clears the list and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Adds an element to the list.</summary>
@@ -2307,6 +2329,18 @@ begin
   Inc(FVer);
 end;
 
+procedure TList<T>.ReplaceItem(var ACurrent: T; const ANew: T);
+begin
+  if not ElementsAreEqual(ACurrent, ANew) then
+  begin
+    { Notify that an element is removed. }
+    NotifyElementRemoved(ACurrent);
+
+    { Replace it. }
+    ACurrent := ANew;
+  end;
+end;
+
 procedure TList<T>.Reverse(const AStartIndex, ACount: NativeInt);
 var
   I: NativeInt;
@@ -2374,9 +2408,11 @@ begin
   if (AIndex >= FLength) or (AIndex < 0) then
      ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 
-  //TODO: NotifyElementRemoved here?
-  { Get AValue }
-  FArray[AIndex] := AValue;
+  { Delegate }
+  ReplaceItem(FArray[AIndex], AValue);
+
+  { Increment version }
+  Inc(FVer);
 end;
 
 procedure TList<T>.Shrink;
@@ -2509,6 +2545,17 @@ procedure TObjectList<T>.HandleElementRemoved(const AElement: T);
 begin
   if FOwnsObjects then
     TObject(AElement).Free;
+end;
+
+procedure TObjectList<T>.ReplaceItem(var ACurrent: T; const ANew: T);
+begin
+  { Only act if owns objects is set. Otherwise fallback to default. }
+  if (FOwnsObjects) and (TObject(ACurrent) <> TObject(ANew)) then
+  begin
+    NotifyElementRemoved(ACurrent);
+    ACurrent := ANew;
+  end else
+    inherited;
 end;
 
 { TSortedList<T> }
@@ -4707,6 +4754,18 @@ begin
   Dec(FCount);
 end;
 
+procedure TLinkedList<T>.ReplaceItem(var ACurrent: T; const ANew: T);
+begin
+  if not ElementsAreEqual(ACurrent, ANew) then
+  begin
+    { Notify that an element is removed. }
+    NotifyElementRemoved(ACurrent);
+
+    { Replace it. }
+    ACurrent := ANew;
+  end;
+end;
+
 procedure TLinkedList<T>.Reverse;
 begin
   Reverse(0, FCount);
@@ -4747,8 +4806,11 @@ end;
 
 procedure TLinkedList<T>.SetItem(const AIndex: NativeInt; const AValue: T);
 begin
-  //TODO: NotifyElementRemoved here?
-  EntryAt(AIndex)^.FValue := AValue;
+  { Delegate }
+  ReplaceItem(EntryAt(AIndex)^.FValue, AValue);
+
+  { Increment version }
+  Inc(FVer);
 end;
 
 function TLinkedList<T>.Single: T;
@@ -4897,6 +4959,17 @@ procedure TObjectLinkedList<T>.HandleElementRemoved(const AElement: T);
 begin
   if FOwnsObjects then
     TObject(AElement).Free;
+end;
+
+procedure TObjectLinkedList<T>.ReplaceItem(var ACurrent: T; const ANew: T);
+begin
+  { Only act if owns objects is set. Otherwise fallback to default. }
+  if (FOwnsObjects) and (TObject(ACurrent) <> TObject(ANew)) then
+  begin
+    NotifyElementRemoved(ACurrent);
+    ACurrent := ANew;
+  end else
+    inherited;
 end;
 
 end.

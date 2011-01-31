@@ -184,6 +184,14 @@ type
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
     procedure SetItem(const AKey: TKey; const Value: TValue);
+
+    ///  <summary>Replaces a given value with a new one.</summary>
+    ///  <param name="ACurrent">The value to be replaced.</param>
+    ///  <param name="ANew">The value to be replaced with.</param>
+    ///  <remarks>This method is called by the dictioanry when a value needs to be replaced with another.
+    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old value is
+    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
+    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); virtual;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -242,8 +250,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    ///  <remarks>This method clears the dictionary and invokes rule set's cleaning
-    ///  routines for each key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
@@ -259,8 +265,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>This invokes the rule set's cleaning routines for a value
-    ///  associated with the key. If the specified key was not found in the dictionary, nothing happens.</remarks>
+    ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
@@ -349,6 +354,12 @@ type
     ///  <summary>Frees the value (object) that was removed from the collection.</summary>
     ///  <param name="AKey">The value that was removed from the collection.</param>
     procedure HandleValueRemoved(const AValue: TValue); override;
+
+    ///  <summary>Replaces a given value with a new one.</summary>
+    ///  <param name="ACurrent">The value to be replaced.</param>
+    ///  <param name="ANew">The value to be replaced with.</param>
+    ///  <remarks>This implementation will check the objects by reference and free the current one if needed.</remarks>
+    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); override;
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
@@ -518,6 +529,14 @@ type
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
     procedure SetItem(const AKey: TKey; const Value: TValue);
+
+    ///  <summary>Replaces a given value with a new one.</summary>
+    ///  <param name="ACurrent">The value to be replaced.</param>
+    ///  <param name="ANew">The value to be replaced with.</param>
+    ///  <remarks>This method is called by the dictioanry when a value needs to be replaced with another.
+    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old value is
+    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
+    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); virtual;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -576,8 +595,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    ///  <remarks>This method clears the dictionary and invokes rule set's cleaning
-    ///  routines for each key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
@@ -593,8 +610,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>This invokes the rule set's cleaning routines for a value
-    ///  associated with the key. If the specified key was not found in the dictionary, nothing happens.</remarks>
+    ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
@@ -683,6 +699,12 @@ type
     ///  <summary>Frees the value (object) that was removed from the collection.</summary>
     ///  <param name="AKey">The value that was removed from the collection.</param>
     procedure HandleValueRemoved(const AValue: TValue); override;
+
+    ///  <summary>Replaces a given value with a new one.</summary>
+    ///  <param name="ACurrent">The value to be replaced.</param>
+    ///  <param name="ANew">The value to be replaced with.</param>
+    ///  <remarks>This implementation will check the objects by reference and free the current one if needed.</remarks>
+    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); override;
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
@@ -860,6 +882,14 @@ type
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
     procedure SetItem(const AKey: TKey; const Value: TValue);
+
+    ///  <summary>Replaces a given value with a new one.</summary>
+    ///  <param name="ACurrent">The value to be replaced.</param>
+    ///  <param name="ANew">The value to be replaced with.</param>
+    ///  <remarks>This method is called by the dictioanry when a value needs to be replaced with another.
+    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old value is
+    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
+    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); virtual;
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
@@ -912,8 +942,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    ///  <remarks>This method clears the dictionary and invokes the rule set's cleaning
-    ///  routines for each key and value.</remarks>
     procedure Clear();
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
@@ -929,8 +957,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>This invokes the rule set's cleaning routines for a value
-    ///  associated with the key. If the specified key was not found in the dictionary, nothing happens.</remarks>
+    ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
@@ -1029,6 +1056,12 @@ type
     ///  <summary>Frees the value (object) that was removed from the collection.</summary>
     ///  <param name="AKey">The value that was removed from the collection.</param>
     procedure HandleValueRemoved(const AValue: TValue); override;
+
+    ///  <summary>Replaces a given value with a new one.</summary>
+    ///  <param name="ACurrent">The value to be replaced.</param>
+    ///  <param name="ANew">The value to be replaced with.</param>
+    ///  <remarks>This implementation will check the objects by reference and free the current one if needed.</remarks>
+    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); override;
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
@@ -1292,7 +1325,7 @@ begin
       if (ShouldAdd) then
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
 
-      FEntryArray[I].FValue := AValue;
+      ReplaceValue(FEntryArray[I].FValue, AValue);
       Inc(FVer);
       Exit;
     end;
@@ -1382,6 +1415,18 @@ begin
       I := FEntryArray[I].FNext;
     end;
 
+  end;
+end;
+
+procedure TDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  if not ValuesAreEqual(ACurrent, ANew) then
+  begin
+    { Notify that an element is removed. }
+    NotifyValueRemoved(ACurrent);
+
+    { Replace it. }
+    ACurrent := ANew;
   end;
 end;
 
@@ -1719,6 +1764,17 @@ begin
 end;
 
 
+procedure TObjectDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  { Only act if owns objects is set. Otherwise fallback to default. }
+  if (FOwnsValues) and (TObject(ACurrent) <> TObject(ANew)) then
+  begin
+    NotifyValueRemoved(ACurrent);
+    ACurrent := ANew;
+  end else
+    inherited;
+end;
+
 { TLinkedDictionary<TKey, TValue> }
 
 procedure TLinkedDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
@@ -2004,7 +2060,7 @@ begin
           if AShouldAdd then
             ExceptionHelper.Throw_DuplicateKeyError('AKey');
 
-          LEntry^.FValue := AValue;
+          ReplaceValue(LEntry^.FValue, AValue);
 
           Inc(FVer);
           Exit;
@@ -2204,6 +2260,18 @@ begin
 
     { Go to next }
     LEntry := LEntry^.FNext;
+  end;
+end;
+
+procedure TLinkedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  if not ValuesAreEqual(ACurrent, ANew) then
+  begin
+    { Notify that an element is removed. }
+    NotifyValueRemoved(ACurrent);
+
+    { Replace it. }
+    ACurrent := ANew;
   end;
 end;
 
@@ -2493,6 +2561,17 @@ procedure TObjectLinkedDictionary<TKey, TValue>.HandleValueRemoved(const AValue:
 begin
   if FOwnsValues then
     TObject(AValue).Free;
+end;
+
+procedure TObjectLinkedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  { Only act if owns objects is set. Otherwise fallback to default. }
+  if (FOwnsValues) and (TObject(ACurrent) <> TObject(ANew)) then
+  begin
+    NotifyValueRemoved(ACurrent);
+    ACurrent := ANew;
+  end else
+    inherited;
 end;
 
 { TSortedDictionary<TKey, TValue> }
@@ -3121,11 +3200,7 @@ begin
       if not ChangeOrFail then
         Exit(false);
 
-      { Cleanup the value if required }
-      NotifyValueRemoved(LNode.FValue);
-
-      { Change the node value }
-      LNode.FValue := AValue;
+      ReplaceValue(LNode.FValue, AValue);
 
       { Increase markers }
       Inc(FVer);
@@ -3384,6 +3459,19 @@ begin
   Dec(FCount);
   Inc(FVer);
 end;
+
+procedure TSortedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  if not ValuesAreEqual(ACurrent, ANew) then
+  begin
+    { Notify that an element is removed. }
+    NotifyValueRemoved(ACurrent);
+
+    { Replace it. }
+    ACurrent := ANew;
+  end;
+end;
+
 
 procedure TSortedDictionary<TKey, TValue>.RecursiveClear(const ANode: TNode);
 begin
@@ -3738,6 +3826,17 @@ procedure TObjectSortedDictionary<TKey, TValue>.HandleValueRemoved(const AValue:
 begin
   if FOwnsValues then
     TObject(AValue).Free;
+end;
+
+procedure TObjectSortedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  { Only act if owns objects is set. Otherwise fallback to default. }
+  if (FOwnsValues) and (TObject(ACurrent) <> TObject(ANew)) then
+  begin
+    NotifyValueRemoved(ACurrent);
+    ACurrent := ANew;
+  end else
+    inherited;
 end;
 
 end.

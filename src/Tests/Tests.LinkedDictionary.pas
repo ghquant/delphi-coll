@@ -53,8 +53,9 @@ type
     procedure TestValuesEnumerator();
     procedure TestExceptions();
     procedure TestBigSize();
-
     procedure TestObjectVariant();
+
+    procedure Test_Bug1;
   end;
 
 implementation
@@ -475,6 +476,33 @@ begin
   Check(Dict.Values.Count = 0, 'Enumerator failed too late');
 
   Dict.Free();
+end;
+
+procedure TTestLinkedDictionary.Test_Bug1;
+var
+  LDict: TObjectLinkedDictionary<Integer, TTestObject>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LDict := TObjectLinkedDictionary<Integer, TTestObject>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LDict.Add(1, LValue);
+  LDict[1] := nil;
+  CheckFalse(LValueDied);
+
+  { ----- }
+  LDict[1] := LValue;
+  LDict.OwnsValues := True;
+  LDict[1] := LValue;
+  CheckFalse(LValueDied);
+
+  LDict[1] := nil;
+  CheckTrue(LValueDied);
+
+  LDict.Free;
 end;
 
 procedure TTestLinkedDictionary.TestValuesCopyTo;

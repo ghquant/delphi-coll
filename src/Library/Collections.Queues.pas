@@ -123,7 +123,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>
@@ -391,7 +390,6 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>This method clears the queue and invokes the rule set's cleaning routines for each element.</remarks>
     procedure Clear();
 
     ///  <summary>Appends an element to the top of the queue.</summary>

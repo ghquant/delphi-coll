@@ -32,9 +32,12 @@
     * TSortedList<T>'s methods have been optimized to use binary search.
     * Optimized TList<T>.Add(collection) a lot. Should be a big boost to all dependant functions.
     * Updated multiple tests. Add missing test cases for TArraySet<T>.
-    * Fixed a few bugs related to IndexOf in empty collections. Updated tests.
-    * Fixed an error in TDictionary<TKey, TValue> and THastSet<T> where initial capacity size was set to zero.             
+    * Fixed a few bugs related to IndexOf in empty collections. Regression tests added.
+    * Fixed an error in TDictionary<TKey, TValue> and THastSet<T> where initial capacity size was set to zero.
     * Fixed TSortedList.Copy to also copy the ascending/descending flag from the original list.
+    * Fixed some documentation (removed "cleaning" references).
+    * Fixed a bug in all dictionary implementations related to the way values were replaced. Memory leaks would appear. Regression tests added.
+    * Fixed a bug in all list implementations related to the way values were replaced. Memory leaks would appear. Regression tests added.
 
 ========================
 = Minor Release: 1.0.1 =
