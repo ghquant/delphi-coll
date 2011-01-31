@@ -4,32 +4,37 @@
     * Implement T(Object)LinkedDictionary<TKey, TValue> that used a hash/linked list approach.
       Guarantees insert order preservation of elements.
     * Implement T(Object)LinkedSet<T> that used a hash/linked list approach.
-      Guarantees insert order preservation of elements.                                        
-    * Add ISortedSet<T> interface now implemented by TSortedSet<T>.
+      Guarantees insert order preservation of elements.
+    * TBitSet, a new Word-only type that uses an internal array of bits.
+    * New unit Collection.BidiDictionaries contains a number of dictionary types that enforce both key to value and value to key rules.
+      + TBidiDictionary<TKey, TValue>
+      + TSortedBidiDictionary<TKey, TValue>
+      + TDoubleSortedDictionary<TKey, TValue>
+    * Added a new unit Collections.Dynamic. This unit exposes a simple Member record that
+      allows generating selectors for class/record members.
+    * TView is a small type that can hold a number of fields/properties from a object or record. Looak at it as anonymous classes in C#.
+      It's not that pretty but it does the job in some cases.
     * Implement T(Object)SortedLinkedList<T>. This class uses a linked list to store its elements. It also
-      implements IList interface and provides access to the index based functions (slow).
-    * Optimized TList<T>.Add(collection) a lot. Should be a big boost to all dependant functions.
+      implements IList interface and provides access to the index based functions (slow).      
+    * Add ISortedSet<T> interface now implemented by TSortedSet<T>.
+    * Added three new overloads to Op.Select (one with preset output type, one for TValue output and one for TView output).
+    * New GroupedBy<T>() extended operation and IEnexGroupingCollection<TKey, T>.
+    * Removed IUnorderedList<T>. All lists implement IList<T> now (that includes Insert!).
+    * IList<T> now includes Insert().
+    * Renamed IOrderedList<T> into ISortedList<T>.
     * TLinkedStack<T> now uses an internal linked list and not the much "loved" TLinkedList class. This should
       bring quite some speed improvements into the game.
     * TLinkedQueue<T> now uses an internal linked list and not the much "loved" TLinkedList class. This should
       bring quite some speed improvements into the game.
     * TLinkedList<T> was completely rewritten. It's no longer .NET-like, it looks just like a simple TList<T> but
       stores its elements in a linked list. A lot of indexing methods are supported but are dead slow!
-    * Fixed TSortedList.Copy to also copy the ascending/descending flag from the original list.
-    * New GroupedBy<T>() extended operation and IEnexGroupingCollection<TKey, T>.
-    * Removed IUnorderedList<T>. All lists implement IList<T> now (that includes Insert!).
-    * IList<T> now includes Insert().
-    * Renamed IOrderedList<T> into ISortedList<T>.
     * TArraySet<T> is not a sorted set. It's been optimized.
     * TSortedList<T>'s methods have been optimized to use binary search.
+    * Optimized TList<T>.Add(collection) a lot. Should be a big boost to all dependant functions.
     * Updated multiple tests. Add missing test cases for TArraySet<T>.
     * Fixed a few bugs related to IndexOf in empty collections. Updated tests.
-    * Added a new unit Collections.Dynamic. This unit exposes a simple Member record that
-      allows generating selectors for class/record members.
-    * Added three new overloads to Op.Select (one with preset output type, one for TValue output and one for TView output).
-    * TView is a small type that can hold a number of fields/properties from a object or record. Looak at it as anonymous classes in C#.
-      It's not that pretty but it does the job in some cases.
-    * TBitSet, a new Word-only type that uses an internal array of bits.
+    * Fixed an error in TDictionary<TKey, TValue> and THastSet<T> where initial capacity size was set to zero.             
+    * Fixed TSortedList.Copy to also copy the ascending/descending flag from the original list.
 
 ========================
 = Minor Release: 1.0.1 =

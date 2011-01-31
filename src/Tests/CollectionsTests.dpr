@@ -50,7 +50,10 @@ uses
   Tests.Utils in 'Tests.Utils.pas',
   Tests.Enex in 'Tests.Enex.pas',
   Tests.Dynamic in 'Tests.Dynamic.pas',
-  Tests.BitSet in 'Tests.BitSet.pas';
+  Tests.BitSet in 'Tests.BitSet.pas',
+  Tests.BidiDictionary in 'Tests.BidiDictionary.pas',
+  Tests.SortedBidiDictionary in 'Tests.SortedBidiDictionary.pas',
+  Tests.DoubleSortedBidiDictionary in 'Tests.DoubleSortedBidiDictionary.pas';
 
 {$R *.RES}
 

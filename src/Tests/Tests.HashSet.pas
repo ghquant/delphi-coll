@@ -45,6 +45,8 @@ type
     procedure TestEnumerator();
     procedure TestHardCore();
     procedure TestObjectVariant();
+
+    procedure Test_Bug0;
   end;
 
 implementation
@@ -337,6 +339,22 @@ begin
 
   Check(ObjectDied, 'The object should have been cleaned up!');
   ObjSet.Free;
+end;
+
+procedure TTestHashSet.Test_Bug0;
+var
+  LCap0: THashSet<Integer>;
+begin
+  { Zero capacity }
+  LCap0 := THashSet<Integer>.Create(0);
+
+  try
+    LCap0.Add(1);
+  except
+    Fail('Capacity failure!');
+  end;
+
+  LCap0.Free;
 end;
 
 initialization

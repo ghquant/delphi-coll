@@ -38,6 +38,7 @@ uses SysUtils,
      Collections.Sets,
      Collections.Bags,
      Collections.Dictionaries,
+     Collections.BidiDictionaries,
      Collections.MultiMaps,
      Collections.BidiMaps,
      Collections.Queues,
@@ -354,9 +355,6 @@ type
    { Statics }
    procedure TestFill();
    procedure TestInterval();
-
-   { Misc }
-   procedure TestLongChain();
  end;
 
  TTestEnexOther = class(TTestCaseEx)
@@ -408,6 +406,12 @@ var
    LLnkDictVal_Full,
    LSoDictKey_Full,
    LSoDictVal_Full,
+   LBDKey_Full,
+   LBDVal_Full,
+   LSoBDKey_Full,
+   LSoBDVal_Full,
+   LDoSoBDKey_Full,
+   LDoSoBDVal_Full,
    LSoMMKey_Full,
    LSoMMVal_Full,
    LDoSoMMKey_Full,
@@ -464,6 +468,12 @@ var
    LLnkDictVal_One,
    LSoDictKey_One,
    LSoDictVal_One,
+   LBDKey_One,
+   LBDVal_One,
+   LSoBDKey_One,
+   LSoBDVal_One,
+   LDoSoBDKey_One,
+   LDoSoBDVal_One,
    LSoMMKey_One,
    LSoMMVal_One,
    LDoSoMMKey_One,
@@ -518,6 +528,12 @@ var
    LLnkDictVal_Empty,
    LSoDictKey_Empty,
    LSoDictVal_Empty,
+   LBDKey_Empty,
+   LBDVal_Empty,
+   LSoBDKey_Empty,
+   LSoBDVal_Empty,
+   LDoSoBDKey_Empty,
+   LDoSoBDVal_Empty,
    LSoMMKey_Empty,
    LSoMMVal_Empty,
    LDoSoMMKey_Empty,
@@ -563,6 +579,18 @@ var
    LSortedDictionary_Full,
    LSortedDictionary_One,
    LSortedDictionary_Empty: TSortedDictionary<Integer, Integer>;
+
+   LBD_Full,
+   LBD_One,
+   LBD_Empty: TBidiDictionary<Integer, Integer>;
+
+   LSoBD_Full,
+   LSoBD_One,
+   LSoBD_Empty: TSortedBidiDictionary<Integer, Integer>;
+
+   LDoSoBD_Full,
+   LDoSoBD_One,
+   LDoSoBD_Empty: TDoubleSortedBidiDictionary<Integer, Integer>;
 
    LMM_Full,
    LMM_One,
@@ -3283,6 +3311,9 @@ begin
   TestProc(LDictionary_Full);
   TestProc(LLinkedDictionary_Full);
   TestProc(LSortedDictionary_Full);
+  TestProc(LBD_Full);
+  TestProc(LSoBD_Full);
+  TestProc(LDoSoBD_Full);
   TestProc(LMM_Full);
   TestProc(LSoMM_Full);
   TestProc(LDoSoMM_Full);
@@ -3301,6 +3332,9 @@ begin
   TestProc(LDictionary_One);
   TestProc(LLinkedDictionary_One);
   TestProc(LSortedDictionary_One);
+  TestProc(LBD_One);
+  TestProc(LSoBD_One);
+  TestProc(LDoSoBD_One);
   TestProc(LMM_One);
   TestProc(LSoMM_One);
   TestProc(LDoSoMM_One);
@@ -3319,6 +3353,9 @@ begin
   TestProc(LDictionary_Empty);
   TestProc(LLinkedDictionary_Empty);
   TestProc(LSortedDictionary_Empty);
+  TestProc(LBD_Empty);
+  TestProc(LSoBD_Empty);
+  TestProc(LDoSoBD_Empty);
   TestProc(LMM_Empty);
   TestProc(LSoMM_Empty);
   TestProc(LDoSoMM_Empty);
@@ -3373,6 +3410,12 @@ begin
   TestProc(LLnkDictVal_Full);
   TestProc(LSoDictKey_Full);
   TestProc(LSoDictVal_Full);
+  TestProc(LBDKey_Full);
+  TestProc(LBDVal_Full);
+  TestProc(LSoBDKey_Full);
+  TestProc(LSoBDVal_Full);
+  TestProc(LDoSoBDKey_Full);
+  TestProc(LDoSoBDVal_Full);
   TestProc(LMMKey_Full);
   TestProc(LMMVal_Full);
   TestProc(LSoMMKey_Full);
@@ -3430,6 +3473,12 @@ begin
   TestProc(LLnkDictVal_One);
   TestProc(LSoDictKey_One);
   TestProc(LSoDictVal_One);
+  TestProc(LBDKey_One);
+  TestProc(LBDVal_One);
+  TestProc(LSoBDKey_One);
+  TestProc(LSoBDVal_One);
+  TestProc(LDoSoBDKey_One);
+  TestProc(LDoSoBDVal_One);
   TestProc(LMMKey_One);
   TestProc(LMMVal_One);
   TestProc(LSoMMKey_One);
@@ -3485,6 +3534,12 @@ begin
   TestProc(LLnkDictVal_Empty);
   TestProc(LSoDictKey_Empty);
   TestProc(LSoDictVal_Empty);
+  TestProc(LBDKey_Empty);
+  TestProc(LBDVal_Empty);
+  TestProc(LSoBDKey_Empty);
+  TestProc(LSoBDVal_Empty);
+  TestProc(LDoSoBDKey_Empty);
+  TestProc(LDoSoBDVal_Empty);
   TestProc(LMMKey_Empty);
   TestProc(LMMVal_Empty);
   TestProc(LSoMMKey_Empty);
@@ -3654,11 +3709,6 @@ end;
 procedure TTestEnex.TestLastOrDefault;
 begin
   TestGenericEnexCollection(InternalTestLastOrDefault);
-end;
-
-procedure TTestEnex.TestLongChain;
-begin
-
 end;
 
 procedure TTestEnex.TestMax;
@@ -4480,6 +4530,44 @@ begin
   LSoDictKey_Full := LSortedDictionary_Full.Keys;
   LSoDictVal_Full := LSortedDictionary_Full.Values;
 
+
+  { BIDI DICTIONARIES }
+  LBD_Full := TBidiDictionary<Integer, Integer>.Create();
+  (LBD_Full as IInterface)._AddRef();
+  for I in MakeRandomIntegerList(ListElements, ListMax) do
+  begin
+     try
+       LBD_Full.ByKey[I] := Random(ListMax);
+     except
+     end;
+  end;
+  LBDKey_Full := LBD_Full.Keys;
+  LBDVal_Full := LBD_Full.Values;
+
+  LSoBD_Full := TSortedBidiDictionary<Integer, Integer>.Create();
+  (LSoBD_Full as IInterface)._AddRef();
+  for I in MakeRandomIntegerList(ListElements, ListMax) do
+  begin
+     try
+       LSoBD_Full.ByKey[I] := Random(ListMax);
+     except
+     end;
+  end;
+  LSoBDKey_Full := LSoBD_Full.Keys;
+  LSoBDVal_Full := LSoBD_Full.Values;
+
+  LDoSoBD_Full := TDoubleSortedBidiDictionary<Integer, Integer>.Create();
+  (LDoSoBD_Full as IInterface)._AddRef();
+  for I in MakeRandomIntegerList(ListElements, ListMax) do
+  begin
+     try
+       LDoSoBD_Full.ByKey[I] := Random(ListMax);
+     except
+     end;
+  end;
+  LDoSoBDKey_Full := LDoSoBD_Full.Keys;
+  LDoSoBDVal_Full := LDoSoBD_Full.Values;
+
   { MULTI MAPS }
 
   LMM_Full := TMultiMap<Integer, Integer>.Create();
@@ -4589,6 +4677,8 @@ begin
   LStack_One := TStack<Integer>.Create([8]);
   LLinkedStack_One := TLinkedStack<Integer>.Create([8]);
 
+  { DICTIONARIES }
+
   LDictionary_One := TDictionary<Integer, Integer>.Create();
   (LDictionary_One as IInterface)._AddRef();
   LDictionary_One.Add(9,9);
@@ -4606,6 +4696,25 @@ begin
   LSortedDictionary_One.Add(9,9);
   LSoDictKey_One := LSortedDictionary_One.Keys;
   LSoDictVal_One := LSortedDictionary_One.Values;
+
+  { BIDI DICTIONARIES }
+  LBD_One := TBidiDictionary<Integer, Integer>.Create();
+  (LBD_One as IInterface)._AddRef();
+  LBD_One.Add(9,9);
+  LBDKey_One := LBD_One.Keys;
+  LBDVal_One := LBD_One.Values;
+
+  LSoBD_One := TSortedBidiDictionary<Integer, Integer>.Create();
+  (LSoBD_One as IInterface)._AddRef();
+  LSoBD_One.Add(9,9);
+  LSoBDKey_One := LSoBD_One.Keys;
+  LSoBDVal_One := LSoBD_One.Values;
+
+  LDoSoBD_One := TDoubleSortedBidiDictionary<Integer, Integer>.Create();
+  (LDoSoBD_One as IInterface)._AddRef();
+  LDoSoBD_One.Add(9,9);
+  LDoSoBDKey_One := LDoSoBD_One.Keys;
+  LDoSoBDVal_One := LDoSoBD_One.Values;
 
   { MULTI MAPS }
   LMM_One := TMultiMap<Integer, Integer>.Create();
@@ -4685,6 +4794,7 @@ begin
   LStack_Empty := TStack<Integer>.Create();
   LLinkedStack_Empty := TLinkedStack<Integer>.Create();
 
+  { DICTIONARIES }
   LDictionary_Empty := TDictionary<Integer, Integer>.Create();
   (LDictionary_Empty as IInterface)._AddRef();
   LDictKey_Empty := LDictionary_Empty.Keys;
@@ -4699,6 +4809,22 @@ begin
   (LSortedDictionary_Empty as IInterface)._AddRef();
   LSoDictKey_Empty := LSortedDictionary_Empty.Keys;
   LSoDictVal_Empty := LSortedDictionary_Empty.Values;
+
+  { BIDI DICTIONARIES }
+  LBD_Empty := TBidiDictionary<Integer, Integer>.Create();
+  (LBD_Empty as IInterface)._AddRef();
+  LBDKey_Empty := LBD_Empty.Keys;
+  LBDVal_Empty := LBD_Empty.Values;
+
+  LSoBD_Empty := TSortedBidiDictionary<Integer, Integer>.Create();
+  (LSoBD_Empty as IInterface)._AddRef();
+  LSoBDKey_Empty := LSoBD_Empty.Keys;
+  LSoBDVal_Empty := LSoBD_Empty.Values;
+
+  LDoSoBD_Empty := TDoubleSortedBidiDictionary<Integer, Integer>.Create();
+  (LDoSoBD_Empty as IInterface)._AddRef();
+  LDoSoBDKey_Empty := LDoSoBD_Empty.Keys;
+  LDoSoBDVal_Empty := LDoSoBD_Empty.Values;
 
   { MULTI MAPS }
   LMM_Empty := TMultiMap<Integer, Integer>.Create();

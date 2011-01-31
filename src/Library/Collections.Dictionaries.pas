@@ -1277,7 +1277,7 @@ begin
   LFreeList := 0;
 
   if Length(FBucketArray) = 0 then
-     InitializeInternals(0);
+     InitializeInternals(CDefaultSize);
 
   { Generate the hash code }
   LHashCode := Hash(AKey);
@@ -1461,9 +1461,7 @@ begin
 
   { Copy all items in }
   for I := 0 to Length(AArray) - 1 do
-  begin
     Add(AArray[I]);
-  end;
 end;
 
 { TDictionary<TKey, TValue>.TPairEnumerator }

@@ -1079,6 +1079,100 @@ type
     property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
   end;
 
+  ///  <summary>The Enex interface that defines the behavior of a <c>bidirectional dictionary</c>.</summary>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>bidirectional dictionary</c>. In a
+  ///  <c>bidirectional dictionary</c>, both the key and the value are treated as "keys".</remarks>
+  IBidiDictionary<TKey, TValue> = interface(IMap<TKey, TValue>)
+
+    ///  <summary>Removes a key-value pair using a given key.</summary>
+    ///  <param name="AKey">The key (and its associated value) to remove.</param>
+    procedure RemoveKey(const AKey: TKey);
+
+    ///  <summary>Removes a key-value pair using a given value.</summary>
+    ///  <param name="AValue">The value (and its associated key) to remove.</param>
+    procedure RemoveValue(const AValue: TValue);
+
+    ///  <summary>Removes a specific key-value combination.</summary>
+    ///  <param name="AKey">The key to remove.</param>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
+    ///  If the key is associated with another value, nothing happens.</remarks>
+    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
+
+{$IF CompilerVersion < 22}
+    ///  <summary>Removes a key-value combination.</summary>
+    ///  <param name="APair">The pair to remove.</param>
+    ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
+    ///  If the key is associated with another value, nothing happens.</remarks>
+    procedure Remove(const APair: TPair<TKey, TValue>); overload;
+{$IFEND}
+
+    ///  <summary>Checks whether the map contains the given key-value combination.</summary>
+    ///  <param name="AKey">The key associated with the value.</param>
+    ///  <param name="AValue">The value associated with the key.</param>
+    ///  <returns><c>True</c> if the dictionary contains the given association; <c>False</c> otherwise.</returns>
+    function ContainsPair(const AKey: TKey; const AValue: TValue): Boolean; overload;
+
+{$IF CompilerVersion < 22}
+    ///  <summary>Checks whether the map contains a given key-value combination.</summary>
+    ///  <param name="APair">The key-value pair combination.</param>
+    ///  <returns><c>True</c> if the dictionary contains the given association; <c>False</c> otherwise.</returns>
+    function ContainsPair(const APair: TPair<TKey, TValue>): Boolean; overload;
+{$IFEND}
+
+    ///  <summary>Tries to obtain the value associated with a given key.</summary>
+    ///  <param name="AKey">The key for which to try to retreive the value.</param>
+    ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
+    ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
+    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
+
+    ///  <summary>Returns the value associated with a key.</summary>
+    ///  <param name="AKey">The key for which to obtain the associated value.</param>
+    ///  <returns>The associated value.</returns>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
+    function GetValue(const AKey: TKey): TValue;
+
+    ///  <summary>Sets the value for a given key.</summary>
+    ///  <param name="AKey">The key for which to set the value.</param>
+    ///  <param name="AValue">The value to set.</param>
+    ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
+    ///  value of the specified key is modified.</remarks>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The new value is already used by another key.</exception>
+    procedure SetValue(const AKey: TKey; const AValue: TValue);
+
+    ///  <summary>Returns the value associated with a key.</summary>
+    ///  <param name="AKey">The key for which to obtain the associated value.</param>
+    ///  <returns>The associated value.</returns>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
+    property ByKey[const AKey: TKey]: TValue read GetValue write SetValue;
+
+    ///  <summary>Tries to obtain the key associated with a given value.</summary>
+    ///  <param name="AValue">The value for which to try to retreive the key.</param>
+    ///  <param name="AFoundKey">The found key (if the result is <c>True</c>).</param>
+    ///  <returns><c>True</c> if the dictionary contains a key for the given value; <c>False</c> otherwise.</returns>
+    function TryGetKey(const AValue: TValue; out AFoundKey: TKey): Boolean;
+
+    ///  <summary>Returns the key associated with a value.</summary>
+    ///  <param name="AValue">The value for which to obtain the associated key.</param>
+    ///  <returns>The associated key.</returns>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
+    function GetKey(const AValue: TValue): TKey;
+
+    ///  <summary>Sets the key for a given value.</summary>
+    ///  <param name="AValue">The value for which to set the key.</param>
+    ///  <param name="AKey">The key to set.</param>
+    ///  <remarks>If the dictionary does not contain the value, this method acts like <c>Add</c>; otherwise the
+    ///  key of the specified value is modified.</remarks>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The new key is already used by another value.</exception>
+    procedure SetKey(const AValue: TValue; const AKey: TKey);
+
+    ///  <summary>Returns the key associated with a value.</summary>
+    ///  <param name="AValue">The value for which to obtain the associated key.</param>
+    ///  <returns>The associated key.</returns>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
+    property ByValue[const AValue: TValue]: TKey read GetKey write SetKey;
+  end;
+
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections that associate a
   ///  key with multiple values.</summary>
   ///  <remarks>This interface is inherited by all interfaces that provide <c>multi-map</c>-like functionality.</remarks>
@@ -1167,7 +1261,7 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    property ByKeys[const AKey: TKey]: IEnexCollection<TValue> read GetValueList;
+    property ByKey[const AKey: TKey]: IEnexCollection<TValue> read GetValueList;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
@@ -1179,7 +1273,7 @@ type
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    property ByValues[const AValue: TValue]: IEnexCollection<TKey> read GetKeyList;
+    property ByValue[const AValue: TValue]: IEnexCollection<TKey> read GetKeyList;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>multi-map</c>.</summary>

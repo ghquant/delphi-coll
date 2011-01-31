@@ -1193,7 +1193,7 @@ begin
   LFreeList := 0;
 
   if Length(FBucketArray) = 0 then
-     InitializeInternals(0);
+     InitializeInternals(CDefaultSize);
 
   { Generate the hash code }
   LHashCode := Hash(AKey);
