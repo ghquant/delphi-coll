@@ -179,12 +179,15 @@ begin
 
   { Enumerate the ascending and check that each key is bigger than the prev one }
   B := true;
+  PI := 0;
   for I in AscSet do
   begin
     if not B then
       Check(I > PI, 'Failed enumeration! Expected that -- always: Vi > Vi-1 for ascending sorted set.')
-    else
+    else begin
       PI := I;
+      B := false;
+    end;
   end;
 
   { Enumerate the ascending and check that each key is lower than the prev one }
