@@ -1298,7 +1298,7 @@ type
     ///  <summary>Replaces a given object with a new one.</summary>
     ///  <param name="ACurrent">The object to be replaced.</param>
     ///  <param name="ANew">The object to be replaced with.</param>
-    ///  <remarks>This method will check the objects by reference and free the current one if needed.</remarks>
+    ///  <remarks>This method will check the objects by reference and free the current one, if needed.</remarks>
     procedure ReplaceItem(var ACurrent: T; const ANew: T); override;
   public
     ///  <summary>Specifies whether this list owns the objects stored in it.</summary>
@@ -1409,7 +1409,7 @@ type
     ///  equivalent to <c>Add</c>.</remarks>
     procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
 
-    ///  <summary>Add the elements from a collection to the list.</summary>
+    ///  <summary>Adds the elements from a collection to the list.</summary>
     ///  <param name="ACollection">The values to add.</param>
     ///  <param name="AIndex">Ignored.</param>
     ///  <remarks>The added values are not appended. The list tries to figure out where to insert the new values
