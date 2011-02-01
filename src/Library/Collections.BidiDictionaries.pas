@@ -185,7 +185,7 @@ type
 
     ///  <summary>Checks whether the dictionary contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
-    ///  <returns><c>True</c> if the dictionary contains a pair containing the given value; <c>False</c> otherwise.</returns>
+    ///  <returns><c>True</c> if the dictionary contains a pair holding the given value; <c>False</c> otherwise.</returns>
     function ContainsValue(const AValue: TValue): Boolean;
 
     ///  <summary>Checks whether the dictionary contains the given key-value combination.</summary>
@@ -200,13 +200,13 @@ type
     function ContainsPair(const APair: TPair<TKey, TValue>): Boolean; overload;
 
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
-    ///  <param name="AKey">The key for which to try to retreive the value.</param>
+    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
     function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
 
     ///  <summary>Tries to obtain the key associated with a given value.</summary>
-    ///  <param name="AValue">The value for which to try to retreive the key.</param>
+    ///  <param name="AValue">The value for which to try to retrieve the key.</param>
     ///  <param name="AFoundKey">The found key (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a key for the given value; <c>False</c> otherwise.</returns>
     function TryGetKey(const AValue: TValue; out AFoundKey: TKey): Boolean;
@@ -348,14 +348,14 @@ type
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property specififies the way the dictionary controls the life-time of the stored keys. The value of this property has effect only
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this dictionary owns the values.</summary>
     ///  <returns><c>True</c> if the dictionary owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property specififes the way the dictionary controls the life-time of the stored values. The value of this property has effect only
-    ///  if the values are objects, otherwise it is ignored.</remarks>
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored values. 
+    ///  The value of this property has effect only if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
@@ -442,14 +442,14 @@ type
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property specififies the way the dictionary controls the life-time of the stored keys. The value of this property has effect only
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this dictionary owns the values.</summary>
     ///  <returns><c>True</c> if the dictionary owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property specififes the way the dictionary controls the life-time of the stored values. The value of this property has effect only
-    ///  if the values are objects, otherwise it is ignored.</remarks>
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored values. 
+    ///  The value of this property has effect only if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
 
@@ -546,13 +546,13 @@ type
   public
     ///  <summary>Specifies whether this dictionary owns the keys.</summary>
     ///  <returns><c>True</c> if the dictionary owns the keys; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property specififies the way the dictionary controls the life-time of the stored keys. The value of this property has effect only
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored keys. The value of this property has effect only
     ///  if the keys are objects, otherwise it is ignored.</remarks>
     property OwnsKeys: Boolean read FOwnsKeys write FOwnsKeys;
 
     ///  <summary>Specifies whether this dictionary owns the values.</summary>
     ///  <returns><c>True</c> if the dictionary owns the values; <c>False</c> otherwise.</returns>
-    ///  <remarks>This property specififes the way the dictionary controls the life-time of the stored values. The value of this property has effect only
+    ///  <remarks>This property specifies the way the dictionary controls the life-time of the stored values. The value of this property has effect only
     ///  if the values are objects, otherwise it is ignored.</remarks>
     property OwnsValues: Boolean read FOwnsValues write FOwnsValues;
   end;
