@@ -43,7 +43,7 @@
 = Minor Release: 1.0.1 =
 ======================== 
 
-    * Do not expose AreEqual, Compare and GetHashCode in TRules<T>. 
+    * Do not expose AreEqual, Compare and GetHashCode in TRules<T>.
     * Add protected methods ElementsAreEqual, CompareElements, GetElementHashCode
       to TEnexCollection<T>.
     * Add protected methods KeysAreEqual, CompareKeys, GetKeyHashCode
