@@ -34,16 +34,16 @@ uses
   TypInfo;
 
 type
-  ///  <summary>Alias for Rtti's <c>TValue</c> type. The compiler seems to have a hard
-  ///  time differentiating <c>TValue</c> from the generic type argument <c>TValue</c>.</summary>
+  ///  <summary>Alias for the Rtti <c>TValue</c> type. The compiler seems to have a hard
+  ///  time differentiating <c>TValue</c> from the generic <c>TValue</c> type argument.</summary>
   TAny = TValue;
 
-  ///  <summary>An alias to <v>Variant</c> type. Its main purpose is to serve as a reminder that
-  ///  it contains a part of an object and is to be considered "dynamic record".</summary>
+  ///  <summary>An alias to the <v>Variant</c> type. Its main purpose is to serve as a reminder that
+  ///  it contains a part of an object. It is to be considered a "dynamic record".</summary>
   TView = Variant;
 
   ///  <summary>A special purpose record type that exposes a number of methods that generate
-  ///  selector methods for fields and properties of a class or record types.</summary>
+  ///  selector methods for fields and properties of a class or record type.</summary>
   Member = record
   private class var
     FViewVariantType: Word;
@@ -120,7 +120,7 @@ uses
 type
   { Mapping the TSVDictionary into TVarData structure }
   TViewDictionaryVarData = packed record
-    { Var type, will be assigned at runtime }
+    { Var type; will be assigned at run time }
     VType: TVarType;
     { Reserved stuff }
     Reserved1, Reserved2, Reserved3: Word;
