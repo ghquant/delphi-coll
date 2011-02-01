@@ -6247,6 +6247,7 @@ var
   LGroup: TBy;
   LOutList: IList<IEnexGroupingCollection<TBy, T>>;
   LGrouping: TEnexGroupingCollection;
+  LGroupingIntf: IEnexGroupingCollection<TBy, T>;
 begin
   { Initialize the dictionary (need one that preserves the input order) }
   LDictionary := TLinkedDictionary<TBy, IList<T>>.Create();
@@ -6279,10 +6280,14 @@ begin
     LGrouping := TEnexGroupingCollection.Create;
     LGrouping.FBy := LDictEnumerator.Current.Key;
     LGrouping.FList := LDictEnumerator.Current.Value;
+    LGroupingIntf := LGrouping;
 
     { Place it into output }
-    LOutList.Add(LGrouping);
+    LOutList.Add(LGroupingIntf);
   end;
+
+  LDictEnumerator := nil;
+  LDictionary := nil;
 
   { Finally, provide the enumerator }
   Result := LOutList.GetEnumerator();

@@ -1950,7 +1950,12 @@ begin
     while Assigned(FFirstFree) do
     begin
       LNext := FFirstFree^.FNext;
-      Dispose(FFirstFree);
+
+      { Delphi doesn't seem to finalize these }
+      FFirstFree^.FValue := default(TValue);
+      FFirstFree^.FKey := default(TKey);
+
+      FreeMem(FFirstFree);
       FFirstFree := LNext;
     end;
 
@@ -2199,8 +2204,13 @@ end;
 procedure TLinkedDictionary<TKey, TValue>.ReleaseEntry(const AEntry: PEntry);
 begin
   if FFreeCount = CDefaultSize then
-    Dispose(AEntry)
-  else begin
+  begin
+    { Delphi doesn't seem to finalize these }
+    AEntry^.FValue := default(TValue);
+    AEntry^.FKey := default(TKey);
+
+    FreeMem(AEntry);
+  end else begin
     { Place the entry into the cache }
     AEntry^.FNext := FFirstFree;
     FFirstFree := AEntry;

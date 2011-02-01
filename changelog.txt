@@ -1,6 +1,7 @@
 ﻿========================
 =  Major Release: 1.1  =
 ========================
+    * Started a new project: Samples. A few samples have been added for your delight.
     * Implement T(Object)LinkedDictionary<TKey, TValue> that used a hash/linked list approach.
       Guarantees insert order preservation of elements.
     * Implement T(Object)LinkedSet<T> that used a hash/linked list approach.

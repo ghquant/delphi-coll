@@ -1663,7 +1663,11 @@ begin
     while Assigned(FFirstFree) do
     begin
       LNext := FFirstFree^.FNext;
-      Dispose(FFirstFree);
+
+      { Delphi doesn finalize this }
+      FFirstFree^.FValue := default(T);
+
+      FreeMem(FFirstFree);
       FFirstFree := LNext;
     end;
 
@@ -1780,8 +1784,11 @@ end;
 procedure TLinkedQueue<T>.ReleaseEntry(const AEntry: PEntry);
 begin
   if FFreeCount = CDefaultSize then
-    Dispose(AEntry)
-  else begin
+  begin
+    { Delphi doesn finalize this }
+    AEntry^.FValue := default(T);
+    FreeMem(AEntry);
+  end else begin
     { Place the entry into the cache }
     AEntry^.FNext := FFirstFree;
     FFirstFree := AEntry;

@@ -9,6 +9,9 @@
 			<Projects Include="Tests\CollectionsTests.dproj">
 				<Dependencies>Library\Collections.dproj</Dependencies>
 			</Projects>
+			<Projects Include="Samples\Samples.dproj">
+				<Dependencies>Library\Collections.dproj</Dependencies>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
 		<Target Name="CollectionsTests:Make" DependsOnTargets="Collections:Make">
 			<MSBuild Projects="Tests\CollectionsTests.dproj" Targets="Make"/>
 		</Target>
+		<Target Name="Samples" DependsOnTargets="Collections">
+			<MSBuild Projects="Samples\Samples.dproj"/>
+		</Target>
+		<Target Name="Samples:Clean" DependsOnTargets="Collections:Clean">
+			<MSBuild Projects="Samples\Samples.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="Samples:Make" DependsOnTargets="Collections:Make">
+			<MSBuild Projects="Samples\Samples.dproj" Targets="Make"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="Collections;CollectionsTests"/>
+			<CallTarget Targets="Collections;CollectionsTests;Samples"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="Collections:Clean;CollectionsTests:Clean"/>
+			<CallTarget Targets="Collections:Clean;CollectionsTests:Clean;Samples:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="Collections:Make;CollectionsTests:Make"/>
+			<CallTarget Targets="Collections:Make;CollectionsTests:Make;Samples:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 	</Project>
