@@ -3733,8 +3733,8 @@ end;
 constructor TBitSet.TDescendingEnumerator.Create(const ASet: TBitSet);
 begin
   inherited Create(ASet);
-  FPageIndex := Length(ASet.FBitArray) + 1;
-  FMask := 1 shl ((CPageSize * 8) - 1);
+  FPageIndex := Length(ASet.FBitArray);
+  FMask := NativeInt(1) shl ((CPageSize * 8) - 1);
 end;
 
 function TBitSet.TDescendingEnumerator.MoveNext: Boolean;
@@ -3749,7 +3749,7 @@ begin
     begin
       { Move to the next page, check if it exists, otherwise we're finished }
       Dec(FPageIndex);
-      if FPageIndex <= 0 then
+      if FPageIndex < 0 then
         Break;
 
       { Reset all the data }

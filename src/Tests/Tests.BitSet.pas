@@ -161,6 +161,7 @@ var
   AscSet, DescSet : TBitSet;
   I, PI  : Word;
   B: Boolean;
+  _AscSum, _DescSum, K: Int64;
 begin
   { One ascending }
   AscSet := TBitSet.Create(true);
@@ -170,11 +171,20 @@ begin
 
   Randomize;
 
+  _AscSum := 0;
+  _DescSum := 0;
   { Fill sets with filth }
   for I := 0 to MaxNr - 1 do
   begin
-    AscSet.Add(Random(MaxRnd));
-    DescSet.Add(Random(MaxRnd));
+    K := Random(MaxRnd);
+    if not AscSet.Contains(K) then
+      Inc(_AscSum, K);
+    AscSet.Add(K);
+
+    K := Random(MaxRnd);
+    if not DescSet.Contains(K) then
+      Inc(_DescSum, K);
+    DescSet.Add(K);
   end;
 
   { Enumerate the ascending and check that each key is bigger than the prev one }
@@ -182,6 +192,7 @@ begin
   PI := 0;
   for I in AscSet do
   begin
+    Dec(_AscSum, I);
     if not B then
       Check(I > PI, 'Failed enumeration! Expected that -- always: Vi > Vi-1 for ascending sorted set.')
     else begin
@@ -194,9 +205,13 @@ begin
   PI := MaxRnd;
   for I in DescSet do
   begin
+    Dec(_DescSum, I);
     Check(I < PI, 'Failed enumeration! Expected that -- always: Vi-1 > Vi for descending sorted set. at ' + IntToStr(PI));
     PI := I;
   end;
+
+  CheckEquals(0, _AscSum, 'Not all elements in ascending version enumerated.');
+  CheckEquals(0, _DescSum, 'Not all elements in descending version enumerated.');
 
   AscSet.Free;
   DescSet.Free;
