@@ -251,7 +251,7 @@ type
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all collections implemented in this package. It also introduces
-  ///  a large set of extended operations that can pe performed on any collection that supports enumerability.</remarks>
+  ///  a large set of extended operations that can be performed on any collection that supports enumerability.</remarks>
   IEnexCollection<T> = interface(ICollection<T>)
     ///  <summary>Checks whether the elements in this collection are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
@@ -259,7 +259,7 @@ type
     ///  <remarks>This method checks that each element at position X in this collection is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections is different, then the collections are considered different.
     ///  Note that comparison of element is done using the rule set used by this collection. This means that comparing this collection
-    ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
+    ///  to another one might yield a different result than comparing the other collection to this one.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 
@@ -1873,7 +1873,7 @@ type
     ///  <remarks>This method checks that each element at position X in this collection is equal to an element at position X in
     ///  the provided collection. If the number of elements in both collections is different, then the collections are considered different.
     ///  Note that comparison of element is done using the rule set used by this collection. This means that comparing this collection
-    ///  to another one might yeild a different result than comparing the other collection to this one.</remarks>
+    ///  to another one might yield a different result than comparing the other collection to this one.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; virtual;
 
