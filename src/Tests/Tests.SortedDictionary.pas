@@ -55,6 +55,7 @@ type
     procedure TestBigSize();
     procedure TestCorrectOrdering();
     procedure TestObjectVariant();
+    procedure Test_Extract();
 
     procedure Test_Bug1;
   end;
@@ -563,6 +564,51 @@ begin
   CheckFalse(LValueDied);
 
   LDict[1] := nil;
+  CheckTrue(LValueDied);
+
+  LDict.Free;
+end;
+
+procedure TTestSortedDictionary.Test_Extract;
+var
+  LDict: TObjectSortedDictionary<Integer, TTestObject>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LDict := TObjectSortedDictionary<Integer, TTestObject>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LDict.Add(0, LValue);
+  CheckTrue(LDict.Extract(0) = LValue);
+  CheckFalse(LValueDied);
+
+  { ---- }
+
+  LDict.OwnsValues := true;
+  LDict.Add(0, LValue);
+  CheckTrue(LDict.Extract(0) = LValue);
+  CheckFalse(LValueDied);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.Extract(0); end,
+    'EKeyNotFoundException not thrown in Extract (0).'
+  );
+
+  LDict.Add(0, LValue);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.Extract(1); end,
+    'EKeyNotFoundException not thrown in Extract (1).'
+  );
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.Extract(-1); end,
+    'EKeyNotFoundException not thrown in Extract (-1).'
+  );
+
+  LDict.Remove(0);
   CheckTrue(LValueDied);
 
   LDict.Free;

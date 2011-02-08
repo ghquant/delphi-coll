@@ -48,6 +48,7 @@ type
   protected
     procedure IDictionary<TKey, TValue>.SetItem = SetValue;
     function IDictionary<TKey, TValue>.GetItem = GetValue;
+    function IDictionary<TKey, TValue>.Extract = ExtractValue;
 
     ///  <summary>Specifies the internal dictionary used as back-end to store key relations.</summary>
     ///  <returns>A map used as back-end.</summary>
@@ -151,6 +152,20 @@ type
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key or value.</exception>
     procedure Add(const AKey: TKey; const AValue: TValue); overload;
+
+    ///  <summary>Extracts a value using a given key.</summary>
+    ///  <param name="AKey">The key of the associated value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
+    function ExtractValue(const AKey: TKey): TValue;
+
+    ///  <summary>Extracts a key using a given value.</summary>
+    ///  <param name="AValue">The value of the associated key.</param>
+    ///  <returns>The key associated with the value.</returns>
+    ///  <remarks>This function is identical to <c>RemoveValue</c> but will return the stored key. If there is no pair with the given value, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AValue"/> is not part of the map.</exception>
+    function ExtractKey(const AValue: TValue): TKey;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key (and its associated value) to remove.</param>
@@ -698,6 +713,28 @@ begin
   Result := FByKeyDictionary.Empty();
 end;
 
+function TAbstractBidiDictionary<TKey, TValue>.ExtractKey(const AValue: TValue): TKey;
+begin
+  if FByValueDictionary.TryGetValue(AValue, Result) then
+  begin
+    { Remove the key/value from their dictionaries }
+    FByKeyDictionary.Remove(Result);
+    FByValueDictionary.Remove(AValue);
+  end else
+    ExceptionHelper.Throw_KeyNotFoundError('AValue');
+end;
+
+function TAbstractBidiDictionary<TKey, TValue>.ExtractValue(const AKey: TKey): TValue;
+begin
+  if FByKeyDictionary.TryGetValue(AKey, Result) then
+  begin
+    { Remove the key/value from their dictionaries }
+    FByKeyDictionary.Remove(AKey);
+    FByValueDictionary.Extract(Result);
+  end else
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
 function TAbstractBidiDictionary<TKey, TValue>.GetCount: NativeInt;
 begin
   { Redirect }
@@ -784,6 +821,8 @@ begin
     { Remove the key/value from their dictionaries }
     FByKeyDictionary.Remove(AKey);
     FByValueDictionary.Remove(LAssociatedValue);
+
+    NotifyValueRemoved(LAssociatedValue);
   end;
 end;
 
@@ -796,6 +835,8 @@ begin
     { Remove the key/value from their dictionaries }
     FByKeyDictionary.Remove(LAssociatedKey);
     FByValueDictionary.Remove(AValue);
+
+    NotifyKeyRemoved(LAssociatedKey);
   end;
 end;
 

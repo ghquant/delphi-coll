@@ -689,10 +689,6 @@ begin
 
   { And finally remove the key }
   FByValueMap.Remove(AValue);
-
-//  { Clean up the value if necessary }
-//  if ValueRules.Management = tmManual then
-//    ValueRules.Cleanup(LValue);
 end;
 
 function TAbstractBidiMap<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;

@@ -167,6 +167,8 @@ type
     procedure Resize();
     function Hash(const AKey: TKey): NativeInt;
 
+    { Tries to extract a value at the given position }
+    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
@@ -267,6 +269,13 @@ type
     ///  <param name="AKey">The key of the pair to remove.</param>
     ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
+
+    ///  <summary>Extracts a value using a given key.</summary>
+    ///  <param name="AKey">The key of the associated value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
+    function Extract(const AKey: TKey): TValue;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
@@ -512,6 +521,8 @@ type
     function NeedEntry(const AKey: TKey; const AValue: TValue; const AHash: NativeInt): PEntry;
     procedure ReleaseEntry(const AEntry: PEntry);
 
+    { Tries to extract a value at the given position }
+    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
@@ -612,6 +623,13 @@ type
     ///  <param name="AKey">The key of the pair to remove.</param>
     ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
+
+    ///  <summary>Extracts a value using a given key.</summary>
+    ///  <param name="AKey">The key of the associated value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
+    function Extract(const AKey: TKey): TValue;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
@@ -865,6 +883,9 @@ type
 
     { Removal }
     procedure BalanceTreesAfterRemoval(const ANode: TNode);
+
+    { Tries to extract a value at the given position }
+    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
@@ -959,6 +980,13 @@ type
     ///  <param name="AKey">The key of the pair to remove.</param>
     ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
+
+    ///  <summary>Extracts a value using a given key.</summary>
+    ///  <param name="AKey">The key of the associated value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
+    function Extract(const AKey: TKey): TValue;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
@@ -1238,6 +1266,12 @@ begin
   inherited;
 end;
 
+function TDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
+begin
+  if not TryExtract(AKey, Result) then
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
 function TDictionary<TKey, TValue>.FindEntry(const AKey: TKey): NativeInt;
 var
   LHashCode, I: NativeInt;
@@ -1373,49 +1407,10 @@ end;
 
 procedure TDictionary<TKey, TValue>.Remove(const AKey: TKey);
 var
-  LHashCode, LIndex,
-    LRemIndex, I: NativeInt;
+  LValue: TValue;
 begin
-  if Length(FBucketArray) > 0 then
-  begin
-    { Generate the hash code }
-    LHashCode := Hash(AKey);
-
-    LIndex := LHashCode mod Length(FBucketArray);
-    LRemIndex := -1;
-
-    I := FBucketArray[LIndex];
-
-    while I >= 0 do
-    begin
-      if (FEntryArray[I].FHashCode = LHashCode) and KeysAreEqual(FEntryArray[I].FKey, AKey) then
-      begin
-
-        if LRemIndex < 0 then
-          FBucketArray[LIndex] := FEntryArray[I].FNext
-        else
-          FEntryArray[LRemIndex].FNext := FEntryArray[I].FNext;
-
-        { Cleanup required? }
-        NotifyValueRemoved(FEntryArray[I].FValue);
-
-        FEntryArray[I].FHashCode := -1;
-        FEntryArray[I].FNext := FFreeList;
-        FEntryArray[I].FKey := default(TKey);
-        FEntryArray[I].FValue := default(TValue);
-
-        FFreeList := I;
-        Inc(FFreeCount);
-        Inc(FVer);
-
-        Exit;
-      end;
-
-      LRemIndex := I;
-      I := FEntryArray[I].FNext;
-    end;
-
-  end;
+  if TryExtract(AKey, LValue) then
+    NotifyValueRemoved(LValue);
 end;
 
 procedure TDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
@@ -1464,6 +1459,56 @@ procedure TDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValu
 begin
   { Simply call insert }
   Insert(AKey, Value, false);
+end;
+
+function TDictionary<TKey, TValue>.TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
+var
+  LHashCode, LIndex,
+    LRemIndex, I: NativeInt;
+begin
+  Result := False;
+
+  if Length(FBucketArray) > 0 then
+  begin
+    { Generate the hash code }
+    LHashCode := Hash(AKey);
+
+    LIndex := LHashCode mod Length(FBucketArray);
+    LRemIndex := -1;
+
+    I := FBucketArray[LIndex];
+
+    while I >= 0 do
+    begin
+      if (FEntryArray[I].FHashCode = LHashCode) and KeysAreEqual(FEntryArray[I].FKey, AKey) then
+      begin
+
+        if LRemIndex < 0 then
+          FBucketArray[LIndex] := FEntryArray[I].FNext
+        else
+          FEntryArray[LRemIndex].FNext := FEntryArray[I].FNext;
+
+        { Cleanup required? }
+        AValue := FEntryArray[I].FValue;
+        Result := True;
+
+        FEntryArray[I].FHashCode := -1;
+        FEntryArray[I].FNext := FFreeList;
+        FEntryArray[I].FKey := default(TKey);
+        FEntryArray[I].FValue := default(TValue);
+
+        FFreeList := I;
+        Inc(FFreeCount);
+        Inc(FVer);
+
+        Exit;
+      end;
+
+      LRemIndex := I;
+      I := FEntryArray[I].FNext;
+    end;
+
+  end;
 end;
 
 function TDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
@@ -1962,6 +2007,12 @@ begin
   inherited;
 end;
 
+function TLinkedDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
+begin
+  if not TryExtract(AKey, Result) then
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
 function TLinkedDictionary<TKey, TValue>.FindEntry(const AKey: TKey): PEntry;
 var
   LHashCode, LCapacity: NativeInt;
@@ -2221,6 +2272,42 @@ end;
 
 procedure TLinkedDictionary<TKey, TValue>.Remove(const AKey: TKey);
 var
+  LValue: TValue;
+begin
+  if TryExtract(AKey, LValue) then
+    NotifyValueRemoved(LValue);
+end;
+
+procedure TLinkedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  if not ValuesAreEqual(ACurrent, ANew) then
+  begin
+    { Notify that an element is removed. }
+    NotifyValueRemoved(ACurrent);
+
+    { Replace it. }
+    ACurrent := ANew;
+  end;
+end;
+
+function TLinkedDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
+begin
+  Result := Keys;
+end;
+
+function TLinkedDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
+begin
+  Result := Values;
+end;
+
+procedure TLinkedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
+begin
+  { Simply call insert }
+  Insert(AKey, Value, false);
+end;
+
+function TLinkedDictionary<TKey, TValue>.TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
+var
   LHashCode, LCapacity: NativeInt;
   LEntry: PEntry;
 begin
@@ -2228,6 +2315,7 @@ begin
   LHashCode := Hash(AKey);
   LCapacity := Length(FBucketArray);
   LEntry := FBucketArray[LHashCode mod LCapacity];
+  Result := False;
 
   while Assigned(LEntry) and
        ((LEntry^.FHashCode mod LCapacity) = (LHashCode mod LCapacity)) do
@@ -2259,7 +2347,9 @@ begin
 
 
       { Kill this entry }
-      NotifyValueRemoved(LEntry^.FValue);
+      AValue := LEntry^.FValue;
+      Result := True;
+
       ReleaseEntry(LEntry);
       Dec(FCount);
       Inc(FVer);
@@ -2271,34 +2361,6 @@ begin
     { Go to next }
     LEntry := LEntry^.FNext;
   end;
-end;
-
-procedure TLinkedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
-begin
-  if not ValuesAreEqual(ACurrent, ANew) then
-  begin
-    { Notify that an element is removed. }
-    NotifyValueRemoved(ACurrent);
-
-    { Replace it. }
-    ACurrent := ANew;
-  end;
-end;
-
-function TLinkedDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
-begin
-  Result := Keys;
-end;
-
-function TLinkedDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
-begin
-  Result := Values;
-end;
-
-procedure TLinkedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
-begin
-  { Simply call insert }
-  Insert(AKey, Value, false);
 end;
 
 function TLinkedDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
@@ -3087,6 +3149,12 @@ begin
   inherited;
 end;
 
+function TSortedDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
+begin
+  if not TryExtract(AKey, Result) then
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
 function TSortedDictionary<TKey, TValue>.FindLeftMostNode: TNode;
 begin
   { Start with root }
@@ -3447,27 +3515,10 @@ end;
 
 procedure TSortedDictionary<TKey, TValue>.Remove(const AKey: TKey);
 var
-  LNode: TNode;
-
+  LValue: TValue;
 begin
-  { Get root }
-  LNode := FindNodeWithKey(AKey);
-
-  { Remove and rebalance the tree accordingly }
-  if not Assigned(LNode) then
-    Exit;
-
-  { .. Do da dew! }
-  BalanceTreesAfterRemoval(LNode);
-
-  { Kill the stored value }
-  NotifyValueRemoved(LNode.FValue);
-
-  { Kill the node }
-  LNode.Free;
-
-  Dec(FCount);
-  Inc(FVer);
+  if TryExtract(AKey, LValue) then
+    NotifyValueRemoved(LValue);
 end;
 
 procedure TSortedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
@@ -3513,6 +3564,27 @@ procedure TSortedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value:
 begin
   { Allow inserting and adding values }
   Insert(AKey, Value, true);
+end;
+
+function TSortedDictionary<TKey, TValue>.TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
+var
+  LNode: TNode;
+begin
+  Result := False;
+
+  { Get root }
+  LNode := FindNodeWithKey(AKey);
+  if not Assigned(LNode) then
+    Exit;
+
+  BalanceTreesAfterRemoval(LNode);
+
+  AValue := LNode.FValue;
+  LNode.Free;
+
+  Result := True;
+  Dec(FCount);
+  Inc(FVer);
 end;
 
 function TSortedDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;

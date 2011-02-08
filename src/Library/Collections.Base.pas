@@ -1043,6 +1043,13 @@ type
   ///  <summary>The Enex interface that defines the behavior of a <c>dictionary</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>dictionary</c>.</remarks>
   IDictionary<TKey, TValue> = interface(IMap<TKey, TValue>)
+    ///  <summary>Extracts a value using a given key.</summary>
+    ///  <param name="AKey">The key of the associated value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
+    function Extract(const AKey: TKey): TValue;
+
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
@@ -1067,7 +1074,7 @@ type
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
     ///  otherwise the value of the specified key is modified.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The trying to read the value of a key that is
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">Trying to read the value of a key that is
     ///  not found in the dictionary.</exception>
     property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
   end;
@@ -1076,6 +1083,19 @@ type
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>bidirectional dictionary</c>. In a
   ///  <c>bidirectional dictionary</c>, both the key and the value are treated as "keys".</remarks>
   IBidiDictionary<TKey, TValue> = interface(IMap<TKey, TValue>)
+    ///  <summary>Extracts a value using a given key.</summary>
+    ///  <param name="AKey">The key of the associated value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
+    function ExtractValue(const AKey: TKey): TValue;
+
+    ///  <summary>Extracts a key using a given value.</summary>
+    ///  <param name="AValue">The value of the associated key.</param>
+    ///  <returns>The key associated with the value.</returns>
+    ///  <remarks>This function is identical to <c>RemoveValue</c> but will return the stored key. If there is no pair with the given value, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AValue"/> is not part of the map.</exception>
+    function ExtractKey(const AValue: TValue): TKey;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key (and its associated value) to remove.</param>
@@ -1170,6 +1190,12 @@ type
   ///  key with multiple values.</summary>
   ///  <remarks>This interface is inherited by all interfaces that provide <c>multi-map</c>-like functionality.</remarks>
   ICollectionMap<TKey, TValue> = interface(IMap<TKey, TValue>)
+    ///  <summary>Extracts all values using their key.</summary>
+    ///  <param name="AKey">The key of the associated values.</param>
+    ///  <returns>A collection of values associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
+    function Extract(const AKey: TKey): IEnexCollection<TValue>;
 
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -1367,6 +1393,13 @@ type
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     procedure RemoveAt(const AIndex: NativeInt);
+
+    ///  <summary>Extracts an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to extract the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
+    ///  The removed element is returned to the caller.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ExtractAt(const AIndex: NativeInt): T;
 
     ///  <summary>Removes a given value from the list.</summary>
     ///  <param name="AValue">The value to remove.</param>

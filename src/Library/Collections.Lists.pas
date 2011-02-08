@@ -76,6 +76,9 @@ type
     procedure QuickSort(ALeft, ARight: NativeInt; const ASortProc: TComparison<T>); overload;
     procedure QuickSort(ALeft, ARight: NativeInt; const AAscending: Boolean); overload;
     {$HINTS ON}
+
+    { Tries to extract a value at the given position }
+    function TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
   protected
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
@@ -191,6 +194,13 @@ type
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     procedure RemoveAt(const AIndex: NativeInt);
+
+    ///  <summary>Extracts an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to extract the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
+    ///  The removed element is returned to the caller.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ExtractAt(const AIndex: NativeInt): T;
 
     ///  <summary>Reverses the elements in this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
@@ -523,9 +533,12 @@ type
     FAscending: Boolean;
 
      { Internal insertion }
-     procedure InternalInsert(const AIndex: NativeInt; const AValue: T);
-     function BinarySearch(const AElement: T; const AStartIndex, ACount: NativeInt;
-       const AAscending: Boolean): NativeInt;
+    procedure InternalInsert(const AIndex: NativeInt; const AValue: T);
+    function BinarySearch(const AElement: T; const AStartIndex, ACount: NativeInt;
+      const AAscending: Boolean): NativeInt;
+
+    { Tries to extract a value at the given position }
+    function TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
   protected
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
@@ -640,6 +653,13 @@ type
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     procedure RemoveAt(const AIndex: NativeInt);
+
+    ///  <summary>Extracts an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to extract the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
+    ///  The removed element is returned to the caller.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ExtractAt(const AIndex: NativeInt): T;
 
     ///  <summary>Checks whether the list contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
@@ -922,6 +942,9 @@ type
     function EntryAt(const AIndex: NativeInt; const AThrow: Boolean = True): PEntry;
     function NeedEntry(const AValue: T): PEntry;
     procedure ReleaseEntry(const AEntry: PEntry);
+
+    { Tries to extract a value at the given position }
+    function TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
   protected
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
@@ -1024,6 +1047,13 @@ type
     ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     procedure RemoveAt(const AIndex: NativeInt);
+
+    ///  <summary>Extracts an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to extract the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
+    ///  The removed element is returned to the caller.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ExtractAt(const AIndex: NativeInt): T;
 
     ///  <summary>Reverses the elements in this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
@@ -1346,6 +1376,9 @@ type
     { Caching }
     function NeedEntry(const AValue: T): PEntry;
     procedure ReleaseEntry(const AEntry: PEntry);
+
+    { Tries to extract a value at the given position }
+    function TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
   protected
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
@@ -1443,6 +1476,13 @@ type
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <remarks>This method is slow because it traverses the whole list.</remarks>
     procedure RemoveAt(const AIndex: NativeInt);
+
+    ///  <summary>Extracts an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to extract the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
+    ///  The removed element is returned to the caller.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ExtractAt(const AIndex: NativeInt): T;
 
     ///  <summary>Checks whether the list contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
@@ -1923,6 +1963,12 @@ begin
   Result := true;
 end;
 
+function TList<T>.ExtractAt(const AIndex: NativeInt): T;
+begin
+  if not TryExtractAt(AIndex, Result) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+end;
+
 function TList<T>.First: T;
 begin
   { Check length }
@@ -2310,23 +2356,12 @@ end;
 
 procedure TList<T>.RemoveAt(const AIndex: NativeInt);
 var
-  I: NativeInt;
+  LValue: T;
 begin
-  if (AIndex >= FLength) or (AIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
-
-  if (FLength = 0) then Exit;
-
-  { Clean up the element at the specified AIndex, if required }
-  NotifyElementRemoved(FArray[AIndex]);
-
-  { Move the list }
-  if FLength > 1 then
-    for I := AIndex to FLength - 2 do
-      FArray[I] := FArray[I + 1];
-
-  Dec(FLength);
-  Inc(FVer);
+  if TryExtractAt(AIndex, LValue) then
+    NotifyElementRemoved(LValue)
+  else
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
 procedure TList<T>.ReplaceItem(var ACurrent: T; const ANew: T);
@@ -2470,6 +2505,27 @@ procedure TList<T>.Sort(const ASortProc: TComparison<T>);
 begin
   { Call the better method }
   Sort(0, FLength, ASortProc);
+end;
+
+function TList<T>.TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
+var
+  I: NativeInt;
+begin
+  Result := False;
+  if (AIndex >= FLength) or (AIndex < 0) then
+     Exit;
+
+  { Return the element at that position. }
+  AValue := FArray[AIndex];
+
+  { Move the list }
+  if FLength > 1 then
+    for I := AIndex to FLength - 2 do
+      FArray[I] := FArray[I + 1];
+
+  Result := True;
+  Dec(FLength);
+  Inc(FVer);
 end;
 
 procedure TList<T>.Sort(const AAscending: Boolean);
@@ -2885,6 +2941,12 @@ begin
   Result := true;
 end;
 
+function TSortedList<T>.ExtractAt(const AIndex: NativeInt): T;
+begin
+  if not TryExtractAt(AIndex, Result) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+end;
+
 function TSortedList<T>.First: T;
 begin
   { Check length }
@@ -3155,23 +3217,12 @@ end;
 
 procedure TSortedList<T>.RemoveAt(const AIndex: NativeInt);
 var
-  I: NativeInt;
+  LValue: T;
 begin
-  if (AIndex >= FLength) or (AIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
-
-  if (FLength = 0) then Exit;
-
-  { Clanup the element at the specified AIndex if required }
-  NotifyElementRemoved(FArray[AIndex]);
-
-  { Move the list }
-  if FLength > 1 then
-    for I := AIndex to FLength - 2 do
-      FArray[I] := FArray[I + 1];
-
-  Dec(FLength);
-  Inc(FVer);
+  if TryExtractAt(AIndex, LValue) then
+    NotifyElementRemoved(LValue)
+  else
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
 procedure TSortedList<T>.Shrink;
@@ -3201,6 +3252,27 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
   else
     Result := FArray[0];
+end;
+
+function TSortedList<T>.TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
+var
+  I: NativeInt;
+begin
+  Result := False;
+  if (AIndex >= FLength) or (AIndex < 0) then
+     Exit;
+
+  { Clanup the element at the specified AIndex if required }
+  AValue := FArray[AIndex];
+
+  { Move the list }
+  if FLength > 1 then
+    for I := AIndex to FLength - 2 do
+      FArray[I] := FArray[I + 1];
+
+  Result := True;
+  Dec(FLength);
+  Inc(FVer);
 end;
 
 constructor TSortedList<T>.Create(const AArray: array of T; const AAscending: Boolean);
@@ -3665,6 +3737,12 @@ begin
   Result := not Assigned(LCurrent);
 end;
 
+function TSortedLinkedList<T>.ExtractAt(const AIndex: NativeInt): T;
+begin
+  if not TryExtractAt(AIndex, Result) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+end;
+
 function TSortedLinkedList<T>.First: T;
 begin
   if not Assigned(FFirst) then
@@ -3920,39 +3998,12 @@ end;
 
 procedure TSortedLinkedList<T>.RemoveAt(const AIndex: NativeInt);
 var
-  LCurrent: PEntry;
-  LIndex: NativeInt;
+  LValue: T;
 begin
-  if (AIndex >= FCount) or (AIndex < 0) then
+  if TryExtractAt(AIndex, LValue) then
+    NotifyElementRemoved(LValue)
+  else
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
-
-  LCurrent := FFirst;
-  LIndex := 0;
-  while Assigned(LCurrent) do
-  begin
-    if LIndex = AIndex then
-    begin
-      NotifyElementRemoved(LCurrent^.FValue);
-
-      { Remove the node }
-      if Assigned(LCurrent^.FPrev) then
-        LCurrent^.FPrev^.FNext := LCurrent^.FNext;
-      if Assigned(LCurrent^.FNext) then
-        LCurrent^.FNext^.FPrev := LCurrent^.FPrev;
-      if FFirst = LCurrent then
-        FFirst := LCurrent^.FNext;
-      if FLast = LCurrent then
-        FLast := LCurrent^.FPrev;
-
-      ReleaseEntry(LCurrent);
-      Inc(FVer);
-      Dec(FCount);
-      Exit;
-    end;
-
-    LCurrent := LCurrent^.FNext;
-    Inc(LIndex);
-  end;
 end;
 
 function TSortedLinkedList<T>.Single: T;
@@ -3977,6 +4028,45 @@ begin
     Result := FFirst^.FValue;
 end;
 
+
+function TSortedLinkedList<T>.TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
+var
+  LCurrent: PEntry;
+  LIndex: NativeInt;
+begin
+  Result := False;
+  if (AIndex >= FCount) or (AIndex < 0) then
+    Exit;
+
+  LCurrent := FFirst;
+  LIndex := 0;
+  while Assigned(LCurrent) do
+  begin
+    if LIndex = AIndex then
+    begin
+      AValue := LCurrent^.FValue;
+
+      { Remove the node }
+      if Assigned(LCurrent^.FPrev) then
+        LCurrent^.FPrev^.FNext := LCurrent^.FNext;
+      if Assigned(LCurrent^.FNext) then
+        LCurrent^.FNext^.FPrev := LCurrent^.FPrev;
+      if FFirst = LCurrent then
+        FFirst := LCurrent^.FNext;
+      if FLast = LCurrent then
+        FLast := LCurrent^.FPrev;
+
+      ReleaseEntry(LCurrent);
+      Result := True;
+      Inc(FVer);
+      Dec(FCount);
+      Exit;
+    end;
+
+    LCurrent := LCurrent^.FNext;
+    Inc(LIndex);
+  end;
+end;
 
 { TSortedLinkedList<T>.TEnumerator }
 
@@ -4372,6 +4462,12 @@ begin
   Result := not Assigned(LCurrent);
 end;
 
+function TLinkedList<T>.ExtractAt(const AIndex: NativeInt): T;
+begin
+  if not TryExtractAt(AIndex, Result) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+end;
+
 function TLinkedList<T>.First: T;
 begin
   if not Assigned(FFirst) then
@@ -4747,25 +4843,12 @@ end;
 
 procedure TLinkedList<T>.RemoveAt(const AIndex: NativeInt);
 var
-  LCurrent: PEntry;
+  LValue: T;
 begin
-  LCurrent := EntryAt(AIndex);
-
-  NotifyElementRemoved(LCurrent^.FValue);
-
-  { Remove the node }
-  if Assigned(LCurrent^.FPrev) then
-    LCurrent^.FPrev^.FNext := LCurrent^.FNext;
-  if Assigned(LCurrent^.FNext) then
-    LCurrent^.FNext^.FPrev := LCurrent^.FPrev;
-  if FFirst = LCurrent then
-    FFirst := LCurrent^.FNext;
-  if FLast = LCurrent then
-    FLast := LCurrent^.FPrev;
-
-  ReleaseEntry(LCurrent);
-  Inc(FVer);
-  Dec(FCount);
+  if TryExtractAt(AIndex, LValue) then
+    NotifyElementRemoved(LValue)
+  else
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
 procedure TLinkedList<T>.ReplaceItem(var ACurrent: T; const ANew: T);
@@ -4888,6 +4971,35 @@ end;
 procedure TLinkedList<T>.Sort(const ASortProc: TComparison<T>);
 begin
   Sort(0, FCount, ASortProc);
+end;
+
+function TLinkedList<T>.TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
+var
+  LCurrent: PEntry;
+begin
+  Result := False;
+  LCurrent := EntryAt(AIndex, False);
+
+  if not Assigned(LCurrent) then
+    Exit;
+
+  AValue := LCurrent^.FValue;
+
+  { Remove the node }
+  if Assigned(LCurrent^.FPrev) then
+    LCurrent^.FPrev^.FNext := LCurrent^.FNext;
+  if Assigned(LCurrent^.FNext) then
+    LCurrent^.FNext^.FPrev := LCurrent^.FPrev;
+  if FFirst = LCurrent then
+    FFirst := LCurrent^.FNext;
+  if FLast = LCurrent then
+    FLast := LCurrent^.FPrev;
+
+  ReleaseEntry(LCurrent);
+  Result := True;
+
+  Inc(FVer);
+  Dec(FCount);
 end;
 
 procedure TLinkedList<T>.Sort(const AStartIndex, ACount: NativeInt; const AAscending: Boolean);

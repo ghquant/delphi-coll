@@ -1,4 +1,13 @@
 ﻿========================
+= Minor Release: 1.1.1 =
+========================
+                                                                                             
+    * All lists and dictionaries now posses a ExtractAt or Extract or ExtractKey, ExtractValue methods.
+      These function exactly as remove but do not trigger cleanup for objects.
+	* Fix: TObjectMultiMap required a class for it's value type parameter.
+	* Fix: RemoveKey/RemoveValue for Bidi dictionaries were not calling the cleaning handler.
+
+﻿========================
 =  Major Release: 1.1  =
 ========================
     * Started a new project: Samples. A few samples have been added for your delight.

@@ -55,6 +55,7 @@ type
     procedure TestExceptions();
     procedure TestCorrectOrdering();
     procedure TestObjectVariant();
+    procedure Test_Extract();
   end;
 
 implementation
@@ -409,6 +410,51 @@ begin
   Check(Dict.Values.Count = 0, 'Enumerator failed too late');
 
   Dict.Free();
+end;
+
+procedure TTestSortedMultiMap.Test_Extract;
+var
+  LDict: TObjectSortedMultiMap<Integer, TTestObject>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LDict := TObjectSortedMultiMap<Integer, TTestObject>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LDict.Add(0, LValue);
+  CheckTrue(LDict.Extract(0).First = LValue);
+  CheckFalse(LValueDied);
+
+  { ---- }
+
+  LDict.OwnsValues := true;
+  LDict.Add(0, LValue);
+  CheckTrue(LDict.Extract(0).First = LValue);
+  CheckFalse(LValueDied);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.Extract(0); end,
+    'EKeyNotFoundException not thrown in Extract (0).'
+  );
+
+  LDict.Add(0, LValue);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.Extract(1); end,
+    'EKeyNotFoundException not thrown in Extract (1).'
+  );
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.Extract(-1); end,
+    'EKeyNotFoundException not thrown in Extract (-1).'
+  );
+
+  LDict.Remove(0);
+  CheckTrue(LValueDied);
+
+  LDict.Free;
 end;
 
 procedure TTestSortedMultiMap.TestValuesCopyTo;

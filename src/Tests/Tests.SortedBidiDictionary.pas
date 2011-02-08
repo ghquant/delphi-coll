@@ -58,6 +58,8 @@ type
     procedure TestRelations();
     procedure TestCorrectOrdering();
     procedure TestObjectVariant();
+    procedure Test_ExtractKey();
+    procedure Test_ExtractValue();
   end;
 
 implementation
@@ -668,6 +670,96 @@ begin
   Check(Dict.Values.Count = 0, 'Enumerator failed too late');
 
   Dict.Free();
+end;
+
+procedure TTestSortedBidiDictionary.Test_ExtractKey;
+var
+  LDict: TObjectSortedBidiDictionary<TTestObject, Integer>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LDict := TObjectSortedBidiDictionary<TTestObject, Integer>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LDict.Add(LValue, 0);
+  CheckTrue(LDict.ExtractKey(0) = LValue);
+  CheckFalse(LValueDied);
+
+  { ---- }
+
+  LDict.OwnsKeys := true;
+  LDict.Add(LValue, 0);
+  CheckTrue(LDict.ExtractKey(0) = LValue);
+  CheckFalse(LValueDied);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.ExtractKey(0); end,
+    'EKeyNotFoundException not thrown in ExtractKey (0).'
+  );
+
+  LDict.Add(LValue, 0);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.ExtractKey(1); end,
+    'EKeyNotFoundException not thrown in ExtractKey (1).'
+  );
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.ExtractKey(-1); end,
+    'EKeyNotFoundException not thrown in ExtractKey (-1).'
+  );
+
+  LDict.RemoveValue(0);
+  CheckTrue(LValueDied);
+
+  LDict.Free;
+end;
+
+procedure TTestSortedBidiDictionary.Test_ExtractValue;
+var
+  LDict: TObjectSortedBidiDictionary<Integer, TTestObject>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LDict := TObjectSortedBidiDictionary<Integer, TTestObject>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LDict.Add(0, LValue);
+  CheckTrue(LDict.ExtractValue(0) = LValue);
+  CheckFalse(LValueDied);
+
+  { ---- }
+
+  LDict.OwnsValues := true;
+  LDict.Add(0, LValue);
+  CheckTrue(LDict.ExtractValue(0) = LValue);
+  CheckFalse(LValueDied);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.ExtractValue(0); end,
+    'EKeyNotFoundException not thrown in ExtractValue (0).'
+  );
+
+  LDict.Add(0, LValue);
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.ExtractValue(1); end,
+    'EKeyNotFoundException not thrown in ExtractValue (1).'
+  );
+
+  CheckException(EKeyNotFoundException,
+    procedure() begin LDict.ExtractValue(-1); end,
+    'EKeyNotFoundException not thrown in ExtractValue (-1).'
+  );
+
+  LDict.RemoveKey(0);
+  CheckTrue(LValueDied);
+
+  LDict.Free;
 end;
 
 procedure TTestSortedBidiDictionary.TestValuesCopyTo;

@@ -256,6 +256,13 @@ type
     ///  <remarks>If the specified key was not found in the multi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
+    ///  <summary>Extracts all values using their key.</summary>
+    ///  <param name="AKey">The key of the associated values.</param>
+    ///  <returns>A collection of values associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
+    function Extract(const AKey: TKey): IEnexCollection<TValue>;
+
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
     ///  <param name="AValue">The value to remove.</param>
@@ -572,6 +579,13 @@ type
     ///  <remarks>If the specified key was not found in the multi-map, nothing happens.</remarks>
     procedure Remove(const AKey: TKey); overload;
 
+    ///  <summary>Extracts all values using their key.</summary>
+    ///  <param name="AKey">The key of the associated values.</param>
+    ///  <returns>A collection of values associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
+    function Extract(const AKey: TKey): IEnexCollection<TValue>;
+
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
     ///  <param name="AValue">The value to remove.</param>
@@ -710,7 +724,7 @@ type
   ///  <summary>The generic <c>multi-map</c> collection designed to store objects.</summary>
   ///  <remarks>This type uses a <c>dictionary</c> and a number of <c>lists</c> to store its
   ///  keys and values.</remarks>
-  TObjectMultiMap<TKey, TValue: class> = class(TMultiMap<TKey, TValue>)
+  TObjectMultiMap<TKey, TValue> = class(TMultiMap<TKey, TValue>)
   private
     FOwnsKeys, FOwnsValues: Boolean;
 
@@ -1388,6 +1402,33 @@ begin
   inherited;
 end;
 
+function TAbstractMultiMap<TKey, TValue>.Extract(const AKey: TKey): IEnexCollection<TValue>;
+var
+  LList: IList<TValue>;
+  LNewList: TLinkedList<TValue>;
+begin
+  if FDictionary.TryGetValue(AKey, LList) then
+    Dec(FKnownCount, LList.Count)
+  else
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+
+  { Simply remove the element. The LList should be auto-magically collected also }
+  FDictionary.Remove(AKey);
+
+  { Create the out list }
+  LNewList := TLinkedList<TValue>.Create(LList);
+
+  { Hackishly push out all elements from this list }
+  while not LList.Empty do
+    LList.ExtractAt(LList.Count - 1);
+
+  { Assign output }
+  Result := LNewList;
+
+  { Increase the version }
+  Inc(FVer);
+end;
+
 function TAbstractMultiMap<TKey, TValue>.GetCount: NativeInt;
 begin
   Result := FKnownCount;
@@ -1951,6 +1992,34 @@ begin
   Clear();
 
   inherited;
+end;
+
+function TAbstractDistinctMultiMap<TKey, TValue>.Extract(const AKey: TKey): IEnexCollection<TValue>;
+var
+  LSet: ISet<TValue>;
+  LValue: TValue;
+  LNewList: TLinkedList<TValue>;
+begin
+  if FDictionary.TryGetValue(AKey, LSet) then
+    Dec(FKnownCount, LSet.Count)
+  else
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+
+  { Simply remove the element. The LSet should be auto-magically collected also }
+  FDictionary.Remove(AKey);
+
+  { Create the out list }
+  LNewList := TLinkedList<TValue>.Create(LSet);
+
+  { Hackishly push out all elements from this set }
+  for LValue in LNewList do
+    LSet.Remove(LValue);
+
+  { Assign output }
+  Result := LNewList;
+
+  { Increase the version }
+  Inc(FVer);
 end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.GetCount: NativeInt;

@@ -52,6 +52,7 @@ type
     procedure TestExceptions();
     procedure TestBigCounts();
     procedure TestObjectVariant();
+    procedure Test_Extract();
 
     procedure Test_Bug0();
     procedure Test_Bug1();
@@ -759,6 +760,51 @@ begin
   CheckFalse(LValueDied);
 
   LList[0] := nil;
+  CheckTrue(LValueDied);
+
+  LList.Free;
+end;
+
+procedure TTestLinkedList.Test_Extract;
+var
+  LList: TObjectLinkedList<TTestObject>;
+  LValue: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectLinkedList<TTestObject>.Create();
+  LValue := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(LValue);
+  CheckTrue(LList.ExtractAt(0) = LValue);
+  CheckFalse(LValueDied);
+
+  { ---- }
+
+  LList.OwnsObjects := true;
+  LList.Add(LValue);
+  CheckTrue(LList.ExtractAt(0) = LValue);
+  CheckFalse(LValueDied);
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.ExtractAt(0); end,
+    'EArgumentOutOfRangeException not thrown in ExtractAt (0).'
+  );
+
+  LList.Add(LValue);
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.ExtractAt(1); end,
+    'EArgumentOutOfRangeException not thrown in ExtractAt (1).'
+  );
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.ExtractAt(-1); end,
+    'EArgumentOutOfRangeException not thrown in ExtractAt (-1).'
+  );
+
+  LList.RemoveAt(0);
   CheckTrue(LValueDied);
 
   LList.Free;
