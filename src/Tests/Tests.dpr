@@ -1,4 +1,4 @@
-program CollectionsTests;
+program Tests;
 {
 
   Delphi DUnit Test Project

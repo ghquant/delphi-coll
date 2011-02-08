@@ -30,14 +30,14 @@ requires
 contains
   Collections.Bags in 'Collections.Bags.pas',
   Collections.Base in 'Collections.Base.pas',
+  Collections.BidiDictionaries in 'Collections.BidiDictionaries.pas',
   Collections.BidiMaps in 'Collections.BidiMaps.pas',
   Collections.Dictionaries in 'Collections.Dictionaries.pas',
+  Collections.Dynamic in 'Collections.Dynamic.pas',
   Collections.Lists in 'Collections.Lists.pas',
   Collections.MultiMaps in 'Collections.MultiMaps.pas',
   Collections.Queues in 'Collections.Queues.pas',
   Collections.Sets in 'Collections.Sets.pas',
-  Collections.Stacks in 'Collections.Stacks.pas',
-  Collections.Dynamic in 'Collections.Dynamic.pas',
-  Collections.BidiDictionaries in 'Collections.BidiDictionaries.pas';
+  Collections.Stacks in 'Collections.Stacks.pas';
 
 end.

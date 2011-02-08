@@ -838,6 +838,7 @@ type
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
+{$IF CompilerVersion > 21}
 type
   ///  <summary>A specific 16-bit integer <c>set</c> collection.</summary>
   ///  <remarks>This collection uses an internal bit array to store its values.</remarks>
@@ -992,6 +993,7 @@ type
     ///  the value in <paramref name="ADefault"/> is returned.</remarks>
     function SingleOrDefault(const ADefault: Word): Word; override;
   end;
+  {$IFEND}
 
 implementation
 
@@ -3384,6 +3386,8 @@ begin
     TObject(AElement).Free;
 end;
 
+{$IF CompilerVersion > 21}
+
 { TBitSet }
 
 procedure TBitSet.Add(const AValue: Word);
@@ -3771,5 +3775,7 @@ begin
       Break;
   end;
 end;
+{$IFEND}
 
 end.
+

@@ -205,6 +205,7 @@ type
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
     function Select<TOut>(const ASelector: TFunc<T, TOut>): IEnexCollection<TOut>; overload;
 
+{$IF CompilerVersion > 21}
     ///  <summary>Represents a "select" operation.</summary>
     ///  <param name="AMemberName">A record or class field/property name that will be selected.</param>
     ///  <returns>A new collection containing the selected values.</returns>
@@ -228,6 +229,7 @@ type
     ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AMemberName"/> is not a real member of record or class.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
     function Select(const AMemberNames: array of string): IEnexCollection<TView>; overload;
+{$IFEND}
 
     ///  <summary>Represents a "where, select object" operation.</summary>
     ///  <returns>A new collection containing the selected values.</returns>
@@ -3300,6 +3302,7 @@ begin
   Result := TEnexGroupByCollection<T, TKey>.Create(FInstance, ASelector);
 end;
 
+{$IF CompilerVersion > 21}
 function TEnexExtOps<T>.Select(const AMemberName: string): IEnexCollection<TAny>;
 var
   LSelector: TFunc<T, TAny>;
@@ -3341,6 +3344,7 @@ begin
   { Select the member by a name, as out type }
   Result := Select<TView>(LSelector);
 end;
+{$IFEND}
 
 function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
 var

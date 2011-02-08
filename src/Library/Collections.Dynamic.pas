@@ -27,6 +27,7 @@
 
 unit Collections.Dynamic;
 interface
+{$IF CompilerVersion > 21}
 uses
   SysUtils,
   Generics.Collections,
@@ -360,5 +361,7 @@ initialization
 finalization
   { Uregister our custom variant }
   FreeAndNil(FViewDictionaryVariantType);
-
+{$ELSE}
+implementation
+{$IFEND}
 end.

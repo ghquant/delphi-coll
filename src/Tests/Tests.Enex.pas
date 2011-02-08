@@ -52,6 +52,7 @@ type
  TEnexCollectionInternalProc = procedure(const Collection: IEnexCollection<Integer>) of object;
  TEnexAssocCollectionInternalProc = procedure(const Collection: IEnexAssociativeCollection<Integer, Integer>) of object;
 
+{$IF CompilerVersion > 21}
   TBitSetAdapter = class(TEnexCollection<Integer>)
   private type
     TEnumerator = class(TEnumerator<Integer>)
@@ -93,6 +94,7 @@ type
     function All(const APredicate: TFunc<Integer, Boolean>): Boolean; override;
     function EqualsTo(const ACollection: IEnumerable<Integer>): Boolean; override;
   end;
+{$IFEND}
 
  TTestEnex = class(TTestCaseEx)
  private
@@ -3379,7 +3381,9 @@ begin
   TestProc(LArraySet_Full);
   TestProc(LBag_Full);
   TestProc(LSortedBag_Full);
+{$IF CompilerVersion > 21}
   TestProc(LBitSet_Full);
+{$IFEND}
   TestProc(LHashSet_Full);
   TestProc(LLinkedSet_Full);
   TestProc(LSortedSet_Full);
@@ -3442,7 +3446,9 @@ begin
   TestProc(LArraySet_One);
   TestProc(LBag_One);
   TestProc(LSortedBag_One);
+{$IF CompilerVersion > 21}
   TestProc(LBitSet_One);
+{$IFEND}
   TestProc(LHashSet_One);
   TestProc(LLinkedSet_One);
   TestProc(LSortedSet_One);
@@ -3505,7 +3511,9 @@ begin
   TestProc(LArraySet_Empty);
   TestProc(LBag_Empty);
   TestProc(LSortedBag_Empty);
+{$IF CompilerVersion > 21}
   TestProc(LBitSet_Empty);
+{$IFEND}
   TestProc(LHashSet_Empty);
   TestProc(LLinkedSet_Empty);
   TestProc(LSortedSet_Empty);
@@ -4492,7 +4500,9 @@ begin
   LArraySet_Full := TArraySet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LBag_Full := TBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedBag_Full := TSortedBag<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
+{$IF CompilerVersion > 21}
   LBitSet_Full := TBitSetAdapter.Create(MakeRandomIntegerList(ListElements div 10, ListMax div 10));
+{$IFEND}
   LHashSet_Full := THashSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LLinkedSet_Full := TLinkedSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
   LSortedSet_Full := TSortedSet<Integer>.Create(MakeRandomIntegerList(ListElements, ListMax));
@@ -4667,7 +4677,9 @@ begin
   LArraySet_One := TArraySet<Integer>.Create([3]);
   LBag_One := TBag<Integer>.Create([4]);
   LSortedBag_One := TSortedBag<Integer>.Create([4]);
+{$IF CompilerVersion > 21}
   LBitSet_One := TBitSetAdapter.Create(LSortedBag_One);
+{$IFEND}
   LHashSet_One := THashSet<Integer>.Create([5]);
   LLinkedSet_One := TLinkedSet<Integer>.Create([5]);
   LSortedSet_One := TSortedSet<Integer>.Create([5]);
@@ -4784,7 +4796,9 @@ begin
   LArraySet_Empty := TArraySet<Integer>.Create();
   LBag_Empty := TBag<Integer>.Create();
   LSortedBag_Empty := TSortedBag<Integer>.Create();
+{$IF CompilerVersion > 21}
   LBitSet_Empty := TBitSetAdapter.Create();
+{$IFEND}
   LHashSet_Empty := THashSet<Integer>.Create();
   LLinkedSet_Empty := TLinkedSet<Integer>.Create();
   LSortedSet_Empty := TSortedSet<Integer>.Create();
@@ -5102,6 +5116,7 @@ begin
   L1.Free;
 end;
 
+{$IF CompilerVersion > 21}
 { TBitSetAdapter }
 
 function TBitSetAdapter.Aggregate(const AAggregator: TFunc<Integer, Integer, Integer>): Integer;
@@ -5295,6 +5310,8 @@ function TBitSetAdapter.TEnumerator.MoveNext: Boolean;
 begin
   Result := FEnumerator.MoveNext;
 end;
+
+{$IFEND}
 
 initialization
   TestFramework.RegisterTest(TTestEnex.Suite);

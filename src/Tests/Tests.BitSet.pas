@@ -27,6 +27,7 @@
 
 unit Tests.BitSet;
 interface
+{$IF CompilerVersion > 21}
 uses SysUtils,
      Tests.Utils,
      TestFramework,
@@ -385,5 +386,7 @@ end;
 
 initialization
   TestFramework.RegisterTest(TTestBitSet.Suite);
-
+{$ELSE}
+implementation
+{$IFEND}
 end.

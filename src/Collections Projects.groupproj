@@ -6,7 +6,7 @@
 			<Projects Include="Library\Collections.dproj">
 				<Dependencies/>
 			</Projects>
-			<Projects Include="Tests\CollectionsTests.dproj">
+			<Projects Include="Tests\Tests.dproj">
 				<Dependencies>Library\Collections.dproj</Dependencies>
 			</Projects>
 			<Projects Include="Samples\Samples.dproj">
@@ -24,37 +24,37 @@
 			<MSBuild Projects="Library\Collections.dproj"/>
 		</Target>
 		<Target Name="Collections:Clean">
-			<MSBuild Projects="Library\Collections.dproj" Targets="Clean"/>
+			<MSBuild Targets="Clean" Projects="Library\Collections.dproj"/>
 		</Target>
 		<Target Name="Collections:Make">
-			<MSBuild Projects="Library\Collections.dproj" Targets="Make"/>
+			<MSBuild Targets="Make" Projects="Library\Collections.dproj"/>
 		</Target>
-		<Target Name="CollectionsTests" DependsOnTargets="Collections">
-			<MSBuild Projects="Tests\CollectionsTests.dproj"/>
+		<Target DependsOnTargets="Collections" Name="Tests">
+			<MSBuild Projects="Tests\Tests.dproj"/>
 		</Target>
-		<Target Name="CollectionsTests:Clean" DependsOnTargets="Collections:Clean">
-			<MSBuild Projects="Tests\CollectionsTests.dproj" Targets="Clean"/>
+		<Target DependsOnTargets="Collections:Clean" Name="Tests:Clean">
+			<MSBuild Targets="Clean" Projects="Tests\Tests.dproj"/>
 		</Target>
-		<Target Name="CollectionsTests:Make" DependsOnTargets="Collections:Make">
-			<MSBuild Projects="Tests\CollectionsTests.dproj" Targets="Make"/>
+		<Target DependsOnTargets="Collections:Make" Name="Tests:Make">
+			<MSBuild Targets="Make" Projects="Tests\Tests.dproj"/>
 		</Target>
-		<Target Name="Samples" DependsOnTargets="Collections">
+		<Target DependsOnTargets="Collections" Name="Samples">
 			<MSBuild Projects="Samples\Samples.dproj"/>
 		</Target>
-		<Target Name="Samples:Clean" DependsOnTargets="Collections:Clean">
-			<MSBuild Projects="Samples\Samples.dproj" Targets="Clean"/>
+		<Target DependsOnTargets="Collections:Clean" Name="Samples:Clean">
+			<MSBuild Targets="Clean" Projects="Samples\Samples.dproj"/>
 		</Target>
-		<Target Name="Samples:Make" DependsOnTargets="Collections:Make">
-			<MSBuild Projects="Samples\Samples.dproj" Targets="Make"/>
+		<Target DependsOnTargets="Collections:Make" Name="Samples:Make">
+			<MSBuild Targets="Make" Projects="Samples\Samples.dproj"/>
 		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="Collections;CollectionsTests;Samples"/>
+			<CallTarget Targets="Collections;Tests;Samples"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="Collections:Clean;CollectionsTests:Clean;Samples:Clean"/>
+			<CallTarget Targets="Collections:Clean;Tests:Clean;Samples:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="Collections:Make;CollectionsTests:Make;Samples:Make"/>
+			<CallTarget Targets="Collections:Make;Tests:Make;Samples:Make"/>
 		</Target>
-		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>

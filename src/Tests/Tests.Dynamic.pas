@@ -27,6 +27,7 @@
 
 unit Tests.Dynamic;
 interface
+{$IF CompilerVersion > 21}
 uses SysUtils,
      Rtti,
      Tests.Utils,
@@ -566,4 +567,8 @@ end;
 initialization
   TestFramework.RegisterTest(TTestDynamic.Suite);
   TestFramework.RegisterTest(TTestMember.Suite);
+
+{$ELSE}
+implementation
+{$IFEND}
 end.
