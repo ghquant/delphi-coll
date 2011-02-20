@@ -29,6 +29,7 @@ unit Collections.Base;
 interface
 uses
   SysUtils,
+  TypInfo,
   Rtti,
   Collections.Dynamic,
   Generics.Collections,
@@ -1578,7 +1579,7 @@ type
 
   ///  <summary>Base class for all collections.</summary>
   ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
-  ///  enumerability and introduces serialization support.</remarks>
+  ///  enumerability .</remarks>
   TCollection<T> = class abstract(TRefCountedObject, ICollection<T>, IEnumerable<T>)
   protected
     const CDefaultSize = 32;
@@ -1645,8 +1646,7 @@ type
 
   ///  <summary>Base class for all non-associative Enex collections.</summary>
   ///  <remarks>All normal Enex collections (ex. list or stack) are derived from this base class.
-  ///  It implements the extended Enex operations based on enumerability and introduces functional
-  ///  serialization support.</remarks>
+  ///  It implements the extended Enex operations based on enumerability.</remarks>
   TEnexCollection<T> = class abstract(TCollection<T>, IComparable, IEnexCollection<T>)
   private
     FElementRules: TRules<T>;
@@ -2145,8 +2145,7 @@ type
 
   ///  <summary>Base class for all associative Enex collections.</summary>
   ///  <remarks>All associative Enex collections (ex. dictionary or multi-map) are derived from this base class.
-  ///  It implements the extended Enex operations based on enumerability and introduces functional
-  ///  serialization support.</remarks>
+  ///  It implements the extended Enex operations based on enumerability.</remarks>
   TEnexAssociativeCollection<TKey, TValue> = class abstract(TCollection<TPair<TKey, TValue>>,
       IEnexAssociativeCollection<TKey, TValue>)
   private
@@ -2418,7 +2417,7 @@ type
   ///  <summary>Thrown when a collection was identified to be empty (and it shouldn't have been).</summary>
   ECollectionEmptyException = class(ECollectionException);
 
-  ///  <summary>Thrown when a collection was expected to have only one exception.</summary>
+  ///  <summary>Thrown when a collection was expected to have only one element, but more than one was found.</summary>
   ECollectionNotOneException = class(ECollectionException);
 
   ///  <summary>Thrown when a predicated applied to a collection generates a void collection.</summary>
@@ -2427,6 +2426,9 @@ type
   ///  <summary>Thrown when trying to add a key-value pair into a collection that already has that key
   ///  in it.</summary>
   EDuplicateKeyException = class(ECollectionException);
+
+  ///  <summary>Thrown for a serialization or deserialization error.</summary>
+  ESerializationException = class(Exception);
 
   ///  <summary>Thrown when the key (of a pair) is not found in the collection.</summary>
   EKeyNotFoundException = class(ECollectionException);
@@ -2484,6 +2486,50 @@ type
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_TypeDoesNotExposeMember(const MemberName: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_TypeCannotBeSerialized(const ATypeInfo: PTypeInfo);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_TypeDoesNotHaveEnoughRtti(const ATypeInfo: PTypeInfo);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_FieldTypeDoesNotHaveEnoughRtti(const AField: TRttiField);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_BadDynamicArrayReference(const ATypeInfo: PTypeInfo);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_BadRecordReference(const ATypeInfo: PTypeInfo);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_BadClassReference(const ATypeInfo: PTypeInfo);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ExpectedAnotherBinaryValuePoint(); static;
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ExpectedAnotherField(const AExpected: TRttiField; const AName: string; AOffset: Int64);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ExpectedAnotherLabel(const AExpectedLabel, AActualLabel: string);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ExpectedAnotherElementCount(const AArrayType: TRttiArrayType; const AExpectedCount, AActualCount: NativeInt);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ExpectedAnotherType(const AExpected: TRttiType; const AActual: string);
   end;
 
 resourcestring
@@ -2500,6 +2546,17 @@ resourcestring
   SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
   STypeNotAClass = 'The type "%s" on which the operation was invoked is not a class!';
   STypeDoesNotExposeMember = 'The type the collection operates on does not expose member "%s"!';
+  STypeCannotBeSerialized = 'Serialization for values of type %s (kind: %s) is not supported.';
+  STypeDoesNotHaveEnoughRtti = 'Type %s (kind %s) does not have enough RTTI to be serializable.';
+  SFieldTypeDoesNotHaveEnoughRtti = 'Field %s member of type %s (kind %s) does not have enough RTTI to be serializable.';
+  SBadDynamicArrayReference = 'Dynamic array of type %s (kind %s) cannot be deserialized because it is a reference to an unavailable dynamic array.';
+  SBadRecordReference = 'Record of type %s (kind %s) cannot be deserialized because it is a reference to an unavailable record.';
+  SBadClassReference = 'Class of type %s (kind %s) cannot be deserialized because it is a reference to an unavailable class.';
+  SExpectedAnotherBinaryValuePoint = 'Found a binary stream point that was unexpected while deserializing.';
+  SExpectedAnotherField = 'Expected a field %s with offset %d, but got a field %s with offset %d!';
+  SExpectedAnotherLabel = 'Expected a label %s , but got a label %s!';
+  SExpectedAnotherElementCount = 'Expected a static array of type %s with %d elements but got %d elements.';
+  SExpectedAnotherType = 'Expected a type %s, but got another type %s!';
 {$ENDREGION}
 
 {$REGION 'Enex Internal Enumerables'}
@@ -3285,10 +3342,14 @@ type
 
 implementation
 uses
-  TypInfo,
   Collections.Sets,
   Collections.Lists,
   Collections.Dictionaries;
+
+function TypeKindToStr(const AKind: TTypeKind): String;
+begin
+  Result := GetEnumName(TypeInfo(TTypeKind), Ord(AKind));
+end;
 
 { TEnexExtOps<T> }
 
@@ -7036,62 +7097,117 @@ end;
 
 class procedure ExceptionHelper.Throw_ArgumentNilError(const ArgName: String);
 begin
-  raise EArgumentNilException.CreateFmt(SNilArgument, [ArgName]);
+  raise EArgumentNilException.CreateResFmt(@SNilArgument, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_ArgumentOutOfRangeError(const ArgName: String);
 begin
-  raise EArgumentOutOfRangeException.CreateFmt(SOutOfRangeArgument, [ArgName]);
+  raise EArgumentOutOfRangeException.CreateResFmt(@SOutOfRangeArgument, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_ArgumentOutOfSpaceError(const ArgName: String);
 begin
-  raise EArgumentOutOfSpaceException.CreateFmt(SOutOfSpaceArgument, [ArgName]);
+  raise EArgumentOutOfSpaceException.CreateResFmt(@SOutOfSpaceArgument, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_CannotSelfReferenceError;
 begin
-  raise ECannotSelfReferenceException.Create(SCannotSelfReference);
+  raise ECannotSelfReferenceException.CreateRes(@SCannotSelfReference);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionChangedError;
 begin
-  raise ECollectionChangedException.Create(SParentCollectionChanged);
+  raise ECollectionChangedException.CreateRes(@SParentCollectionChanged);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionEmptyError;
 begin
-  raise ECollectionEmptyException.Create(SEmptyCollection);
+  raise ECollectionEmptyException.CreateRes(@SEmptyCollection);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionHasMoreThanOneElement;
 begin
-  raise ECollectionNotOneException.Create(SCollectionHasMoreThanOneElements);
+  raise ECollectionNotOneException.CreateRes(@SCollectionHasMoreThanOneElements);
 end;
 
 class procedure ExceptionHelper.Throw_CollectionHasNoFilteredElements;
 begin
-  raise ECollectionFilteredEmptyException.Create(SCollectionHasNoFilteredElements);
+  raise ECollectionFilteredEmptyException.CreateRes(@SCollectionHasNoFilteredElements);
 end;
 
 class procedure ExceptionHelper.Throw_DuplicateKeyError(const ArgName: String);
 begin
-  raise EDuplicateKeyException.CreateFmt(SDuplicateKey, [ArgName]);
+  raise EDuplicateKeyException.CreateResFmt(@SDuplicateKey, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_KeyNotFoundError(const ArgName: String);
 begin
-  raise EKeyNotFoundException.CreateFmt(SKeyNotFound, [ArgName]);
+  raise EKeyNotFoundException.CreateResFmt(@SKeyNotFound, [ArgName]);
 end;
 
 class procedure ExceptionHelper.Throw_TypeDoesNotExposeMember(const MemberName: String);
 begin
-  raise ENotSupportedException.CreateFmt(STypeDoesNotExposeMember, [MemberName]);
+  raise ENotSupportedException.CreateResFmt(@STypeDoesNotExposeMember, [MemberName]);
 end;
 
 class procedure ExceptionHelper.Throw_TypeNotAClassError(const TypeName: String);
 begin
-  raise ENotSupportedException.CreateFmt(STypeNotAClass, [TypeName]);
+  raise ENotSupportedException.CreateResFmt(@STypeNotAClass, [TypeName]);
+end;
+
+class procedure ExceptionHelper.Throw_BadClassReference(const ATypeInfo: PTypeInfo);
+begin
+  raise ESerializationException.CreateResFmt(@SBadClassReference, [GetTypeName(ATypeInfo), TypeKindToStr(ATypeInfo^.Kind)]);
+end;
+
+class procedure ExceptionHelper.Throw_BadDynamicArrayReference(const ATypeInfo: PTypeInfo);
+begin
+  raise ESerializationException.CreateResFmt(@SBadDynamicArrayReference, [GetTypeName(ATypeInfo), TypeKindToStr(ATypeInfo^.Kind)]);
+end;
+
+class procedure ExceptionHelper.Throw_BadRecordReference(const ATypeInfo: PTypeInfo);
+begin
+  raise ESerializationException.CreateResFmt(@SBadRecordReference, [GetTypeName(ATypeInfo), TypeKindToStr(ATypeInfo^.Kind)]);
+end;
+
+class procedure ExceptionHelper.Throw_ExpectedAnotherBinaryValuePoint;
+begin
+  raise ESerializationException.CreateRes(@SExpectedAnotherBinaryValuePoint);
+end;
+
+class procedure ExceptionHelper.Throw_ExpectedAnotherElementCount(const AArrayType: TRttiArrayType; const AExpectedCount, AActualCount: NativeInt);
+begin
+  raise ESerializationException.CreateResFmt(@SExpectedAnotherElementCount, [AArrayType.Name, AExpectedCount, AActualCount]);
+end;
+
+class procedure ExceptionHelper.Throw_ExpectedAnotherField(const AExpected: TRttiField; const AName: string; AOffset: Int64);
+begin
+  raise ESerializationException.CreateResFmt(@SExpectedAnotherField, [AExpected.Name, AExpected.Offset, AName, AOffset]);
+end;
+
+class procedure ExceptionHelper.Throw_ExpectedAnotherLabel(const AExpectedLabel, AActualLabel: string);
+begin
+  raise ESerializationException.CreateResFmt(@SExpectedAnotherLabel, [AExpectedLabel, AActualLabel]);
+end;
+
+class procedure ExceptionHelper.Throw_ExpectedAnotherType(const AExpected: TRttiType; const AActual: string);
+begin
+  raise ESerializationException.CreateResFmt(@SExpectedAnotherType, [AExpected.Name, AActual]);
+end;
+
+class procedure ExceptionHelper.Throw_FieldTypeDoesNotHaveEnoughRtti(const AField: TRttiField);
+begin
+  raise ESerializationException.CreateResFmt(@SFieldTypeDoesNotHaveEnoughRtti, [AField.Name, AField.Parent.Name, TypeKindToStr(AField.Parent.TypeKind)]);
+end;
+
+class procedure ExceptionHelper.Throw_TypeCannotBeSerialized(const ATypeInfo: PTypeInfo);
+begin
+  raise ESerializationException.CreateResFmt(@STypeCannotBeSerialized, [GetTypeName(ATypeInfo), TypeKindToStr(ATypeInfo^.Kind)]);
+end;
+
+class procedure ExceptionHelper.Throw_TypeDoesNotHaveEnoughRtti(const ATypeInfo: PTypeInfo);
+begin
+  raise ESerializationException.CreateResFmt(@STypeDoesNotHaveEnoughRtti, [GetTypeName(ATypeInfo), TypeKindToStr(ATypeInfo^.Kind)]);
 end;
 
 end.

@@ -53,7 +53,8 @@ uses
   Tests.BitSet in 'Tests.BitSet.pas',
   Tests.BidiDictionary in 'Tests.BidiDictionary.pas',
   Tests.SortedBidiDictionary in 'Tests.SortedBidiDictionary.pas',
-  Tests.DoubleSortedBidiDictionary in 'Tests.DoubleSortedBidiDictionary.pas';
+  Tests.DoubleSortedBidiDictionary in 'Tests.DoubleSortedBidiDictionary.pas',
+  Tests.Serialization in 'Tests.Serialization.pas';
 
 {$R *.RES}
 

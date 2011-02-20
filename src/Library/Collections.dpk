@@ -38,6 +38,7 @@ contains
   Collections.MultiMaps in 'Collections.MultiMaps.pas',
   Collections.Queues in 'Collections.Queues.pas',
   Collections.Sets in 'Collections.Sets.pas',
-  Collections.Stacks in 'Collections.Stacks.pas';
+  Collections.Stacks in 'Collections.Stacks.pas',
+  Collections.Serialization in 'Collections.Serialization.pas';
 
 end.
