@@ -63,7 +63,7 @@ begin
   BitSet.Add(22);
   BitSet.Add(33);
 
-  Check((BitSet.Count = 3) and (BitSet.Count = BitSet.GetCount()), 'BitSet count expected to be 3');
+  Check((BitSet.Count = 3), 'BitSet count expected to be 3');
 
   { 33 22 11 }
   BitSet.Add(0);
@@ -75,12 +75,12 @@ begin
   BitSet.Add(55);
 
   { 88 55 33 22 11 00 }
-  Check((BitSet.Count = 6) and (BitSet.Count = BitSet.GetCount()), 'BitSet count expected to be 6');
+  Check((BitSet.Count = 6), 'BitSet count expected to be 6');
 
   BitSet.Remove(11);
 
   { 88 55 33 22 00 }
-  Check((BitSet.Count = 5) and (BitSet.Count = BitSet.GetCount()), 'BitSet count expected to be 5');
+  Check((BitSet.Count = 5), 'BitSet count expected to be 5');
   BitSet.Remove(55);
 
   { 88 33 22 00 }
@@ -96,7 +96,7 @@ begin
   BitSet.Remove(0);
 
   { Pula }
-  Check((BitSet.Count = 0) and (BitSet.Count = BitSet.GetCount()), 'BitSet count expected to be 0');
+  Check((BitSet.Count = 0), 'BitSet count expected to be 0');
 
   BitSet.Free;
 end;

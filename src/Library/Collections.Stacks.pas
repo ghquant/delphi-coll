@@ -34,9 +34,99 @@ uses SysUtils,
      Collections.Base;
 
 type
+  ///  <summary>The abstract base class for all generic <c>stack (LIFO)</c> collection.</summary>
+  ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
+  ///  the non-required method.</remarks>
+  TAbstractStack<T> = class abstract(TEnexCollection<T>, IStack<T>)
+  public
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const AArray: array of T); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <remarks>Override this constructor in descending classes to perform more initialization required for
+    ///  that specific type.</remarks>
+    constructor Create(const ARules: TRules<T>); overload; virtual;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
+    ///  <summary>Clears the contents of the stack.</summary>
+    ///  <remarks>The current implementation will pop all elements while the stack reports it has any. It uses Enex <c>Empty</c> operation to check
+    ///  if the queue is empty.
+    ///  Most descending classes will most likely override this implementation with a better performing one.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Pop</c> method is not overridden.</exception>
+    procedure Clear(); virtual;
+
+    ///  <summary>Pushes an element to the top of the stack.</summary>
+    ///  <param name="AValue">The value to push.</param>
+    ///  <remarks>The implementation in this class always raises an exception. The implementation in this class
+    ///  always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    procedure Push(const AValue: T); virtual;
+
+    ///  <summary>Retrieves the element from the top of the stack.</summary>
+    ///  <returns>The value at the top of the stack.</returns>
+    ///  <remarks>This method removes the element from the top of the stack. The implementation in this class
+    ///  always raises an exception.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    function Pop(): T; virtual;
+
+    ///  <summary>Reads the element from the top of the stack.</summary>
+    ///  <returns>The value at the top of the stack.</returns>
+    ///  <remarks>This method does not remove the element from the top of the stack. It merely reads its value.</remarks>
+    ///  <remarks>The implementation in this class uses the Enex <c>Last</c> operation to obtain the head of the stack.
+    ///  Most descendant classes will most likely provide a better version.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
+    function Peek(): T; virtual;
+
+    ///  <summary>Removes an element from the stack.</summary>
+    ///  <param name="AValue">The value to remove. If there is no such element in the stack, nothing happens. The implementation in this class
+    ///  always raises an exception.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    procedure Remove(const AValue: T); virtual;
+
+    ///  <summary>Checks whether the stack contains a given value.</summary>
+    ///  <param name="AValue">The value to check.</param>
+    ///  <returns><c>True</c> if the value was found in the stack; <c>False</c> otherwise.</returns>
+    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
+    ///  value. Most descendant classes will most likely provide a better version.</remarks>
+    function Contains(const AValue: T): Boolean; virtual;
+  end;
+
+type
   ///  <summary>The generic <c>stack (LIFO)</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TStack<T> = class(TEnexCollection<T>, IStack<T>, IDynamic)
+  TStack<T> = class(TAbstractStack<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
     { Generic Stack List Enumerator }
@@ -76,76 +166,46 @@ type
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the stack.</param>
-    constructor Create(const ARules: TRules<T>); overload;
+    constructor Create(const ARules: TRules<T>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the stack.</param>
     ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
-
     ///  <summary>Clears the contents of the stack.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
     ///  <param name="AValue">The value to push.</param>
-    procedure Push(const AValue: T);
+    procedure Push(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method removes the element from the top of the stack.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
-    function Pop(): T;
+    function Pop(): T; override;
 
     ///  <summary>Reads the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method does not remove the element from the top of the stack. It merely reads its value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
-    function Peek(): T;
+    function Peek(): T; override;
 
     ///  <summary>Removes an element from the stack.</summary>
     ///  <param name="AValue">The value to remove. If there is no such element in the stack, nothing happens.</param>
-    procedure Remove(const AValue: T);
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Checks whether the stack contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the stack; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
@@ -316,7 +376,7 @@ type
 type
   ///  <summary>The generic <c>stack (LIFO)</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
-  TLinkedStack<T> = class(TEnexCollection<T>, IStack<T>)
+  TLinkedStack<T> = class(TAbstractStack<T>)
   private type
     {$REGION 'Internal Types'}
     PEntry = ^TEntry;
@@ -352,71 +412,42 @@ type
     function NeedEntry(const AValue: T): PEntry;
     procedure ReleaseEntry(const AEntry: PEntry);
   protected
+
     ///  <summary>Returns the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
     function GetCount(): NativeInt; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
-    constructor Create(const ARules: TRules<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the stack.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the stack.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
     ///  <param name="AValue">The value to push.</param>
-    procedure Push(const AValue: T);
+    procedure Push(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method removes the element from the top of the stack.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
-    function Pop(): T;
+    function Pop(): T; override;
 
     ///  <summary>Reads the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method does not remove the element from the top of the stack. It merely reads its value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
-    function Peek(): T;
+    function Peek(): T; override;
 
     ///  <summary>Removes an element from the stack.</summary>
     ///  <param name="AValue">The value to remove. If there is no such element in the stack, nothing happens.</param>
-    procedure Remove(const AValue: T);
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Checks whether the stack contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the stack; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the stack.</summary>
     ///  <returns>A positive value specifying the number of elements in the stack.</returns>
@@ -566,8 +597,105 @@ type
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
-
 implementation
+
+{ TAbstractStack<T> }
+
+procedure TAbstractStack<T>.Clear;
+var
+  LElement: T;
+begin
+  while not Empty do
+  begin
+    LElement := Pop();
+    NotifyElementRemoved(LElement);
+  end;
+end;
+
+function TAbstractStack<T>.Contains(const AValue: T): Boolean;
+var
+  LEnumerator: IEnumerator<T>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if ElementsAreEqual(AValue, LEnumerator.Current) then
+      Exit(True);
+
+  Result := False;
+end;
+
+constructor TAbstractStack<T>.Create(const ACollection: IEnumerable<T>);
+begin
+  Create(TRules<T>.Default, ACollection);
+end;
+
+constructor TAbstractStack<T>.Create;
+begin
+  Create(TRules<T>.Default);
+end;
+
+constructor TAbstractStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
+var
+  LValue: T;
+begin
+  { Call upper constructor }
+  Create(ARules);
+
+  if not Assigned(ACollection) then
+     ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  { Pump in all items }
+  for LValue in ACollection do
+    Push(LValue);
+end;
+
+constructor TAbstractStack<T>.Create(const ARules: TRules<T>; const AArray: array of T);
+var
+  I: NativeInt;
+begin
+  { Call upper constructor }
+  Create(ARules);
+
+  { Copy all in }
+  for I := 0 to Length(AArray) - 1 do
+    Push(AArray[I]);
+end;
+
+constructor TAbstractStack<T>.Create(const AArray: array of T);
+begin
+  Create(TRules<T>.Default, AArray);
+end;
+
+constructor TAbstractStack<T>.Create(const ARules: TRules<T>);
+begin
+  inherited Create(ARules);
+end;
+
+destructor TAbstractStack<T>.Destroy;
+begin
+  Clear();
+  inherited;
+end;
+
+function TAbstractStack<T>.Peek: T;
+begin
+  Result := Last();
+end;
+
+function TAbstractStack<T>.Pop: T;
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Pop');
+end;
+
+procedure TAbstractStack<T>.Push(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Push');
+end;
+
+procedure TAbstractStack<T>.Remove(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Remove');
+end;
 
 { TStack<T> }
 
@@ -693,35 +821,9 @@ begin
     AArray[AStartIndex + I] := FArray[I];
 end;
 
-constructor TStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  { Initialize instance }
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Try to copy the given Enumerable }
-  for LValue in ACollection do
-    Push(LValue);
-end;
-
-constructor TStack<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
 constructor TStack<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
-end;
-
-constructor TStack<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
 end;
 
 constructor TStack<T>.Create(const ARules: TRules<T>);
@@ -738,14 +840,6 @@ begin
   FLength := 0;
   FVer := 0;
   SetLength(FArray, AInitialCapacity);
-end;
-
-destructor TStack<T>.Destroy;
-begin
-  { Some clean-up }
-  Clear();
-
-  inherited;
 end;
 
 function TStack<T>.ElementAt(const AIndex: NativeInt): T;
@@ -980,25 +1074,6 @@ begin
     Result := FArray[0];
 end;
 
-constructor TStack<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TStack<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  { Copy array }
-  for I := 0 to Length(AArray) - 1 do
-  begin
-    Push(AArray[I]);
-  end;
-end;
-
 { TStack<T>.TEnumerator }
 
 constructor TStack<T>.TEnumerator.Create(const AStack: TStack<T>);
@@ -1190,45 +1265,6 @@ begin
     Inc(X);
     LCurrent := LCurrent^.FNext;
   end;
-end;
-
-constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Initialize instance }
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Try to copy the given Enumerable }
-  for LValue in ACollection do
-    Push(LValue);
-end;
-
-constructor TLinkedStack<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
-constructor TLinkedStack<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
-end;
-
-constructor TLinkedStack<T>.Create(const ARules: TRules<T>);
-begin
-  { Initialize instance }
-  inherited Create(ARules);
-
-  FFirst := nil;
-  FLast := nil;
-  FFirstFree := nil;
-  FFreeCount := 0;
-  FCount := 0;
-  FVer := 0;
 end;
 
 destructor TLinkedStack<T>.Destroy;
@@ -1543,26 +1579,6 @@ begin
     Result := FFirst^.FValue;
 end;
 
-constructor TLinkedStack<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TLinkedStack<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy array }
-  for I := 0 to Length(AArray) - 1 do
-  begin
-    Push(AArray[I]);
-  end;
-end;
-
-
 { TLinkedStack<T>.TEnumerator }
 
 constructor TLinkedStack<T>.TEnumerator.Create(const AStack: TLinkedStack<T>);
@@ -1609,6 +1625,5 @@ begin
   if FOwnsObjects then
     TObject(AElement).Free;
 end;
-
 
 end.

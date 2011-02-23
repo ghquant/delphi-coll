@@ -35,6 +35,204 @@ uses SysUtils,
      Collections.Base;
 
 type
+  ///  <summary>The abstract base class for all generic <c>list</c> collections.</summary>
+  ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
+  ///  the non-required method.</remarks>
+  TAbstractList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>)
+  protected
+    ///  <summary>Returns the item at a given index.</summary>
+    ///  <param name="AIndex">The index in the list.</param>
+    ///  <returns>The element at the specified position.</returns>
+    ///  <remarks>In the current implementation this method always raises an exception.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    function GetItem(const AIndex: NativeInt): T; virtual;
+
+    ///  <summary>Sets the item at a given index.</summary>
+    ///  <param name="AIndex">The index in the list.</param>
+    ///  <param name="AValue">The new value.</param>
+    ///  <remarks>In the current implementation this method always raises an exception.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure SetItem(const AIndex: NativeInt; const AValue: T); virtual;
+
+    ///  <summary>Replaces a given item with a new one.</summary>
+    ///  <param name="ACurrent">The item to be replaced.</param>
+    ///  <param name="ANew">The item to be replaced with.</param>
+    ///  <remarks>This method is called by the list when an item at a specified index needs to be replaced with another.
+    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old item is
+    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
+    procedure ReplaceItem(var ACurrent: T; const ANew: T); virtual;
+
+    ///  <summary>Extracts the element from the specified index.</summary>
+    ///  <param name="AIndex">The index to stract from.</param>
+    ///  <param name="AValue">The value stored at that index.</param>
+    ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
+    ///  <remarks>Descending classes must implement this method in order to support both <c>RemoveAt</c> and <c>ExtractAt</c> methods. In the current implementation
+    ///  this method always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    function TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean; virtual;
+  public
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const AArray: array of T); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
+    constructor Create(const ARules: TRules<T>); overload; virtual;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
+    ///  <summary>Clears the contents of the list.</summary>
+    ///  <remarks>The implementation in this class continues to remove the last element while the list is not empty. In most lists the last element is the easiest to
+    ///  remove from the spent time perspective. Most descending classes will most likely override this
+    ///  implementation with a better performing one.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>RemoveAt</c> method is not overridden.</exception>
+    procedure Clear(); virtual;
+
+    ///  <summary>Appends an element to the back of the list.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
+    procedure Add(const AValue: T); overload; virtual;
+
+    ///  <summary>Appends all elements from a given collection to the back of a list.</summary>
+    ///  <param name="ACollection">The values to append.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
+    procedure Add(const ACollection: IEnumerable<T>); overload; virtual;
+
+    ///  <summary>Inserts an element into the list.</summary>
+    ///  <param name="AIndex">The index to insert to.</param>
+    ///  <param name="AValue">The value to insert.</param>
+    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
+    ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure Insert(const AIndex: NativeInt; const AValue: T); overload; virtual;
+
+    ///  <summary>Inserts the elements of a collection into the list.</summary>
+    ///  <param name="AIndex">The index to insert to.</param>
+    ///  <param name="ACollection">The values to insert.</param>
+    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by the length of
+    ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If one element based <c>Insert</c> method is not overridden.</exception>
+    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload; virtual;
+
+    ///  <summary>Removes a given value from the list.</summary>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>If the list does not contain the given value, nothing happens.</remarks>
+    procedure Remove(const AValue: T); virtual;
+
+    ///  <summary>Removes an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to remove the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    procedure RemoveAt(const AIndex: NativeInt);
+
+    ///  <summary>Extracts an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to extract the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
+    ///  The removed element is returned to the caller.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ExtractAt(const AIndex: NativeInt): T;
+
+    ///  <summary>Checks whether the list contains a given value.</summary>
+    ///  <param name="AValue">The value to check.</param>
+    ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
+    function Contains(const AValue: T): Boolean; virtual;
+
+    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
+    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
+    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload; virtual;
+
+    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
+
+    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    function IndexOf(const AValue: T): NativeInt; overload;
+
+    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
+    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
+    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload; virtual;
+
+    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index from which the search starts.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
+
+    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    function LastIndexOf(const AValue: T): NativeInt; overload;
+
+    ///  <summary>Returns the item at a given index.</summary>
+    ///  <param name="AIndex">The index in the collection.</param>
+    ///  <returns>The element at the specified position.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    property Items[const AIndex: NativeInt]: T read GetItem write SetItem; default;
+
+    ///  <summary>Returns the element at a given position.</summary>
+    ///  <param name="AIndex">The index from which to return the element.</param>
+    ///  <returns>The element at the specified position.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ElementAt(const AIndex: NativeInt): T; override;
+
+    ///  <summary>Returns the element at a given position.</summary>
+    ///  <param name="AIndex">The index from which to return the element.</param>
+    ///  <param name="ADefault">The default value returned if the list is empty.</param>
+    ///  <returns>The element at the specified position if the list is not empty and the position is not out of bounds; otherwise
+    ///  the value of <paramref name="ADefault"/> is returned.</returns>
+    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
+  end;
+
+
   ///  <summary>The generic <c>list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
   TList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IDynamic, ISerializable)

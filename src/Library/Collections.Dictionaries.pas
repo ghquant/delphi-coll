@@ -33,63 +33,251 @@ uses SysUtils,
      Collections.Base;
 
 type
-  ///  <summary>The generic <c>dictionary</c> collection.</summary>
-  ///  <remarks>This type uses hashing mechanisms to store its key-value pairs.</remarks>
-  TDictionary<TKey, TValue> = class(TEnexAssociativeCollection<TKey, TValue>, IDictionary<TKey, TValue>)
+  ///  <summary>The abstract base class for all generic <c>dictionary</c> collections.</summary>
+  ///  <remarks>Descending class must implement all required methods and can implement all optional methods.</remarks>
+  TAbstractDictionary<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IDictionary<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-    { Generic Dictionary Pairs Enumerator }
-    TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
-    private
-      FVer: NativeInt;
-      FDict: TDictionary<TKey, TValue>;
-      FCurrentIndex: NativeInt;
-      FValue: TPair<TKey,TValue>;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TPair<TKey,TValue>; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-    { Generic Dictionary Keys Enumerator }
     TKeyEnumerator = class(TEnumerator<TKey>)
     private
-      FVer: NativeInt;
-      FDict: TDictionary<TKey, TValue>;
-      FCurrentIndex: NativeInt;
-      FValue: TKey;
+      FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
-      { Constructor }
-      constructor Create(const ADict: TDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
+      constructor Create(const AOwner: TAbstractDictionary<TKey, TValue>);
       function GetCurrent(): TKey; override;
       function MoveNext(): Boolean; override;
     end;
 
-    { Generic Dictionary Values Enumerator }
     TValueEnumerator = class(TEnumerator<TValue>)
     private
-      FVer: NativeInt;
-      FDict: TDictionary<TKey, TValue>;
-      FCurrentIndex: NativeInt;
-      FValue: TValue;
+      FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
-      { Constructor }
-      constructor Create(const ADict: TDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
+      constructor Create(const AOwner: TAbstractDictionary<TKey, TValue>);
       function GetCurrent(): TValue; override;
+      function MoveNext(): Boolean; override;
+    end;
+
+    TKeyCollection = class(TEnexCollection<TKey>)
+    private
+      FOwner: TAbstractDictionary<TKey, TValue>;
+    protected
+      function GetCount(): NativeInt; override;
+    public
+      constructor Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+      function GetEnumerator(): IEnumerator<TKey>; override;
+      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
+    end;
+
+    TValueCollection = class(TEnexCollection<TValue>)
+    private
+      FOwner: TAbstractDictionary<TKey, TValue>;
+    protected
+      function GetCount(): NativeInt; override;
+    public
+      constructor Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+      function GetEnumerator(): IEnumerator<TValue>; override;
+      procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
+    end;
+    {$ENDREGION}
+
+  private
+    FKeyCollection: IEnexCollection<TKey>;
+    FValueCollection: IEnexCollection<TValue>;
+
+  protected
+    ///  <summary>Returns the value associated with the given key.</summary>
+    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryGetValue</c> method is not overridden.</exception>
+    function GetItem(const AKey: TKey): TValue;
+
+    ///  <summary>Sets the value for a given key.</summary>
+    ///  <param name="AKey">The key for which to set the value.</param>
+    ///  <param name="AValue">The value to set.</param>
+    ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
+    ///  value of the specified key is modified. The implementation in this class always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    procedure SetItem(const AKey: TKey; const Value: TValue); virtual;
+
+    ///  <summary>Replaces a given value with a new one.</summary>
+    ///  <param name="ACurrent">The value to be replaced.</param>
+    ///  <param name="ANew">The value to be replaced with.</param>
+    ///  <remarks>This method is called by the dictioanry when a value needs to be replaced with another.
+    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old value is
+    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
+    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); virtual;
+
+    ///  <summary>Extracts the value associated to a key from the dictionary.</summary>
+    ///  <param name="AKey">The key to search for.</param>
+    ///  <param name="AValue">The looked up value.</param>
+    ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
+    ///  <remarks>Descending classes must implement this method in order to support both <c>Remove</c> and <c>Extract</c> methods. In the current implementation
+    ///  this method always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; virtual;
+  public
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy pairs from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy pairs from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; virtual;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy pairs from.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+      const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy pairs from.</param>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+      const AArray: array of TPair<TKey,TValue>); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
+    ///  <summary>Clears the contents of the dictionary.</summary>
+    ///  <remarks>The implementation in this class iterates over all key-value pairs and puts the keys into a temporary list
+    ///  that is the used to remove each pair. Most descending classes will most likely override this
+    ///  implementation with a better performing one.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
+    procedure Clear(); virtual;
+
+    ///  <summary>Adds a key-value pair to the dictionary.</summary>
+    ///  <param name="APair">The key-value pair to add.</param>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If the virtual <c>Add</c> method is not overridden.</exception>
+    procedure Add(const APair: TPair<TKey,TValue>); overload;
+
+    ///  <summary>Adds a key-value pair to the dictionary.</summary>
+    ///  <param name="AKey">The key of pair.</param>
+    ///  <param name="AValue">The value associated with the key.</param>
+    ///  <remarks>In the current implementation always raises an exception.</remarks>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure Add(const AKey: TKey; const AValue: TValue); overload; virtual;
+
+    ///  <summary>Removes a key-value pair using a given key.</summary>
+    ///  <param name="AKey">The key of the pair to remove.</param>
+    ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryExtract</c> method is not overridden.</exception>
+    procedure Remove(const AKey: TKey);
+
+    ///  <summary>Extracts a value using a given key.</summary>
+    ///  <param name="AKey">The key of the associated value.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryExtract</c> method is not overridden.</exception>
+    function Extract(const AKey: TKey): TValue;
+
+    ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
+    ///  <param name="AKey">The key to check for.</param>
+    ///  <returns><c>True</c> if the dictionary contains a pair identified by the given key; <c>False</c> otherwise.</returns>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryGetValue</c> method is not overridden.</exception>
+    function ContainsKey(const AKey: TKey): Boolean; virtual;
+
+    ///  <summary>Checks whether the dictionary contains a key-value pair that contains a given value.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the dictionary contains a pair containing the given value; <c>False</c> otherwise.</returns>
+    ///  <remarks>The implementation in this class iterates over all pairs and checks for the requested
+    ///  value. Most descendant classes will most likely provide a better version.</remarks>
+    function ContainsValue(const AValue: TValue): Boolean; virtual;
+
+    ///  <summary>Tries to obtain the value associated with a given key.</summary>
+    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
+    ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
+    ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
+    ///  <remarks>The implementation in this class iterates over all pairs and checks for the requested
+    ///  key. Most descendant classes will most likely provide a better version.</remarks>
+    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean; virtual;
+
+    ///  <summary>Gets or sets the value for a given key.</summary>
+    ///  <param name="AKey">The key to operate on.</param>
+    ///  <returns>The value associated with the key.</returns>
+    ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
+    ///  otherwise the value of the specified key is modified.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">Trying to read the value of a key that is
+    ///  not found in the dictionary.</exception>
+    property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
+
+    ///  <summary>Specifies the collection that contains only the keys.</summary>
+    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
+    property Keys: IEnexCollection<TKey> read FKeyCollection;
+
+    ///  <summary>Specifies the collection that contains only the values.</summary>
+    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
+    property Values: IEnexCollection<TValue> read FValueCollection;
+
+    ///  <summary>Returns the value associated with the given key.</summary>
+    ///  <param name="AKey">The key for which to return the associated value.</param>
+    ///  <returns>The value associated with the given key.</returns>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the dictionary.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryGetValue</c> method is not overridden.</exception>
+    function ValueForKey(const AKey: TKey): TValue; override;
+
+    ///  <summary>Checks whether the dictionary contains a given key-value pair.</summary>
+    ///  <param name="AKey">The key part of the pair.</param>
+    ///  <param name="AValue">The value part of the pair.</param>
+    ///  <returns><c>True</c> if the given key-value pair exists; <c>False</c> otherwise.</returns>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryGetValue</c> method is not overridden.</exception>
+    function KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean; override;
+
+    ///  <summary>Returns an Enex collection that contains only the keys.</summary>
+    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
+    function SelectKeys(): IEnexCollection<TKey>; override;
+
+    ///  <summary>Returns an Enex collection that contains only the values.</summary>
+    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
+    function SelectValues(): IEnexCollection<TValue>; override;
+  end;
+
+type
+  ///  <summary>The generic <c>dictionary</c> collection.</summary>
+  ///  <remarks>This type uses hashing mechanisms to store its key-value pairs.</remarks>
+  TDictionary<TKey, TValue> = class(TAbstractDictionary<TKey, TValue>)
+  private type
+    {$REGION 'Internal Types'}
+    { Generic Dictionary Pairs Enumerator }
+    TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
+    private
+      FVer: NativeInt;
+      FOwner: TDictionary<TKey, TValue>;
+      FCurrentIndex: NativeInt;
+      FValue: TPair<TKey,TValue>;
+
+    public
+      constructor Create(const AOwner: TDictionary<TKey, TValue>);
+      destructor Destroy(); override;
+      function GetCurrent(): TPair<TKey, TValue>; override;
       function MoveNext(): Boolean; override;
     end;
 
@@ -100,61 +288,13 @@ type
       FValue: TValue;
     end;
 
-    TBucketArray = array of NativeInt;
+    TBucketArray = TArray<NativeInt>;
     TEntryArray = TArray<TEntry>;
-
-    { Generic Dictionary Keys Collection }
-    TKeyCollection = class(TEnexCollection<TKey>)
-    private
-      FDict: TDictionary<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount(): NativeInt; override;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TDictionary<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TKey>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
-    end;
-
-    { Generic Dictionary Values Collection }
-    TValueCollection = class(TEnexCollection<TValue>)
-    private
-      FDict: TDictionary<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount: NativeInt; override;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TDictionary<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TValue>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
-    end;
     {$ENDREGION}
 
   private var
     FBucketArray: TBucketArray;
     FEntryArray: TEntryArray;
-    FKeyCollection: IEnexCollection<TKey>;
-    FValueCollection: IEnexCollection<TValue>;
     FCount: NativeInt;
     FFreeCount: NativeInt;
     FFreeList: NativeInt;
@@ -162,157 +302,63 @@ type
 
     { Internal }
     procedure InitializeInternals(const ACapacity: NativeInt);
-    procedure Insert(const AKey: TKey; const AValue: TValue; const ShouldAdd: Boolean = true);
+    procedure Insert(const AKey: TKey; const AValue: TValue; const AShouldAdd: Boolean = true);
     function FindEntry(const AKey: TKey): NativeInt;
     procedure Resize();
     function Hash(const AKey: TKey): NativeInt;
-
-    { Tries to extract a value at the given position }
-    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
     function GetCount(): NativeInt; override;
-
-    ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
-    function GetItem(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
     ///  <param name="AKey">The key for which to set the value.</param>
     ///  <param name="AValue">The value to set.</param>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
-    procedure SetItem(const AKey: TKey; const Value: TValue);
+    procedure SetItem(const AKey: TKey; const Value: TValue); override;
 
-    ///  <summary>Replaces a given value with a new one.</summary>
-    ///  <param name="ACurrent">The value to be replaced.</param>
-    ///  <param name="ANew">The value to be replaced with.</param>
-    ///  <remarks>This method is called by the dictioanry when a value needs to be replaced with another.
-    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old value is
-    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
-    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); virtual;
+    ///  <summary>Extracts the value associated to a key from the dictionary.</summary>
+    ///  <param name="AKey">The key to search for.</param>
+    ///  <param name="AValue">The looked up value.</param>
+    ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
+    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AInitialCapacity: NativeInt); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TKey,TValue>); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    procedure Clear();
-
-    ///  <summary>Adds a key-value pair to the dictionary.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const APair: TPair<TKey,TValue>); overload;
+    procedure Clear(); override;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload;
-
-    ///  <summary>Removes a key-value pair using a given key.</summary>
-    ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey); overload;
-
-    ///  <summary>Extracts a value using a given key.</summary>
-    ///  <param name="AKey">The key of the associated value.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
-    function Extract(const AKey: TKey): TValue;
-
-    ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
-    ///  <param name="AKey">The key to check for.</param>
-    ///  <returns><c>True</c> if the dictionary contains a pair identified by the given key; <c>False</c> otherwise.</returns>
-    function ContainsKey(const AKey: TKey): Boolean;
+    procedure Add(const AKey: TKey; const AValue: TValue); override;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the dictionary contains a pair containing the given value; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AValue: TValue): Boolean;
+    function ContainsValue(const AValue: TValue): Boolean; override;
 
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
     ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
-    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
-
-    ///  <summary>Gets or sets the value for a given key.</summary>
-    ///  <param name="AKey">The key to operate on.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
-    ///  otherwise the value of the specified key is modified.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The trying to read the value of a key that is
-    ///  not found in the dictionary.</exception>
-    property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
-
-    ///  <summary>Specifies the number of key-value pairs in the dictionary.</summary>
-    ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
-    property Count: NativeInt read GetCount;
-
-    ///  <summary>Specifies the collection that contains only the keys.</summary>
-    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    property Keys: IEnexCollection<TKey> read FKeyCollection;
-
-    ///  <summary>Specifies the collection that contains only the values.</summary>
-    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    property Values: IEnexCollection<TValue> read FValueCollection;
+    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean; override;
 
     ///  <summary>Returns a new enumerator object used to enumerate this dictionary.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -327,26 +373,6 @@ type
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
-
-    ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to return the associated value.</param>
-    ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the dictionary.</exception>
-    function ValueForKey(const AKey: TKey): TValue; override;
-
-    ///  <summary>Checks whether the dictionary contains a given key-value pair.</summary>
-    ///  <param name="AKey">The key part of the pair.</param>
-    ///  <param name="AValue">The value part of the pair.</param>
-    ///  <returns><c>True</c> if the given key-value pair exists; <c>False</c> otherwise.</returns>
-    function KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean; override;
-
-    ///  <summary>Returns an Enex collection that contains only the keys.</summary>
-    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; override;
-
-    ///  <summary>Returns an Enex collection that contains only the values.</summary>
-    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    function SelectValues(): IEnexCollection<TValue>; override;
   end;
 
   ///  <summary>The generic <c>dictionary</c> collection designed to store objects.</summary>
@@ -386,10 +412,9 @@ type
 type
   ///  <summary>The generic <c>dictionary</c> collection.</summary>
   ///  <remarks>This type uses hashing mechanisms and linked lists to store its key-value pairs.</remarks>
-  TLinkedDictionary<TKey, TValue> = class(TEnexAssociativeCollection<TKey, TValue>, IDictionary<TKey, TValue>)
+  TLinkedDictionary<TKey, TValue> = class(TAbstractDictionary<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-
     PEntry = ^TEntry;
     TEntry = record
       FHashCode: NativeInt;
@@ -400,111 +425,22 @@ type
 
     TBucketArray = TArray<PEntry>;
 
-    { Generic Dictionary Pairs Enumerator }
-    TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
       FVer: NativeInt;
-      FDict: TLinkedDictionary<TKey, TValue>;
+      FOwner: TLinkedDictionary<TKey, TValue>;
       FCurrentEntry: PEntry;
       FValue: TPair<TKey, TValue>;
     public
-      { Constructor }
-      constructor Create(const ADict: TLinkedDictionary<TKey, TValue>);
-
-      { Destructor }
+      constructor Create(const AOwner: TLinkedDictionary<TKey, TValue>);
       destructor Destroy(); override;
-
       function GetCurrent(): TPair<TKey,TValue>; override;
       function MoveNext(): Boolean; override;
-    end;
-
-    { Generic Dictionary Keys Enumerator }
-    TKeyEnumerator = class(TEnumerator<TKey>)
-    private
-      FVer: NativeInt;
-      FDict: TLinkedDictionary<TKey, TValue>;
-      FCurrentEntry: PEntry;
-      FValue: TKey;
-    public
-      { Constructor }
-      constructor Create(const ADict: TLinkedDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TKey; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-    { Generic Dictionary Values Enumerator }
-    TValueEnumerator = class(TEnumerator<TValue>)
-    private
-      FVer: NativeInt;
-      FDict: TLinkedDictionary<TKey, TValue>;
-      FCurrentEntry: PEntry;
-      FValue: TValue;
-    public
-      { Constructor }
-      constructor Create(const ADict: TLinkedDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TValue; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-    { Generic Dictionary Keys Collection }
-    TKeyCollection = class(TEnexCollection<TKey>)
-    private
-      FDict: TLinkedDictionary<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount(): NativeInt; override;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TLinkedDictionary<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TKey>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
-    end;
-
-    { Generic Dictionary Values Collection }
-    TValueCollection = class(TEnexCollection<TValue>)
-    private
-      FDict: TLinkedDictionary<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount: NativeInt; override;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TLinkedDictionary<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TValue>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
     end;
     {$ENDREGION}
 
   private var
     FBucketArray: TBucketArray;
-    FKeyCollection: IEnexCollection<TKey>;
-    FValueCollection: IEnexCollection<TValue>;
     FCount, FFreeCount: NativeInt;
     FVer: NativeInt;
     FHead, FTail, FFirstFree: PEntry;
@@ -521,152 +457,70 @@ type
     function NeedEntry(const AKey: TKey; const AValue: TValue; const AHash: NativeInt): PEntry;
     procedure ReleaseEntry(const AEntry: PEntry);
 
-    { Tries to extract a value at the given position }
-    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
     function GetCount(): NativeInt; override;
-
-    ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
-    function GetItem(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
     ///  <param name="AKey">The key for which to set the value.</param>
     ///  <param name="AValue">The value to set.</param>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
-    procedure SetItem(const AKey: TKey; const Value: TValue);
+    procedure SetItem(const AKey: TKey; const Value: TValue); override;
 
-    ///  <summary>Replaces a given value with a new one.</summary>
-    ///  <param name="ACurrent">The value to be replaced.</param>
-    ///  <param name="ANew">The value to be replaced with.</param>
-    ///  <remarks>This method is called by the dictioanry when a value needs to be replaced with another.
-    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old value is
-    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
-    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); virtual;
+    ///  <summary>Extracts the value associated to a key from the dictionary.</summary>
+    ///  <param name="AKey">The key to search for.</param>
+    ///  <param name="AValue">The looked up value.</param>
+    ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
+    ///  <remarks>Descending classes must implement this method in order to support both <c>Remove</c> and <c>Extract</c> methods. In the current implementation
+    ///  this method always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AInitialCapacity: NativeInt); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TKey,TValue>); overload;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
-    ///  <summary>Adds a key-value pair to the dictionary.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const APair: TPair<TKey,TValue>); overload;
+    ///  <summary>Specifies the number of key-value pairs in the dictionary.</summary>
+    ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
+    property Count: NativeInt read FCount;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload;
-
-    ///  <summary>Removes a key-value pair using a given key.</summary>
-    ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey); overload;
-
-    ///  <summary>Extracts a value using a given key.</summary>
-    ///  <param name="AKey">The key of the associated value.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
-    function Extract(const AKey: TKey): TValue;
-
-    ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
-    ///  <param name="AKey">The key to check for.</param>
-    ///  <returns><c>True</c> if the dictionary contains a pair identified by the given key; <c>False</c> otherwise.</returns>
-    function ContainsKey(const AKey: TKey): Boolean;
+    procedure Add(const AKey: TKey; const AValue: TValue); override;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the dictionary contains a pair containing the given value; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AValue: TValue): Boolean;
+    function ContainsValue(const AValue: TValue): Boolean; override;
 
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
     ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
-    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
-
-    ///  <summary>Gets or sets the value for a given key.</summary>
-    ///  <param name="AKey">The key to operate on.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
-    ///  otherwise the value of the specified key is modified.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The trying to read the value of a key that is
-    ///  not found in the dictionary.</exception>
-    property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
-
-    ///  <summary>Specifies the number of key-value pairs in the dictionary.</summary>
-    ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
-    property Count: NativeInt read GetCount;
-
-    ///  <summary>Specifies the collection that contains only the keys.</summary>
-    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    property Keys: IEnexCollection<TKey> read FKeyCollection;
-
-    ///  <summary>Specifies the collection that contains only the values.</summary>
-    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    property Values: IEnexCollection<TValue> read FValueCollection;
+    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean; override;
 
     ///  <summary>Returns a new enumerator object used to enumerate this dictionary.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -681,26 +535,6 @@ type
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
     ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
-
-    ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to return the associated value.</param>
-    ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the dictionary.</exception>
-    function ValueForKey(const AKey: TKey): TValue; override;
-
-    ///  <summary>Checks whether the dictionary contains a given key-value pair.</summary>
-    ///  <param name="AKey">The key part of the pair.</param>
-    ///  <param name="AValue">The value part of the pair.</param>
-    ///  <returns><c>True</c> if the given key-value pair exists; <c>False</c> otherwise.</returns>
-    function KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean; override;
-
-    ///  <summary>Returns an Enex collection that contains only the keys.</summary>
-    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; override;
-
-    ///  <summary>Returns an Enex collection that contains only the values.</summary>
-    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    function SelectValues(): IEnexCollection<TValue>; override;
   end;
 
   ///  <summary>The generic <c>dictionary</c> collection designed to store objects.</summary>
@@ -740,7 +574,7 @@ type
 type
   ///  <summary>The generic <c>sorted dictionary</c> collection.</summary>
   ///  <remarks>This type uses an AVL tree to store its key-value pairs.</remarks>
-  TSortedDictionary<TKey, TValue> = class(TEnexAssociativeCollection<TKey, TValue>, IDictionary<TKey, TValue>)
+  TSortedDictionary<TKey, TValue> = class(TAbstractDictionary<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
     TBalanceAct = (baStart, baLeft, baRight, baLoop, baEnd);
@@ -757,107 +591,17 @@ type
       FBalance: ShortInt;
     end;
 
-    { Generic Dictionary Pairs Enumerator }
-    TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
       FVer: NativeInt;
-      FDict: TSortedDictionary<TKey, TValue>;
+      FOwner: TSortedDictionary<TKey, TValue>;
       FNext: TNode;
       FValue: TPair<TKey,TValue>;
-
     public
-      { Constructor }
-      constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
-
-      { Destructor }
+      constructor Create(const AOwner: TSortedDictionary<TKey, TValue>);
       destructor Destroy(); override;
-
       function GetCurrent(): TPair<TKey,TValue>; override;
       function MoveNext(): Boolean; override;
-    end;
-
-    { Generic Dictionary Keys Enumerator }
-    TKeyEnumerator = class(TEnumerator<TKey>)
-    private
-      FVer: NativeInt;
-      FDict: TSortedDictionary<TKey, TValue>;
-      FNext: TNode;
-      FValue: TKey;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TKey; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-    { Generic Dictionary Values Enumerator }
-    TValueEnumerator = class(TEnumerator<TValue>)
-    private
-      FVer: NativeInt;
-      FDict: TSortedDictionary<TKey, TValue>;
-      FNext: TNode;
-      FValue: TValue;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TValue; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-    { Generic Dictionary Keys Collection }
-    TKeyCollection = class(TEnexCollection<TKey>)
-    private
-      FDict: TSortedDictionary<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount(): NativeInt; override;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TKey>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
-    end;
-
-    { Generic Dictionary Values Collection }
-    TValueCollection = class(TEnexCollection<TValue>)
-    private
-      FDict: TSortedDictionary<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount: NativeInt; override;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TSortedDictionary<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TValue>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
     end;
     {$ENDREGION}
 
@@ -866,164 +610,111 @@ type
     FVer: NativeInt;
     FRoot: TNode;
     FSignFix: NativeInt;
-    FKeyCollection: IEnexCollection<TKey>;
-    FValueCollection: IEnexCollection<TValue>;
 
-    { Some internals }
     function FindNodeWithKey(const AKey: TKey): TNode;
     function FindLeftMostNode(): TNode;
     function FindRightMostNode(): TNode;
     function WalkToTheRight(const ANode: TNode): TNode;
-
-    { ... }
     function MakeNode(const AKey: TKey; const AValue: TValue; const ARoot: TNode): TNode;
     procedure RecursiveClear(const ANode: TNode);
     procedure ReBalanceSubTreeOnInsert(const ANode: TNode);
-    function Insert(const AKey: TKey; const AValue: TValue; const ChangeOrFail: Boolean): Boolean;
-
-    { Removal }
+    function Insert(const AKey: TKey; const AValue: TValue; const AChangeOrFail: Boolean): Boolean;
     procedure BalanceTreesAfterRemoval(const ANode: TNode);
-
-    { Tries to extract a value at the given position }
-    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
   protected
     ///  <summary>Returns the number of key-value pairs in the dictionary.</summary>
     ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
     function GetCount(): NativeInt; override;
-
-    ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to try to retrieve the value.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
-    function GetItem(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
     ///  <param name="AKey">The key for which to set the value.</param>
     ///  <param name="AValue">The value to set.</param>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
-    procedure SetItem(const AKey: TKey; const Value: TValue);
+    procedure SetItem(const AKey: TKey; const Value: TValue); override;
 
-    ///  <summary>Replaces a given value with a new one.</summary>
-    ///  <param name="ACurrent">The value to be replaced.</param>
-    ///  <param name="ANew">The value to be replaced with.</param>
-    ///  <remarks>This method is called by the dictioanry when a value needs to be replaced with another.
-    ///  The default implementation will compare the values, if those are equal nothing is done. Otherwise the old value is
-    ///  "disposed of" and the new one is copied over. Descendant classes my want another behaviour.</remarks>
-    procedure ReplaceValue(var ACurrent: TValue; const ANew: TValue); virtual;
+    ///  <summary>Extracts the value associated to a key from the dictionary.</summary>
+    ///  <param name="AKey">The key to search for.</param>
+    ///  <param name="AValue">The looked up value.</param>
+    ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
+    ///  <remarks>Descending classes must implement this method in order to support both <c>Remove</c> and <c>Extract</c> methods. In the current implementation
+    ///  this method always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscending: Boolean = true); overload;
+    constructor Create(const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
+    constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
+    constructor Create(const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AAscending: Boolean = true); overload;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>    
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
+      const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
+      const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean); overload;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
-    ///  <summary>Adds a key-value pair to the dictionary.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const APair: TPair<TKey,TValue>); overload;
+    ///  <summary>Specifies the number of key-value pairs in the dictionary.</summary>
+    ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
+    property Count: NativeInt read FCount;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload;
-
-    ///  <summary>Removes a key-value pair using a given key.</summary>
-    ///  <param name="AKey">The key of the pair to remove.</param>
-    ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey); overload;
-
-    ///  <summary>Extracts a value using a given key.</summary>
-    ///  <param name="AKey">The key of the associated value.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <remarks>This function is identical to <c>Remove</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the dictionary.</exception>
-    function Extract(const AKey: TKey): TValue;
-
-    ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
-    ///  <param name="AKey">The key to check for.</param>
-    ///  <returns><c>True</c> if the dictionary contains a pair identified by the given key; <c>False</c> otherwise.</returns>
-    function ContainsKey(const AKey: TKey): Boolean;
+    procedure Add(const AKey: TKey; const AValue: TValue); override;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the dictionary contains a pair containing the given value; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AValue: TValue): Boolean;
+    function ContainsValue(const AValue: TValue): Boolean; override;
 
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
     ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
-    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
-
-    ///  <summary>Gets or sets the value for a given key.</summary>
-    ///  <param name="AKey">The key to operate on.</param>
-    ///  <returns>The value associated with the key.</returns>
-    ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c> if assignment is done to this property;
-    ///  otherwise the value of the specified key is modified.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The trying to read the value of a key that is
-    ///  not found in the dictionary.</exception>
-    property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
-
-    ///  <summary>Specifies the number of key-value pairs in the dictionary.</summary>
-    ///  <returns>A positive value specifying the number of pairs in the dictionary.</returns>
-    property Count: NativeInt read GetCount;
-
-    ///  <summary>Specifies the collection that contains only the keys.</summary>
-    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    property Keys: IEnexCollection<TKey> read FKeyCollection;
-
-    ///  <summary>Specifies the collection that contains only the values.</summary>
-    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    property Values: IEnexCollection<TValue> read FValueCollection;
+    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean; override;
 
     ///  <summary>Returns a new enumerator object used to enumerate this dictionary.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -1039,18 +730,6 @@ type
     ///  <exception cref="Collections.Base|EArgumentOutOfSpaceException">The array is not long enough.</exception>
     procedure CopyTo(var AArray: array of TPair<TKey,TValue>; const AStartIndex: NativeInt); overload; override;
 
-    ///  <summary>Returns the value associated with the given key.</summary>
-    ///  <param name="AKey">The key for which to return the associated value.</param>
-    ///  <returns>The value associated with the given key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">No such key in the dictionary.</exception>
-    function ValueForKey(const AKey: TKey): TValue; override;
-
-    ///  <summary>Checks whether the dictionary contains a given key-value pair.</summary>
-    ///  <param name="AKey">The key part of the pair.</param>
-    ///  <param name="AValue">The value part of the pair.</param>
-    ///  <returns><c>True</c> if the given key-value pair exists; <c>False</c> otherwise.</returns>
-    function KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean; override;
-
     ///  <summary>Returns the biggest key.</summary>
     ///  <returns>The biggest key stored in the dictionary.</returns>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The dictionary is empty.</exception>
@@ -1060,14 +739,6 @@ type
     ///  <returns>The smallest key stored in the dictionary.</returns>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The dictionary is empty.</exception>
     function MinKey(): TKey; override;
-
-    ///  <summary>Returns an Enex collection that contains only the keys.</summary>
-    ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; override;
-
-    ///  <summary>Returns an Enex collection that contains only the values.</summary>
-    ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    function SelectValues(): IEnexCollection<TValue>; override;
   end;
 
   ///  <summary>The generic <c>sorted dictionary</c> collection designed to store objects.</summary>
@@ -1106,18 +777,313 @@ type
 
 implementation
 
-{ TDictionary<TKey, TValue> }
+{ TAbstractDictionary<TKey, TValue> }
 
-procedure TDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
+procedure TAbstractDictionary<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
 begin
- { Call insert }
- Insert(APair.Key, APair.Value);
+  ExceptionHelper.Throw_OperationNotSupported('Add');
 end;
+
+procedure TAbstractDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
+begin
+  { Call the virtual method. }
+  Add(APair.Key, APair.Value);
+end;
+
+procedure TAbstractDictionary<TKey, TValue>.Clear;
+var
+  LList: IList<TKey>;
+  LKey: TKey;
+begin
+  LList := Keys.ToList();
+
+  for LKey in LList do
+  begin
+    Remove(LKey);
+    NotifyKeyRemoved(LKey);
+  end;
+end;
+
+function TAbstractDictionary<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
+var
+  LDummy: TValue;
+begin
+  Result := TryGetValue(AKey, LDummy);
+end;
+
+function TAbstractDictionary<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
+var
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if ValuesAreEqual(AValue, LEnumerator.Current.Value) then
+      Exit(True);
+
+  Result := False;
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.Create;
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default);
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>);
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection);
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.Create(
+  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+  const ACollection: IEnumerable<TPair<TKey, TValue>>);
+var
+  LValue: TPair<TKey, TValue>;
+begin
+  { Call upper constructor }
+  Create(AKeyRules, AValueRules);
+
+  if not Assigned(ACollection) then
+     ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  { Pump in all items }
+  for LValue in ACollection do
+  begin
+{$IF CompilerVersion < 22}
+    Add(LValue);
+{$ELSE}
+    Add(LValue.Key, LValue.Value);
+{$IFEND}
+  end;
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.Create(
+  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+  const AArray: array of TPair<TKey, TValue>);
+var
+  I: NativeInt;
+begin
+  { Call upper constructor }
+  Create(AKeyRules, AValueRules);
+
+  { Copy all items in }
+  for I := 0 to Length(AArray) - 1 do
+    Add(AArray[I]);
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>);
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray);
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+begin
+  { Call the upper constructor }
+  inherited Create(AKeyRules, AValueRules);
+
+  FKeyCollection := TKeyCollection.Create(Self);
+  FValueCollection := TValueCollection.Create(Self);
+end;
+
+destructor TAbstractDictionary<TKey, TValue>.Destroy;
+begin
+  Clear();
+  inherited;
+end;
+
+
+function TAbstractDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
+begin
+  if not TryExtract(AKey, Result) then
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
+function TAbstractDictionary<TKey, TValue>.GetItem(const AKey: TKey): TValue;
+begin
+  if not TryGetValue(AKey, Result) then
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
+function TAbstractDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
+var
+  LFoundValue: TValue;
+begin
+  Result := TryGetValue(AKey, LFoundValue) and ValuesAreEqual(LFoundValue, AValue);
+end;
+
+procedure TAbstractDictionary<TKey, TValue>.Remove(const AKey: TKey);
+var
+  LValue: TValue;
+begin
+  if TryExtract(AKey, LValue) then
+    NotifyValueRemoved(LValue);
+end;
+
+procedure TAbstractDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
+begin
+  if not ValuesAreEqual(ACurrent, ANew) then
+  begin
+    { Notify that an element is removed. }
+    NotifyValueRemoved(ACurrent);
+
+    { Replace it. }
+    ACurrent := ANew;
+  end;
+end;
+
+function TAbstractDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
+begin
+  Result := FKeyCollection;
+end;
+
+function TAbstractDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
+begin
+  Result := FValueCollection;
+end;
+
+procedure TAbstractDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('SetItem');
+end;
+
+function TAbstractDictionary<TKey, TValue>.TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
+begin
+  ExceptionHelper.Throw_OperationNotSupported('TryExtract');
+end;
+
+function TAbstractDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
+var
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if KeysAreEqual(AKey, LEnumerator.Current.Key) then
+    begin
+      AFoundValue := LEnumerator.Current.Value;
+      Exit(True);
+    end;
+
+  Result := False;
+end;
+
+function TAbstractDictionary<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
+begin
+  if not TryGetValue(AKey, Result) then
+    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+end;
+
+{ TAbstractDictionary<TKey, TValue>.TKeyCollection }
+
+procedure TAbstractDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
+var
+  LArray: TArray<TPair<TKey, TValue>>;
+  I: NativeInt;
+begin
+  { Check for indexes }
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if (Length(AArray) - AStartIndex) < FOwner.Count then
+     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
+
+  SetLength(LArray, FOwner.GetCount());
+  FOwner.CopyTo(LArray, 0);
+
+  for I := 0 to Length(LArray) - 1 do
+    AArray[AStartIndex + I] := LArray[I].Key;
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.TKeyCollection.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+begin
+  inherited Create(AOwner.KeyRules);
+  FOwner := AOwner;
+end;
+
+function TAbstractDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
+begin
+  Result := FOwner.GetCount();
+end;
+
+function TAbstractDictionary<TKey, TValue>.TKeyCollection.GetEnumerator: IEnumerator<TKey>;
+begin
+  Result := TKeyEnumerator.Create(FOwner);
+end;
+
+{ TAbstractDictionary<TKey, TValue>.TValueCollection }
+
+procedure TAbstractDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
+var
+  LArray: TArray<TPair<TKey, TValue>>;
+  I: NativeInt;
+begin
+  { Check for indexes }
+  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
+
+  if (Length(AArray) - AStartIndex) < FOwner.Count then
+     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
+
+  SetLength(LArray, FOwner.GetCount());
+  FOwner.CopyTo(LArray, 0);
+
+  for I := 0 to Length(LArray) - 1 do
+    AArray[AStartIndex + I] := LArray[I].Value;
+end;
+
+constructor TAbstractDictionary<TKey, TValue>.TValueCollection.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+begin
+  inherited Create(AOwner.ValueRules);
+  FOwner := AOwner;
+end;
+
+function TAbstractDictionary<TKey, TValue>.TValueCollection.GetCount: NativeInt;
+begin
+  Result := FOwner.GetCount();
+end;
+
+function TAbstractDictionary<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
+begin
+  Result := TValueEnumerator.Create(FOwner);
+end;
+
+{ TAbstractDictionary<TKey, TValue>.TKeyEnumerator }
+
+constructor TAbstractDictionary<TKey, TValue>.TKeyEnumerator.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+begin
+  FOwnerEnumerator := AOwner.GetEnumerator();
+end;
+
+function TAbstractDictionary<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
+begin
+  Result := FOwnerEnumerator.Current.Key;
+end;
+
+function TAbstractDictionary<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
+begin
+  Result := FOwnerEnumerator.MoveNext();
+end;
+
+{ TAbstractDictionary<TKey, TValue>.TValueEnumerator }
+
+constructor TAbstractDictionary<TKey, TValue>.TValueEnumerator.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+begin
+  FOwnerEnumerator := AOwner.GetEnumerator();
+end;
+
+function TAbstractDictionary<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
+begin
+  Result := FOwnerEnumerator.Current.Value;
+end;
+
+function TAbstractDictionary<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
+begin
+  Result := FOwnerEnumerator.MoveNext();
+end;
+
+{ TDictionary<TKey, TValue> }
 
 procedure TDictionary<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
 begin
- { Call insert }
- Insert(AKey, AValue);
+  Insert(AKey, AValue);
 end;
 
 procedure TDictionary<TKey, TValue>.Clear;
@@ -1149,11 +1115,6 @@ begin
   Inc(FVer);
 end;
 
-function TDictionary<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
-begin
-  Result := (FindEntry(AKey) >= 0);
-end;
-
 function TDictionary<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
 var
   I: NativeInt;
@@ -1163,8 +1124,7 @@ begin
   for I := 0 to FCount - 1 do
   begin
     if (FEntryArray[I].FHashCode >= 0) and (ValuesAreEqual(FEntryArray[I].FValue, AValue)) then
-       begin Result := True; Exit; end;
-
+      Exit(True);
   end;
 end;
 
@@ -1193,31 +1153,16 @@ begin
   end;
 end;
 
-constructor TDictionary<TKey, TValue>.Create;
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default);
-end;
-
 constructor TDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default, AInitialCapacity);
 end;
 
-constructor TDictionary<TKey, TValue>.Create(
-  const ACollection: IEnumerable<TPair<TKey, TValue>>);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection);
-end;
-
-constructor TDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>;
+constructor TDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt);
 begin
   { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
-
-  FKeyCollection := TKeyCollection.Create(Self);
-  FValueCollection := TValueCollection.Create(Self);
 
   FVer := 0;
   FCount := 0;
@@ -1227,49 +1172,10 @@ begin
   InitializeInternals(AInitialCapacity);
 end;
 
-constructor TDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const ACollection: IEnumerable<TPair<TKey, TValue>>);
-var
-  LValue: TPair<TKey, TValue>;
+constructor TDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
   { Call upper constructor }
   Create(AKeyRules, AValueRules, CDefaultSize);
-
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-  begin
-{$IF CompilerVersion < 22}
-    Add(LValue);
-{$ELSE}
-    Add(LValue.Key, LValue.Value);
-{$IFEND}
-  end;
-end;
-
-constructor TDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>);
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules, CDefaultSize);
-end;
-
-destructor TDictionary<TKey, TValue>.Destroy;
-begin
-  { Clear first }
-  Clear();
-
-  inherited;
-end;
-
-function TDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
-begin
-  if not TryExtract(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
 function TDictionary<TKey, TValue>.FindEntry(const AKey: TKey): NativeInt;
@@ -1302,13 +1208,7 @@ end;
 
 function TDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
-  Result := TDictionary<TKey, TValue>.TPairEnumerator.Create(Self);
-end;
-
-function TDictionary<TKey, TValue>.GetItem(const AKey: TKey): TValue;
-begin
-  if not TryGetValue(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+  Result := TEnumerator.Create(Self);
 end;
 
 function TDictionary<TKey, TValue>.Hash(const AKey: TKey): NativeInt;
@@ -1318,8 +1218,7 @@ begin
   Result := PositiveMask and ((PositiveMask and GetKeyHashCode(AKey)) + 1);
 end;
 
-procedure TDictionary<TKey, TValue>.InitializeInternals(
-  const ACapacity: NativeInt);
+procedure TDictionary<TKey, TValue>.InitializeInternals(const ACapacity: NativeInt);
 var
   I: NativeInt;
 begin
@@ -1335,8 +1234,7 @@ begin
   FFreeList := -1;
 end;
 
-procedure TDictionary<TKey, TValue>.Insert(const AKey: TKey;
-  const AValue: TValue; const ShouldAdd: Boolean);
+procedure TDictionary<TKey, TValue>.Insert(const AKey: TKey; const AValue: TValue; const AShouldAdd: Boolean);
 var
   LFreeList, LIndex,
     LHashCode, I: NativeInt;
@@ -1356,7 +1254,7 @@ begin
   begin
     if (FEntryArray[I].FHashCode = LHashCode) and KeysAreEqual(FEntryArray[I].FKey, AKey) then
     begin
-      if (ShouldAdd) then
+      if AShouldAdd then
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
 
       ReplaceValue(FEntryArray[I].FValue, AValue);
@@ -1398,33 +1296,6 @@ begin
   Inc(FVer);
 end;
 
-function TDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
-var
-  LValue: TValue;
-begin
-  Result := TryGetValue(AKey, LValue) and ValuesAreEqual(LValue, AValue);
-end;
-
-procedure TDictionary<TKey, TValue>.Remove(const AKey: TKey);
-var
-  LValue: TValue;
-begin
-  if TryExtract(AKey, LValue) then
-    NotifyValueRemoved(LValue);
-end;
-
-procedure TDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
-begin
-  if not ValuesAreEqual(ACurrent, ANew) then
-  begin
-    { Notify that an element is removed. }
-    NotifyValueRemoved(ACurrent);
-
-    { Replace it. }
-    ACurrent := ANew;
-  end;
-end;
-
 procedure TDictionary<TKey, TValue>.Resize;
 var
   LNewLength, I, LIndex: NativeInt;
@@ -1443,16 +1314,6 @@ begin
     FEntryArray[I].FNext := FBucketArray[LIndex];
     FBucketArray[LIndex] := I;
   end;
-end;
-
-function TDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
-begin
-  Result := Keys;
-end;
-
-function TDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
-begin
-  Result := Values;
 end;
 
 procedure TDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
@@ -1518,79 +1379,54 @@ begin
   LIndex := FindEntry(AKey);
 
   if LIndex >= 0 then
-     begin
-       AFoundValue := FEntryArray[LIndex].FValue;
-       Exit(True);
-     end;
+  begin
+    AFoundValue := FEntryArray[LIndex].FValue;
+    Exit(True);
+  end;
 
   { Key not found, simply fail }
   AFoundValue := Default(TValue);
   Result := False;
 end;
 
-function TDictionary<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
-begin
-  Result := GetItem(AKey);
-end;
 
-constructor TDictionary<TKey, TValue>.Create(
-  const AArray: array of TPair<TKey, TValue>);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray);
-end;
+{ TDictionary<TKey, TValue>.TEnumerator }
 
-constructor TDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules, CDefaultSize);
-
-  { Copy all items in }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
-end;
-
-{ TDictionary<TKey, TValue>.TPairEnumerator }
-
-constructor TDictionary<TKey, TValue>.TPairEnumerator.Create(const ADict: TDictionary<TKey, TValue>);
+constructor TDictionary<TKey, TValue>.TEnumerator.Create(const AOwner: TDictionary<TKey, TValue>);
 begin
   { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
+  FOwner := AOwner;
+  KeepObjectAlive(AOwner);
 
   FCurrentIndex := 0;
-  FVer := ADict.FVer;
+  FVer := AOwner.FVer;
 end;
 
-destructor TDictionary<TKey, TValue>.TPairEnumerator.Destroy;
+destructor TDictionary<TKey, TValue>.TEnumerator.Destroy;
 begin
-  ReleaseObject(FDict);
+  ReleaseObject(FOwner);
   inherited;
 end;
 
-function TDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
+function TDictionary<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey,TValue>;
 begin
-  if FVer <> FDict.FVer then
+  if FVer <> FOwner.FVer then
     ExceptionHelper.Throw_CollectionChangedError();
 
   Result := FValue;
 end;
 
-function TDictionary<TKey, TValue>.TPairEnumerator.MoveNext: Boolean;
+function TDictionary<TKey, TValue>.TEnumerator.MoveNext: Boolean;
 begin
-  if FVer <> FDict.FVer then
+  if FVer <> FOwner.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
-  while FCurrentIndex < FDict.FCount do
+  while FCurrentIndex < FOwner.FCount do
   begin
-    if FDict.FEntryArray[FCurrentIndex].FHashCode >= 0 then
+    if FOwner.FEntryArray[FCurrentIndex].FHashCode >= 0 then
     begin
-      FValue.Key := FDict.FEntryArray[FCurrentIndex].FKey;
-      FValue.Value := FDict.FEntryArray[FCurrentIndex].FValue;
+      FValue.Key := FOwner.FEntryArray[FCurrentIndex].FKey;
+      FValue.Value := FOwner.FEntryArray[FCurrentIndex].FValue;
 
       Inc(FCurrentIndex);
       Result := True;
@@ -1600,198 +1436,8 @@ begin
     Inc(FCurrentIndex);
   end;
 
-  FCurrentIndex := FDict.FCount + 1;
+  FCurrentIndex := FOwner.FCount + 1;
   Result := False;
-end;
-
-{ TDictionary<TKey, TValue>.TKeyEnumerator }
-
-constructor TDictionary<TKey, TValue>.TKeyEnumerator.Create(const ADict: TDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-  
-  FCurrentIndex := 0;
-  FVer := ADict.FVer;
-  FValue := default(TKey);
-end;
-
-destructor TDictionary<TKey, TValue>.TKeyEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TDictionary<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TDictionary<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  while FCurrentIndex < FDict.FCount do
-  begin
-    if FDict.FEntryArray[FCurrentIndex].FHashCode >= 0 then
-    begin
-      FValue := FDict.FEntryArray[FCurrentIndex].FKey;
-
-      Inc(FCurrentIndex);
-      Result := True;
-      Exit;
-    end;
-
-    Inc(FCurrentIndex);
-  end;
-
-  FCurrentIndex := FDict.FCount + 1;
-  Result := False;
-end;
-
-
-{ TDictionary<TKey, TValue>.TValueEnumerator }
-
-constructor TDictionary<TKey, TValue>.TValueEnumerator.Create(const ADict: TDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FCurrentIndex := 0;
-  FVer := ADict.FVer;
-end;
-
-destructor TDictionary<TKey, TValue>.TValueEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TDictionary<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TDictionary<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  while FCurrentIndex < FDict.FCount do
-  begin
-    if FDict.FEntryArray[FCurrentIndex].FHashCode >= 0 then
-    begin
-      FValue := FDict.FEntryArray[FCurrentIndex].FValue;
-
-      Inc(FCurrentIndex);
-      Result := True;
-      Exit;
-    end;
-
-    Inc(FCurrentIndex);
-  end;
-
-  FCurrentIndex := FDict.FCount + 1;
-  Result := False;
-end;
-
-{ TDictionary<TKey, TValue>.TKeyCollection }
-
-constructor TDictionary<TKey, TValue>.TKeyCollection.Create(const ADict: TDictionary<TKey, TValue>);
-begin
-  { Call the upper constructor }
-  inherited Create(ADict.KeyRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-function TDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as key }
-  Result := FDict.Count;
-end;
-
-function TDictionary<TKey, TValue>.TKeyCollection.GetEnumerator: IEnumerator<TKey>;
-begin
-  Result := TKeyEnumerator.Create(Self.FDict);
-end;
-
-procedure TDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
-var
-  I, X: NativeInt;
-begin
-  { Check for indexes }
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  if (Length(AArray) - AStartIndex) < FDict.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  X := AStartIndex;
-
-  for I := 0 to FDict.FCount - 1 do
-  begin
-    if (FDict.FEntryArray[I].FHashCode >= 0) then
-    begin
-       AArray[X] := FDict.FEntryArray[I].FKey;
-       Inc(X);
-    end;
-  end;
-end;
-
-{ TDictionary<TKey, TValue>.TValueCollection }
-
-constructor TDictionary<TKey, TValue>.TValueCollection.Create(const ADict: TDictionary<TKey, TValue>);
-begin
-  { Call the upper constructor }
-  inherited Create(ADict.ValueRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-function TDictionary<TKey, TValue>.TValueCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as key }
-  Result := FDict.Count;
-end;
-
-function TDictionary<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
-begin
-  Result := TValueEnumerator.Create(Self.FDict);
-end;
-
-procedure TDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
-var
-  I, X: NativeInt;
-begin
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if (Length(AArray) - AStartIndex) < FDict.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  X := AStartIndex;
-
-  for I := 0 to FDict.FCount - 1 do
-  begin
-    if (FDict.FEntryArray[I].FHashCode >= 0) then
-    begin
-       AArray[X] := FDict.FEntryArray[I].FValue;
-       Inc(X);
-    end;
-  end;
 end;
 
 { TObjectDictionary<TKey, TValue> }
@@ -1808,7 +1454,6 @@ begin
     TObject(AValue).Free;
 end;
 
-
 procedure TObjectDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
 begin
   { Only act if owns objects is set. Otherwise fallback to default. }
@@ -1822,16 +1467,9 @@ end;
 
 { TLinkedDictionary<TKey, TValue> }
 
-procedure TLinkedDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
-begin
- { Call insert }
- Insert(APair.Key, APair.Value);
-end;
-
 procedure TLinkedDictionary<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
 begin
- { Call insert }
- Insert(AKey, AValue);
+  Insert(AKey, AValue);
 end;
 
 procedure TLinkedDictionary<TKey, TValue>.Clear;
@@ -1861,11 +1499,6 @@ begin
   FCount := 0;
 
   Inc(FVer);
-end;
-
-function TLinkedDictionary<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
-begin
-  Result := Assigned(FindEntry(AKey));
 end;
 
 function TLinkedDictionary<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
@@ -1912,20 +1545,9 @@ begin
   end;
 end;
 
-constructor TLinkedDictionary<TKey, TValue>.Create;
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default);
-end;
-
 constructor TLinkedDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default, AInitialCapacity);
-end;
-
-constructor TLinkedDictionary<TKey, TValue>.Create(
-  const ACollection: IEnumerable<TPair<TKey, TValue>>);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection);
 end;
 
 constructor TLinkedDictionary<TKey, TValue>.Create(
@@ -1934,9 +1556,6 @@ constructor TLinkedDictionary<TKey, TValue>.Create(
 begin
   { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
-
-  FKeyCollection := TKeyCollection.Create(Self);
-  FValueCollection := TValueCollection.Create(Self);
 
   FVer := 0;
   FCount := 0;
@@ -1952,32 +1571,8 @@ begin
     InitializeInternals(AInitialCapacity)
 end;
 
-constructor TLinkedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const ACollection: IEnumerable<TPair<TKey, TValue>>);
-var
-  LValue: TPair<TKey, TValue>;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules, CDefaultSize);
 
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-  begin
-{$IF CompilerVersion < 22}
-    Add(LValue);
-{$ELSE}
-    Add(LValue.Key, LValue.Value);
-{$IFEND}
-  end;
-end;
-
-constructor TLinkedDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>);
+constructor TLinkedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
   { Call upper constructor }
   Create(AKeyRules, AValueRules, CDefaultSize);
@@ -2005,12 +1600,6 @@ begin
     end;
 
   inherited;
-end;
-
-function TLinkedDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
-begin
-  if not TryExtract(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
 function TLinkedDictionary<TKey, TValue>.FindEntry(const AKey: TKey): PEntry;
@@ -2043,13 +1632,7 @@ end;
 
 function TLinkedDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
-  Result := TLinkedDictionary<TKey, TValue>.TPairEnumerator.Create(Self);
-end;
-
-function TLinkedDictionary<TKey, TValue>.GetItem(const AKey: TKey): TValue;
-begin
-  if not TryGetValue(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+  Result := TEnumerator.Create(Self);
 end;
 
 function TLinkedDictionary<TKey, TValue>.Hash(const AKey: TKey): NativeInt;
@@ -2175,13 +1758,6 @@ begin
   end;
 end;
 
-function TLinkedDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
-var
-  LValue: TValue;
-begin
-  Result := TryGetValue(AKey, LValue) and ValuesAreEqual(LValue, AValue);
-end;
-
 function TLinkedDictionary<TKey, TValue>.NeedEntry(const AKey: TKey;
   const AValue: TValue; const AHash: NativeInt): PEntry;
 begin
@@ -2270,36 +1846,6 @@ begin
   end;
 end;
 
-procedure TLinkedDictionary<TKey, TValue>.Remove(const AKey: TKey);
-var
-  LValue: TValue;
-begin
-  if TryExtract(AKey, LValue) then
-    NotifyValueRemoved(LValue);
-end;
-
-procedure TLinkedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
-begin
-  if not ValuesAreEqual(ACurrent, ANew) then
-  begin
-    { Notify that an element is removed. }
-    NotifyValueRemoved(ACurrent);
-
-    { Replace it. }
-    ACurrent := ANew;
-  end;
-end;
-
-function TLinkedDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
-begin
-  Result := Keys;
-end;
-
-function TLinkedDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
-begin
-  Result := Values;
-end;
-
 procedure TLinkedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
 begin
   { Simply call insert }
@@ -2380,60 +1926,33 @@ begin
   Result := False;
 end;
 
-function TLinkedDictionary<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
+{ TLinkedDictionary<TKey, TValue>.TEnumerator }
+
+constructor TLinkedDictionary<TKey, TValue>.TEnumerator.Create(const AOwner: TLinkedDictionary<TKey, TValue>);
 begin
-  Result := GetItem(AKey);
+  FOwner := AOwner;
+  KeepObjectAlive(AOwner);
+  FCurrentEntry := AOwner.FHead;
+  FVer := AOwner.FVer;
 end;
 
-constructor TLinkedDictionary<TKey, TValue>.Create(
-  const AArray: array of TPair<TKey, TValue>);
+destructor TLinkedDictionary<TKey, TValue>.TEnumerator.Destroy;
 begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray);
-end;
-
-constructor TLinkedDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules, CDefaultSize);
-
-  { Copy all items in }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
-end;
-
-{ TLinkedDictionary<TKey, TValue>.TPairEnumerator }
-
-constructor TLinkedDictionary<TKey, TValue>.TPairEnumerator.Create(const ADict: TLinkedDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-  FCurrentEntry := FDict.FHead;
-  FVer := ADict.FVer;
-end;
-
-destructor TLinkedDictionary<TKey, TValue>.TPairEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
+  ReleaseObject(FOwner);
   inherited;
 end;
 
-function TLinkedDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
+function TLinkedDictionary<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey,TValue>;
 begin
-  if FVer <> FDict.FVer then
+  if FVer <> FOwner.FVer then
     ExceptionHelper.Throw_CollectionChangedError();
 
   Result := FValue;
 end;
 
-function TLinkedDictionary<TKey, TValue>.TPairEnumerator.MoveNext: Boolean;
+function TLinkedDictionary<TKey, TValue>.TEnumerator.MoveNext: Boolean;
 begin
-  if FVer <> FDict.FVer then
+  if FVer <> FOwner.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
   Result := Assigned(FCurrentEntry);
@@ -2444,180 +1963,6 @@ begin
     FValue.Value := FCurrentEntry^.FValue;
 
     FCurrentEntry := FCurrentEntry^.FNext;
-  end;
-end;
-
-{ TLinkedDictionary<TKey, TValue>.TKeyEnumerator }
-
-constructor TLinkedDictionary<TKey, TValue>.TKeyEnumerator.Create(const ADict: TLinkedDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-  FCurrentEntry := FDict.FHead;
-  FVer := ADict.FVer;
-end;
-
-destructor TLinkedDictionary<TKey, TValue>.TKeyEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := Assigned(FCurrentEntry);
-
-  if Result then
-  begin
-    FValue := FCurrentEntry^.FKey;
-    FCurrentEntry := FCurrentEntry^.FNext;
-  end;
-end;
-
-{ TLinkedDictionary<TKey, TValue>.TValueEnumerator }
-
-constructor TLinkedDictionary<TKey, TValue>.TValueEnumerator.Create(const ADict: TLinkedDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-  FCurrentEntry := FDict.FHead;
-  FVer := ADict.FVer;
-end;
-
-destructor TLinkedDictionary<TKey, TValue>.TValueEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := Assigned(FCurrentEntry);
-
-  if Result then
-  begin
-    FValue := FCurrentEntry^.FValue;
-    FCurrentEntry := FCurrentEntry^.FNext;
-  end;
-end;
-
-{ TLinkedDictionary<TKey, TValue>.TKeyCollection }
-
-constructor TLinkedDictionary<TKey, TValue>.TKeyCollection.Create(const ADict: TLinkedDictionary<TKey, TValue>);
-begin
-  { Call the upper constructor }
-  inherited Create(ADict.KeyRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as key }
-  Result := FDict.Count;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TKeyCollection.GetEnumerator: IEnumerator<TKey>;
-begin
-  Result := TKeyEnumerator.Create(Self.FDict);
-end;
-
-procedure TLinkedDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
-var
-  X: NativeInt;
-  LEntry: PEntry;
-begin
-  { Check for indexes }
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  if (Length(AArray) - AStartIndex) < FDict.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  X := AStartIndex;
-  LEntry := FDict.FHead;
-
-  while Assigned(LEntry) do
-  begin
-    { Copy it }
-    AArray[X] := LEntry^.FKey;
-
-    { Go to next }
-    Inc(X);
-    LEntry := LEntry^.FNext;
-  end;
-end;
-
-{ TLinkedDictionary<TKey, TValue>.TValueCollection }
-
-constructor TLinkedDictionary<TKey, TValue>.TValueCollection.Create(const ADict: TLinkedDictionary<TKey, TValue>);
-begin
-  { Call the upper constructor }
-  inherited Create(ADict.ValueRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TValueCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as key }
-  Result := FDict.Count;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
-begin
-  Result := TValueEnumerator.Create(Self.FDict);
-end;
-
-procedure TLinkedDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
-var
-  X: NativeInt;
-  LEntry: PEntry;
-begin
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if (Length(AArray) - AStartIndex) < FDict.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  X := AStartIndex;
-  LEntry := FDict.FHead;
-
-  while Assigned(LEntry) do
-  begin
-    { Copy it }
-    AArray[X] := LEntry^.FValue;
-
-    { Go to next }
-    Inc(X);
-    LEntry := LEntry^.FNext;
   end;
 end;
 
@@ -2647,13 +1992,6 @@ begin
 end;
 
 { TSortedDictionary<TKey, TValue> }
-
-procedure TSortedDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
-begin
-  { Insert the pair }
-  if not Insert(APair.Key, APair.Value, false) then
-    ExceptionHelper.Throw_DuplicateKeyError('AKey');
-end;
 
 procedure TSortedDictionary<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
 begin
@@ -3034,11 +2372,6 @@ begin
   end;
 end;
 
-function TSortedDictionary<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
-begin
-  Result := Assigned(FindNodeWithKey(AKey));
-end;
-
 function TSortedDictionary<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
 var
   LNode: TNode;
@@ -3090,13 +2423,17 @@ begin
   end;
 end;
 
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+begin
+  Create(AKeyRules, AValueRules, True);
+end;
+
 constructor TSortedDictionary<TKey, TValue>.Create(const AAscending: Boolean);
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default, AAscending);
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
+constructor TSortedDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean);
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection, AAscending);
 end;
@@ -3129,9 +2466,6 @@ begin
   { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
 
-  FKeyCollection := TKeyCollection.Create(Self);
-  FValueCollection := TValueCollection.Create(Self);
-
   FVer := 0;
   FCount := 0;
 
@@ -3141,18 +2475,22 @@ begin
     FSignFix := -1;
 end;
 
-destructor TSortedDictionary<TKey, TValue>.Destroy;
+constructor TSortedDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
 begin
-  { Clear first }
-  Clear();
-
-  inherited;
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray, AAscending);
 end;
 
-function TSortedDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
+constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
+  const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
+var
+  I: NativeInt;
 begin
-  if not TryExtract(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError('AKey');
+  { Call upper constructor }
+  Create(AKeyRules, AValueRules, AAscending);
+
+  { Copy all items in }
+  for I := 0 to Length(AArray) - 1 do
+    Add(AArray[I]);
 end;
 
 function TSortedDictionary<TKey, TValue>.FindLeftMostNode: TNode;
@@ -3213,16 +2551,10 @@ end;
 
 function TSortedDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
-  Result := TPairEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self);
 end;
 
-function TSortedDictionary<TKey, TValue>.GetItem(const AKey: TKey): TValue;
-begin
-  if not TryGetValue(AKey, Result) then
-    ExceptionHelper.Throw_KeyNotFoundError('AKey');
-end;
-
-function TSortedDictionary<TKey, TValue>.Insert(const AKey: TKey; const AValue: TValue; const ChangeOrFail: Boolean): Boolean;
+function TSortedDictionary<TKey, TValue>.Insert(const AKey: TKey; const AValue: TValue; const AChangeOrFail: Boolean): Boolean;
 var
   LNode: TNode;
   LCompareResult: NativeInt;
@@ -3275,7 +2607,7 @@ begin
     end else
     begin
       { Found  node with the same AKey. Check what to do next }
-      if not ChangeOrFail then
+      if not AChangeOrFail then
         Exit(false);
 
       ReplaceValue(LNode.FValue, AValue);
@@ -3295,13 +2627,6 @@ begin
   Inc(FVer);
 
   Result := true;
-end;
-
-function TSortedDictionary<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
-var
-  LValue: TValue;
-begin
-  Result := TryGetValue(AKey, LValue) and ValuesAreEqual(LValue, AValue);
 end;
 
 function TSortedDictionary<TKey, TValue>.MakeNode(const AKey: TKey; const AValue: TValue; const ARoot: TNode): TNode;
@@ -3513,27 +2838,6 @@ begin
 
 end;
 
-procedure TSortedDictionary<TKey, TValue>.Remove(const AKey: TKey);
-var
-  LValue: TValue;
-begin
-  if TryExtract(AKey, LValue) then
-    NotifyValueRemoved(LValue);
-end;
-
-procedure TSortedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
-begin
-  if not ValuesAreEqual(ACurrent, ANew) then
-  begin
-    { Notify that an element is removed. }
-    NotifyValueRemoved(ACurrent);
-
-    { Replace it. }
-    ACurrent := ANew;
-  end;
-end;
-
-
 procedure TSortedDictionary<TKey, TValue>.RecursiveClear(const ANode: TNode);
 begin
   if Assigned(ANode.FLeft) then
@@ -3548,16 +2852,6 @@ begin
 
   { Finally, free the node itself }
   ANode.Free;
-end;
-
-function TSortedDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
-begin
-  Result := Keys;
-end;
-
-function TSortedDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
-begin
-  Result := Values;
 end;
 
 procedure TSortedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
@@ -3604,11 +2898,6 @@ begin
   Exit(false);
 end;
 
-function TSortedDictionary<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
-begin
-  Result := GetItem(AKey);
-end;
-
 function TSortedDictionary<TKey, TValue>.WalkToTheRight(const ANode: TNode): TNode;
 begin
   Result := ANode;
@@ -3632,59 +2921,33 @@ begin
   end;
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>;
-  const AAscending: Boolean);
+{ TSortedDictionary<TKey, TValue>.TEnumerator }
+
+constructor TSortedDictionary<TKey, TValue>.TEnumerator.Create(const AOwner: TSortedDictionary<TKey, TValue>);
 begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray, AAscending);
+  FOwner := AOwner;
+  KeepObjectAlive(AOwner);
+  FNext := AOwner.FindLeftMostNode();
+  FVer := AOwner.FVer;
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>;
-  const AAscending: Boolean);
-var
-  I: NativeInt;
+destructor TSortedDictionary<TKey, TValue>.TEnumerator.Destroy;
 begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules, AAscending);
-
-  { Copy all items in }
-  for I := 0 to Length(AArray) - 1 do
-  begin
-    Add(AArray[I]);
-  end;
-end;
-
-{ TSortedDictionary<TKey, TValue>.TPairEnumerator }
-
-constructor TSortedDictionary<TKey, TValue>.TPairEnumerator.Create(const ADict: TSortedDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FNext := ADict.FindLeftMostNode();
-  FVer := ADict.FVer;
-end;
-
-destructor TSortedDictionary<TKey, TValue>.TPairEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
+  ReleaseObject(FOwner);
   inherited;
 end;
 
-function TSortedDictionary<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
+function TSortedDictionary<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey,TValue>;
 begin
-  if FVer <> FDict.FVer then
+  if FVer <> FOwner.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
   Result := FValue;
 end;
 
-function TSortedDictionary<TKey, TValue>.TPairEnumerator.MoveNext: Boolean;
+function TSortedDictionary<TKey, TValue>.TEnumerator.MoveNext: Boolean;
 begin
-  if FVer <> FDict.FVer then
+  if FVer <> FOwner.FVer then
      ExceptionHelper.Throw_CollectionChangedError();
 
   { Do not continue on last node }
@@ -3696,204 +2959,8 @@ begin
   FValue.Value := FNext.FValue;
 
   { Navigate further in the tree }
-  FNext := FDict.WalkToTheRight(FNext);
-
+  FNext := FOwner.WalkToTheRight(FNext);
   Result := true;
-end;
-
-{ TSortedDictionary<TKey, TValue>.TKeyEnumerator }
-
-constructor TSortedDictionary<TKey, TValue>.TKeyEnumerator.Create(const ADict: TSortedDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FNext := ADict.FindLeftMostNode();
-
-  FVer := ADict.FVer;
-end;
-
-destructor TSortedDictionary<TKey, TValue>.TKeyEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TSortedDictionary<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TSortedDictionary<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  { Do not continue on last node }
-  if not Assigned(FNext) then
-    Exit(false);
-
-  { Get the current value }
-  FValue := FNext.FKey;
-
-  { Navigate further in the tree }
-  FNext := FDict.WalkToTheRight(FNext);
-
-  Result := true;
-end;
-
-
-{ TSortedDictionary<TKey, TValue>.TValueEnumerator }
-
-constructor TSortedDictionary<TKey, TValue>.TValueEnumerator.Create(const ADict: TSortedDictionary<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FNext := ADict.FindLeftMostNode();
-
-  FVer := ADict.FVer;
-end;
-
-destructor TSortedDictionary<TKey, TValue>.TValueEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TSortedDictionary<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TSortedDictionary<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  { Do not continue on last node }
-  if not Assigned(FNext) then
-    Exit(false);
-
-  { Get the current value }
-  FValue := FNext.FValue;
-
-  { Navigate further in the tree }
-  FNext := FDict.WalkToTheRight(FNext);
-
-  Result := true;
-end;
-
-{ TSortedDictionary<TKey, TValue>.TKeyCollection }
-
-constructor TSortedDictionary<TKey, TValue>.TKeyCollection.Create(const ADict: TSortedDictionary<TKey, TValue>);
-begin
-  { Call the upper constructor }
-  inherited Create(ADict.KeyRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-function TSortedDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as AKey }
-  Result := FDict.Count;
-end;
-
-function TSortedDictionary<TKey, TValue>.TKeyCollection.GetEnumerator: IEnumerator<TKey>;
-begin
-  Result := TKeyEnumerator.Create(Self.FDict);
-end;
-
-procedure TSortedDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
-var
-  I, X: NativeInt;
-  LNode: TNode;
-begin
-  { Check for indexes }
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  if (Length(AArray) - AStartIndex) < FDict.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  X := AStartIndex;
-
-  { Find the left-most node }
-  LNode := FDict.FindLeftMostNode();
-
-  while Assigned(LNode) do
-  begin
-    { Get the AKey }
-    AArray[X] := LNode.FKey;
-
-    { Navigate further in the tree }
-    LNode := FDict.WalkToTheRight(LNode);
-
-    { Increment the index }
-    Inc(X);
-  end;
-end;
-
-{ TSortedDictionary<TKey, TValue>.TValueCollection }
-
-constructor TSortedDictionary<TKey, TValue>.TValueCollection.Create(const ADict: TSortedDictionary<TKey, TValue>);
-begin
-  { Call the upper constructor }
-  inherited Create(ADict.ValueRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-function TSortedDictionary<TKey, TValue>.TValueCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as AKey }
-  Result := FDict.Count;
-end;
-
-function TSortedDictionary<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
-begin
-  Result := TValueEnumerator.Create(Self.FDict);
-end;
-
-procedure TSortedDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
-var
-  X: NativeInt;
-  LNode: TNode;
-begin
-  { Check for indexes }
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  if (Length(AArray) - AStartIndex) < FDict.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  X := AStartIndex;
-
-  { Find the left-most node }
-  LNode := FDict.FindLeftMostNode();
-
-  while Assigned(LNode) do
-  begin
-    { Get the AKey }
-    AArray[X] := LNode.FValue;
-
-    { Navigate further in the tree }
-    LNode := FDict.WalkToTheRight(LNode);
-
-    { Increment the index }
-    Inc(X);
-  end;
 end;
 
 { TObjectSortedDictionary<TKey, TValue> }

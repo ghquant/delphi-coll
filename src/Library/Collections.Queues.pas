@@ -34,9 +34,98 @@ uses SysUtils,
      Collections.Base;
 
 type
-  ///  <summary>The generic <c>queue (FIFO)</c> collection.</summary>
+  ///  <summary>The abstract base class for all generic <c>queue</c> collections.</summary>
+  ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
+  ///  the non-required method.</remarks>
+  TAbstractQueue<T> = class(TEnexCollection<T>, IQueue<T>)
+  public
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const AArray: array of T); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <remarks>Override this constructor in descending classes to perform more initialization required for
+    ///  that specific type.</remarks>
+    constructor Create(const ARules: TRules<T>); overload; virtual;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
+    ///  <summary>Clears the contents of the queue.</summary>
+    ///  <remarks>The current implementation will dequeue all elements while the stack reports it has any. It uses Enex <c>Empty</c> operation to check
+    ///  if the queue is empty. Most descending classes will most likely override this
+    ///  implementation with a better performing one.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Dequeue</c> method is not overridden.</exception>
+    procedure Clear(); virtual;
+
+    ///  <summary>Appends an element to the back of the queue.</summary>
+    ///  <param name="AValue">The value to enqueue.</param>
+    ///  <remarks>The implementation in this class always raises an exception. The implementation in this class
+    ///  always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    procedure Enqueue(const AValue: T); virtual;
+
+    ///  <summary>Retrieves the element from the head of the queue.</summary>
+    ///  <returns>The value at the head of the queue.</returns>
+    ///  <remarks>This method removes the element from the top of the queue. The implementation in this class
+    ///  always raises an exception.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    function Dequeue(): T; virtual;
+
+    ///  <summary>Reads the element at the head of the queue.</summary>
+    ///  <returns>The value at the head of the queue.</returns>
+    ///  <remarks>This method does not remove the element from the head of the queue. It merely reads its value.</remarks>
+    ///  <remarks>The implementation in this class uses the Enex <c>First</c> operation to obtain the head of the queue.
+    ///  Most descendant classes will most likely provide a better version.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
+    function Peek(): T; virtual;
+
+    ///  <summary>Removes an element from the queue.</summary>
+    ///  <param name="AValue">The element to remove. If there is no such element in the queue, nothing happens. The implementation in this class
+    ///  always raises an exception.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    procedure Remove(const AValue: T); virtual;
+
+    ///  <summary>Checks whether the queue contains a given value.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the value was found in the queue; <c>False</c> otherwise.</returns>
+    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
+    ///  value. Most descendant classes will most likely provide a better version.</remarks>
+    function Contains(const AValue: T): Boolean; virtual;
+  end;
+
+  ///  <summary>The generic <c>queue</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TQueue<T> = class(TEnexCollection<T>, IQueue<T>, IDynamic)
+  TQueue<T> = class(TAbstractQueue<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
@@ -79,72 +168,42 @@ type
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the queue.</param>
-    constructor Create(const ARules: TRules<T>); overload;
+    constructor Create(const ARules: TRules<T>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
     ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
-
     ///  <summary>Clears the contents of the queue.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Appends an element to the top of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
-    procedure Enqueue(const AValue: T);
+    procedure Enqueue(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
-    function Dequeue(): T;
+    function Dequeue(): T; override;
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads its value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
-    function Peek(): T;
+    function Peek(): T; override;
 
     ///  <summary>Checks whether the queue contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the queue; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the queue.</summary>
     ///  <returns>A positive value specifying the number of elements in the queue.</returns>
@@ -294,7 +353,7 @@ type
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
-  ///  <summary>The generic <c>queue (FIFO)</c> collection designed to store objects.</summary>
+  ///  <summary>The generic <c>queue</c> collection designed to store objects.</summary>
   ///  <remarks>This type uses an internal array to store its objects.</remarks>
   TObjectQueue<T: class> = class(TQueue<T>)
   private
@@ -313,9 +372,9 @@ type
   end;
 
 type
-  ///  <summary>The generic <c>queue (FIFO)</c> collection.</summary>
+  ///  <summary>The generic <c>queue</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
-  TLinkedQueue<T> = class(TEnexCollection<T>, IQueue<T>)
+  TLinkedQueue<T> = class(TAbstractQueue<T>)
   private type
     {$REGION 'Internal Types'}
     PEntry = ^TEntry;
@@ -355,63 +414,33 @@ type
     ///  <returns>A positive value specifying the number of elements in the queue.</returns>
     function GetCount(): NativeInt; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
-    constructor Create(const ARules: TRules<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the queue.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Appends an element to the top of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
-    procedure Enqueue(const AValue: T);
+    procedure Enqueue(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
-    function Dequeue(): T;
+    function Dequeue(): T; override;
 
     ///  <summary>Reads the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads its value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
-    function Peek(): T;
+    function Peek(): T; override;
 
     ///  <summary>Checks whether the queue contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the queue; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the queue.</summary>
     ///  <returns>A positive value specifying the number of elements in the queue.</returns>
@@ -543,7 +572,7 @@ type
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
-  ///  <summary>The generic <c>queue (FIFO)</c> collection designed to store objects.</summary>
+  ///  <summary>The generic <c>queue</c> collection designed to store objects.</summary>
   ///  <remarks>This type uses a linked list to store its objects.</remarks>
   TObjectLinkedQueue<T: class> = class(TLinkedQueue<T>)
   private
@@ -776,6 +805,105 @@ type
 
 implementation
 
+{ TAbstractQueue<T> }
+
+procedure TAbstractQueue<T>.Clear;
+var
+  LElement: T;
+begin
+  while not Empty do
+  begin
+    LElement := Dequeue();
+    NotifyElementRemoved(LElement);
+  end;
+end;
+
+function TAbstractQueue<T>.Contains(const AValue: T): Boolean;
+var
+  LEnumerator: IEnumerator<T>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if ElementsAreEqual(AValue, LEnumerator.Current) then
+      Exit(True);
+
+  Result := False;
+end;
+
+constructor TAbstractQueue<T>.Create(const ACollection: IEnumerable<T>);
+begin
+  Create(TRules<T>.Default, ACollection);
+end;
+
+constructor TAbstractQueue<T>.Create;
+begin
+  Create(TRules<T>.Default);
+end;
+
+constructor TAbstractQueue<T>.Create(const ARules: TRules<T>; const AArray: array of T);
+var
+  I: NativeInt;
+begin
+  { Call upper constructor }
+  Create(ARules);
+
+  { Copy all in }
+  for I := 0 to Length(AArray) - 1 do
+    Enqueue(AArray[I]);
+end;
+
+constructor TAbstractQueue<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
+var
+  LValue: T;
+begin
+  { Call upper constructor }
+  Create(ARules);
+
+  if not Assigned(ACollection) then
+     ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  { Pump in all items }
+  for LValue in ACollection do
+    Enqueue(LValue);
+end;
+
+constructor TAbstractQueue<T>.Create(const AArray: array of T);
+begin
+  Create(TRules<T>.Default, AArray);
+end;
+
+constructor TAbstractQueue<T>.Create(const ARules: TRules<T>);
+begin
+  inherited Create(ARules);
+end;
+
+function TAbstractQueue<T>.Dequeue: T;
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Dequeue');
+end;
+
+destructor TAbstractQueue<T>.Destroy;
+begin
+  Clear();
+  inherited;
+end;
+
+procedure TAbstractQueue<T>.Enqueue(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Enqueue');
+end;
+
+function TAbstractQueue<T>.Peek: T;
+begin
+  Result := First();
+end;
+
+procedure TAbstractQueue<T>.Remove(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Remove');
+end;
+
+
 { TQueue<T> }
 
 function TQueue<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
@@ -946,40 +1074,12 @@ begin
   end;
 end;
 
-constructor TQueue<T>.Create(const ARules: TRules<T>;
-  const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  { Initialize instance }
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Try to copy the given Enumerable }
-  for LValue in ACollection do
-    Enqueue(LValue);
-end;
-
-constructor TQueue<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
 constructor TQueue<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
 end;
 
-constructor TQueue<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
-end;
-
-constructor TQueue<T>.Create(const ARules: TRules<T>;
-  const AInitialCapacity: NativeInt);
+constructor TQueue<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   inherited Create(ARules);
 
@@ -1088,14 +1188,6 @@ begin
     Result := ADefault
   else
     Result := FArray[FHead];
-end;
-
-destructor TQueue<T>.Destroy;
-begin
-  { Cleanup }
-  Clear();
-
-  inherited;
 end;
 
 function TQueue<T>.Dequeue: T;
@@ -1278,25 +1370,6 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement()
   else
     Result := FArray[FHead];
-end;
-
-constructor TQueue<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TQueue<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  { Copy array }
-  for I := 0 to Length(AArray) - 1 do
-  begin
-    Enqueue(AArray[I]);
-  end;
 end;
 
 { TQueue<T>.TEnumerator }
@@ -1497,45 +1570,6 @@ begin
     Inc(X);
     LCurrent := LCurrent^.FNext;
   end;
-end;
-
-constructor TLinkedQueue<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Initialize instance }
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Try to copy the given Enumerable }
-  for LValue in ACollection do
-    Enqueue(LValue);
-end;
-
-constructor TLinkedQueue<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
-constructor TLinkedQueue<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
-end;
-
-constructor TLinkedQueue<T>.Create(const ARules: TRules<T>);
-begin
-  { Initialize instance }
-  inherited Create(ARules);
-
-  FFirst := nil;
-  FLast := nil;
-  FFirstFree := nil;
-  FFreeCount := 0;
-  FCount := 0;
-  FVer := 0;
 end;
 
 function TLinkedQueue<T>.ElementAt(const AIndex: NativeInt): T;
@@ -1819,24 +1853,6 @@ begin
     Result := FFirst^.FValue;
 end;
 
-constructor TLinkedQueue<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TLinkedQueue<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy array }
-  for I := 0 to Length(AArray) - 1 do
-  begin
-    Enqueue(AArray[I]);
-  end;
-end;
 
 { TLinkedQueue<T>.TEnumerator }
 

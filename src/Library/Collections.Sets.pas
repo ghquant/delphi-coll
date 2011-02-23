@@ -33,9 +33,84 @@ uses SysUtils,
      Collections.Base;
 
 type
+  ///  <summary>The asbstract base for all generic <c>set</c> collections.</summary>
+  ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
+  ///  the non-required method.</remarks>
+  TAbstractSet<T> = class abstract(TEnexCollection<T>, ISet<T>)
+  public
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <remarks>The default rule set is requested.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <remarks>The default rule set is requested.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const AArray: array of T); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <remarks>Override this constructor in descending classes to perform more initialization required for
+    ///  that specific type.</remarks>
+    constructor Create(const ARules: TRules<T>); overload; virtual;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ACollection">A collection to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AArray">An array to copy elements from.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
+
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
+    ///  <summary>Clears the contents of the set.</summary>
+    ///  <remarks>The implementation in this class iterates over all elements and puts them into a temporary list
+    ///  that is the used to remove each individual element. Most descending classes will most likely override this
+    ///  implementation with a better performing one.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
+    procedure Clear(); virtual;
+
+    ///  <summary>Adds an element to the set.</summary>
+    ///  <param name="AValue">The value to add.</param>
+    ///  <remarks>If the set already contains the given value, nothing happens. The implementation in this class
+    ///  always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    procedure Add(const AValue: T); virtual;
+
+    ///  <summary>Removes a given value from the set.</summary>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>If the set does not contain the given value, nothing happens. The implementation in this class
+    ///  always raises an exception.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    procedure Remove(const AValue: T); virtual;
+
+    ///  <summary>Checks whether the set contains a given value.</summary>
+    ///  <param name="AValue">The value to check.</param>
+    ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
+    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
+    ///  value. Most descendant classes will most likely provide a better version.</remarks>
+    function Contains(const AValue: T): Boolean; virtual;
+  end;
+
+type
   ///  <summary>The generic <c>set</c> collection.</summary>
   ///  <remarks>This type uses hashing techniques to store its values.</remarks>
-  THashSet<T> = class(TEnexCollection<T>, ISet<T>)
+  THashSet<T> = class(TAbstractSet<T>)
   private type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
@@ -86,70 +161,40 @@ type
     function GetCount(): NativeInt; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>); overload;
+    constructor Create(const ARules: TRules<T>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
-
     ///  <summary>Clears the contents of the set.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Adds an element to the set.</summary>
     ///  <param name="AValue">The value to add.</param>
     ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
-    procedure Add(const AValue: T);
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Removes a given value from the set.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: T);
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Checks whether the set contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    property Count: NativeInt read GetCount;
+    property Count: NativeInt read FCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this set.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -191,7 +236,7 @@ type
 type
   ///  <summary>The generic <c>set</c> collection.</summary>
   ///  <remarks>This type uses hashing techniques and linked lists to store its values.</remarks>
-  TLinkedSet<T> = class(TEnexCollection<T>, ISet<T>)
+  TLinkedSet<T> = class(TAbstractSet<T>)
   private type
     {$REGION 'Internal Types'}
 
@@ -244,68 +289,43 @@ type
     ///  <summary>Returns the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
     function GetCount(): NativeInt; override;
-  public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
 
+  public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>); overload;
+    constructor Create(const ARules: TRules<T>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the set.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Adds an element to the set.</summary>
     ///  <param name="AValue">The value to add.</param>
     ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
-    procedure Add(const AValue: T);
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Removes a given value from the set.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: T);
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Checks whether the set contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
@@ -351,7 +371,7 @@ type
 type
   ///  <summary>The generic <c>set</c> collection.</summary>
   ///  <remarks>This type uses an AVL tree to store its values.</remarks>
-  TSortedSet<T> = class(TEnexCollection<T>, ISet<T>, ISortedSet<T>)
+  TSortedSet<T> = class(TAbstractSet<T>, ISortedSet<T>)
   private type
     {$REGION 'Internal Types'}
     TBalanceAct = (baStart, baLeft, baRight, baLoop, baEnd);
@@ -412,62 +432,62 @@ type
     function GetCount(): NativeInt; override;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscending: Boolean = true); overload;
+    constructor Create(const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
+    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
+    constructor Create(const AArray: array of T; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
+    constructor Create(const ARules: TRules<T>; const AAscending: Boolean); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    constructor Create(const ARules: TRules<T>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
+    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean); overload;
 
     ///  <summary>Clears the contents of the set.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Adds an element to the set.</summary>
     ///  <param name="AValue">The value to add.</param>
     ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
-    procedure Add(const AValue: T);
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Removes a given value from the set.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: T);
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Checks whether the set contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
@@ -558,7 +578,7 @@ type
 type
   ///  <summary>The generic <c>set</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TArraySet<T> = class(TEnexCollection<T>, ISet<T>, ISortedSet<T>, IDynamic)
+  TArraySet<T> = class(TAbstractSet<T>, ISortedSet<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
@@ -600,77 +620,74 @@ type
     function GetCapacity(): NativeInt;
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscending: Boolean = True); overload;
+    constructor Create(const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Defaults to <c>True</c>.</param>
     ///  <remarks>The default rule set is requested.</remarks>
     constructor Create(const AInitialCapacity: NativeInt; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean = True); overload;
+    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T; const AAscending: Boolean = True); overload;
+    constructor Create(const AArray: array of T; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const ARules: TRules<T>; const AAscending: Boolean = True); overload;
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
+    constructor Create(const ARules: TRules<T>; const AAscending: Boolean); overload;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    constructor Create(const ARules: TRules<T>); overload; override;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt;
-      const AAscending: Boolean = True); overload;
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. Defaults to <c>True</c>.</param>
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt; const AAscending: Boolean = True); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>;
-      const AAscending: Boolean = True); overload;
+    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T;
-      const AAscending: Boolean = True); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
+    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean); overload;
 
     ///  <summary>Clears the contents of the set.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Adds an element to the set.</summary>
     ///  <param name="AValue">The value to add.</param>
     ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
-    procedure Add(const AValue: T);
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Removes a given value from the set.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: T);
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Checks whether the set contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
@@ -842,7 +859,7 @@ type
 type
   ///  <summary>A specific 16-bit integer <c>set</c> collection.</summary>
   ///  <remarks>This collection uses an internal bit array to store its values.</remarks>
-  TBitSet = class(TEnexCollection<Word>, ISet<Word>, ISortedSet<Word>)
+  TBitSet = class(TAbstractSet<Word>, ISortedSet<Word>)
   private type
     {$REGION 'Internal Types'}
     TAscendingEnumerator = class(TEnumerator<Word>)
@@ -881,50 +898,51 @@ type
     FBitArray: TArray<NativeInt>;
     FAscending: Boolean;
 
+  protected
+    ///  <summary>Returns the number of elements in the set.</summary>
+    ///  <returns>A positive value specifying the number of elements in the set.</returns>
+    function GetCount(): NativeInt; override;
+
   public
     ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="ARules">A rule set describing the elements in the set.</param>
+    constructor Create(const ARules: TRules<Word>); overload; override;
+
+    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <remarks>The default rules set is used. Custom rule sets are not allowed. Natural ordering is used and cannot be overridden.</remarks>
-    constructor Create(const AAscending: Boolean = true); overload;
+    constructor Create(const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <remarks>The default rules set is used. Custom rule sets are not allowed. Natural ordering is used and cannot be overridden.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ACollection: IEnumerable<Word>; const AAscending: Boolean = true); overload;
+    constructor Create(const ACollection: IEnumerable<Word>; const AAscending: Boolean); overload;
 
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
     ///  <remarks>The default rules set is used. Custom rule sets are not allowed. Natural ordering is used and cannot be overridden.</remarks>
     constructor Create(const AArray: array of Word; const AAscending: Boolean = true); overload;
 
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
-
     ///  <summary>Clears the contents of the set.</summary>
-    procedure Clear();
+    procedure Clear(); override;
 
     ///  <summary>Adds an element to the set.</summary>
     ///  <param name="AValue">The value to add.</param>
     ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
-    procedure Add(const AValue: Word);
+    procedure Add(const AValue: Word); override;
 
     ///  <summary>Removes a given value from the set.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: Word);
+    procedure Remove(const AValue: Word); override;
 
     ///  <summary>Checks whether the set contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: Word): Boolean;
-
-    ///  <summary>Returns the number of elements in the set.</summary>
-    ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    function GetCount(): NativeInt; override;
+    function Contains(const AValue: Word): Boolean; override;
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
@@ -997,6 +1015,98 @@ type
 
 implementation
 
+{ TAbstractSet<T> }
+
+procedure TAbstractSet<T>.Add(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Add');
+end;
+
+procedure TAbstractSet<T>.Clear;
+var
+  LList: IList<T>;
+  LElement: T;
+begin
+  LList := ToList();
+
+  for LElement in LList do
+  begin
+    Remove(LElement);
+    NotifyElementRemoved(LElement);
+  end;
+end;
+
+function TAbstractSet<T>.Contains(const AValue: T): Boolean;
+var
+  LEnumerator: IEnumerator<T>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if ElementsAreEqual(AValue, LEnumerator.Current) then
+      Exit(True);
+
+  Result := False;
+end;
+
+constructor TAbstractSet<T>.Create(const ACollection: IEnumerable<T>);
+begin
+  Create(TRules<T>.Default, ACollection);
+end;
+
+constructor TAbstractSet<T>.Create;
+begin
+  Create(TRules<T>.Default);
+end;
+
+constructor TAbstractSet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
+var
+  LValue: T;
+begin
+  { Call upper constructor }
+  Create(ARules);
+
+  if not Assigned(ACollection) then
+     ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  { Pump in all items }
+  for LValue in ACollection do
+    Add(LValue);
+end;
+
+constructor TAbstractSet<T>.Create(const ARules: TRules<T>; const AArray: array of T);
+var
+  I: NativeInt;
+begin
+  { Call upper constructor }
+  Create(ARules);
+
+  { Copy all in }
+  for I := 0 to Length(AArray) - 1 do
+    Add(AArray[I]);
+end;
+
+destructor TAbstractSet<T>.Destroy;
+begin
+  Clear();
+  inherited;
+end;
+
+constructor TAbstractSet<T>.Create(const AArray: array of T);
+begin
+  Create(TRules<T>.Default, AArray);
+end;
+
+constructor TAbstractSet<T>.Create(const ARules: TRules<T>);
+begin
+  { Call inherited constructor }
+  inherited Create(ARules);
+end;
+
+procedure TAbstractSet<T>.Remove(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Remove');
+end;
+
 { THashSet<T> }
 
 procedure THashSet<T>.Add(const AValue: T);
@@ -1058,19 +1168,9 @@ begin
   end;
 end;
 
-constructor THashSet<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
 constructor THashSet<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
-end;
-
-constructor THashSet<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
 end;
 
 constructor THashSet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
@@ -1090,33 +1190,10 @@ begin
     InitializeInternals(AInitialCapacity)
 end;
 
-constructor THashSet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-    Add(LValue);
-end;
-
 constructor THashSet<T>.Create(const ARules: TRules<T>);
 begin
   { Call upper constructor }
   Create(ARules, CDefaultSize);
-end;
-
-destructor THashSet<T>.Destroy;
-begin
-  { Clear first }
-  Clear();
-
-  inherited;
 end;
 
 function THashSet<T>.Empty: Boolean;
@@ -1355,26 +1432,6 @@ begin
   Result := False;
 end;
 
-constructor THashSet<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor THashSet<T>.Create(const ARules: TRules<T>;
-  const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  { Copy all in }
-  for I := 0 to Length(AArray) - 1 do
-  begin
-    Add(AArray[I]);
-  end;
-end;
-
 { TObjectHashSet<T> }
 
 procedure TObjectHashSet<T>.HandleElementRemoved(const AElement: T);
@@ -1451,36 +1508,9 @@ begin
   end;
 end;
 
-constructor TLinkedSet<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
 constructor TLinkedSet<T>.Create(const AInitialCapacity: NativeInt);
 begin
   Create(TRules<T>.Default, AInitialCapacity);
-end;
-
-constructor TLinkedSet<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
-end;
-
-constructor TLinkedSet<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TLinkedSet<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  { Copy all in }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
 end;
 
 constructor TLinkedSet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
@@ -1501,21 +1531,6 @@ begin
     InitializeInternals(CDefaultSize)
   else
     InitializeInternals(AInitialCapacity)
-end;
-
-constructor TLinkedSet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize);
-
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-    Add(LValue);
 end;
 
 constructor TLinkedSet<T>.Create(const ARules: TRules<T>);
@@ -2313,14 +2328,12 @@ begin
   Create(TRules<T>.Default, AAscending);
 end;
 
-constructor TSortedSet<T>.Create(const ACollection: IEnumerable<T>;
-  const AAscending: Boolean);
+constructor TSortedSet<T>.Create(const ACollection: IEnumerable<T>; const AAscending: Boolean);
 begin
   Create(TRules<T>.Default, ACollection, AAscending);
 end;
 
-constructor TSortedSet<T>.Create(const ARules: TRules<T>;
-  const ACollection: IEnumerable<T>; const AAscending: Boolean);
+constructor TSortedSet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean);
 var
   LValue: T;
 begin
@@ -2347,14 +2360,6 @@ begin
     FSignFix := 1
   else
     FSignFix := -1;
-end;
-
-destructor TSortedSet<T>.Destroy;
-begin
-  { Clear first }
-  Clear();
-
-  inherited;
 end;
 
 function TSortedSet<T>.Empty: Boolean;
@@ -2834,6 +2839,11 @@ begin
     Add(AArray[I]);
 end;
 
+constructor TSortedSet<T>.Create(const ARules: TRules<T>);
+begin
+  Create(ARules, True);
+end;
+
 { TSortedSet<T>.TEnumerator }
 
 constructor TSortedSet<T>.TEnumerator.Create(const ADict: TSortedSet<T>);
@@ -3097,13 +3107,12 @@ begin
   Create(ARules, CDefaultSize, AAscending);
 end;
 
-constructor TArraySet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>;
-  const AAscending: Boolean);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean);
 var
   LValue: T;
 begin
   { Call upper constructor }
-  Create(ARules, CDefaultSize);
+  Create(ARules, CDefaultSize, AAscending);
 
   { Initialize instance }
   if not Assigned(ACollection) then
@@ -3114,8 +3123,7 @@ begin
     Add(LValue);
 end;
 
-constructor TArraySet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt;
-  const AAscending: Boolean);
+constructor TArraySet<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt; const AAscending: Boolean);
 begin
   { Call the upper constructor }
   inherited Create(ARules);
@@ -3129,14 +3137,6 @@ begin
     FSignFix := -1;
 
   SetLength(FArray, AInitialCapacity);
-end;
-
-destructor TArraySet<T>.Destroy;
-begin
-  { Clear list first }
-  Clear();
-
-  inherited;
 end;
 
 function TArraySet<T>.ElementAt(const AIndex: NativeInt): T;
@@ -3340,6 +3340,11 @@ begin
     Add(AArray[I]);
 end;
 
+constructor TArraySet<T>.Create(const ARules: TRules<T>);
+begin
+  Create(ARules, CDefaultSize, True);
+end;
+
 { TArraySet<T>.TEnumerator }
 
 constructor TArraySet<T>.TEnumerator.Create(const ASet: TArraySet<T>);
@@ -3492,6 +3497,11 @@ begin
   end;
 end;
 
+constructor TBitSet.Create(const ARules: TRules<Word>);
+begin
+  Create(True);
+end;
+
 constructor TBitSet.Create(const AAscending: Boolean);
 begin
   { Bah! }
@@ -3528,12 +3538,6 @@ begin
   { Copy array contents }
   for LWord in ACollection do
     Add(LWord);
-end;
-
-destructor TBitSet.Destroy;
-begin
-  Clear();
-  inherited;
 end;
 
 function TBitSet.Empty: Boolean;

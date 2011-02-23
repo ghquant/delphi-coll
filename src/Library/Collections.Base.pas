@@ -2489,6 +2489,10 @@ type
 
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_OperationNotSupported(const AOperation: String);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_CollectionChangedError();
 
     ///  <summary>Internal method. Do not call directly!</summary>
@@ -2566,7 +2570,6 @@ type
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_ExpectedAnotherSetSize(const AExpectedSize, AActualSize: NativeInt);
-
   end;
 
 resourcestring
@@ -2579,6 +2582,7 @@ resourcestring
   SKeyNotFound = 'The key given by the "%s" argument was not found in the collection!';
   SDuplicateKey = 'The key given by the "%s" argument was already registered in the collection!';
   SEmptyCollection = 'The collection is empty! The operation cannot be performed!';
+  SOperationNotSupported = 'The request collection operation %s is not supported by this instance.';
   SCollectionHasMoreThanOneElements = 'The collection has more than one element!';
   SCollectionHasNoFilteredElements = 'The applied predicate generates a void collection.';
   STypeNotAClass = 'The type "%s" on which the operation was invoked is not a class!';
@@ -7181,6 +7185,11 @@ end;
 class procedure ExceptionHelper.Throw_KeyNotFoundError(const ArgName: String);
 begin
   raise EKeyNotFoundException.CreateResFmt(@SKeyNotFound, [ArgName]);
+end;
+
+class procedure ExceptionHelper.Throw_OperationNotSupported(const AOperation: String);
+begin
+  raise ENotSupportedException.CreateResFmt(@SOperationNotSupported, [AOperation]);
 end;
 
 class procedure ExceptionHelper.Throw_TypeDoesNotExposeMember(const MemberName: String);

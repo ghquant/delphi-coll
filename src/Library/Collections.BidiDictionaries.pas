@@ -34,7 +34,7 @@ uses SysUtils,
      Collections.Dictionaries;
 
 type
-  ///  <summary>The base abstract class for all <c>bidi-dictionaries</c> in this package.</summary>
+  ///  <summary>The base abstract class for all <c>bidi-dictionary</c> collections.</summary>
   TAbstractBidiDictionary<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>,
       IMap<TKey, TValue>, IDictionary<TKey, TValue>, IBidiDictionary<TKey, TValue>)
   private
