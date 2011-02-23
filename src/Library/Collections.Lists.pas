@@ -31,12 +31,13 @@ interface
 uses SysUtils,
      Generics.Defaults,
      Generics.Collections,
+     Collections.Serialization,
      Collections.Base;
 
 type
   ///  <summary>The generic <c>list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IDynamic)
+  TList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>, IDynamic, ISerializable)
   private type
     {$REGION 'Internal Types'}
 {$IFDEF OPTIMIZED_SORT}
@@ -80,6 +81,16 @@ type
     { Tries to extract a value at the given position }
     function TryExtractAt(const AIndex: NativeInt; out AValue: T): Boolean;
   protected
+    ///  <summary>Serializes the contents of this class to a given context.</summary>
+    ///  <param name="AContext">The output context where data is written.</param>
+    ///  <remarks>Override in descending classes to provide more serialization data.</remarks>
+    procedure Serialize(const AContext: TOutputContext); virtual;
+
+    ///  <summary>Deserializes the contents of this class from a given context.</summary>
+    ///  <param name="AContext">The input context from which the data is read.</param>
+    ///  <remarks>Override in descending classes to obtain more deserialization data.</remarks>
+    procedure Deserialize(const AContext: TInputContext); virtual;
+
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
     ///  <returns>The element at the specified position.</returns>
@@ -1911,6 +1922,14 @@ begin
   SetLength(FArray, AInitialCapacity);
 end;
 
+procedure TList<T>.Deserialize(const AContext: TInputContext);
+var
+  L64Length: Int64;
+begin
+  AContext.GetValue('Length', L64Length); FLength := L64Length;
+  AContext.GetValue<TArray<T>>('Array', FArray);
+end;
+
 destructor TList<T>.Destroy;
 begin
   { Clear list first }
@@ -2435,6 +2454,12 @@ procedure TList<T>.Sort(const AStartIndex: NativeInt; const AAscending: Boolean)
 begin
   { Call the better method }
   Sort(AStartIndex, FLength, AAscending);
+end;
+
+procedure TList<T>.Serialize(const AContext: TOutputContext);
+begin
+  AContext.AddValue('Length', Int64(FLength));
+  AContext.AddValue('Array', FArray);
 end;
 
 procedure TList<T>.SetItem(const AIndex: NativeInt; const AValue: T);

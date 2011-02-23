@@ -1,4 +1,19 @@
 ﻿========================
+=  Major Release: 1.2  =
+========================
+    * New unit Collections.Serialization. Includes:
+       1. TSerializer - a semi-abstract class that implementes generic serialization.
+       2. TDeserializer - a semi-abstract class that implements generic deserialization.
+       3. ISerializable - an interface can be implemented by classes that need to override the default serialization.
+       4. TInputContext/TOutputContext - two facade objects that only expose a few operations to classes through ISerializable.
+       5. [NonSerializable] - the attribute to marks field that should not be serialized.
+       6. Two concrete implementations for serialization in implementation section!
+    
+    * Some documentation fixes all over the place.
+    * Removed the ICollectionMap<TKey, TValue>. It made no sense in the heirarchy. Its methods were split between
+      the two interfaces that inherited it.
+    
+﻿========================
 = Minor Release: 1.1.1 =
 ========================
                                                                                              

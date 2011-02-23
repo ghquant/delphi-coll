@@ -35,6 +35,9 @@ uses
   Collections.Base;
 
 type
+  ///  <summary>Annotate this attribute on fields that should not be serialized.</summary>
+  NonSerialized = class(TCustomAttribute);
+
   ///  <summary>An abstract base class for all serialization engines.</summary>
   ///  <remarks>Inherit this base class and implement its abstract methods to create a fully functional
   ///  serialization engine capable of serializing most data types provided by Delphi.</remarks>
@@ -50,7 +53,7 @@ type
     procedure ErrorNotSupported(const ATypeInfo: PTypeInfo);
     procedure ErrorNotEnoughRtti(const ATypeInfo: PTypeInfo);
     procedure ErrorNoFieldRtti(const AField: TRttiField);
-    procedure SerializeInternal(const ATypeInfo: PTypeInfo; const AValueRef: Pointer);
+    procedure SerializeInternal(const AType: TRttiType; const AValueRef: Pointer);
     procedure WriteStaticArray(const ATypeInfo: PTypeInfo; const ARefToFirstElement: Pointer);
     procedure WriteDynamicArray(const ATypeInfo: PTypeInfo; const ADynArray: Pointer);
     procedure WriteRecord(const ATypeInfo: PTypeInfo; const ARefToRecord: Pointer);
@@ -200,6 +203,19 @@ type
     ///  facilitate writing of the specified value.</remarks>
     ///  <exception cref="Collections.Base|ESerializationException">A wide variety of serialization problems.</exception>
     procedure WriteMetaClass(const AValue: TClass); virtual; abstract;
+
+    ///  <summary>Writes a set.</summary>
+    ///  <param name="AValue">The value containing the actual data to write.</param>
+    ///  <param name="ASetSize">The size in bytes of a set value.</param>
+    ///  <remarks>This is an abstract method that must be implemented in desceding serializer classes.</remarks>
+    ///  <exception cref="Collections.Base|ESerializationException">A wide variety of serialization problems.</exception>
+    procedure WriteSet(const ASetSize: UInt8; const AValue); virtual; abstract;
+
+    ///  <summary>Writes an enumeration.</summary>
+    ///  <param name="AValue">The ordinal value of the enumeration.</param>
+    ///  <remarks>This is an abstract method that must be implemented in desceding serializer classes.</remarks>
+    ///  <exception cref="Collections.Base|ESerializationException">A wide variety of serialization problems.</exception>
+    procedure WriteEnum(const AValue: Int64); virtual; abstract;
 
     ///  <summary>Notifies the serializer that the serialization for the root type is started.</summary>
     ///  <remarks>This is an abstract method that must be implemented in desceding serializer classes in order to
@@ -409,7 +425,7 @@ type
     procedure ErrorNotSupported(const ATypeInfo: PTypeInfo);
     procedure ErrorNotEnoughRtti(const ATypeInfo: PTypeInfo);
     procedure ErrorNoFieldRtti(const AField: TRttiField);
-    procedure DeserializeInternal(const ATypeInfo: PTypeInfo; const AValueRef: Pointer);
+    procedure DeserializeInternal(const AType: TRttiType; const AValueRef: Pointer);
     function CreateInstance(const AClassType: TRttiInstanceType): TObject;
     procedure ReadStaticArray(const ATypeInfo: PTypeInfo; const ARefToFirstElement: Pointer);
     procedure ReadDynamicArray(const ATypeInfo: PTypeInfo; out ADynArray: Pointer);
@@ -580,6 +596,19 @@ type
     ///  must raise an exception.</remarks>
     ///  <exception cref="Collections.Base|ESerializationException">A wide variety of deserialization problems.</exception>
     procedure ReadMetaClass(out AValue: TClass); virtual; abstract;
+
+    ///  <summary>Reads a set.</summary>
+    ///  <param name="ASetSize">The size of the expected set.</param>
+    ///  <param name="AValue">The output value in which read data is stored.</param>
+    ///  <remarks>This is an abstract method that must be implemented in desceding serializer classes.</remarks>
+    ///  <exception cref="Collections.Base|ESerializationException">A wide variety of deserialization problems.</exception>
+    procedure ReadSet(const ASetSize: UInt8; out AValue); virtual; abstract;
+
+    ///  <summary>Reads an enumeration.</summary>
+    ///  <param name="AValue">The output value in which read data is stored.</param>
+    ///  <remarks>This is an abstract method that must be implemented in desceding serializer classes.</remarks>
+    ///  <exception cref="Collections.Base|ESerializationException">A wide variety of deserialization problems.</exception>
+    procedure ReadEnum(out AValue: Int64); virtual; abstract;
 
     ///  <summary>Notifies the deserializer that the root type is about to be read.</summary>
     ///  <remarks>This is an abstract method that must be implemented in desceding serializer classes. It marks the
@@ -1074,6 +1103,18 @@ type
 
 implementation
 
+function IsSerializable(const AField: TRttiField): Boolean;
+var
+  LAttr: TCustomAttribute;
+begin
+  ASSERT(Assigned(AField));
+  for LAttr in AField.GetAttributes() do
+    if LAttr is NonSerialized then
+      Exit(False);
+
+  Result := True;
+end;
+
 procedure GetSafeInterface(const AObject: TObject; const AIID: TGUID; var AOut: Pointer);
 var
   LIntfEntry: PInterfaceEntry;
@@ -1120,7 +1161,8 @@ type
       svSingle, svDouble, svExtended, svComp, svCurrency,
       svAnsiChar, svWideChar,
       svShortString, svAnsiString, svWideString, svUnicodeString,
-      svMetaClass, svNilMetaClass
+      svMetaClass, svNilMetaClass,
+      svEnum, svSet
   );
 
   TStreamedValueTypes = set of TStreamedValueType;
@@ -1153,6 +1195,8 @@ type
     procedure WriteWideString(const AValue: WideString); override;
     procedure WriteUnicodeString(const AValue: UnicodeString); override;
     procedure WriteMetaClass(const AValue: TClass); override;
+    procedure WriteSet(const ASetSize: UInt8; const AValue); override;
+    procedure WriteEnum(const AValue: Int64); override;
 
     procedure BeginWriteRoot(); override;
     procedure EndWriteRoot(); override;
@@ -1213,6 +1257,8 @@ type
     procedure ReadWideString(out AValue: WideString); override;
     procedure ReadUnicodeString(out AValue: UnicodeString); override;
     procedure ReadMetaClass(out AValue: TClass); override;
+    procedure ReadSet(const ASetSize: UInt8; out AValue); override;
+    procedure ReadEnum(out AValue: Int64); override;
 
     procedure BeginReadRoot(); override;
     procedure EndReadRoot(); override;
@@ -1398,6 +1444,12 @@ begin
   WriteData(SizeOf(AReference), AReference);
 end;
 
+procedure TBinarySerializer.WriteEnum(const AValue: Int64);
+begin
+  WriteType(svEnum);
+  WriteData(SizeOf(AValue), AValue);
+end;
+
 procedure TBinarySerializer.WriteExtended(const AValue: Extended);
 begin
   WriteType(svExtended);
@@ -1458,6 +1510,13 @@ procedure TBinarySerializer.WriteRecordReference(const AReference: Int32);
 begin
   WriteType(svReferencedRecord);
   WriteInt32(AReference);
+end;
+
+procedure TBinarySerializer.WriteSet(const ASetSize: UInt8; const AValue);
+begin
+  WriteType(svSet);
+  WriteUInt8(ASetSize);
+  WriteData(ASetSize, AValue);
 end;
 
 procedure TBinarySerializer.WriteShortString(const AValue: ShortString);
@@ -1783,6 +1842,12 @@ begin
   ReadData(SizeOf(AValue), AValue);
 end;
 
+procedure TBinaryDeserializer.ReadEnum(out AValue: Int64);
+begin
+  Expect(svEnum);
+  ReadData(SizeOf(AValue), AValue);
+end;
+
 procedure TBinaryDeserializer.ReadExtended(out AValue: Extended);
 begin
   Expect(svExtended);
@@ -1829,6 +1894,19 @@ begin
     svNilMetaClass:
       AValue := nil;
   end;
+end;
+
+procedure TBinaryDeserializer.ReadSet(const ASetSize: UInt8; out AValue);
+var
+  LSize: UInt8;
+begin
+  Expect(svSet);
+  ReadUInt8(LSize);
+
+  if (LSize <> ASetSize) then
+    ExceptionHelper.Throw_ExpectedAnotherSetSize(ASetSize, LSize);
+
+  ReadData(LSize, AValue);
 end;
 
 procedure TBinaryDeserializer.ReadShortString(out AValue: ShortString);
@@ -1957,7 +2035,7 @@ begin
 
   { Call internal "un-checked" method. }
   BeginWriteRoot();
-  SerializeInternal(ATypeInfo, @AValue);
+  SerializeInternal(FRttiContext.GetType(ATypeInfo), @AValue);
   EndWriteRoot();
 end;
 
@@ -2026,9 +2104,12 @@ begin
           continue;
         end;
 
-        BeginWriteField(LField);
-        SerializeInternal(LField.FieldType.Handle, Pointer(LField.Offset + NativeInt(AObject)));
-        EndWriteField();
+        if IsSerializable(LField) then
+        begin
+          BeginWriteField(LField);
+          SerializeInternal(LField.FieldType, Pointer(LField.Offset + NativeInt(AObject)));
+          EndWriteField();
+        end;
       end;
     end;
 
@@ -2070,7 +2151,7 @@ begin
 
     { Walk through the array }
     for LIndex := 0 to LCount - 1 do
-      SerializeInternal(LArray.ElementType.Handle, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ADynArray)));
+      SerializeInternal(LArray.ElementType, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ADynArray)));
 
     EndWriteDynamicArray();
   end;
@@ -2114,31 +2195,51 @@ begin
         continue;
       end;
 
-      BeginWriteField(LField);
-      SerializeInternal(LField.FieldType.Handle, Pointer(LField.Offset + NativeInt(ARefToRecord)));
-      EndWriteField();
+      if IsSerializable(LField) then
+      begin
+        BeginWriteField(LField);
+        SerializeInternal(LField.FieldType, Pointer(LField.Offset + NativeInt(ARefToRecord)));
+        EndWriteField();
+      end;
     end;
 
     EndWriteRecord();
   end;
 end;
 
-procedure TSerializer.SerializeInternal(const ATypeInfo: PTypeInfo; const AValueRef: Pointer);
+procedure TSerializer.SerializeInternal(const AType: TRttiType; const AValueRef: Pointer);
 var
   LTypeData: PTypeData;
+  LSetOrd: Int64;
 begin
-  LTypeData := GetTypeData(ATypeInfo);
+  LTypeData := GetTypeData(AType.Handle);
 
-  case ATypeInfo^.Kind of
+  case AType.TypeKind of
     tkProcedure,
-    tkEnumeration,
-    tkSet,
     tkUnknown,
     tkMethod,
     tkVariant,
     tkInterface:
       if not FSkipErrors then
-        ErrorNotSupported(ATypeInfo);
+        ErrorNotSupported(AType.Handle);
+
+    tkEnumeration:
+    begin
+      LSetOrd := 0;
+      case AType.TypeSize of
+        1: LSetOrd := PInt8(AValueRef)^;
+        2: LSetOrd := PInt16(AValueRef)^;
+        4: LSetOrd := PInt32(AValueRef)^;
+        8: LSetOrd := PInt64(AValueRef)^;
+        else
+          ASSERT(False);
+      end;
+
+      WriteEnum(LSetOrd);
+    end;
+
+    tkSet:
+      WriteSet(AType.TypeSize, AValueRef^);
 
     tkInteger:
     begin
@@ -2159,7 +2260,7 @@ begin
              WriteUInt32(PUInt32(AValueRef)^);
         end;
       end else
-        ErrorNotEnoughRtti(ATypeInfo);
+        ErrorNotEnoughRtti(AType.Handle);
     end;
 
     tkInt64:
@@ -2171,7 +2272,7 @@ begin
         else
           WriteUInt64(PUInt64(AValueRef)^);
       end else
-        ErrorNotEnoughRtti(ATypeInfo);
+        ErrorNotEnoughRtti(AType.Handle);
     end;
 
     tkChar:
@@ -2197,7 +2298,7 @@ begin
              WriteCurrency(PCurrency(AValueRef)^);
         end;
       end else
-        ErrorNotEnoughRtti(ATypeInfo);
+        ErrorNotEnoughRtti(AType.Handle);
     end;
 
     tkString:
@@ -2211,20 +2312,20 @@ begin
     tkClassRef:
       WriteMetaClass(PPointer(AValueRef)^);
     tkRecord:
-      WriteRecord(ATypeInfo, AValueRef);
+      WriteRecord(AType.Handle, AValueRef);
     tkClass:
-      WriteClass(ATypeInfo, PPointer(AValueRef)^);
+      WriteClass(AType.Handle, PPointer(AValueRef)^);
     tkArray:
-      WriteStaticArray(ATypeInfo, AValueRef);
+      WriteStaticArray(AType.Handle, AValueRef);
     tkDynArray:
-      WriteDynamicArray(ATypeInfo, PPointer(AValueRef)^);
+      WriteDynamicArray(AType.Handle, PPointer(AValueRef)^);
     tkPointer:
     begin
       { Check if this is apointer to a record }
       if Assigned(LTypeData^.RefType) and Assigned(LTypeData^.RefType^) and (LTypeData^.RefType^^.Kind = tkRecord) then
         WriteRecord(LTypeData^.RefType^, PPointer(AValueRef)^)
       else
-        ErrorNotSupported(ATypeInfo);
+        ErrorNotSupported(AType.Handle);
     end;
   end;
 end;
@@ -2249,7 +2350,7 @@ begin
 
   { Walk through the record }
   for LIndex := 0 to LArray.TotalElementCount - 1 do
-    SerializeInternal(LArray.ElementType.Handle, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ARefToFirstElement)));
+    SerializeInternal(LArray.ElementType, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ARefToFirstElement)));
 
   EndWriteStaticArray();
 end;
@@ -2295,7 +2396,7 @@ begin
 
   { Call internal "un-checked" method. }
   BeginReadRoot();
-  DeserializeInternal(ATypeInfo, @AValue);
+  DeserializeInternal(FRttiContext.GetType(ATypeInfo), @AValue);
   EndReadRoot();
 end;
 
@@ -2381,9 +2482,12 @@ begin
               continue;
             end;
 
-            BeginReadField(LField);
-            DeserializeInternal(LField.FieldType.Handle, Pointer(LField.Offset + NativeInt(AObject)));
-            EndReadField();
+            if IsSerializable(LField) then
+            begin
+              BeginReadField(LField);
+              DeserializeInternal(LField.FieldType, Pointer(LField.Offset + NativeInt(AObject)));
+              EndReadField();
+            end;
           end;
         end;
 
@@ -2435,7 +2539,7 @@ begin
 
       { Walk through the array }
       for LIndex := 0 to LCount - 1 do
-        DeserializeInternal(LArray.ElementType.Handle, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ADynArray)));
+        DeserializeInternal(LArray.ElementType, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ADynArray)));
 
       EndReadDynamicArray();
     end;
@@ -2494,9 +2598,12 @@ begin
             continue;
           end;
 
-          BeginReadField(LField);
-          DeserializeInternal(LField.FieldType.Handle, Pointer(LField.Offset + NativeInt(ARefToRecord)));
-          EndReadField();
+          if IsSerializable(LField) then
+          begin
+            BeginReadField(LField);
+            DeserializeInternal(LField.FieldType, Pointer(LField.Offset + NativeInt(ARefToRecord)));
+            EndReadField();
+          end;
         end;
 
         EndReadRecord();
@@ -2544,28 +2651,43 @@ begin
 
   { Walk through the record }
   for LIndex := 0 to LArray.TotalElementCount - 1 do
-    DeserializeInternal(LArray.ElementType.Handle, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ARefToFirstElement)));
+    DeserializeInternal(LArray.ElementType, Pointer(LIndex * LArray.ElementType.TypeSize + NativeInt(ARefToFirstElement)));
 
   EndReadStaticArray();
 end;
 
-procedure TDeserializer.DeserializeInternal(const ATypeInfo: PTypeInfo; const AValueRef: Pointer);
+procedure TDeserializer.DeserializeInternal(const AType: TRttiType; const AValueRef: Pointer);
 var
   LTypeData: PTypeData;
   LRecordRef: Pointer;
+  LSetOrd: Int64;
 begin
-  LTypeData := GetTypeData(ATypeInfo);
+  LTypeData := GetTypeData(AType.Handle);
 
-  case ATypeInfo^.Kind of
+  case AType.TypeKind of
     tkProcedure,
-    tkEnumeration,
-    tkSet,
     tkUnknown,
     tkMethod,
     tkVariant,
     tkInterface:
       if not FSkipErrors then
-        ErrorNotSupported(ATypeInfo);
+        ErrorNotSupported(AType.Handle);
+
+    tkEnumeration:
+    begin
+      ReadEnum(LSetOrd);
+      case AType.TypeSize of
+        1: PInt8(AValueRef)^  := LSetOrd;
+        2: PInt16(AValueRef)^ := LSetOrd;
+        4: PInt32(AValueRef)^ := LSetOrd;
+        8: PInt64(AValueRef)^ := LSetOrd;
+        else
+          ASSERT(False);
+      end;
+    end;
+
+    tkSet:
+      ReadSet(AType.TypeSize, AValueRef^);
 
     tkInteger:
     begin
@@ -2586,7 +2708,7 @@ begin
              ReadUInt32(PUInt32(AValueRef)^);
         end;
       end else
-        ErrorNotEnoughRtti(ATypeInfo);
+        ErrorNotEnoughRtti(AType.Handle);
     end;
 
     tkInt64:
@@ -2598,7 +2720,7 @@ begin
         else
           ReadUInt64(PUInt64(AValueRef)^);
       end else
-        ErrorNotEnoughRtti(ATypeInfo);
+        ErrorNotEnoughRtti(AType.Handle);
     end;
 
     tkChar:
@@ -2624,7 +2746,7 @@ begin
              ReadCurrency(PCurrency(AValueRef)^);
         end;
       end else
-        ErrorNotEnoughRtti(ATypeInfo);
+        ErrorNotEnoughRtti(AType.Handle);
     end;
 
     tkString:
@@ -2640,14 +2762,14 @@ begin
     tkRecord:
     begin
       LRecordRef := AValueRef;
-      ReadRecord(ATypeInfo, LRecordRef);
+      ReadRecord(AType.Handle, LRecordRef);
     end;
     tkClass:
-      ReadClass(ATypeInfo, PObject(AValueRef)^);
+      ReadClass(AType.Handle, PObject(AValueRef)^);
     tkArray:
-      ReadStaticArray(ATypeInfo, AValueRef);
+      ReadStaticArray(AType.Handle, AValueRef);
     tkDynArray:
-      ReadDynamicArray(ATypeInfo, PPointer(AValueRef)^);
+      ReadDynamicArray(AType.Handle, PPointer(AValueRef)^);
     tkPointer:
     begin
       PPointer(AValueRef)^ := nil;
@@ -2655,7 +2777,7 @@ begin
       if Assigned(LTypeData^.RefType) and Assigned(LTypeData^.RefType^) and (LTypeData^.RefType^^.Kind = tkRecord) then
         ReadRecord(LTypeData^.RefType^, PPointer(AValueRef)^)
       else
-        ErrorNotSupported(ATypeInfo);
+        ErrorNotSupported(AType.Handle);
     end;
   end;
 end;
@@ -2897,7 +3019,8 @@ function TOutputContext.AddValue<T>(const AName: String; const AValue: T): TOutp
 begin
   { Write data }
   FSerializer.BeginWriteField(AName);
-  FSerializer.SerializeInternal(TypeInfo(T), @AValue);
+  FSerializer.SerializeInternal(
+    FSerializer.RttiContext.GetType(TypeInfo(T)), @AValue);
   FSerializer.EndWriteField();
 
   { Return self for chaining }
@@ -3152,7 +3275,8 @@ function TInputContext.GetValue<T>(const AName: String; out AValue: T): TInputCo
 begin
   { Read data }
   FDeserializer.BeginReadField(AName);
-  FDeserializer.DeserializeInternal(TypeInfo(T), @AValue);
+  FDeserializer.DeserializeInternal(
+    FDeserializer.RttiContext.GetType(TypeInfo(T)), @AValue);
   FDeserializer.EndReadField();
 
   { Return self for chaining }

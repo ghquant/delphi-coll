@@ -1007,6 +1007,120 @@ type
     property Weights[const AValue: T]: NativeUInt read GetWeight write SetWeight; default;
   end;
 
+  ///  <summary>The Enex interface that defines the behavior of a <c>list</c>.</summary>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>list</c>.</remarks>
+  IList<T> = interface(IEnexIndexedCollection<T>)
+    ///  <summary>Clears the contents of the list.</summary>
+    procedure Clear();
+
+    ///  <summary>Appends an element to the list.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    procedure Add(const AValue: T); overload;
+
+    ///  <summary>Appends the elements from a collection to the list.</summary>
+    ///  <param name="ACollection">The values to append.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure Add(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Inserts an element into the list.</summary>
+    ///  <param name="AIndex">The index to insert to.</param>
+    ///  <param name="AValue">The value to insert.</param>
+    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
+    ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
+
+    ///  <summary>Inserts the elements of a collection into the list.</summary>
+    ///  <param name="AIndex">The index to insert to.</param>
+    ///  <param name="ACollection">The values to insert.</param>
+    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by the length of
+    ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Checks whether the list contains a given value.</summary>
+    ///  <param name="AValue">The value to check.</param>
+    ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
+    function Contains(const AValue: T): Boolean;
+
+    ///  <summary>Removes an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to remove the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    procedure RemoveAt(const AIndex: NativeInt);
+
+    ///  <summary>Extracts an element from the list at a given index.</summary>
+    ///  <param name="AIndex">The index from which to extract the element.</param>
+    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
+    ///  The removed element is returned to the caller.</remarks>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function ExtractAt(const AIndex: NativeInt): T;
+
+    ///  <summary>Removes a given value from the list.</summary>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>If the list does not contain the given value, nothing happens.</remarks>
+    procedure Remove(const AValue: T);
+
+    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
+    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
+
+    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
+
+    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    function IndexOf(const AValue: T): NativeInt; overload;
+
+    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
+    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
+
+    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <param name="AStartIndex">The index to from which the search starts.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
+    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
+
+    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
+    ///  <param name="AValue">The value to search for.</param>
+    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
+    function LastIndexOf(const AValue: T): NativeInt; overload;
+  end;
+
+  ///  <summary>The Enex interface that defines the behavior of a <c>sorted list</c>.</summary>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>sorted list</c>.
+  ///  A <c>sorted list</c> maintains its elements in an ordered fashion at all times. Whenever a new element is added, it is
+  ///  automatically inserted in the right position.</remarks>
+  ISortedList<T> = interface(IList<T>)
+    ///  <summary>Returns the biggest element.</summary>
+    ///  <returns>An element from the list considered to have the biggest value. This is either the
+    ///  last or the first element (depending on the sorting order).</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    function Max(): T;
+
+    ///  <summary>Returns the smallest element.</summary>
+    ///  <returns>An element from the list considered to have the smallest value. This is either the
+    ///  last or the first element (depending on the sorting order).</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
+    function Min(): T;
+  end;
+
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections.</summary>
   ///  <remarks>This interface is inherited by all interfaces that provide <c>map</c>-like functionality.</remarks>
   IMap<TKey, TValue> = interface(IEnexAssociativeCollection<TKey, TValue>)
@@ -1189,46 +1303,6 @@ type
     property ByValue[const AValue: TValue]: TKey read GetKey write SetKey;
   end;
 
-  ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections that associate a
-  ///  key with multiple values.</summary>
-  ///  <remarks>This interface is inherited by all interfaces that provide <c>multi-map</c>-like functionality.</remarks>
-  ICollectionMap<TKey, TValue> = interface(IMap<TKey, TValue>)
-    ///  <summary>Extracts all values using their key.</summary>
-    ///  <param name="AKey">The key of the associated values.</param>
-    ///  <returns>A collection of values associated with the key.</returns>
-    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
-    function Extract(const AKey: TKey): IEnexCollection<TValue>;
-
-    ///  <summary>Removes a key-value pair using a given key and value.</summary>
-    ///  <param name="AKey">The key associated with the value.</param>
-    ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
-    ///  specified value from the collection of values associated with the given key.</remarks>
-    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
-
-{$IF CompilerVersion < 22}
-    ///  <summary>Removes a key-value pair using a given key and value.</summary>
-    ///  <param name="APair">The key and its associated value to remove.</param>
-    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
-    ///  specified value from the collection of values associated with the given key.</remarks>
-    procedure Remove(const APair: TPair<TKey, TValue>); overload;
-{$IFEND}
-
-    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
-    ///  <param name="AKey">The key associated with the value.</param>
-    ///  <param name="AValue">The value associated with the key.</param>
-    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AKey: TKey; const AValue: TValue): Boolean; overload;
-
-{$IF CompilerVersion < 22}
-    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
-    ///  <param name="APair">The key-value pair to check for.</param>
-    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsValue(const APair: TPair<TKey, TValue>): Boolean; overload;
-{$IFEND}
-  end;
-
   ///  <summary>The Enex interface that defines the behavior of a <c>bidirectional multi-map</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>bidirectional multi-map</c>. In a
   ///  <c>bidirectional multi-map</c>, both the key and the value are treated as "keys".</remarks>
@@ -1301,7 +1375,42 @@ type
   ///  <summary>The Enex interface that defines the behavior of a <c>multi-map</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>multi-map</c>. In a
   ///  <c>multi-map</c>, a key is associated with multiple values, not just one.</remarks>
-  IMultiMap<TKey, TValue> = interface(ICollectionMap<TKey, TValue>)
+  IMultiMap<TKey, TValue> = interface(IMap<TKey, TValue>)
+
+    ///  <summary>Extracts all values using their key.</summary>
+    ///  <param name="AKey">The key of the associated values.</param>
+    ///  <returns>A collection of values associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
+    function Extract(const AKey: TKey): IEnexCollection<TValue>;
+
+    ///  <summary>Removes a key-value pair using a given key and value.</summary>
+    ///  <param name="AKey">The key associated with the value.</param>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
+    ///  specified value from the collection of values associated with the given key.</remarks>
+    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
+
+{$IF CompilerVersion < 22}
+    ///  <summary>Removes a key-value pair using a given key and value.</summary>
+    ///  <param name="APair">The key and its associated value to remove.</param>
+    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
+    ///  specified value from the collection of values associated with the given key.</remarks>
+    procedure Remove(const APair: TPair<TKey, TValue>); overload;
+{$IFEND}
+
+    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
+    ///  <param name="AKey">The key associated with the value.</param>
+    ///  <param name="AValue">The value associated with the key.</param>
+    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
+    function ContainsValue(const AKey: TKey; const AValue: TValue): Boolean; overload;
+
+{$IF CompilerVersion < 22}
+    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
+    ///  <param name="APair">The key-value pair to check for.</param>
+    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
+    function ContainsValue(const APair: TPair<TKey, TValue>): Boolean; overload;
+{$IFEND}
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
@@ -1329,7 +1438,43 @@ type
   ///  <summary>The Enex interface that defines the behavior of a <c>distinct multi-map</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>distinct multi-map</c>. In a
   ///  <c>dictinct multi-map</c>, a key is associated with multiple distinct values.</remarks>
-  IDistinctMultiMap<TKey, TValue> = interface(ICollectionMap<TKey, TValue>)
+  IDistinctMultiMap<TKey, TValue> = interface(IMap<TKey, TValue>)
+
+    ///  <summary>Extracts all values using their key.</summary>
+    ///  <param name="AKey">The key of the associated values.</param>
+    ///  <returns>A collection of values associated with the key.</returns>
+    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
+    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
+    function Extract(const AKey: TKey): IEnexCollection<TValue>;
+
+    ///  <summary>Removes a key-value pair using a given key and value.</summary>
+    ///  <param name="AKey">The key associated with the value.</param>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
+    ///  specified value from the collection of values associated with the given key.</remarks>
+    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
+
+{$IF CompilerVersion < 22}
+    ///  <summary>Removes a key-value pair using a given key and value.</summary>
+    ///  <param name="APair">The key and its associated value to remove.</param>
+    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
+    ///  specified value from the collection of values associated with the given key.</remarks>
+    procedure Remove(const APair: TPair<TKey, TValue>); overload;
+{$IFEND}
+
+    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
+    ///  <param name="AKey">The key associated with the value.</param>
+    ///  <param name="AValue">The value associated with the key.</param>
+    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
+    function ContainsValue(const AKey: TKey; const AValue: TValue): Boolean; overload;
+
+{$IF CompilerVersion < 22}
+    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
+    ///  <param name="APair">The key-value pair to check for.</param>
+    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
+    function ContainsValue(const APair: TPair<TKey, TValue>): Boolean; overload;
+{$IFEND}
+
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
@@ -1352,120 +1497,6 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>The associated collection if the key if valid; an empty collection otherwise.</returns>
     function TryGetValues(const AKey: TKey): IEnexCollection<TValue>; overload;
-  end;
-
-  ///  <summary>The Enex interface that defines the behavior of a <c>list</c>.</summary>
-  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>list</c>.</remarks>
-  IList<T> = interface(IEnexIndexedCollection<T>)
-    ///  <summary>Clears the contents of the list.</summary>
-    procedure Clear();
-
-    ///  <summary>Appends an element to the list.</summary>
-    ///  <param name="AValue">The value to append.</param>
-    procedure Add(const AValue: T); overload;
-
-    ///  <summary>Appends the elements from a collection to the list.</summary>
-    ///  <param name="ACollection">The values to append.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Add(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Inserts an element into the list.</summary>
-    ///  <param name="AIndex">The index to insert to.</param>
-    ///  <param name="AValue">The value to insert.</param>
-    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
-    ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure Insert(const AIndex: NativeInt; const AValue: T); overload;
-
-    ///  <summary>Inserts the elements of a collection into the list.</summary>
-    ///  <param name="AIndex">The index to insert to.</param>
-    ///  <param name="ACollection">The values to insert.</param>
-    ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by the length of
-    ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Checks whether the list contains a given value.</summary>
-    ///  <param name="AValue">The value to check.</param>
-    ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
-
-    ///  <summary>Removes an element from the list at a given index.</summary>
-    ///  <param name="AIndex">The index from which to remove the element.</param>
-    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure RemoveAt(const AIndex: NativeInt);
-
-    ///  <summary>Extracts an element from the list at a given index.</summary>
-    ///  <param name="AIndex">The index from which to extract the element.</param>
-    ///  <remarks>This method removes the specified element and moves all following elements to the left by one.
-    ///  The removed element is returned to the caller.</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function ExtractAt(const AIndex: NativeInt): T;
-
-    ///  <summary>Removes a given value from the list.</summary>
-    ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>If the list does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: T);
-
-    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    function IndexOf(const AValue: T): NativeInt; overload;
-
-    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    function LastIndexOf(const AValue: T): NativeInt; overload;
-  end;
-
-  ///  <summary>The Enex interface that defines the behavior of a <c>sorted list</c>.</summary>
-  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>sorted list</c>.
-  ///  A <c>sorted list</c> maintains its elements in an ordered fashion at all times. Whenever a new element is added, it is
-  ///  automatically inserted in the right position.</remarks>
-  ISortedList<T> = interface(IList<T>)
-    ///  <summary>Returns the biggest element.</summary>
-    ///  <returns>An element from the list considered to have the biggest value. This is either the
-    ///  last or the first element (depending on the sorting order).</returns>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
-    function Max(): T;
-
-    ///  <summary>Returns the smallest element.</summary>
-    ///  <returns>An element from the list considered to have the smallest value. This is either the
-    ///  last or the first element (depending on the sorting order).</returns>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
-    function Min(): T;
   end;
 
   ///  <summary>A special interface implemented by collections that support the concept of capacity.</summary>
@@ -1497,6 +1528,7 @@ type
     ///  if greater then the number of elements, it means that the collection has some extra capacity to operate upon.</remarks>
     property Capacity: NativeInt read GetCapacity;
   end;
+
 {$ENDREGION}
 
 {$REGION 'Base Collection Classes'}
@@ -2530,6 +2562,11 @@ type
     ///  <summary>Internal method. Do not call directly!</summary>
     ///  <remarks>The interface of this function may change in the future.</remarks>
     class procedure Throw_ExpectedAnotherType(const AExpected: TRttiType; const AActual: string);
+
+    ///  <summary>Internal method. Do not call directly!</summary>
+    ///  <remarks>The interface of this function may change in the future.</remarks>
+    class procedure Throw_ExpectedAnotherSetSize(const AExpectedSize, AActualSize: NativeInt);
+
   end;
 
 resourcestring
@@ -2557,6 +2594,7 @@ resourcestring
   SExpectedAnotherLabel = 'Expected a label %s , but got a label %s!';
   SExpectedAnotherElementCount = 'Expected a static array of type %s with %d elements but got %d elements.';
   SExpectedAnotherType = 'Expected a type %s, but got another type %s!';
+  SExpectedAnotherSetSize = 'When deserializing a set expected it to have %d bytes but got %d bytes!';
 {$ENDREGION}
 
 {$REGION 'Enex Internal Enumerables'}
@@ -7188,6 +7226,11 @@ end;
 class procedure ExceptionHelper.Throw_ExpectedAnotherLabel(const AExpectedLabel, AActualLabel: string);
 begin
   raise ESerializationException.CreateResFmt(@SExpectedAnotherLabel, [AExpectedLabel, AActualLabel]);
+end;
+
+class procedure ExceptionHelper.Throw_ExpectedAnotherSetSize(const AExpectedSize, AActualSize: NativeInt);
+begin
+  raise ESerializationException.CreateResFmt(@SExpectedAnotherSetSize, [AExpectedSize, AActualSize]);
 end;
 
 class procedure ExceptionHelper.Throw_ExpectedAnotherType(const AExpected: TRttiType; const AActual: string);

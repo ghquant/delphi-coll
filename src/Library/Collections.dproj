@@ -27,7 +27,6 @@
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_DependencyCheckOutputName>..\..\bin\Collections.bpl</DCC_DependencyCheckOutputName>
 			<GenPackage>true</GenPackage>
-			<DesignOnlyPackage>false</DesignOnlyPackage>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_BplOutput>..\..\bin</DCC_BplOutput>
 			<DCC_UnitSearchPath>..\..\bin;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
@@ -94,9 +93,9 @@
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
 						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
 						<VersionInfo Name="MajorVer">1</VersionInfo>
-						<VersionInfo Name="MinorVer">1</VersionInfo>
-						<VersionInfo Name="Release">1</VersionInfo>
-						<VersionInfo Name="Build">120</VersionInfo>
+						<VersionInfo Name="MinorVer">2</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">122</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -108,15 +107,21 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">Alexandru Ciobanu</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">Collections Package</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">1.1.1.120</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.2.0.122</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">delphi-coll</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Alexandru Ciobanu</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
 						<VersionInfoKeys Name="OriginalFilename"/>
 						<VersionInfoKeys Name="ProductName">Collections Package</VersionInfoKeys>
-						<VersionInfoKeys Name="ProductVersion">1.1.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="ProductVersion">1.2.0.0</VersionInfoKeys>
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
+					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\svn150.bpl">Subversion integration</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\svnui150.bpl">User interface code for subversion integration</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\svnide150.bpl">Embarcadero Subversion Integration</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclDataSnapServer150.bpl">Embarcadero DBExpress DataSnap Server Components</Excluded_Packages>
+					</Excluded_Packages>
 				</Delphi.Personality>
 				<Platforms>
 					<Platform value="Win32">True</Platform>

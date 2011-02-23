@@ -32,7 +32,8 @@ uses
   SysUtils,
   Collections.Sets,
   Op_Select_View in 'Op_Select_View.pas',
-  SplitStringEnumerable in 'SplitStringEnumerable.pas';
+  SplitStringEnumerable in 'SplitStringEnumerable.pas',
+  List_Store_Load in 'List_Store_Load.pas';
 
 begin
   { Just to test that we do not have memory leaks }
@@ -42,6 +43,7 @@ begin
     { Run all the samples provided in our project }
     Op_Select_View.RunSample();
     SplitStringEnumerable.RunSample();
+    List_Store_Load.RunSample();
 
   except
     on E: Exception do

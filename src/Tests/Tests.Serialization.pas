@@ -55,7 +55,6 @@ type
     procedure Test_RecordSelfRef;
     procedure Test_ClassComplicated;
     procedure Test_ClassSameFields;
-    procedure Test_Bad_Serialized;
     procedure Test_NonSerializable;
     procedure Test_CustomISerializable;
     procedure Test_Metaclass;
@@ -216,8 +215,6 @@ type
   PLinkedItem = ^TLinkedItem;
   TLinkedItem = record
     FData: String;
-
-    [CloneKind(ckDeep)]
     FSelf, FNil: PLinkedItem;
   end;
 
@@ -253,11 +250,6 @@ type
 
 { Non-serialized and non-serializable check }
 type
-  TBadSerRecord = record
-    P: Pointer;
-    S: String;
-  end;
-
   TBadSerRecord_NonSer = record
     [NonSerialized]
     P: Pointer;
@@ -1060,12 +1052,12 @@ end;
 
 procedure TSpecialKukuClass.Deserialize(const AData: TInputContext);
 begin
-  FSequence := FSequence + 'de';
+  FSequence := FSequence + 'd';
 end;
 
 procedure TSpecialKukuClass.Serialize(const AData: TOutputContext);
 begin
-  FSequence := FSequence + 'se';
+  FSequence := FSequence + 's';
 end;
 
 { TInhBase }
@@ -1286,8 +1278,8 @@ begin
   try
     LOutBin := SerializeInBinary<TSpecialKukuClass>(LInput);
     CheckTrue(LOutBin <> nil, 'LOutBin is nil');
-    CheckEquals('csesese', LInput.FSequence, 'LInput sequence broken');
-    CheckEquals('cdedd', LOutBin.FSequence, 'LOutXml sequence broken');
+    CheckEquals('cs', LInput.FSequence, 'LInput sequence broken');
+    CheckEquals('cd', LOutBin.FSequence, 'LOutXml sequence broken');
     CheckEquals(0, LInput.RefCount, 'LInput ref count broken');
     CheckEquals(0, LOutBin.RefCount, 'LOutBin ref count broken');
   finally
@@ -1358,26 +1350,8 @@ begin
   LInput.S := 'One';
   LInput.P := Ptr($BADC0DE);
   LOutBin := SerializeInBinary<TBadSerRecord_NonSer>(LInput);
+  CheckNotEquals(NativeInt(LInput.P), NativeInt(LOutBin.P), 'Bin ser/deser failed for [NonSerialized]');
   CheckEquals(LInput.S, LOutBin.S, 'Bin ser/deser failed for [NonSerialized]');
-end;
-
-procedure TTestSerialization.Test_Bad_Serialized;
-var
-  LInput: TBadSerRecord;
-  LOutBin: Boolean;
-begin
-  LInput.P := nil;
-  LInput.S := '66699';
-
-  try
-    LOutBin := false;
-    SerializeInBinary<TBadSerRecord>(LInput);
-  except
-    on E: ESerializationException do
-       LOutBin := true;
-  end;
-
-  CheckTrue(LOutBin, '(unser. member) Expected exception was not raised for Binary.');
 end;
 
 procedure TTestSerialization.Test_RecordSelfRef;
