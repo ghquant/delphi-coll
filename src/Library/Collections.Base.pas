@@ -1103,22 +1103,67 @@ type
     function LastIndexOf(const AValue: T): NativeInt; overload;
   end;
 
+  ///  <summary>The Enex interface that defines the behavior of a <c>linked list</c>.</summary>
+  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>linked list</c>.</remarks>
+  ILinkedList<T> = interface(IEnexIndexedCollection<T>)
+    ///  <summary>Appends an element to the back of list.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    ///  <remarks>This method is functionally identical to <c>Add</c>. Classes that implement this interface can simply
+    ///  alias this method to <c>Add</c>.</remarks>
+    procedure AddLast(const AValue: T); overload;
+
+    ///  <summary>Appends the elements from a collection to the back of the list.</summary>
+    ///  <param name="ACollection">The values to append.</param>
+    ///  <remarks>This method is functionally identical to <c>Add</c>. Classes that implement this interface can simply
+    ///  alias this method to <c>Add</c>.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure AddLast(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Appends an element to the front of the list.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    procedure AddFirst(const AValue: T); overload;
+
+    ///  <summary>Appends the elements from a collection to the back of the list.</summary>
+    ///  <param name="ACollection">The values to append.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure AddFirst(const ACollection: IEnumerable<T>); overload;
+
+    ///  <summary>Removes the first element of the list.</summary>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
+    procedure RemoveFirst();
+
+    ///  <summary>Removes the last element of the list.</summary>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
+    procedure RemoveLast();
+
+    ///  <summary>Extracts the first element of the list.</summary>
+    ///  <returns>The first element of the list.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
+    function ExtractFirst(): T;
+
+    ///  <summary>Removes the last element of the list.</summary>
+    ///  <returns>The last element of the list.</returns>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
+    function ExtractLast(): T;
+
+    ///  <summary>Returns the first element of the list.</summary>
+    ///  <returns>The first element of the list.</returns>
+    ///  <remarks>This method is functionally identical to <c>First</c> method exposed by the Enex intarfaces. It is provided here for consistency only.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
+    function First(): T;
+
+    ///  <summary>Returns the last element of the list.</summary>
+    ///  <returns>The last element of the list.</returns>
+    ///  <remarks>This method is functionally identical to <c>Last</c> method exposed by the Enex intarfaces. It is provided here for consistency only.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
+    function Last(): T;
+  end;
+
   ///  <summary>The Enex interface that defines the behavior of a <c>sorted list</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>sorted list</c>.
   ///  A <c>sorted list</c> maintains its elements in an ordered fashion at all times. Whenever a new element is added, it is
   ///  automatically inserted in the right position.</remarks>
   ISortedList<T> = interface(IList<T>)
-    ///  <summary>Returns the biggest element.</summary>
-    ///  <returns>An element from the list considered to have the biggest value. This is either the
-    ///  last or the first element (depending on the sorting order).</returns>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
-    function Max(): T;
-
-    ///  <summary>Returns the smallest element.</summary>
-    ///  <returns>An element from the list considered to have the smallest value. This is either the
-    ///  last or the first element (depending on the sorting order).</returns>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
-    function Min(): T;
   end;
 
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections.</summary>

@@ -2369,6 +2369,18 @@ begin
   AList.Free;
 end;
 
+function CopyFrom(AList: TList<Integer>; HowMuch: NativeInt): IEnumerable<Integer>;
+var
+  LOtherList: TList<Integer>;
+  I: Integer;
+begin
+  LOtherList := TList<Integer>.Create();
+  for I := 0 to HowMuch - 1 do
+    LOtherList.Add(AList[I]);
+
+  Result := LOtherList;
+end;
+
 procedure TTestEnex.InternalTestTake(const Collection: IEnexCollection<Integer>);
 var
   List: TList<Integer>;
@@ -2387,7 +2399,7 @@ begin
 
   for I := 1 to List.Count do
   begin
-    IE := List.Copy(0, I);
+    IE := CopyFrom(List, I);
     Check(Collection.Take(I).EqualsTo(IE), 'Failed copy at ' + IntToStr(I));
   end;
 
@@ -2395,7 +2407,7 @@ begin
   exit;
 
   if List.Count > 0 then
-    Check(Collection.Take(List.Count * 2).EqualsTo(List.Copy(0, List.Count)), 'Failed copy at max * 2')
+    Check(Collection.Take(List.Count * 2).EqualsTo(CopyFrom(List, List.Count)), 'Failed copy at max * 2')
   else
     Check(Collection.Take(100).EqualsTo(TList<Integer>.Create()), 'Failed copy at empty');
 

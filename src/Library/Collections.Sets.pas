@@ -194,7 +194,7 @@ type
 
     ///  <summary>Specifies the number of elements in the set.</summary>
     ///  <returns>A positive value specifying the number of elements in the set.</returns>
-    property Count: NativeInt read FCount;
+    property Count: NativeInt read GetCount;
 
     ///  <summary>Returns a new enumerator object used to enumerate this set.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator

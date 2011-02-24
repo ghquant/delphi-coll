@@ -30,6 +30,7 @@ interface
 uses SysUtils,
      Tests.Utils,
      TestFramework,
+     Generics.Collections,
      Collections.Base,
      Collections.Stacks,
      Collections.Lists;
@@ -42,7 +43,6 @@ type
     procedure TestDummyInsert();
     procedure TestContainsIndexOfLastIndexOf();
     procedure TestCopyTo();
-    procedure TestCopy();
     procedure TestIndexer();
     procedure TestEnumerator();
     procedure TestExceptions();
@@ -50,6 +50,14 @@ type
     procedure TestCorrectOrdering();
     procedure TestObjectVariant();
     procedure Test_Extract();
+    procedure Test_AddFirst_1();
+    procedure Test_AddFirst_Coll();
+    procedure Test_AddLast_1();
+    procedure Test_AddLast_Coll();
+    procedure Test_RemoveFirst();
+    procedure Test_RemoveLast();
+    procedure Test_ExtractFirst();
+    procedure Test_ExtractLast();
 
     procedure Test_Bug0();
   end;
@@ -128,59 +136,6 @@ begin
 
   List.Free;
   Stack.Free;
-end;
-
-procedure TTestSortedLinkedList.TestCopy;
-var
-  List1, List2 : TSortedLinkedList<Integer>;
-begin
-  List1 := TSortedLinkedList<Integer>.Create(False);
-
-  List1.Add(4);
-  List1.Add(2);
-  List1.Add(2);
-  List1.Add(1);
-
-  List2 := List1.Copy(1, 3);
-
-  Check(List2.Count = 3, 'List2 count expected to be 3');
-  Check(List2[0] = 2, 'List2[0] expected to be 2');
-  Check(List2[1] = 2, 'List2[1] expected to be 2');
-  Check(List2[2] = 1, 'List2[2] expected to be 1');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy(0, 1);
-
-  Check(List2.Count = 1, 'List2 count expected to be 1');
-  Check(List2[0] = 4, 'List2[0] expected to be 4');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy(2);
-
-  Check(List2.Count = 2, 'List2 count expected to be 2');
-  Check(List2[0] = 2, 'List2[0] expected to be 2');
-  Check(List2[1] = 1, 'List2[1] expected to be 1');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy();
-
-  Check(List2.Count = 4, 'List2 count expected to be 2');
-  Check(List2[0] = 4, 'List2[0] expected to be 4');
-  Check(List2[1] = 2, 'List2[1] expected to be 2');
-  Check(List2[2] = 2, 'List2[2] expected to be 2');
-  Check(List2[3] = 1, 'List2[3] expected to be 1');
-
-  List2.Free();
-  List1.Free();
 end;
 
 procedure TTestSortedLinkedList.TestCopyTo;
@@ -565,16 +520,6 @@ begin
   );
 
   CheckException(EArgumentOutOfRangeException,
-    procedure() begin List.Copy(0, 2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin List.Copy(2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
     procedure() begin List[1]; end,
     'EArgumentOutOfRangeException not thrown in List.Items (index out of).'
   );
@@ -678,6 +623,54 @@ begin
   ObjList.Free;
 end;
 
+procedure TTestSortedLinkedList.Test_AddFirst_1;
+var
+  LList: TSortedLinkedList<Integer>;
+begin
+  LList := TSortedLinkedList<Integer>.Create();
+  CheckException(ENotSupportedException,
+    procedure() begin LList.AddFirst(10); end,
+    'ENotSupportedException not thrown in AddFirst (not allowed).'
+  );
+  LList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_AddFirst_Coll;
+var
+  LList: TSortedLinkedList<Integer>;
+begin
+  LList := TSortedLinkedList<Integer>.Create();
+  CheckException(ENotSupportedException,
+    procedure() begin LList.AddFirst(LList); end,
+    'ENotSupportedException not thrown in AddFirst (not allowed).'
+  );
+  LList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_AddLast_1;
+var
+  LList: TSortedLinkedList<Integer>;
+begin
+  LList := TSortedLinkedList<Integer>.Create();
+  CheckException(ENotSupportedException,
+    procedure() begin LList.AddLast(11); end,
+    'ENotSupportedException not thrown in AddLast (not allowed).'
+  );
+  LList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_AddLast_Coll;
+var
+  LList: TSortedLinkedList<Integer>;
+begin
+  LList := TSortedLinkedList<Integer>.Create();
+  CheckException(ENotSupportedException,
+    procedure() begin LList.AddLast(LList); end,
+    'ENotSupportedException not thrown in AddLast (not allowed).'
+  );
+  LList.Free;
+end;
+
 procedure TTestSortedLinkedList.Test_Bug0;
 var
   LList: TSortedLinkedList<Integer>;
@@ -737,6 +730,136 @@ begin
 
   LList.RemoveAt(0);
   CheckTrue(LValueDied);
+
+  LList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_ExtractFirst;
+var
+  LList: TObjectSortedLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectSortedLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  CheckTrue(L1 = LList.ExtractFirst());
+  CheckFalse(LValueDied);
+  CheckTrue(L2 = LList[0]);
+  L1.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  CheckTrue(L2 = LList.ExtractFirst());
+  CheckFalse(LValueDied);
+  L2.Free;
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.ExtractFirst(); end,
+    'EArgumentOutOfRangeException not thrown in ExtractFirst (0 remaining).'
+  );
+
+  LList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_ExtractLast;
+var
+  LList: TObjectSortedLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectSortedLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  CheckTrue(L2 = LList.ExtractLast());
+  CheckFalse(LValueDied);
+  CheckTrue(L1 = LList[0]);
+  L2.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  CheckTrue(L1 = LList.ExtractLast());
+  CheckFalse(LValueDied);
+  L1.Free;
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.ExtractLast(); end,
+    'EArgumentOutOfRangeException not thrown in ExtractLast (0 remaining).'
+  );
+
+  LList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_RemoveFirst;
+var
+  LList: TObjectSortedLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectSortedLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  LList.RemoveFirst();
+  CheckFalse(LValueDied);
+  CheckTrue(L2 = LList[0]);
+  L1.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  LList.RemoveFirst();
+  CheckTrue(LValueDied);
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.RemoveFirst(); end,
+    'EArgumentOutOfRangeException not thrown in RemoveFirst (0 remaining).'
+  );
+
+  LList.Free;
+end;
+
+procedure TTestSortedLinkedList.Test_RemoveLast;
+var
+  LList: TObjectSortedLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectSortedLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  LList.RemoveLast();
+  CheckFalse(LValueDied);
+  CheckTrue(L1 = LList[0]);
+  L2.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  LList.RemoveLast();
+  CheckTrue(LValueDied);
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.RemoveLast(); end,
+    'EArgumentOutOfRangeException not thrown in RemoveFirst (0 remaining).'
+  );
 
   LList.Free;
 end;

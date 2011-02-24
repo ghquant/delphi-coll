@@ -42,7 +42,6 @@ type
     procedure TestDummyInsert();
     procedure TestContainsIndexOfLastIndexOf();
     procedure TestCopyTo();
-    procedure TestCopy();
     procedure TestIndexer();
     procedure TestIDynamic();
     procedure TestEnumerator();
@@ -129,59 +128,6 @@ begin
 
   List.Free;
   Stack.Free;
-end;
-
-procedure TTestSortedList.TestCopy;
-var
-  List1, List2 : TSortedList<Integer>;
-begin
-  List1 := TSortedList<Integer>.Create(False);
-
-  List1.Add(4);
-  List1.Add(2);
-  List1.Add(2);
-  List1.Add(1);
-
-  List2 := List1.Copy(1, 3);
-
-  Check(List2.Count = 3, 'List2 count expected to be 3');
-  Check(List2[0] = 2, 'List2[0] expected to be 2');
-  Check(List2[1] = 2, 'List2[1] expected to be 2');
-  Check(List2[2] = 1, 'List2[2] expected to be 1');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy(0, 1);
-
-  Check(List2.Count = 1, 'List2 count expected to be 1');
-  Check(List2[0] = 4, 'List2[0] expected to be 4');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy(2);
-
-  Check(List2.Count = 2, 'List2 count expected to be 2');
-  Check(List2[0] = 2, 'List2[0] expected to be 2');
-  Check(List2[1] = 1, 'List2[1] expected to be 1');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy();
-
-  Check(List2.Count = 4, 'List2 count expected to be 2');
-  Check(List2[0] = 4, 'List2[0] expected to be 4');
-  Check(List2[1] = 2, 'List2[1] expected to be 2');
-  Check(List2[2] = 2, 'List2[2] expected to be 2');
-  Check(List2[3] = 1, 'List2[3] expected to be 1');
-
-  List2.Free();
-  List1.Free();
 end;
 
 procedure TTestSortedList.TestCopyTo;
@@ -575,16 +521,6 @@ begin
   CheckException(EArgumentOutOfRangeException,
     procedure() begin List.LastIndexOf(1, 2); end,
     'EArgumentOutOfRangeException not thrown in LastIndexOf (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin List.Copy(0, 2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin List.Copy(2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
   );
 
   CheckException(EArgumentOutOfRangeException,

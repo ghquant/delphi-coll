@@ -41,19 +41,22 @@ type
   published
     procedure TestCreationAndDestroy();
     procedure TestCountClearAddInsertRemoveRemoveAt();
-    procedure TestReverse();
-    procedure TestSort_Type();
-    procedure TestSort_Comp();
     procedure TestContainsIndexOfLastIndexOf();
     procedure TestCopyTo();
-    procedure TestCopy();
     procedure TestIndexer();
     procedure TestEnumerator();
     procedure TestExceptions();
     procedure TestBigCounts();
     procedure TestObjectVariant();
     procedure Test_Extract();
-
+    procedure Test_AddFirst_1();
+    procedure Test_AddFirst_Coll();
+    procedure Test_AddLast_1();
+    procedure Test_AddLast_Coll();
+    procedure Test_RemoveFirst();
+    procedure Test_RemoveLast();
+    procedure Test_ExtractFirst();
+    procedure Test_ExtractLast();
     procedure Test_Bug0();
     procedure Test_Bug1();
   end;
@@ -132,59 +135,6 @@ begin
 
   LinkedList.Free;
   Stack.Free;
-end;
-
-procedure TTestLinkedList.TestCopy;
-var
-  LinkedList1, LinkedList2 : TLinkedList<Integer>;
-begin
-  LinkedList1 := TLinkedList<Integer>.Create();
-
-  LinkedList1.Add(1);
-  LinkedList1.Add(2);
-  LinkedList1.Add(3);
-  LinkedList1.Add(4);
-
-  LinkedList2 := LinkedList1.Copy(1, 3);
-
-  Check(LinkedList2.Count = 3, 'LinkedList2 count expected to be 3');
-  Check(LinkedList2[0] = 2, 'LinkedList2[0] expected to be 2');
-  Check(LinkedList2[1] = 3, 'LinkedList2[1] expected to be 3');
-  Check(LinkedList2[2] = 4, 'LinkedList2[2] expected to be 4');
-
-  LinkedList2.Free();
-
-  { -- }
-
-  LinkedList2 := LinkedList1.Copy(0, 1);
-
-  Check(LinkedList2.Count = 1, 'LinkedList2 count expected to be 1');
-  Check(LinkedList2[0] = 1, 'LinkedList2[0] expected to be 1');
-
-  LinkedList2.Free();
-
-  { -- }
-
-  LinkedList2 := LinkedList1.Copy(2);
-
-  Check(LinkedList2.Count = 2, 'LinkedList2 count expected to be 2');
-  Check(LinkedList2[0] = 3, 'LinkedList2[0] expected to be 3');
-  Check(LinkedList2[1] = 4, 'LinkedList2[1] expected to be 4');
-
-  LinkedList2.Free();
-
-  { -- }
-
-  LinkedList2 := LinkedList1.Copy();
-
-  Check(LinkedList2.Count = 4, 'LinkedList2 count expected to be 2');
-  Check(LinkedList2[0] = 1, 'LinkedList2[0] expected to be 1');
-  Check(LinkedList2[1] = 2, 'LinkedList2[1] expected to be 2');
-  Check(LinkedList2[2] = 3, 'LinkedList2[2] expected to be 3');
-  Check(LinkedList2[3] = 4, 'LinkedList2[3] expected to be 4');
-
-  LinkedList2.Free();
-  LinkedList1.Free();
 end;
 
 procedure TTestLinkedList.TestCopyTo;
@@ -461,27 +411,6 @@ begin
   LinkedList.Add(1);
 
   CheckException(EArgumentOutOfRangeException,
-    procedure() begin LinkedList.Reverse(0, 2); end,
-    'EArgumentOutOfRangeException not thrown in Reverse (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin LinkedList.Reverse(2); end,
-    'EArgumentOutOfRangeException not thrown in Reverse (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin LinkedList.Sort(0, 2); end,
-    'EArgumentOutOfRangeException not thrown in Sort (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin LinkedList.Sort(2); end,
-    'EArgumentOutOfRangeException not thrown in Sort (index out of).'
-  );
-
-
-  CheckException(EArgumentOutOfRangeException,
     procedure() begin LinkedList.IndexOf(1, 0, 2); end,
     'EArgumentOutOfRangeException not thrown in IndexOf (index out of).'
   );
@@ -500,16 +429,6 @@ begin
   CheckException(EArgumentOutOfRangeException,
     procedure() begin LinkedList.LastIndexOf(1, 2); end,
     'EArgumentOutOfRangeException not thrown in LastIndexOf (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin LinkedList.Copy(0, 2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin LinkedList.Copy(2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
   );
 
   CheckException(EArgumentOutOfRangeException,
@@ -578,143 +497,82 @@ begin
   ObjLinkedList.Free;
 end;
 
-procedure TTestLinkedList.TestReverse;
+procedure TTestLinkedList.Test_AddFirst_1;
 var
-  LinkedList : TLinkedList<Integer>;
+  LList: TLinkedList<Integer>;
 begin
-  LinkedList := TLinkedList<Integer>.Create();
+  LList := TLinkedList<Integer>.Create();
+  LList.AddFirst(1);
+  LList.AddFirst(2);
+  LList.AddFirst(3);
 
-  LinkedList.Add(1);
-  LinkedList.Add(2);
-  LinkedList.Add(3);
-  LinkedList.Add(4);
-  LinkedList.Add(5);
+  CheckEquals(3, LList.Count);
+  CheckEquals(3, LList[0]);
+  CheckEquals(2, LList[1]);
+  CheckEquals(1, LList[2]);
 
-  LinkedList.Reverse(0, 1);
-
-  Check(LinkedList[0] = 1, 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = 2, 'LinkedList[1] expected to be 2');
-  Check(LinkedList[2] = 3, 'LinkedList[2] expected to be 3');
-  Check(LinkedList[3] = 4, 'LinkedList[3] expected to be 4');
-  Check(LinkedList[4] = 5, 'LinkedList[4] expected to be 5');
-
-  LinkedList.Reverse(0, 2);
-
-  Check(LinkedList[0] = 2, 'LinkedList[0] expected to be 2');
-  Check(LinkedList[1] = 1, 'LinkedList[1] expected to be 1');
-  Check(LinkedList[2] = 3, 'LinkedList[2] expected to be 3');
-  Check(LinkedList[3] = 4, 'LinkedList[3] expected to be 4');
-  Check(LinkedList[4] = 5, 'LinkedList[4] expected to be 5');
-
-  LinkedList.Reverse(2);
-
-  Check(LinkedList[0] = 2, 'LinkedList[0] expected to be 2');
-  Check(LinkedList[1] = 1, 'LinkedList[1] expected to be 1');
-  Check(LinkedList[2] = 5, 'LinkedList[2] expected to be 5');
-  Check(LinkedList[3] = 4, 'LinkedList[3] expected to be 4');
-  Check(LinkedList[4] = 3, 'LinkedList[4] expected to be 3');
-
-  LinkedList.Reverse();
-
-  Check(LinkedList[0] = 3, 'LinkedList[0] expected to be 3');
-  Check(LinkedList[1] = 4, 'LinkedList[1] expected to be 4');
-  Check(LinkedList[2] = 5, 'LinkedList[2] expected to be 5');
-  Check(LinkedList[3] = 1, 'LinkedList[3] expected to be 1');
-  Check(LinkedList[4] = 2, 'LinkedList[4] expected to be 2');
-
-  LinkedList.Free();
+  LList.Free;
 end;
 
-procedure TTestLinkedList.TestSort_Comp;
+procedure TTestLinkedList.Test_AddFirst_Coll;
 var
-  LinkedList : TLinkedList<String>;
-  AComp: TComparison<String>;
+  LList, LOther: TLinkedList<Integer>;
 begin
-  AComp := function(const ALeft, ARight: String): Integer
-  begin
-    Result := StrToInt(ALeft) - StrToInt(ARight);
-  end;
+  LOther := TLinkedList<Integer>.Create([1, 2, 3]);
+  LList := TLinkedList<Integer>.Create();
+  LList.AddFirst(LOther);
 
-  LinkedList := TLinkedList<String>.Create();
+  CheckEquals(3, LList.Count);
+  CheckEquals(3, LList[0]);
+  CheckEquals(2, LList[1]);
+  CheckEquals(1, LList[2]);
 
-  LinkedList.Add('1');
-  LinkedList.Add('5');
-  LinkedList.Add('4');
-  LinkedList.Add('2');
-  LinkedList.Add('3');
+  CheckException(EArgumentNilException,
+    procedure() begin LList.AddFirst(nil); end,
+    'EArgumentNilException not thrown in AddFirst (nil enum).'
+  );
 
-  LinkedList.Sort(0, 1);
-
-  Check(LinkedList[0] = '1', 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = '5', 'LinkedList[1] expected to be 5');
-  Check(LinkedList[2] = '4', 'LinkedList[2] expected to be 4');
-  Check(LinkedList[3] = '2', 'LinkedList[3] expected to be 2');
-  Check(LinkedList[4] = '3', 'LinkedList[4] expected to be 3');
-
-  LinkedList.Sort(0, 3);
-
-  Check(LinkedList[0] = '1', 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = '4', 'LinkedList[1] expected to be 4');
-  Check(LinkedList[2] = '5', 'LinkedList[2] expected to be 5');
-  Check(LinkedList[3] = '2', 'LinkedList[3] expected to be 2');
-  Check(LinkedList[4] = '3', 'LinkedList[4] expected to be 3');
-
-  LinkedList.Sort();
-
-  Check(LinkedList[0] = '1', 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = '2', 'LinkedList[1] expected to be 2');
-  Check(LinkedList[2] = '3', 'LinkedList[2] expected to be 3');
-  Check(LinkedList[3] = '4', 'LinkedList[3] expected to be 4');
-  Check(LinkedList[4] = '5', 'LinkedList[4] expected to be 5');
-
-  LinkedList.Free();
+  LList.Free;
+  LOther.Free;
 end;
 
-procedure TTestLinkedList.TestSort_Type;
+procedure TTestLinkedList.Test_AddLast_1;
 var
-  LinkedList : TLinkedList<Integer>;
+  LList: TLinkedList<Integer>;
 begin
-  LinkedList := TLinkedList<Integer>.Create();
+  LList := TLinkedList<Integer>.Create();
+  LList.AddLast(1);
+  LList.AddLast(2);
+  LList.AddLast(3);
 
-  LinkedList.Add(1);
-  LinkedList.Add(5);
-  LinkedList.Add(4);
-  LinkedList.Add(2);
-  LinkedList.Add(3);
+  CheckEquals(3, LList.Count);
+  CheckEquals(1, LList[0]);
+  CheckEquals(2, LList[1]);
+  CheckEquals(3, LList[2]);
 
-  LinkedList.Sort(0, 1);
+  LList.Free;
+end;
 
-  Check(LinkedList[0] = 1, 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = 5, 'LinkedList[1] expected to be 5');
-  Check(LinkedList[2] = 4, 'LinkedList[2] expected to be 4');
-  Check(LinkedList[3] = 2, 'LinkedList[3] expected to be 2');
-  Check(LinkedList[4] = 3, 'LinkedList[4] expected to be 3');
+procedure TTestLinkedList.Test_AddLast_Coll;
+var
+  LList, LOther: TLinkedList<Integer>;
+begin
+  LOther := TLinkedList<Integer>.Create([1, 2, 3]);
+  LList := TLinkedList<Integer>.Create();
+  LList.AddLast(LOther);
 
-  LinkedList.Sort(0, 3);
+  CheckEquals(3, LList.Count);
+  CheckEquals(1, LList[0]);
+  CheckEquals(2, LList[1]);
+  CheckEquals(3, LList[2]);
 
-  Check(LinkedList[0] = 1, 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = 4, 'LinkedList[1] expected to be 4');
-  Check(LinkedList[2] = 5, 'LinkedList[2] expected to be 5');
-  Check(LinkedList[3] = 2, 'LinkedList[3] expected to be 2');
-  Check(LinkedList[4] = 3, 'LinkedList[4] expected to be 3');
+  CheckException(EArgumentNilException,
+    procedure() begin LList.AddLast(nil); end,
+    'EArgumentNilException not thrown in AddLast (nil enum).'
+  );
 
-  LinkedList.Sort();
-
-  Check(LinkedList[0] = 1, 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = 2, 'LinkedList[1] expected to be 2');
-  Check(LinkedList[2] = 3, 'LinkedList[2] expected to be 3');
-  Check(LinkedList[3] = 4, 'LinkedList[3] expected to be 4');
-  Check(LinkedList[4] = 5, 'LinkedList[4] expected to be 5');
-
-  LinkedList.Sort(false);
-
-  Check(LinkedList[0] = 5, 'LinkedList[0] expected to be 1');
-  Check(LinkedList[1] = 4, 'LinkedList[1] expected to be 2');
-  Check(LinkedList[2] = 3, 'LinkedList[2] expected to be 3');
-  Check(LinkedList[3] = 2, 'LinkedList[3] expected to be 4');
-  Check(LinkedList[4] = 1, 'LinkedList[4] expected to be 5');
-
-  LinkedList.Free();
+  LList.Free;
+  LOther.Free;
 end;
 
 procedure TTestLinkedList.Test_Bug0;
@@ -737,12 +595,12 @@ end;
 
 procedure TTestLinkedList.Test_Bug1;
 var
-  LList: TObjectList<TTestObject>;
+  LList: TObjectLinkedList<TTestObject>;
   LValue: TTestObject;
   LValueDied: Boolean;
 begin
   { Prepare }
-  LList := TObjectList<TTestObject>.Create();
+  LList := TObjectLinkedList<TTestObject>.Create();
   LValue := TTestObject.Create(@LValueDied);
   LValueDied := false;
 
@@ -806,6 +664,136 @@ begin
 
   LList.RemoveAt(0);
   CheckTrue(LValueDied);
+
+  LList.Free;
+end;
+
+procedure TTestLinkedList.Test_ExtractFirst;
+var
+  LList: TObjectLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  CheckTrue(L1 = LList.ExtractFirst());
+  CheckFalse(LValueDied);
+  CheckTrue(L2 = LList[0]);
+  L1.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  CheckTrue(L2 = LList.ExtractFirst());
+  CheckFalse(LValueDied);
+  L2.Free;
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.ExtractFirst(); end,
+    'EArgumentOutOfRangeException not thrown in ExtractFirst (0 remaining).'
+  );
+
+  LList.Free;
+end;
+
+procedure TTestLinkedList.Test_ExtractLast;
+var
+  LList: TObjectLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  CheckTrue(L2 = LList.ExtractLast());
+  CheckFalse(LValueDied);
+  CheckTrue(L1 = LList[0]);
+  L2.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  CheckTrue(L1 = LList.ExtractLast());
+  CheckFalse(LValueDied);
+  L1.Free;
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.ExtractLast(); end,
+    'EArgumentOutOfRangeException not thrown in ExtractLast (0 remaining).'
+  );
+
+  LList.Free;
+end;
+
+procedure TTestLinkedList.Test_RemoveFirst;
+var
+  LList: TObjectLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  LList.RemoveFirst();
+  CheckFalse(LValueDied);
+  CheckTrue(L2 = LList[0]);
+  L1.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  LList.RemoveFirst();
+  CheckTrue(LValueDied);
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.RemoveFirst(); end,
+    'EArgumentOutOfRangeException not thrown in RemoveFirst (0 remaining).'
+  );
+
+  LList.Free;
+end;
+
+procedure TTestLinkedList.Test_RemoveLast;
+var
+  LList: TObjectLinkedList<TTestObject>;
+  L1, L2: TTestObject;
+  LValueDied: Boolean;
+begin
+  { Prepare }
+  LList := TObjectLinkedList<TTestObject>.Create();
+  L1 := TTestObject.Create(@LValueDied);
+  L2 := TTestObject.Create(@LValueDied);
+  LValueDied := false;
+
+  LList.Add(L1);
+  LList.Add(L2);
+
+  LList.RemoveLast();
+  CheckFalse(LValueDied);
+  CheckTrue(L1 = LList[0]);
+  L2.Free;
+  { -- }
+  LList.OwnsObjects := True;
+  LList.RemoveLast();
+  CheckTrue(LValueDied);
+
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin LList.RemoveLast(); end,
+    'EArgumentOutOfRangeException not thrown in RemoveFirst (0 remaining).'
+  );
 
   LList.Free;
 end;

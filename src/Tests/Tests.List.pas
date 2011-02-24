@@ -46,7 +46,6 @@ type
     procedure TestSort_Comp();
     procedure TestContainsIndexOfLastIndexOf();
     procedure TestCopyTo();
-    procedure TestCopy();
     procedure TestIndexer();
     procedure TestIDynamic();
     procedure TestEnumerator();
@@ -133,59 +132,6 @@ begin
 
   List.Free;
   Stack.Free;
-end;
-
-procedure TTestList.TestCopy;
-var
-  List1, List2 : TList<Integer>;
-begin
-  List1 := TList<Integer>.Create();
-
-  List1.Add(1);
-  List1.Add(2);
-  List1.Add(3);
-  List1.Add(4);
-
-  List2 := List1.Copy(1, 3);
-
-  Check(List2.Count = 3, 'List2 count expected to be 3');
-  Check(List2[0] = 2, 'List2[0] expected to be 2');
-  Check(List2[1] = 3, 'List2[1] expected to be 3');
-  Check(List2[2] = 4, 'List2[2] expected to be 4');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy(0, 1);
-
-  Check(List2.Count = 1, 'List2 count expected to be 1');
-  Check(List2[0] = 1, 'List2[0] expected to be 1');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy(2);
-
-  Check(List2.Count = 2, 'List2 count expected to be 2');
-  Check(List2[0] = 3, 'List2[0] expected to be 3');
-  Check(List2[1] = 4, 'List2[1] expected to be 4');
-
-  List2.Free();
-
-  { -- }
-
-  List2 := List1.Copy();
-
-  Check(List2.Count = 4, 'List2 count expected to be 2');
-  Check(List2[0] = 1, 'List2[0] expected to be 1');
-  Check(List2[1] = 2, 'List2[1] expected to be 2');
-  Check(List2[2] = 3, 'List2[2] expected to be 3');
-  Check(List2[3] = 4, 'List2[3] expected to be 4');
-
-  List2.Free();
-  List1.Free();
 end;
 
 procedure TTestList.TestCopyTo;
@@ -515,15 +461,6 @@ begin
     'EArgumentOutOfRangeException not thrown in LastIndexOf (index out of).'
   );
 
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin List.Copy(0, 2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure() begin List.Copy(2); end,
-    'EArgumentOutOfRangeException not thrown in Copy (index out of).'
-  );
 
   CheckException(EArgumentOutOfRangeException,
     procedure() begin List[1]; end,
