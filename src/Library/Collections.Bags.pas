@@ -40,30 +40,17 @@ type
   TAbstractBag<T> = class(TEnexCollection<T>, IBag<T>)
   private type
     {$REGION 'Internal Types'}
-    { Enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FDict: TAbstractBag<T>;
-      FCurrentKV: IEnumerator<TPair<T, NativeUInt>>;
-      FCurrentCount: NativeInt;
-      FValue: T;
-
+      FCurrentWeight: NativeInt;
+      FDictionaryEnumerator: IEnumerator<TPair<T, NativeUInt>>;
     public
-      { Constructor }
-      constructor Create(const ADict: TAbstractBag<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FDictionary: IDictionary<T, NativeUInt>;
-    FVer: NativeInt;
     FKnownCount: NativeInt;
 
   protected
@@ -388,7 +375,7 @@ begin
     FDictionary.Add(AValue, AWeight);
 
   Inc(FKnownCount, AWeight);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TAbstractBag<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
@@ -411,7 +398,7 @@ begin
     FDictionary.Clear();
 
     FKnownCount := 0;
-    Inc(FVer);
+    NotifyCollectionChanged();
   end;
 end;
 
@@ -507,7 +494,7 @@ begin
   inherited Create(ARules);
 
   FDictionary := CreateDictionary(ElementRules);
-  FVer := 0;
+  NotifyCollectionChanged();
   FKnownCount := 0;
 end;
 
@@ -580,8 +567,12 @@ begin
 end;
 
 function TAbstractBag<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FDictionaryEnumerator := FDictionary.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 procedure TAbstractBag<T>.Remove(const AValue: T; const AWeight: NativeUInt);
@@ -608,7 +599,7 @@ begin
     FDictionary[AValue] := LOldCount;
 
   Dec(FKnownCount, AWeight);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TAbstractBag<T>.RemoveAll(const AValue: T);
@@ -622,7 +613,7 @@ begin
   FDictionary.Remove(AValue);
 
   Dec(FKnownCount, LOldCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TAbstractBag<T>.SetWeight(const AValue: T; const AWeight: NativeUInt);
@@ -645,7 +636,7 @@ begin
 
   { Change the counts }
   FKnownCount := FKnownCount - NativeInt(LOldValue + AWeight);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TAbstractBag<T>.Single: T;
@@ -662,62 +653,26 @@ end;
 
 { TAbstractBag<T>.TEnumerator }
 
-constructor TAbstractBag<T>.TEnumerator.Create(const ADict: TAbstractBag<T>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FCurrentKV := FDict.FDictionary.GetEnumerator();
-
-  FCurrentCount := 0;
-  FValue := Default(T);
-
-  FVer := ADict.FVer;
-end;
-
-destructor TAbstractBag<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-
-  inherited;
-end;
-
-function TAbstractBag<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TAbstractBag<T>.TEnumerator.MoveNext: Boolean;
+function TAbstractBag<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   { Repeat until something happens }
   while True do
   begin
-    if FVer <> FDict.FVer then
-      ExceptionHelper.Throw_CollectionChangedError();
-
-    { We're still in the same KV? }
-    if FCurrentCount <> 0 then
+    if FCurrentWeight > 0 then
     begin
       { Decrease the count of the bag item }
-      Dec(FCurrentCount);
-      Result := true;
-
-      Exit;
+      Dec(FCurrentWeight);
+      Result := True;
+    end else
+    begin
+      Result := FDictionaryEnumerator.MoveNext();
+      if Result then
+        FCurrentWeight := FDictionaryEnumerator.Current.Value;
     end;
-
-    { Get the next KV pair from the dictionary }
-    Result := FCurrentKV.MoveNext();
-    if not Result then
-      Exit;
-
-    { Copy the key/value }
-    FCurrentCount := FCurrentKV.Current.Value;
-    FValue := FCurrentKV.Current.Key;
   end;
+
+  if Result then
+    ACurrent := FDictionaryEnumerator.Current.Key;
 end;
 
 { TBag<T> }

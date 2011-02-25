@@ -23,7 +23,13 @@
     * TSortedList<T> extends TList<T> now while TSortedLinkedList<T> extends TLinkedList<T>. Removed a lot of duplicated code.
     * TLinkedList<T> and TSortedLinkedList<T> implement IQueue<T> and IStack<T>. A linked list can be used as both these collections
       transparently.
-      
+    * TCollection<T> base class supports versioning out of the box.
+    * TEnumerator<T> base class was completely revamped. It is not much more simple to extend and also provides version checkin
+      out of the box.
+    * TForwardingEnumerator<T> is a special class that uses another enumerator as base.
+    * Renamed IEnexGroupingCollection<TKey, T> into simply IGrouping<TKey, T>.
+    * Rewritten all enumerators in the package to use the new interface.
+    * Introduced a new non-generic TCollection.
     
 ﻿========================
 = Minor Release: 1.1.1 =

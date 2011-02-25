@@ -117,6 +117,13 @@ type
   ///  <summary>Base interface inherited by all specific collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all collections implemented in this package.</remarks>
   ICollection<T> = interface(IEnumerable<T>)
+    ///  <summary>Returns the current version of the collection.</summary>
+    ///  <returns>An integer value specifying the current "structural version" of the collection.</returns>
+    ///  <remarks>This function returns a number that is modified by the implementing collection each time
+    ///  the collection changes. This version can be used to identify if a collection has chnaged since last time it was used
+    ///  in a specific piece of code.</remarks>
+    function Version(): NativeInt;
+
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>For associative collections such as dictionaries or multimaps, this value represents the
@@ -175,7 +182,7 @@ type
   ISet<T> = interface;
   IDictionary<TKey, TValue> = interface;
   IEnexCollection<T> = interface;
-  IEnexGroupingCollection<TKey, T> = interface;
+  IGrouping<TKey, T> = interface;
 
   ///  <summary>Offers an extended set of Enex operations.</summary>
   ///  <remarks>This type is exposed by Enex collections, and serves simply as a bridge between the interfaces
@@ -249,7 +256,7 @@ type
     ///  <remarks>This operation will call <paramref name="ASelector"/> for each element in the collection and retrieve a "key". Using this key,
     ///  the elements are grouped into new collections called groupings. The result of this operation is a collection of groupings. Each grouping
     ///  contains the elements from the original collection that have the same group and a key (which is the group value used).</remarks>
-    function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IEnexGroupingCollection<TKey, T>>; overload;
+    function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IGrouping<TKey, T>>; overload;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
@@ -654,7 +661,7 @@ type
   end;
 
   ///  <summary>Enex collection that is presumed to be grouped by a certain key.</summary>
-  IEnexGroupingCollection<TKey, T> = interface(IEnexCollection<T>)
+  IGrouping<TKey, T> = interface(IEnexCollection<T>)
     ///  <summary>Returns the key under which all elements in this collection are grouped.</summary>
     ///  <returns>The key of this grouping.</returns>
     function GetKey(): TKey;
@@ -1624,40 +1631,17 @@ type
   end;
 {$HINTS ON}
 
-  ///  <summary>Base class for all Enex enumerator objects.</summary>
-  ///  <remarks>All Enex collection are expected to provide enumerators that derive from
-  ///  this class.</remarks>
-  TEnumerator<T> = class abstract(TRefCountedObject, IEnumerator<T>)
-    ///  <summary>Returns the current element of the enumerated collection.</summary>
-    ///  <remarks>This method is the getter for <c>Current</c> property. Use the property to obtain the element instead.</remarks>
-    ///  <returns>The current element of the enumerated collection.</returns>
-    function GetCurrent(): T; virtual; abstract;
-
-    ///  <summary>Moves the enumerator to the next element of collection.</summary>
-    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to move the "pointer" to the next element in
-    ///  the collection (if there are elements left). Also note that many specific enumerator implementations may throw various
-    ///  exceptions if the enumerated collection was changed while enumerating.</remarks>
-    ///  <returns><c>True</c> if the enumerator succesefully selected the next element; <c>False</c> is there are
-    ///  no more elements to be enumerated.</returns>
-    function MoveNext(): Boolean; virtual; abstract;
-
-    ///  <summary>Returns the current element of the enumerated collection.</summary>
-    ///  <remarks>This property can only return a valid element if <c>MoveNext</c> was priorly called and returned <c>True</c>;
-    ///  otherwise the behavior of this property is undefined.
-    ///  </remarks>
-    ///  <returns>The current element of the enumerated collection.</returns>
-    property Current: T read GetCurrent;
-  end;
-
   ///  <summary>Procedural type used by collections to insert custom remove notification code
   ///  into inner collections.</summary>
   ///  <param name="AValue">The value being removed.</param>
   TRemoveNotification<T> = reference to procedure(const AValue: T);
 
-  ///  <summary>Base class for all collections.</summary>
-  ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
-  ///  enumerability .</remarks>
-  TCollection<T> = class abstract(TRefCountedObject, ICollection<T>, IEnumerable<T>)
+  ///  <summary>Non-generic base class for all collections.</summary>
+  ///  <remarks>This class provides some basics like version management and count retrieval.</remarks>
+  TCollection = class abstract(TRefCountedObject)
+  private
+    FVersion: NativeInt;
+
   protected
     const CDefaultSize = 32;
 
@@ -1665,13 +1649,48 @@ type
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
     ///  <remarks>A call to this method can be costly because some
     ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
-    function GetCount(): NativeInt; virtual;
+    function GetCount(): NativeInt; virtual; abstract;
+
+    ///  <summary>Call this method to notify the collection that it was modified.</summary>
+    ///  <remarks>This method must be called by descending classes in order to update the version of the collection.</remarks>
+    procedure NotifyCollectionChanged(); virtual;
+  public
+    ///  <summary>Returns the current version of the collection.</summary>
+    ///  <returns>An integer value specifying the current "structural version" of the collection.</returns>
+    ///  <remarks>This function returns a number that is modified by the implementing collection each time
+    ///  the collection changes. This version can be used to identify if a collection has chnaged since last time it was used
+    ///  in a specific piece of code.</remarks>
+    function Version(): NativeInt;
+
+    ///  <summary>Checks whether the collection is empty.</summary>
+    ///  <returns><c>True</c> if the collection is empty; <c>False</c> otherwise.</returns>
+    ///  <remarks>This method is the recommended way of detecting if the collection is empty. It is optimized
+    ///  in most collections to offer a fast response.</remarks>
+    function Empty(): Boolean; virtual; abstract;
+
+    ///  <summary>Specifies the number of elements in the collection.</summary>
+    ///  <returns>A positive value specifying the number of elements in the collection.</returns>
+    ///  <remarks>Accesing this property can be costly because some
+    ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
+    property Count: NativeInt read GetCount;
+  end;
+
+  ///  <summary>Base class for all collections.</summary>
+  ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
+  ///  enumerability .</remarks>
+  TCollection<T> = class abstract(TCollection, ICollection<T>, IEnumerable<T>)
+  protected
+    ///  <summary>Returns the number of elements in the collection.</summary>
+    ///  <returns>A positive value specifying the number of elements in the collection.</returns>
+    ///  <remarks>A call to this method can be costly because some
+    ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
+    function GetCount(): NativeInt; override;
   public
     ///  <summary>Checks whether the collection is empty.</summary>
     ///  <returns><c>True</c> if the collection is empty; <c>False</c> otherwise.</returns>
     ///  <remarks>This method is the recommended way of detecting if the collection is empty. It is optimized
     ///  in most collections to offer a fast response.</remarks>
-    function Empty(): Boolean; virtual;
+    function Empty(): Boolean; override;
 
     ///  <summary>Returns the single element stored in the collection.</summary>
     ///  <returns>The element in collection.</returns>
@@ -1719,6 +1738,87 @@ type
     ///  <remarks>Accesing this property can be costly because some
     ///  collections cannot detect the number of stored elements directly, resorting to enumerating themselves.</remarks>
     property Count: NativeInt read GetCount;
+  end;
+
+  ///  <summary>Base class for all Enex enumerator objects.</summary>
+  ///  <remarks>All Enex collection are expected to provide enumerators that derive from
+  ///  this class.</remarks>
+  TEnumerator<T> = class abstract(TRefCountedObject, IEnumerator<T>)
+  private
+    FCreatedAtVersion: NativeInt;
+    FOwner: TCollection;
+    FCurrent: T;
+    FEnded: Boolean;
+  protected
+    ///  <summary>Specifies the owner collection.</summary>
+    ///  <returns>The collection that generated this enumerator.</returns>
+    property Owner: TCollection read FOwner;
+
+    ///  <summary>Returns the current element of the enumerated collection.</summary>
+    ///  <remarks>This method is the getter for <c>Current</c> property. Use the property to obtain the element instead.</remarks>
+    ///  <returns>The current element of the enumerated collection.</returns>
+    ///  <exception cref="Collections.Base|ECollectionChangedException">The enumerated collection has changed.</exception>
+    function GetCurrent(): T;
+
+    ///  <summary>Implement this method to move the iterator to the next element in the collection.</summary>
+    ///  <param name="ACurrent">The "next" value. Must be returned by the descending classes.</param>
+    ///  <returns><c>True</c> if the iteration to the next element was successful; <c>False</c> otherwise.</returns>
+    function TryMoveNext(out ACurrent: T): Boolean; virtual; abstract;
+  public
+    ///  <summary>Initializes an enumerator object.</summary>
+    ///  <param name="AOwner">The owner collection.</param>
+    ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
+    constructor Create(const AOwner: TCollection);
+
+    ///  <summary>Destroys this enumerator object.</summary>
+    destructor Destroy; override;
+
+    ///  <summary>Moves the enumerator to the next element of collection.</summary>
+    ///  <remarks>This method is usually called by compiler generated code. Its purpose is to move the "pointer" to the next element in
+    ///  the collection (if there are elements left). Also note that many specific enumerator implementations may throw various
+    ///  exceptions if the enumerated collection was changed while enumerating.</remarks>
+    ///  <returns><c>True</c> if the enumerator succesefully selected the next element; <c>False</c> is there are
+    ///  no more elements to be enumerated.</returns>
+    ///  <exception cref="Collections.Base|ECollectionChangedException">The enumerated collection has changed.</exception>
+    function MoveNext(): Boolean;
+
+    ///  <summary>Returns the current element of the enumerated collection.</summary>
+    ///  <remarks>This property can only return a valid element if <c>MoveNext</c> was priorly called and returned <c>True</c>;
+    ///  otherwise the behavior of this property is undefined. </remarks>
+    ///  <returns>The current element of the enumerated collection.</returns>
+    ///  <exception cref="Collections.Base|ECollectionChangedException">The enumerated collection has changed.</exception>
+    property Current: T read GetCurrent;
+  end;
+
+  ///  <summary>A variation of an enumerator object thet forwards all calls to an enclosed enumerator and allows filtering
+  ///  the enumerated value.</summary>
+  ///  <remarks>By default filtering is off, but it can be enaled by overriding the <c>AcceptValue</c> method.</remarks>
+  TForwardingEnumerator<T> = class abstract(TEnumerator<T>)
+  private
+    FForwardEnumerator: IEnumerator<T>;
+  protected
+    ///  <summary>Obtains the next value from the use enumerator.</summary>
+    ///  <param name="ACurrent">The "next" value. The value obtained from the forwarding enumerator.</param>
+    ///  <remarks>This method calls <c>AcceptValue</c> and if the result is <c>False</c> iterates further until
+    ///  a values from the enclised enumerator is accepted.</remarks>
+    ///  <returns><c>True</c> if the iteration to the next element was successful; <c>False</c> otherwise.</returns>
+    function TryMoveNext(out ACurrent: T): Boolean; override;
+
+    ///  <summary>Override in descending enumerator classes to accept or reject a value provided by the
+    ///  enclosed enumerator.</summary>
+    ///  <param name="AValue">The value to accept or reject.</param>
+    ///  <returns><c>True</c> if the value is accepted; <c>False</c> otherwise.</returns>
+    ///  <remarks>The current implementation always returns <c>True</c>.</remarks>
+    function AcceptValue(const AValue: T): Boolean; virtual;
+  public
+    ///  <summary>Initializes a fprwarding enumerator object.</summary>
+    ///  <param name="AOwner">The owner collection.</param>
+    ///  <param name="AEnumerator">The enumerator to forward all calls to.</param>
+    ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AEnumerator"/> is <c>nil</c>.</exception>
+    constructor Create(const AOwner: TCollection<T>; const AEnumerator: IEnumerator<T>);
   end;
 
   ///  <summary>Base class for all non-associative Enex collections.</summary>
@@ -2649,84 +2749,44 @@ resourcestring
 {$REGION 'Enex Internal Enumerables'}
   //TODO: doc all these classes :(
 type
-  { The "Where" collection }
   TEnexWhereCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Where" enumerator }
-    TEnumerator = class(TEnumerator<T>)
-    private
-      FCollection: TEnexWhereCollection<T>;
-      FEnumerator: IEnumerator<T>;
-
+  private type
+    TEnumerator = class(TForwardingEnumerator<T>)
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexWhereCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function AcceptValue(const AValue: T): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexCollection<T>;
     FPredicate: TFunc<T, Boolean>;
     FInvertResult: Boolean;
+
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>;
       const APredicate: TFunc<T, Boolean>; const AInvertResult: Boolean); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Select" collection }
   TEnexSelectCollection<T, TOut> = class sealed(TEnexCollection<TOut>, IEnexCollection<TOut>)
-  private
-  type
-    { The "Select" enumerator }
+  private type
     TEnumerator = class(TEnumerator<TOut>)
     private
-      FCollection: TEnexSelectCollection<T, TOut>;
-      FEnumerator: IEnumerator<T>;
-      FCurrent: TOut;
-
+      FInEnumerator: IEnumerator<T>;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexSelectCollection<T, TOut>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TOut; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TOut): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexCollection<T>;
     FSelector: TFunc<T, TOut>;
 
   protected
-    { Enex: Defaults }
     function GetCount(): NativeInt; override;
-
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TOut>; override;
-
-    { Enex Overrides }
     function Empty(): Boolean; override;
     function First(): TOut; override;
     function Last(): TOut; override;
@@ -2734,375 +2794,199 @@ type
     function ElementAt(const AIndex: NativeInt): TOut; override;
   end;
 
-  { The "Select Class" collection }
   TEnexSelectClassCollection<T, TOut: class> = class sealed(TEnexCollection<TOut>, IEnexCollection<TOut>)
-  private
-  type
-    { The "Select Class" enumerator }
+  private type
     TEnumerator = class(TEnumerator<TOut>)
     private
-      FCollection: TEnexSelectClassCollection<T, TOut>;
-      FEnumerator: IEnumerator<T>;
-      FCurrent: TOut;
-
+      FInEnumerator: IEnumerator<T>;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexSelectClassCollection<T, TOut>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TOut; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TOut): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexCollection<T>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>; const ARules: TRules<TOut>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TOut>; override;
   end;
 
-  { The "Concatenation" collection }
   TEnexConcatCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Concatenation" enumerator }
+  private type
     TEnumerator = class(TEnumerator<T>)
     private
-      FCollection: TEnexConcatCollection<T>;
-      FEnumerator1, FEnumerator2: IEnumerator<T>;
-
+      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexConcatCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
 
-  var
+  private
     FCollection1: TEnexCollection<T>;
     FCollection2: IEnexCollection<T>;
   protected
-    { ICollection support/hidden }
     function GetCount(): NativeInt; override;
 
   public
-    { Constructors }
     constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
-
-    { Enex Overrides }
     function Empty(): Boolean; override;
     function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
     function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
   end;
 
-  { The "Union" collection }
   TEnexUnionCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Union" enumerator }
+  private type
     TEnumerator = class(TEnumerator<T>)
     private
-      FCollection: TEnexUnionCollection<T>;
-      FEnumerator1, FEnumerator2: IEnumerator<T>;
+      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
       FSet: ISet<T>;
-
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexUnionCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
 
-  var
+  private
     FCollection1: TEnexCollection<T>;
     FCollection2: IEnexCollection<T>;
   public
-    { Constructors }
     constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Exclusion" collection }
   TEnexExclusionCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Exclusion" enumerator }
+  private type
     TEnumerator = class(TEnumerator<T>)
     private
-      FCollection: TEnexExclusionCollection<T>;
-      FEnumerator: IEnumerator<T>;
+      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
       FSet: ISet<T>;
-
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexExclusionCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
 
-  var
+  private
     FCollection1: TEnexCollection<T>;
     FCollection2: IEnexCollection<T>;
   public
-    { Constructors }
     constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Intersection" collection }
   TEnexIntersectionCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Intersection" enumerator }
+  private type
     TEnumerator = class(TEnumerator<T>)
     private
-      FCollection: TEnexIntersectionCollection<T>;
-      FEnumerator: IEnumerator<T>;
+      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
       FSet: ISet<T>;
-
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexIntersectionCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
 
-  var
+  private
     FCollection1: TEnexCollection<T>;
     FCollection2: IEnexCollection<T>;
   public
-    { Constructors }
     constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Distinct" collection }
   TEnexDistinctCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Distinct" enumerator }
-    TEnumerator = class(TEnumerator<T>)
+  private type
+    TEnumerator = class(TForwardingEnumerator<T>)
     private
-      FCollection: TEnexDistinctCollection<T>;
-      FEnumerator: IEnumerator<T>;
       FSet: ISet<T>;
-
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexDistinctCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function AcceptValue(const AValue: T): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexCollection<T>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Range" collection }
   TEnexRangeCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Range" enumerator }
+  private type
     TEnumerator = class(TEnumerator<T>)
     private
-      FCollection: TEnexRangeCollection<T>;
-      FEnumerator: IEnumerator<T>;
-      FIdx: NativeInt;
+      FInEnumerator: IEnumerator<T>;
+      FCurrentIndex: NativeInt;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexRangeCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
 
-  var
+  private
     FStart, FEnd: NativeInt;
     FCollection: TEnexCollection<T>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>; const AStart, AEnd: NativeInt); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Skip" collection }
   TEnexSkipCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Skip" enumerator }
-    TEnumerator = class(TEnumerator<T>)
+  private type
+    TEnumerator = class(TForwardingEnumerator<T>)
     private
-      FCollection: TEnexSkipCollection<T>;
-      FEnumerator: IEnumerator<T>;
-      FIdx: NativeInt;
+      FCurrentIndex: NativeInt;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexSkipCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function AcceptValue(const AValue: T): Boolean; override;
     end;
 
-  var
+  private
     FCount: NativeInt;
     FCollection: TEnexCollection<T>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Take" collection }
   TEnexTakeCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Take" enumerator }
-    TEnumerator = class(TEnumerator<T>)
+  private type
+    TEnumerator = class(TForwardingEnumerator<T>)
     private
-      FCollection: TEnexTakeCollection<T>;
-      FEnumerator: IEnumerator<T>;
-      FIdx: NativeInt;
-
+      FCurrentIndex: NativeInt;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexTakeCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function AcceptValue(const AValue: T): Boolean; override;
     end;
 
-  var
+  private
     FCount: NativeInt;
     FCollection: TEnexCollection<T>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
   end;
 
-  { The "Fill" collection }
   TEnexFillCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Fill" enumerator }
+  private type
     TEnumerator = class(TEnumerator<T>)
     private
-      FCollection: TEnexFillCollection<T>;
-      FCount: NativeInt;
+      FRemaining: NativeInt;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexFillCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
 
-  var
+  private
     FElement: T;
     FCount: NativeInt;
 
   protected
-    { Enex: Defaults }
     function GetCount(): NativeInt; override;
-
   public
-    { Constructors }
     constructor Create(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>);
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<T>; override;
-
-    { Enex Overrides }
     function Empty(): Boolean; override;
     function Max(): T; override;
     function Min(): T; override;
@@ -3121,82 +3005,47 @@ type
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
-  { The "Take While" collection }
   TEnexTakeWhileCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Take While" enumerator }
-    TEnumerator = class(TEnumerator<T>)
-    private
-      FCollection: TEnexTakeWhileCollection<T>;
-      FEnumerator: IEnumerator<T>;
-
-    public
-      { Constructor }
-      constructor Create(const ACollection: TEnexTakeWhileCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-  var
-    FCollection: TEnexCollection<T>;
-    FPredicate: TFunc<T, Boolean>;
-
-  public
-    { Constructors }
-    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
-
-    { Destructor }
-    destructor Destroy(); override;
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  { The "Skip While" collection }
-  TEnexSkipWhileCollection<T> = class sealed(TEnexCollection<T>)
-  private
-  type
-    { The "Skip While" enumerator }
-    TEnumerator = class(TEnumerator<T>)
-    private
-      FCollection: TEnexSkipWhileCollection<T>;
-      FEnumerator: IEnumerator<T>;
-      FStop: Boolean;
-    public
-      { Constructor }
-      constructor Create(const ACollection: TEnexSkipWhileCollection<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-  var
-    FCollection: TEnexCollection<T>;
-    FPredicate: TFunc<T, Boolean>;
-
-  public
-    { Constructors }
-    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
-
-    { Destructor }
-    destructor Destroy(); override;
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  { The "Group By" collection }
-  TEnexGroupByCollection<T, TBy> = class sealed(TEnexCollection<IEnexGroupingCollection<TBy, T>>)
   private type
-    TEnexGroupingCollection = class(TEnexCollection<T>, IEnexGroupingCollection<TBy, T>)
+    TEnumerator = class(TEnumerator<T>)
+    private
+      FInEnumerator: IEnumerator<T>;
+    public
+      function TryMoveNext(out ACurrent: T): Boolean; override;
+    end;
+
+  private
+    FCollection: TEnexCollection<T>;
+    FPredicate: TFunc<T, Boolean>;
+
+  public
+    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
+    destructor Destroy(); override;
+    function GetEnumerator(): IEnumerator<T>; override;
+  end;
+
+  TEnexSkipWhileCollection<T> = class sealed(TEnexCollection<T>)
+  private type
+    TEnumerator = class(TForwardingEnumerator<T>)
+    private
+      FStarted: Boolean;
+    public
+      function AcceptValue(const AValue: T): Boolean; override;
+    end;
+
+  private
+    FCollection: TEnexCollection<T>;
+    FPredicate: TFunc<T, Boolean>;
+
+  public
+    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
+    destructor Destroy(); override;
+    function GetEnumerator(): IEnumerator<T>; override;
+  end;
+
+  TEnexGroupByCollection<T, TBy> = class sealed(TEnexCollection<IGrouping<TBy, T>>)
+  private type
+    TEnexGroupingCollection = class(TEnexCollection<T>, IGrouping<TBy, T>)
     private
       FBy: TBy;
       FList: IList<T>;
@@ -3228,114 +3077,58 @@ type
     FSelector: TFunc<T, TBy>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TBy>);
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
-    function GetEnumerator(): IEnumerator<IEnexGroupingCollection<TBy, T>>; override;
+    function GetEnumerator(): IEnumerator<IGrouping<TBy, T>>; override;
   end;
 
-  { The "Select Keys" collection }
   TEnexSelectKeysCollection<TKey, TValue> = class sealed(TEnexCollection<TKey>)
-  private
-  type
-    { The "Select Keys" enumerator }
+  private type
     TEnumerator = class(TEnumerator<TKey>)
     private
-      FCollection: TEnexSelectKeysCollection<TKey, TValue>;
-      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
-      FCurrent: TKey;
-
+      FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexSelectKeysCollection<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TKey; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TKey): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   protected
-    { Enex: Defaults }
     function GetCount(): NativeInt; override;
+
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TKey>; override;
   end;
 
-  { The "Select Values" collection }
   TEnexSelectValuesCollection<TKey, TValue> = class sealed(TEnexCollection<TValue>)
-  private
-  type
-    { The "Select Keys" enumerator }
+  private type
     TEnumerator = class(TEnumerator<TValue>)
     private
-      FCollection: TEnexSelectValuesCollection<TKey, TValue>;
-      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
-      FCurrent: TValue;
-
+      FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexSelectValuesCollection<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TValue; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   protected
-    { Enex: Defaults }
     function GetCount(): NativeInt; override;
+
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TValue>; override;
   end;
 
-  { The "Where" associative collection }
-  TEnexAssociativeWhereCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>,
-      IEnexAssociativeCollection<TKey, TValue>)
-  private
-  type
-    { The "Where" associative enumerator }
-    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
-    private
-      FCollection: TEnexAssociativeWhereCollection<TKey, TValue>;
-      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
-
+  TEnexAssociativeWhereCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>)
+  private type
+    TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexAssociativeWhereCollection<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TPair<TKey, TValue>; override;
-      function MoveNext(): Boolean; override;
+      function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
     end;
 
   var
@@ -3343,86 +3136,45 @@ type
     FPredicate: TFunc<TKey, TValue, Boolean>;
     FInvertResult: Boolean;
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>;
         const APredicate: TFunc<TKey, TValue, Boolean>; const AInvertResult: Boolean); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
 
-  { The "Distinct By Keys" associative collection }
   TEnexAssociativeDistinctByKeysCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>)
-  private
-  type
-    { The "Distinct By Keys" associative enumerator }
-    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
+  private type
+    TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
     private
-      FCollection: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>;
-      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
       FSet: ISet<TKey>;
-
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TPair<TKey, TValue>; override;
-      function MoveNext(): Boolean; override;
+      function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
 
-  { The "Distinct By Values" associative collection }
   TEnexAssociativeDistinctByValuesCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>)
-  private
-  type
-    { The "Distinct By Keys" associative enumerator }
-    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
+  private type
+    TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
     private
-      FCollection: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>;
-      FEnumerator: IEnumerator<TPair<TKey, TValue>>;
       FSet: ISet<TValue>;
-
     public
-      { Constructor }
-      constructor Create(const ACollection: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TPair<TKey, TValue>; override;
-      function MoveNext(): Boolean; override;
+      function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
     end;
 
-  var
+  private
     FCollection: TEnexAssociativeCollection<TKey, TValue>;
 
   public
-    { Constructors }
     constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-
-    { Destructor }
     destructor Destroy(); override;
-
-    { IEnumerable<T> }
     function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
 {$ENDREGION}
@@ -3438,9 +3190,84 @@ begin
   Result := GetEnumName(TypeInfo(TTypeKind), Ord(AKind));
 end;
 
+{ TEnumerator<T> }
+
+constructor TEnumerator<T>.Create(const AOwner: TCollection);
+begin
+  FOwner := AOwner;
+  KeepObjectAlive(FOwner);
+  FCreatedAtVersion := FOwner.FVersion;
+  FEnded := False;
+end;
+
+destructor TEnumerator<T>.Destroy;
+begin
+  ReleaseObject(FOwner);
+  inherited;
+end;
+
+function TEnumerator<T>.GetCurrent: T;
+begin
+  if FCreatedAtVersion <> FOwner.FVersion then
+     ExceptionHelper.Throw_CollectionChangedError();
+
+  Result := FCurrent;
+end;
+
+function TEnumerator<T>.MoveNext: Boolean;
+begin
+  if FCreatedAtVersion <> FOwner.FVersion then
+     ExceptionHelper.Throw_CollectionChangedError();
+
+  if FEnded then
+    Result := False
+  else begin
+    Result := TryMoveNext(FCurrent);
+
+    if not Result then
+      FEnded := True;
+  end;
+end;
+
+
+{ TForwardingEnumerator<T> }
+
+function TForwardingEnumerator<T>.AcceptValue(const AValue: T): Boolean;
+begin
+  Result := True;
+end;
+
+constructor TForwardingEnumerator<T>.Create(const AOwner: TCollection<T>; const AEnumerator: IEnumerator<T>);
+begin
+  inherited Create(AOwner);
+
+  if not Assigned(AEnumerator) then
+    ExceptionHelper.Throw_ArgumentNilError('AEnumerator');
+
+  FForwardEnumerator := AEnumerator;
+end;
+
+function TForwardingEnumerator<T>.TryMoveNext(out ACurrent: T): Boolean;
+begin
+  while True do
+  begin
+    Result := FForwardEnumerator.MoveNext();
+
+    if Result then
+    begin
+      ACurrent := FForwardEnumerator.Current;
+
+      if AcceptValue(ACurrent) then
+        Break;
+    end else
+      Break;
+  end;
+end;
+
+
 { TEnexExtOps<T> }
 
-function TEnexExtOps<T>.GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IEnexGroupingCollection<TKey, T>>;
+function TEnexExtOps<T>.GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IGrouping<TKey, T>>;
 begin
   { Check arguments }
   if not Assigned(ASelector) then
@@ -3522,6 +3349,18 @@ begin
 
   { Create a new Enex collection }
   Result := TEnexSelectCollection<T, TOut>.Create(FInstance, ASelector, ARules);
+end;
+
+{ TCollection }
+
+procedure TCollection.NotifyCollectionChanged;
+begin
+  Inc(FVersion);
+end;
+
+function TCollection.Version: NativeInt;
+begin
+  Result := FVersion;
 end;
 
 { TCollection<T> }
@@ -5171,48 +5010,15 @@ end;
 function TEnexWhereCollection<T>.GetEnumerator: IEnumerator<T>;
 begin
   { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
 { TEnexWhereCollection<T>.TEnumerator }
 
-constructor TEnexWhereCollection<T>.TEnumerator.Create(const ACollection: TEnexWhereCollection<T>);
+function TEnexWhereCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator:= ACollection.FCollection.GetEnumerator();
-end;
-
-destructor TEnexWhereCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexWhereCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexWhereCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  { Iterate until given condition is met on an element }
-  while True do
-  begin
-    Result := FEnumerator.MoveNext;
-
-    { Terminate on sub-enum termination }
-    if not Result then
-      Exit;
-
-    { Check whether the current element meets the condition and exit }
-    { ... otherwise continue to the next iteration }
-    if FCollection.FPredicate(FEnumerator.Current) xor FCollection.FInvertResult then
-      Exit;
-  end;
+  with TEnexWhereCollection<T>(Owner) do
+    Result := FPredicate(AValue) xor FInvertResult;
 end;
 
 { TEnexSelectCollection<T, TOut> }
@@ -5266,9 +5072,12 @@ begin
 end;
 
 function TEnexSelectCollection<T, TOut>.GetEnumerator: IEnumerator<TOut>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FInEnumerator := FCollection.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 function TEnexSelectCollection<T, TOut>.Last: TOut;
@@ -5283,39 +5092,17 @@ end;
 
 { TEnexSelectCollection<T, TOut>.TEnumerator }
 
-constructor TEnexSelectCollection<T, TOut>.TEnumerator.Create(const ACollection: TEnexSelectCollection<T, TOut>);
-begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-  FCurrent := default(TOut);
-end;
-
-destructor TEnexSelectCollection<T, TOut>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexSelectCollection<T, TOut>.TEnumerator.GetCurrent: TOut;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FCurrent;
-end;
-
-function TEnexSelectCollection<T, TOut>.TEnumerator.MoveNext: Boolean;
+function TEnexSelectCollection<T, TOut>.TEnumerator.TryMoveNext(out ACurrent: TOut): Boolean;
 begin
   { Next iteration }
-  Result := FEnumerator.MoveNext;
+  Result := FInEnumerator.MoveNext();
 
   { Terminate on sub-enum termination }
   if not Result then
     Exit;
 
   { Return the next "selected" element }
-  FCurrent := FCollection.FSelector(FEnumerator.Current);
+  ACurrent := TEnexSelectCollection<T, TOut>(Owner).FSelector(FInEnumerator.Current);
 end;
 
 { TEnexConcatCollection<T> }
@@ -5369,55 +5156,39 @@ begin
 end;
 
 function TEnexConcatCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FInEnumerator1 := FCollection1.GetEnumerator();
+  LEnumerator.FInEnumerator2 := FCollection2.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexConcatCollection<T>.TEnumerator }
 
-constructor TEnexConcatCollection<T>.TEnumerator.Create(const ACollection: TEnexConcatCollection<T>);
+function TEnexConcatCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator1 := ACollection.FCollection1.GetEnumerator();
-  FEnumerator2 := ACollection.FCollection2.GetEnumerator();
-end;
-
-destructor TEnexConcatCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexConcatCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Pass the first and then the last }
-  if Assigned(FEnumerator1) then
-    Result := FEnumerator1.Current
-  else
-    Result := FEnumerator2.Current;
-end;
-
-function TEnexConcatCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if Assigned(FEnumerator1) then
+  if Assigned(FInEnumerator1) then
   begin
     { Iterate over 1 }
-    Result := FEnumerator1.MoveNext();
+    Result := FInEnumerator1.MoveNext();
 
     { Succesefully iterated collection 1 }
     if Result then
+    begin
+      ACurrent := FInEnumerator1.Current;
       Exit;
+    end;
 
     { We've reached the bottom of 1 }
-    FEnumerator1 := nil;
+    FInEnumerator1 := nil;
   end;
 
   { Iterate over 2 now }
-  Result := FEnumerator2.MoveNext();
+  Result := FInEnumerator2.MoveNext();
+  if Result then
+    ACurrent := FInEnumerator2.Current;
 end;
 
 { TEnexUnionCollection<T> }
@@ -5451,74 +5222,53 @@ begin
 end;
 
 function TEnexUnionCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FSet := THashSet<T>.Create();
+  LEnumerator.FInEnumerator1 := FCollection1.GetEnumerator();
+  LEnumerator.FInEnumerator2 := FCollection2.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexUnionCollection<T>.TEnumerator }
 
-constructor TEnexUnionCollection<T>.TEnumerator.Create(const ACollection: TEnexUnionCollection<T>);
+function TEnexUnionCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator1 := ACollection.FCollection1.GetEnumerator();
-  FEnumerator2 := ACollection.FCollection2.GetEnumerator();
-
-  { Create an internal set }
-  FSet := THashSet<T>.Create(ACollection.FCollection1.ElementRules);
-end;
-
-destructor TEnexUnionCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexUnionCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Pass the first and then the last }
-  if Assigned(FEnumerator1) then
-    Result := FEnumerator1.Current
-  else
-    Result := FEnumerator2.Current;
-end;
-
-function TEnexUnionCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if Assigned(FEnumerator1) then
+  if Assigned(FInEnumerator1) then
   begin
     { Iterate over 1 }
-    Result := FEnumerator1.MoveNext();
+    Result := FInEnumerator1.MoveNext();
 
     { Succesefully iterated collection 1 }
     if Result then
     begin
       { Add the element to the set }
-      FSet.Add(FEnumerator1.Current);
+      ACurrent := FInEnumerator1.Current;
+      FSet.Add(ACurrent);
       Exit;
     end;
 
     { We've reached the bottom of 1 }
-    FEnumerator1 := nil;
+    FInEnumerator1 := nil;
   end;
 
   { Continue until we find what we need or we get to the bottom }
   while True do
   begin
     { Iterate over 2 now }
-    Result := FEnumerator2.MoveNext();
+    Result := FInEnumerator2.MoveNext();
 
     { Exit on bad result }
     if not Result then
       Exit;
 
     { Exit if the element is good }
-    if not FSet.Contains(FEnumerator2.Current) then
+    if not FSet.Contains(FInEnumerator2.Current) then
     begin
-      FSet.Add(FEnumerator2.Current);
+      ACurrent := FInEnumerator2.Current;
+      FSet.Add(ACurrent);
       Exit;
     end;
   end;
@@ -5555,55 +5305,47 @@ begin
 end;
 
 function TEnexExclusionCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FSet := THashSet<T>.Create();
+  LEnumerator.FInEnumerator1 := FCollection1.GetEnumerator();
+  LEnumerator.FInEnumerator2 := FCollection2.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexExclusionCollection<T>.TEnumerator }
 
-constructor TEnexExclusionCollection<T>.TEnumerator.Create(const ACollection: TEnexExclusionCollection<T>);
+function TEnexExclusionCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
+  { Load the first enum into the set }
+  if Assigned(FInEnumerator1) then
+  begin
+    while FInEnumerator1.MoveNext() do
+      FSet.Add(FInEnumerator1.Current);
 
-  FEnumerator := ACollection.FCollection1.GetEnumerator();
+    FInEnumerator1 := nil;
+  end;
 
-  { Create an internal set }
-  FSet := THashSet<T>.Create(ACollection.FCollection1.ElementRules, ACollection.FCollection2);
-end;
-
-destructor TEnexExclusionCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexExclusionCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Pass 1's enumerator }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexExclusionCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
   { Continue until we find what we need or we get to the bottom }
   while True do
   begin
     { Iterate over 1 }
-    Result := FEnumerator.MoveNext();
+    Result := FInEnumerator2.MoveNext();
 
     { Exit on bad result }
     if not Result then
       Exit;
 
     { Exit if the element is good }
-    if not FSet.Contains(FEnumerator.Current) then
+    if not FSet.Contains(FInEnumerator2.Current) then
+    begin
+      ACurrent := FInEnumerator2.Current;
       Exit;
+    end;
   end;
 end;
-
 
 { TEnexIntersectionCollection<T> }
 
@@ -5636,52 +5378,45 @@ begin
 end;
 
 function TEnexIntersectionCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FSet := THashSet<T>.Create();
+  LEnumerator.FInEnumerator1 := FCollection1.GetEnumerator();
+  LEnumerator.FInEnumerator2 := FCollection2.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { Collection.EnexIntersectionCollection<T>.TEnumerator }
 
-constructor TEnexIntersectionCollection<T>.TEnumerator .Create(const ACollection: TEnexIntersectionCollection<T>);
+function TEnexIntersectionCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
+  { Load the first enum into the set }
+  if Assigned(FInEnumerator1) then
+  begin
+    while FInEnumerator1.MoveNext() do
+      FSet.Add(FInEnumerator1.Current);
 
-  FEnumerator := ACollection.FCollection1.GetEnumerator();
+    FInEnumerator1 := nil;
+  end;
 
-  { Create an internal set }
-  FSet := THashSet<T>.Create(ACollection.FCollection1.ElementRules, ACollection.FCollection2);
-end;
-
-destructor TEnexIntersectionCollection<T>.TEnumerator .Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexIntersectionCollection<T>.TEnumerator .GetCurrent: T;
-begin
-  { Pass 1's enumerator }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexIntersectionCollection<T>.TEnumerator .MoveNext: Boolean;
-begin
   { Continue until we find what we need or we get to the bottom }
   while True do
   begin
     { Iterate over 1 }
-    Result := FEnumerator.MoveNext();
+    Result := FInEnumerator2.MoveNext();
 
     { Exit on bad result }
     if not Result then
       Exit;
 
     { Exit if the element is good }
-    if FSet.Contains(FEnumerator.Current) then
+    if FSet.Contains(FInEnumerator2.Current) then
+    begin
+      ACurrent := FInEnumerator2.Current;
       Exit;
+    end;
   end;
 end;
 
@@ -5719,59 +5454,46 @@ begin
 end;
 
 function TEnexRangeCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create the enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FInEnumerator := FCollection.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexRangeCollection<T>.TEnumerator }
 
-constructor TEnexRangeCollection<T>.TEnumerator.Create(const ACollection: TEnexRangeCollection<T>);
+function TEnexRangeCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-  FIdx  := 0;
-end;
-
-destructor TEnexRangeCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexRangeCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { PAss the current in the sub-enum }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexRangeCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  { Skip the required amount of elements }
-  if (FIdx <= FCollection.FStart) then
+  with TEnexRangeCollection<T>(Owner) do
   begin
-    while (FIdx <= FCollection.FStart) do
+    { Skip the required amount of elements }
+    if (FCurrentIndex <= FStart) then
     begin
-      { Move cursor }
-      Result := FEnumerator.MoveNext();
+      while (FCurrentIndex <= FStart) do
+      begin
+        { Move cursor }
+        Result := FInEnumerator.MoveNext();
 
-      if not Result then
-        Exit;
+        if not Result then
+          Exit;
 
-      Inc(FIdx);
+        Inc(FCurrentIndex);
+      end;
+    end else
+    begin
+      { Check if we're finished }
+      if (FCurrentIndex > FEnd) then
+        Exit(false);
+
+      { Move the cursor next in the sub-enum, and increase index }
+      Result := FInEnumerator.MoveNext();
+      if Result then
+        ACurrent := FInEnumerator.Current;
+
+      Inc(FCurrentIndex);
     end;
-  end else
-  begin
-    { Check if we're finished }
-    if (FIdx > FCollection.FEnd) then
-      Exit(false);
-
-    { Move the cursor next in the sub-enum, and increase index }
-    Result := FEnumerator.MoveNext();
-    Inc(FIdx);
   end;
 end;
 
@@ -5799,54 +5521,21 @@ begin
 end;
 
 function TEnexDistinctCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self, FCollection.GetEnumerator());
+  LEnumerator.FSet := THashSet<T>.Create();
+  Result := LEnumerator;
 end;
 
 { TEnexDistinctCollection<T>.TEnumerator }
 
-constructor TEnexDistinctCollection<T>.TEnumerator.Create(const ACollection: TEnexDistinctCollection<T>);
+function TEnexDistinctCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-
-  { Create an internal set }
-  FSet := THashSet<T>.Create(ACollection.FCollection.ElementRules);
-end;
-
-destructor TEnexDistinctCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexDistinctCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Get from sub-enum }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexDistinctCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  while True do
-  begin
-    { Iterate }
-    Result := FEnumerator.MoveNext;
-
-    if not Result then
-      Exit;
-
-    { If the item is distinct, add it to set and continue }
-    if not FSet.Contains(FEnumerator.Current) then
-    begin
-      FSet.Add(FEnumerator.Current);
-      Exit;
-    end;
-  end;
+  Result := not FSet.Contains(AValue);
+  if Result then
+    FSet.Add(AValue);
 end;
 
 { TEnexFillCollection<T> }
@@ -5997,9 +5686,12 @@ begin
 end;
 
 function TEnexFillCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FRemaining := FCount;
+  Result := LEnumerator;
 end;
 
 function TEnexFillCollection<T>.Last: T;
@@ -6054,38 +5746,18 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-
 { TEnexFillCollection<T>.TEnumerator }
 
-constructor TEnexFillCollection<T>.TEnumerator.Create(const ACollection: TEnexFillCollection<T>);
-begin
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FCount := 0;
-end;
-
-destructor TEnexFillCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexFillCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Pass the element }
-  Result := FCollection.FElement;
-end;
-
-function TEnexFillCollection<T>.TEnumerator.MoveNext: Boolean;
+function TEnexFillCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   { Check for end }
-  Result := (FCount < FCollection.FCount);
+  Result := FRemaining > 0;
 
-  if not Result then
-    Exit;
-
-  Inc(FCount);
+  if Result then
+  begin
+    Dec(FRemaining);
+    ACurrent := TEnexFillCollection<T>(Owner).FElement;
+  end;
 end;
 
 { TEnexSkipCollection<T> }
@@ -6121,51 +5793,15 @@ end;
 function TEnexSkipCollection<T>.GetEnumerator: IEnumerator<T>;
 begin
   { Create the enumerator }
-  Result := TEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
 { TEnexSkipCollection<T>.TEnumerator }
 
-constructor TEnexSkipCollection<T>.TEnumerator.Create(const ACollection: TEnexSkipCollection<T>);
+function TEnexSkipCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-  FIdx  := 0;
-end;
-
-destructor TEnexSkipCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexSkipCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { PAss the current in the sub-enum }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexSkipCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  { Skip the required amount of elements }
-  if (FIdx < FCollection.FCount) then
-  begin
-    while (FIdx < FCollection.FCount) do
-    begin
-      { Move cursor }
-      Result := FEnumerator.MoveNext();
-
-      if not Result then
-        Exit;
-
-      Inc(FIdx);
-    end;
-  end;
-
-  Result := FEnumerator.MoveNext(); { Move the cursor next in the sub-enum }
+  Result := FCurrentIndex >= TEnexSkipCollection<T>(Owner).FCount;
+  Inc(FCurrentIndex);
 end;
 
 { TEnexTakeCollection<T> }
@@ -6201,42 +5837,15 @@ end;
 function TEnexTakeCollection<T>.GetEnumerator: IEnumerator<T>;
 begin
   { Create the enumerator }
-  Result := TEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
 { TEnexTakeCollection<T>.TEnumerator }
 
-constructor TEnexTakeCollection<T>.TEnumerator.Create(const ACollection: TEnexTakeCollection<T>);
+function TEnexTakeCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-  FIdx  := 0;
-end;
-
-destructor TEnexTakeCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexTakeCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Pass the current in the sub-enum }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexTakeCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  { Check if we're finished}
-  if (FIdx >= FCollection.FCount) then
-    Exit(false);
-
-  { Move the cursor next in the sub-enum, and increase index }
-  Result := FEnumerator.MoveNext();
-  Inc(FIdx);
+  Result := FCurrentIndex < TEnexSkipCollection<T>(Owner).FCount;
+  Inc(FCurrentIndex);
 end;
 
 { TEnexTakeWhileCollection<T> }
@@ -6269,45 +5878,23 @@ begin
 end;
 
 function TEnexTakeWhileCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FInEnumerator := FCollection.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexTakeWhileCollection<T>.TEnumerator }
 
-constructor TEnexTakeWhileCollection<T>.TEnumerator.Create(const ACollection: TEnexTakeWhileCollection<T>);
+function TEnexTakeWhileCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
+  Result := FInEnumerator.MoveNext() and
+     TEnexTakeWhileCollection<T>(Owner).FPredicate(FInEnumerator.Current);
 
-  FEnumerator:= ACollection.FCollection.GetEnumerator();
-end;
-
-destructor TEnexTakeWhileCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexTakeWhileCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexTakeWhileCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  Result := FEnumerator.MoveNext;
-
-  { Terminate on sub-enum termination }
-  if not Result then
-    Exit;
-
-  { When the condition is not met, stop iterating! }
-  if not FCollection.FPredicate(FEnumerator.Current) then
-    Exit(false);
+  if Result then
+    ACurrent := FInEnumerator.Current;
 end;
 
 { TEnexSkipWhileCollection<T> }
@@ -6340,57 +5927,26 @@ begin
 end;
 
 function TEnexSkipWhileCollection<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self, FCollection.GetEnumerator());
+  Result := LEnumerator;
 end;
 
 { TEnexSkipWhileCollection<T>.TEnumerator }
 
-constructor TEnexSkipWhileCollection<T>.TEnumerator.Create(const ACollection: TEnexSkipWhileCollection<T>);
+function TEnexSkipWhileCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-  FStop := false;
-end;
-
-destructor TEnexSkipWhileCollection<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexSkipWhileCollection<T>.TEnumerator.GetCurrent: T;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexSkipWhileCollection<T>.TEnumerator.MoveNext: Boolean;
-begin
-  { Iterate until given condition is met on an element }
-  if not FStop then
+  if not FStarted then
   begin
-    while not FStop do
-    begin
-      Result := FEnumerator.MoveNext;
+    if TEnexSkipWhileCollection<T>(Owner).FPredicate(AValue) then
+      Exit(False);
 
-      { Terminate on sub-enum termination }
-      if not Result then
-        Exit;
+    FStarted := True;
+  end;
 
-      { When condition is met, move next }
-      if FCollection.FPredicate(FEnumerator.Current) then
-        Continue;
-
-      { Mark as skipped }
-      FStop := true;
-    end;
-  end else
-    Result := FEnumerator.MoveNext;
+  Result := True;
 end;
 
 { TEnexGroupByCollection<T, TGroup> }
@@ -6423,16 +5979,16 @@ begin
   inherited;
 end;
 
-function TEnexGroupByCollection<T, TBy>.GetEnumerator: IEnumerator<IEnexGroupingCollection<TBy, T>>;
+function TEnexGroupByCollection<T, TBy>.GetEnumerator: IEnumerator<IGrouping<TBy, T>>;
 var
   LDictionary: IDictionary<TBy, IList<T>>;
   LList: IList<T>;
   LSrcEnumerator: IEnumerator<T>;
   LDictEnumerator: IEnumerator<TPair<TBy, IList<T>>>;
   LGroup: TBy;
-  LOutList: IList<IEnexGroupingCollection<TBy, T>>;
+  LOutList: IList<IGrouping<TBy, T>>;
   LGrouping: TEnexGroupingCollection;
-  LGroupingIntf: IEnexGroupingCollection<TBy, T>;
+  LGroupingIntf: IGrouping<TBy, T>;
 begin
   { Initialize the dictionary (need one that preserves the input order) }
   LDictionary := TLinkedDictionary<TBy, IList<T>>.Create();
@@ -6455,7 +6011,7 @@ begin
   end;
 
   { Build result and such things }
-  LOutList := TList<IEnexGroupingCollection<TBy, T>>.Create();
+  LOutList := TList<IGrouping<TBy, T>>.Create();
 
   { Get the dictionary enumerator and build output }
   LDictEnumerator := LDictionary.GetEnumerator();
@@ -6611,47 +6167,22 @@ begin
 end;
 
 function TEnexSelectKeysCollection<TKey, TValue>.GetEnumerator: IEnumerator<TKey>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FInEnumerator := FCollection.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexSelectKeysCollection<TKey, TValue>.TEnumerator }
 
-constructor TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.Create(
-  const ACollection: TEnexSelectKeysCollection<TKey, TValue>);
-begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator:= ACollection.FCollection.GetEnumerator();
-  FCurrent := default(TKey);
-end;
-
-destructor TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.GetCurrent: TKey;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FCurrent;
-end;
-
-function TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
+function TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TKey): Boolean;
 begin
   { Next iteration }
-  Result := FEnumerator.MoveNext;
-
-  { Terminate on sub-enum termination }
-  if not Result then
-    Exit;
-
-  { Return the next "selected" key }
-  FCurrent := FEnumerator.Current.Key;
+  Result := FInEnumerator.MoveNext();
+  if Result then
+    ACurrent := FInEnumerator.Current.Key;
 end;
 
 { TEnexSelectValuesCollection<TKey, TValue> }
@@ -6686,47 +6217,22 @@ begin
 end;
 
 function TEnexSelectValuesCollection<TKey, TValue>.GetEnumerator: IEnumerator<TValue>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FInEnumerator := FCollection.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexSelectValuesCollection<TKey, TValue>.TEnumerator }
 
-constructor TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.Create(
-  const ACollection: TEnexSelectValuesCollection<TKey, TValue>);
-begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator:= ACollection.FCollection.GetEnumerator();
-  FCurrent := default(TValue);
-end;
-
-destructor TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.GetCurrent: TValue;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FCurrent;
-end;
-
-function TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
+function TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TValue): Boolean;
 begin
   { Next iteration }
-  Result := FEnumerator.MoveNext;
-
-  { Terminate on sub-enum termination }
-  if not Result then
-    Exit;
-
-  { Return the next "selected" key }
-  FCurrent := FEnumerator.Current.Value;
+  Result := FInEnumerator.MoveNext();
+  if Result then
+    ACurrent := FInEnumerator.Current.Value;
 end;
 
 { TEnexAssociativeWhereCollection<TKey, TValue> }
@@ -6766,49 +6272,15 @@ end;
 function TEnexAssociativeWhereCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
 { TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator }
 
-constructor TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.Create(
-  const ACollection: TEnexAssociativeWhereCollection<TKey, TValue>);
+function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-end;
-
-destructor TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
-begin
-  { Iterate until given condition is met on an element }
-  while True do
-  begin
-    Result := FEnumerator.MoveNext;
-
-    { Terminate on sub-enum termination }
-    if not Result then
-      Exit;
-
-    { Check whether the current element meets the condition and exit }
-    { ... otherwise continue to the next iteration }
-    if FCollection.FPredicate(FEnumerator.Current.Key, FEnumerator.Current.Value) xor FCollection.FInvertResult then
-      Exit;
-  end;
+  with TEnexAssociativeWhereCollection<TKey, TValue>(Owner) do
+    Result := FPredicate(AValue.Key, AValue.Value) xor FInvertResult;
 end;
 
 { TCollection.EnexAssociativeDistinctByKeysCollection<TKey, TValue> }
@@ -6837,57 +6309,22 @@ begin
 end;
 
 function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self, FCollection.GetEnumerator());
+  LEnumerator.FSet := THashSet<TKey>.Create();
+  Result := LEnumerator;
 end;
 
 { TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator }
 
-constructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.Create(
-  const ACollection: TEnexAssociativeDistinctByKeysCollection<TKey, TValue>);
+function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-
-  { Create an internal set }
-  FSet := THashSet<TKey>.Create(ACollection.FCollection.KeyRules);
+  Result := not FSet.Contains(AValue.Key);
+  if Result then
+    FSet.Add(AValue.Key);
 end;
-
-destructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
-begin
-  { Get from sub-enum }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
-begin
-  while True do
-  begin
-    { Iterate }
-    Result := FEnumerator.MoveNext;
-
-    if not Result then
-      Exit;
-
-    { If the item is distinct, add it to set and continue }
-    if not FSet.Contains(FEnumerator.Current.Key) then
-    begin
-      FSet.Add(FEnumerator.Current.Key);
-      Exit;
-    end;
-  end;
-end;
-
 
 { TEnexAssociativeDistinctByValuesCollection<TKey, TValue> }
 
@@ -6915,55 +6352,21 @@ begin
 end;
 
 function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self, FCollection.GetEnumerator());
+  LEnumerator.FSet := THashSet<TValue>.Create();
+  Result := LEnumerator;
 end;
 
 { TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator }
 
-constructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.Create(
-  const ACollection: TEnexAssociativeDistinctByValuesCollection<TKey, TValue>);
+function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
 begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-
-  { Create an internal set }
-  FSet := THashSet<TValue>.Create(ACollection.FCollection.ValueRules);
-end;
-
-destructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
-begin
-  { Get from sub-enum }
-  Result := FEnumerator.Current;
-end;
-
-function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.MoveNext: Boolean;
-begin
-  while True do
-  begin
-    { Iterate }
-    Result := FEnumerator.MoveNext;
-
-    if not Result then
-      Exit;
-
-    { If the item is distinct, add it to set and continue }
-    if not FSet.Contains(FEnumerator.Current.Value) then
-    begin
-      FSet.Add(FEnumerator.Current.Value);
-      Exit;
-    end;
-  end;
+  Result := not FSet.Contains(AValue.Value);
+  if Result then
+    FSet.Add(AValue.Value);
 end;
 
 { TEnexSelectClassCollection<T, TOut> }
@@ -6991,50 +6394,31 @@ begin
 end;
 
 function TEnexSelectClassCollection<T, TOut>.GetEnumerator: IEnumerator<TOut>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Generate an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FInEnumerator := FCollection.GetEnumerator();
+  Result := LEnumerator;
 end;
 
 { TEnexSelectClassCollection<T, TOut>.TEnumerator }
 
-constructor TEnexSelectClassCollection<T, TOut>.TEnumerator.Create(const ACollection: TEnexSelectClassCollection<T, TOut>);
-begin
-  { Initialize }
-  FCollection := ACollection;
-  KeepObjectAlive(FCollection);
-
-  FEnumerator := ACollection.FCollection.GetEnumerator();
-  FCurrent := default(TOut);
-end;
-
-destructor TEnexSelectClassCollection<T, TOut>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FCollection);
-  inherited;
-end;
-
-function TEnexSelectClassCollection<T, TOut>.TEnumerator.GetCurrent: TOut;
-begin
-  { Get current element of the "sub-enumerable" object }
-  Result := FCurrent;
-end;
-
-function TEnexSelectClassCollection<T, TOut>.TEnumerator.MoveNext: Boolean;
+function TEnexSelectClassCollection<T, TOut>.TEnumerator.TryMoveNext(out ACurrent: TOut): Boolean;
 begin
   { Iterate until given condition is met on an element }
   while True do
   begin
-    Result := FEnumerator.MoveNext;
+    Result := FInEnumerator.MoveNext();
 
     { Terminate on sub-enum termination }
     if not Result then
       Exit;
 
     { Check if T is TOut. Exit if yes}
-    if Assigned(FEnumerator.Current) and FEnumerator.Current.InheritsFrom(TOut) then
+    if Assigned(FInEnumerator.Current) and FInEnumerator.Current.InheritsFrom(TOut) then
     begin
-      FCurrent := TOut(TObject(FEnumerator.Current));
+      FCurrent := TOut(TObject(FInEnumerator.Current));
       Exit;
     end;
   end;
@@ -7306,5 +6690,6 @@ class procedure ExceptionHelper.Throw_TypeDoesNotHaveEnoughRtti(const ATypeInfo:
 begin
   raise ESerializationException.CreateResFmt(@STypeDoesNotHaveEnoughRtti, [GetTypeName(ATypeInfo), TypeKindToStr(ATypeInfo^.Kind)]);
 end;
+
 
 end.

@@ -115,20 +115,9 @@ type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FDict: THashSet<T>;
       FCurrentIndex: NativeInt;
-      FValue: T;
-
     public
-      { Constructor }
-      constructor Create(const ADict: THashSet<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
 
     TEntry = record
@@ -146,7 +135,6 @@ type
     FCount: NativeInt;
     FFreeCount: NativeInt;
     FFreeList: NativeInt;
-    FVer: NativeInt;
 
     { Internal }
     procedure InitializeInternals(const ACapacity: NativeInt);
@@ -239,7 +227,6 @@ type
   TLinkedSet<T> = class(TAbstractSet<T>)
   private type
     {$REGION 'Internal Types'}
-
     PEntry = ^TEntry;
     TEntry = record
       FHashCode: NativeInt;
@@ -251,27 +238,15 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FDict: TLinkedSet<T>;
       FCurrentEntry: PEntry;
-      FValue: T;
     public
-      { Constructor }
-      constructor Create(const ADict: TLinkedSet<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
-
     {$ENDREGION}
 
   private var
     FBucketArray: TBucketArray;
     FCount, FFreeCount: NativeInt;
-    FVer: NativeInt;
     FHead, FTail, FFirstFree: PEntry;
 
     { Internal }
@@ -389,26 +364,14 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FDict: TSortedSet<T>;
-      FNext: TNode;
-      FValue: T;
-
+      FCurrentEntry: TNode;
     public
-      { Constructor }
-      constructor Create(const ADict: TSortedSet<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FCount: NativeInt;
-    FVer: NativeInt;
     FRoot: TNode;
     FSignFix: NativeInt;
 
@@ -583,26 +546,15 @@ type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FSet: TArraySet<T>;
       FCurrentIndex: NativeInt;
-
     public
-      { Constructor }
-      constructor Create(const ASet: TArraySet<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FArray: TArray<T>;
     FCount: NativeInt;
-    FVer: NativeInt;
     FSignFix: NativeInt;
 
     { Inserts an element into a position }
@@ -864,28 +816,16 @@ type
     {$REGION 'Internal Types'}
     TAscendingEnumerator = class(TEnumerator<Word>)
     private
-      FVer: NativeInt;
-      FSet: TBitSet;
       FValue: Word;
       FPageIndex, FBitIndex, FPage: NativeInt;
 
     public
-      { Constructor }
-      constructor Create(const ASet: TBitSet);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): Word; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: Word): Boolean; override;
     end;
 
     TDescendingEnumerator = class(TAscendingEnumerator)
-    private
-      FMask: NativeInt;
     public
-      constructor Create(const ASet: TBitSet);
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: Word): Boolean; override;
     end;
     {$ENDREGION}
 
@@ -894,7 +834,6 @@ type
 
   private var
     FCount: NativeInt;
-    FVer: NativeInt;
     FBitArray: TArray<NativeInt>;
     FAscending: Boolean;
 
@@ -1137,7 +1076,7 @@ begin
   FCount := 0;
   FFreeCount := 0;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function THashSet<T>.Contains(const AValue: T): Boolean;
@@ -1178,7 +1117,6 @@ begin
   { Call the upper constructor}
   inherited Create(ARules);
 
-  FVer := 0;
   FCount := 0;
   FFreeCount := 0;
   FFreeList := 0;
@@ -1232,7 +1170,7 @@ end;
 
 function THashSet<T>.GetEnumerator: IEnumerator<T>;
 begin
-  Result := THashSet<T>.TEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self);
 end;
 
 function THashSet<T>.Hash(const AKey: T): NativeInt;
@@ -1314,7 +1252,7 @@ begin
   FEntryArray[LFreeList].FNext := FBucketArray[LIndex];
 
   FBucketArray[LIndex] := LFreeList;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure THashSet<T>.Remove(const AValue: T);
@@ -1351,7 +1289,7 @@ begin
 
         FFreeList := I;
         Inc(FFreeCount);
-        Inc(FVer);
+        NotifyCollectionChanged();
 
         Exit;
       end;
@@ -1383,53 +1321,29 @@ begin
   end;
 end;
 
-{ THashSet<T>.TPairEnumerator }
+{ THashSet<T>.TEnumerator }
 
-constructor THashSet<T>.TEnumerator.Create(const ADict : THashSet<T>);
+function THashSet<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FCurrentIndex := 0;
-  FVer := ADict.FVer;
-end;
-
-destructor THashSet<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function THashSet<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function THashSet<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  while FCurrentIndex < FDict.FCount do
+  with THashSet<T>(Owner) do
   begin
-    if FDict.FEntryArray[FCurrentIndex].FHashCode >= 0 then
+    while FCurrentIndex < FCount do
     begin
-      FValue := FDict.FEntryArray[FCurrentIndex].FKey;
+      if FEntryArray[FCurrentIndex].FHashCode >= 0 then
+      begin
+        ACurrent := FEntryArray[FCurrentIndex].FKey;
+
+        Inc(FCurrentIndex);
+        Result := True;
+        Exit;
+      end;
 
       Inc(FCurrentIndex);
-      Result := True;
-      Exit;
     end;
 
-    Inc(FCurrentIndex);
+    FCurrentIndex := FCount + 1;
+    Result := False;
   end;
-
-  FCurrentIndex := FDict.FCount + 1;
-  Result := False;
 end;
 
 { TObjectHashSet<T> }
@@ -1439,7 +1353,6 @@ begin
   if FOwnsObjects then
     TObject(AElement).Free;
 end;
-
 
 { TLinkedSet<T> }
 
@@ -1474,7 +1387,7 @@ begin
   FillChar(FBucketArray[0], Length(FBucketArray) * SizeOf(PEntry), 0);
   FCount := 0;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TLinkedSet<T>.Contains(const AValue: T): Boolean;
@@ -1518,7 +1431,6 @@ begin
   { Call the upper constructor}
   inherited Create(ARules);
 
-  FVer := 0;
   FCount := 0;
   FFreeCount := 0;
 
@@ -1596,8 +1508,12 @@ begin
 end;
 
 function TLinkedSet<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TLinkedSet<T>.TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentEntry := FHead;
+  Result := LEnumerator;
 end;
 
 function TLinkedSet<T>.Hash(const AValue: T): NativeInt;
@@ -1645,7 +1561,7 @@ begin
 
       FBucketArray[LHashCode mod LCapacity] := LNewEntry;
 
-      Inc(FVer);
+      NotifyCollectionChanged();
       Inc(FCount);
 
       Exit;
@@ -1666,7 +1582,7 @@ begin
 
           LEntry^.FValue := AValue;
 
-          Inc(FVer);
+          NotifyCollectionChanged();
           Exit;
         end;
 
@@ -1692,7 +1608,7 @@ begin
       if LEntry = FTail then
         FTail := LNewEntry;
 
-      Inc(FVer);
+      NotifyCollectionChanged();
       Inc(FCount);
 
       Exit;
@@ -1849,7 +1765,7 @@ begin
       NotifyElementRemoved(LEntry^.FValue);
       ReleaseEntry(LEntry);
       Dec(FCount);
-      Inc(FVer);
+      NotifyCollectionChanged();
 
       { All done, let's exit }
       Exit;
@@ -1862,40 +1778,12 @@ end;
 
 { TLinkedSet<T>.TPairEnumerator }
 
-constructor TLinkedSet<T>.TEnumerator.Create(const ADict : TLinkedSet<T>);
+function TLinkedSet<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FCurrentEntry := ADict.FHead;
-  FVer := ADict.FVer;
-end;
-
-destructor TLinkedSet<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TLinkedSet<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TLinkedSet<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
   Result := Assigned(FCurrentEntry);
-
   if Result then
   begin
-    FValue := FCurrentEntry^.FValue;
+    ACurrent := FCurrentEntry^.FValue;
     FCurrentEntry := FCurrentEntry^.FNext;
   end;
 end;
@@ -2283,7 +2171,7 @@ begin
     FRoot := nil;
 
     { Update markers }
-    Inc(FVer);
+    NotifyCollectionChanged();
     FCount := 0;
   end;
 end;
@@ -2353,7 +2241,6 @@ begin
   { Call the upper constructor }
   inherited Create(ARules);
 
-  FVer := 0;
   FCount := 0;
 
   if AAscending then
@@ -2442,8 +2329,12 @@ begin
 end;
 
 function TSortedSet<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentEntry := FindLeftMostNode();
+  Result := LEnumerator;
 end;
 
 procedure TSortedSet<T>.Insert(const AValue: T);
@@ -2458,7 +2349,7 @@ begin
 
     { Increase markers }
     Inc(FCount);
-    Inc(FVer);
+    NotifyCollectionChanged();
 
     { [ADDED NEW] Exit function }
     Exit;
@@ -2508,7 +2399,7 @@ begin
   ReBalanceSubTreeOnInsert(LNode);
 
   Inc(FCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TSortedSet<T>.Last: T;
@@ -2754,7 +2645,7 @@ begin
   LNode.Free;
 
   Dec(FCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TSortedSet<T>.Single: T;
@@ -2846,47 +2737,15 @@ end;
 
 { TSortedSet<T>.TEnumerator }
 
-constructor TSortedSet<T>.TEnumerator.Create(const ADict: TSortedSet<T>);
+function TSortedSet<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
+  Result := Assigned(FCurrentEntry);
 
-  FNext := ADict.FindLeftMostNode();
-
-  FVer := ADict.FVer;
-end;
-
-destructor TSortedSet<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TSortedSet<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TSortedSet<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  { Do not continue on last node }
-  if not Assigned(FNext) then
-    Exit(false);
-
-  { Get the current value }
-  FValue := FNext.FKey;
-
-  { Navigate further in the tree }
-  FNext := FDict.WalkToTheRight(FNext);
-
-  Result := true;
+  if Result then
+  begin
+    ACurrent := FCurrentEntry.FKey;
+    FCurrentEntry := TSortedSet<T>(Owner).WalkToTheRight(FCurrentEntry);
+  end;
 end;
 
 { TObjectSortedSet<T> }
@@ -2940,7 +2799,7 @@ begin
   { Put the element into the new position }
   FArray[LMiddle] := AValue;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Inc(FCount);
 end;
 
@@ -3129,7 +2988,6 @@ begin
   inherited Create(ARules);
 
   FCount := 0;
-  FVer := 0;
 
   if AAscending then
     FSignFix := 1
@@ -3290,7 +3148,7 @@ begin
       FArray[I] := FArray[I + 1];
 
     Dec(FCount);
-    Inc(FVer);
+    NotifyCollectionChanged();
   end;
 end;
 
@@ -3347,40 +3205,18 @@ end;
 
 { TArraySet<T>.TEnumerator }
 
-constructor TArraySet<T>.TEnumerator.Create(const ASet: TArraySet<T>);
+function TArraySet<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FSet := ASet;
-  KeepObjectAlive(FSet);
+  with TArraySet<T>(Owner) do
+  begin
+    Result := FCurrentIndex < FCount;
 
-  FCurrentIndex := 0;
-  FVer := ASet.FVer;
-end;
-
-destructor TArraySet<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FSet);
-  inherited;
-end;
-
-function TArraySet<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FSet.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  if FCurrentIndex > 0 then
-    Result := FSet.FArray[FCurrentIndex - 1]
-  else
-    Result := default(T);
-end;
-
-function TArraySet<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FSet.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FCurrentIndex < FSet.FCount;
-  Inc(FCurrentIndex);
+    if Result then
+    begin
+      ACurrent := FArray[FCurrentIndex];
+      Inc(FCurrentIndex);
+    end;
+  end;
 end;
 
 { TObjectArraySet<T> }
@@ -3427,7 +3263,7 @@ begin
 
   { Update internals }
   Inc(FCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TBitSet.Clear;
@@ -3508,7 +3344,6 @@ begin
   inherited Create(TRules<Word>.Default);
 
   { Initialize internals }
-  FVer := 0;
   FCount := 0;
   FAscending := AAscending;
 end;
@@ -3578,11 +3413,19 @@ begin
 end;
 
 function TBitSet.GetEnumerator: IEnumerator<Word>;
+var
+  LEnumerator: TAscendingEnumerator;
 begin
   if FAscending then
-    Result := TAscendingEnumerator.Create(Self)
-  else
-    Result := TDescendingEnumerator.Create(Self);
+  begin
+    LEnumerator := TAscendingEnumerator.Create(Self);
+    LEnumerator.FPageIndex := -1;
+  end else begin
+    LEnumerator := TDescendingEnumerator.Create(Self);
+    LEnumerator.FPageIndex := Length(FBitArray);
+  end;
+
+  Result := LEnumerator;
 end;
 
 function TBitSet.Last: Word;
@@ -3647,7 +3490,7 @@ begin
 
   { Update internals }
   Dec(FCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TBitSet.Single: Word;
@@ -3675,36 +3518,8 @@ end;
 
 { TBitSet.TEnumerator }
 
-constructor TBitSet.TAscendingEnumerator.Create(const ASet: TBitSet);
+function TBitSet.TAscendingEnumerator.TryMoveNext(out ACurrent: Word): Boolean;
 begin
-  { Initialize }
-  FSet := ASet;
-  KeepObjectAlive(FSet);
-
-  FPageIndex := -1;
-  FPage := 0;
-  FVer := ASet.FVer;
-end;
-
-destructor TBitSet.TAscendingEnumerator.Destroy;
-begin
-  ReleaseObject(FSet);
-  inherited;
-end;
-
-function TBitSet.TAscendingEnumerator.GetCurrent: Word;
-begin
-  if FVer <> FSet.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TBitSet.TAscendingEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FSet.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
   Result := false;
 
   while True do
@@ -3713,18 +3528,18 @@ begin
     begin
       { Move to the next page, check if it exists, otherwise we're finished }
       Inc(FPageIndex);
-      if FPageIndex >= Length(FSet.FBitArray) then
+      if FPageIndex >= Length(TBitSet(Owner).FBitArray) then
         Break;
 
       { Reset all the data }
       FBitIndex := 0;
-      FPage := FSet.FBitArray[FPageIndex];
+      FPage := TBitSet(Owner).FBitArray[FPageIndex];
     end;
 
     if (FPage and 1) = 1 then
     begin
       { The value is set }
-      FValue := FBitIndex + FPageIndex * CPageSize * 8;
+      ACurrent := FBitIndex + FPageIndex * CPageSize * 8;
       Result := True;
     end;
 
@@ -3738,18 +3553,10 @@ end;
 
 { TBitSet.TDescendingEnumerator }
 
-constructor TBitSet.TDescendingEnumerator.Create(const ASet: TBitSet);
+function TBitSet.TDescendingEnumerator.TryMoveNext(out ACurrent: Word): Boolean;
+const
+  CMask = NativeInt(1) shl ((CPageSize * 8) - 1);
 begin
-  inherited Create(ASet);
-  FPageIndex := Length(ASet.FBitArray);
-  FMask := NativeInt(1) shl ((CPageSize * 8) - 1);
-end;
-
-function TBitSet.TDescendingEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FSet.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
   Result := false;
   while True do
   begin
@@ -3762,10 +3569,10 @@ begin
 
       { Reset all the data }
       FBitIndex := (CPageSize * 8) - 1;
-      FPage := FSet.FBitArray[FPageIndex];
+      FPage := TBitSet(Owner).FBitArray[FPageIndex];
     end;
 
-    if (FPage and FMask) = FMask then
+    if (FPage and CMask) = CMask then
     begin
       { The value is set }
       FValue := FBitIndex + FPageIndex * CPageSize * 8;

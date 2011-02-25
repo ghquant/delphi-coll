@@ -43,8 +43,7 @@ type
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
       constructor Create(const AOwner: TAbstractDictionary<TKey, TValue>);
-      function GetCurrent(): TKey; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TKey): Boolean; override;
     end;
 
     TValueEnumerator = class(TEnumerator<TValue>)
@@ -52,8 +51,7 @@ type
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
       constructor Create(const AOwner: TAbstractDictionary<TKey, TValue>);
-      function GetCurrent(): TValue; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
     TKeyCollection = class(TEnexCollection<TKey>)
@@ -269,16 +267,9 @@ type
     { Generic Dictionary Pairs Enumerator }
     TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
-      FVer: NativeInt;
-      FOwner: TDictionary<TKey, TValue>;
       FCurrentIndex: NativeInt;
-      FValue: TPair<TKey,TValue>;
-
     public
-      constructor Create(const AOwner: TDictionary<TKey, TValue>);
-      destructor Destroy(); override;
-      function GetCurrent(): TPair<TKey, TValue>; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean; override;
     end;
 
     TEntry = record
@@ -298,7 +289,6 @@ type
     FCount: NativeInt;
     FFreeCount: NativeInt;
     FFreeList: NativeInt;
-    FVer: NativeInt;
 
     { Internal }
     procedure InitializeInternals(const ACapacity: NativeInt);
@@ -427,22 +417,15 @@ type
 
     TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
-      FVer: NativeInt;
-      FOwner: TLinkedDictionary<TKey, TValue>;
       FCurrentEntry: PEntry;
-      FValue: TPair<TKey, TValue>;
     public
-      constructor Create(const AOwner: TLinkedDictionary<TKey, TValue>);
-      destructor Destroy(); override;
-      function GetCurrent(): TPair<TKey,TValue>; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FBucketArray: TBucketArray;
     FCount, FFreeCount: NativeInt;
-    FVer: NativeInt;
     FHead, FTail, FFirstFree: PEntry;
 
     { Internal }
@@ -593,21 +576,14 @@ type
 
     TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
     private
-      FVer: NativeInt;
-      FOwner: TSortedDictionary<TKey, TValue>;
-      FNext: TNode;
-      FValue: TPair<TKey,TValue>;
+      FCurrentEntry: TNode;
     public
-      constructor Create(const AOwner: TSortedDictionary<TKey, TValue>);
-      destructor Destroy(); override;
-      function GetCurrent(): TPair<TKey,TValue>; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FCount: NativeInt;
-    FVer: NativeInt;
     FRoot: TNode;
     FSignFix: NativeInt;
 
@@ -1049,17 +1025,15 @@ end;
 
 constructor TAbstractDictionary<TKey, TValue>.TKeyEnumerator.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
 begin
+  inherited Create(AOwner);
   FOwnerEnumerator := AOwner.GetEnumerator();
 end;
 
-function TAbstractDictionary<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
-begin
-  Result := FOwnerEnumerator.Current.Key;
-end;
-
-function TAbstractDictionary<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
+function TAbstractDictionary<TKey, TValue>.TKeyEnumerator.TryMoveNext(out ACurrent: TKey): Boolean;
 begin
   Result := FOwnerEnumerator.MoveNext();
+  if Result then
+    ACurrent := FOwnerEnumerator.Current.Key;
 end;
 
 { TAbstractDictionary<TKey, TValue>.TValueEnumerator }
@@ -1067,16 +1041,14 @@ end;
 constructor TAbstractDictionary<TKey, TValue>.TValueEnumerator.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
 begin
   FOwnerEnumerator := AOwner.GetEnumerator();
+  inherited Create(AOwner);
 end;
 
-function TAbstractDictionary<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
-begin
-  Result := FOwnerEnumerator.Current.Value;
-end;
-
-function TAbstractDictionary<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
+function TAbstractDictionary<TKey, TValue>.TValueEnumerator.TryMoveNext(out ACurrent: TValue): Boolean;
 begin
   Result := FOwnerEnumerator.MoveNext();
+  if Result then
+    ACurrent := FOwnerEnumerator.Current.Value;
 end;
 
 { TDictionary<TKey, TValue> }
@@ -1112,7 +1084,7 @@ begin
   FCount := 0;
   FFreeCount := 0;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TDictionary<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
@@ -1164,7 +1136,6 @@ begin
   { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
 
-  FVer := 0;
   FCount := 0;
   FFreeCount := 0;
   FFreeList := 0;
@@ -1258,7 +1229,7 @@ begin
         ExceptionHelper.Throw_DuplicateKeyError('AKey');
 
       ReplaceValue(FEntryArray[I].FValue, AValue);
-      Inc(FVer);
+      NotifyCollectionChanged();
       Exit;
     end;
 
@@ -1293,7 +1264,7 @@ begin
   FEntryArray[LFreeList].FNext := FBucketArray[LIndex];
 
   FBucketArray[LIndex] := LFreeList;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TDictionary<TKey, TValue>.Resize;
@@ -1360,7 +1331,7 @@ begin
 
         FFreeList := I;
         Inc(FFreeCount);
-        Inc(FVer);
+        NotifyCollectionChanged();
 
         Exit;
       end;
@@ -1392,52 +1363,28 @@ end;
 
 { TDictionary<TKey, TValue>.TEnumerator }
 
-constructor TDictionary<TKey, TValue>.TEnumerator.Create(const AOwner: TDictionary<TKey, TValue>);
+function TDictionary<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean;
 begin
-  { Initialize }
-  FOwner := AOwner;
-  KeepObjectAlive(AOwner);
-
-  FCurrentIndex := 0;
-  FVer := AOwner.FVer;
-end;
-
-destructor TDictionary<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FOwner);
-  inherited;
-end;
-
-function TDictionary<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey,TValue>;
-begin
-  if FVer <> FOwner.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TDictionary<TKey, TValue>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FOwner.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  while FCurrentIndex < FOwner.FCount do
+  with TDictionary<TKey, TValue>(Owner) do
   begin
-    if FOwner.FEntryArray[FCurrentIndex].FHashCode >= 0 then
+    while FCurrentIndex < FCount do
     begin
-      FValue.Key := FOwner.FEntryArray[FCurrentIndex].FKey;
-      FValue.Value := FOwner.FEntryArray[FCurrentIndex].FValue;
+      if FEntryArray[FCurrentIndex].FHashCode >= 0 then
+      begin
+        ACurrent.Key := FEntryArray[FCurrentIndex].FKey;
+        ACurrent.Value := FEntryArray[FCurrentIndex].FValue;
+
+        Inc(FCurrentIndex);
+        Result := True;
+        Exit;
+      end;
 
       Inc(FCurrentIndex);
-      Result := True;
-      Exit;
     end;
 
-    Inc(FCurrentIndex);
+    FCurrentIndex := FCount + 1;
+    Result := False;
   end;
-
-  FCurrentIndex := FOwner.FCount + 1;
-  Result := False;
 end;
 
 { TObjectDictionary<TKey, TValue> }
@@ -1498,7 +1445,7 @@ begin
   FillChar(FBucketArray[0], Length(FBucketArray) * SizeOf(PEntry), 0);
   FCount := 0;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TLinkedDictionary<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
@@ -1557,7 +1504,6 @@ begin
   { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
 
-  FVer := 0;
   FCount := 0;
   FFreeCount := 0;
 
@@ -1631,8 +1577,12 @@ begin
 end;
 
 function TLinkedDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentEntry := FHead;
+  Result := LEnumerator;
 end;
 
 function TLinkedDictionary<TKey, TValue>.Hash(const AKey: TKey): NativeInt;
@@ -1680,7 +1630,7 @@ begin
 
       FBucketArray[LHashCode mod LCapacity] := LNewEntry;
 
-      Inc(FVer);
+      NotifyCollectionChanged();
       Inc(FCount);
 
       Exit;
@@ -1701,7 +1651,7 @@ begin
 
           ReplaceValue(LEntry^.FValue, AValue);
 
-          Inc(FVer);
+          NotifyCollectionChanged();
           Exit;
         end;
 
@@ -1727,7 +1677,7 @@ begin
       if LEntry = FTail then
         FTail := LNewEntry;
 
-      Inc(FVer);
+      NotifyCollectionChanged();
       Inc(FCount);
 
       Exit;
@@ -1898,7 +1848,7 @@ begin
 
       ReleaseEntry(LEntry);
       Dec(FCount);
-      Inc(FVer);
+      NotifyCollectionChanged();
 
       { All done, let's exit }
       Exit;
@@ -1928,39 +1878,13 @@ end;
 
 { TLinkedDictionary<TKey, TValue>.TEnumerator }
 
-constructor TLinkedDictionary<TKey, TValue>.TEnumerator.Create(const AOwner: TLinkedDictionary<TKey, TValue>);
+function TLinkedDictionary<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TPair<TKey,TValue>): Boolean;
 begin
-  FOwner := AOwner;
-  KeepObjectAlive(AOwner);
-  FCurrentEntry := AOwner.FHead;
-  FVer := AOwner.FVer;
-end;
-
-destructor TLinkedDictionary<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FOwner);
-  inherited;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey,TValue>;
-begin
-  if FVer <> FOwner.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TLinkedDictionary<TKey, TValue>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FOwner.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
   Result := Assigned(FCurrentEntry);
-
   if Result then
   begin
-    FValue.Key := FCurrentEntry^.FKey;
-    FValue.Value := FCurrentEntry^.FValue;
+    ACurrent.Key := FCurrentEntry^.FKey;
+    ACurrent.Value := FCurrentEntry^.FValue;
 
     FCurrentEntry := FCurrentEntry^.FNext;
   end;
@@ -2367,7 +2291,7 @@ begin
     FRoot := nil;
 
     { Update markers }
-    Inc(FVer);
+    NotifyCollectionChanged();
     FCount := 0;
   end;
 end;
@@ -2466,7 +2390,6 @@ begin
   { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
 
-  FVer := 0;
   FCount := 0;
 
   if AAscending then
@@ -2550,8 +2473,12 @@ begin
 end;
 
 function TSortedDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentEntry := FindLeftMostNode();
+  Result := LEnumerator;
 end;
 
 function TSortedDictionary<TKey, TValue>.Insert(const AKey: TKey; const AValue: TValue; const AChangeOrFail: Boolean): Boolean;
@@ -2566,7 +2493,7 @@ begin
 
     { Increase markers }
     Inc(FCount);
-    Inc(FVer);
+    NotifyCollectionChanged();
 
     { [ADDED NEW] Exit function }
     Exit(true);
@@ -2613,7 +2540,7 @@ begin
       ReplaceValue(LNode.FValue, AValue);
 
       { Increase markers }
-      Inc(FVer);
+      NotifyCollectionChanged();
 
       { [CHANGED OLD] Exit function }
       Exit(true);
@@ -2624,7 +2551,7 @@ begin
   ReBalanceSubTreeOnInsert(LNode);
 
   Inc(FCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 
   Result := true;
 end;
@@ -2878,7 +2805,7 @@ begin
 
   Result := True;
   Dec(FCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TSortedDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
@@ -2923,46 +2850,18 @@ end;
 
 { TSortedDictionary<TKey, TValue>.TEnumerator }
 
-constructor TSortedDictionary<TKey, TValue>.TEnumerator.Create(const AOwner: TSortedDictionary<TKey, TValue>);
+function TSortedDictionary<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TPair<TKey,TValue>): Boolean;
 begin
-  FOwner := AOwner;
-  KeepObjectAlive(AOwner);
-  FNext := AOwner.FindLeftMostNode();
-  FVer := AOwner.FVer;
+  Result := Assigned(FCurrentEntry);
+
+  if Result then
+  begin
+    ACurrent.Key := FCurrentEntry.FKey;
+    ACurrent.Value := FCurrentEntry.FValue;
+
+    FCurrentEntry := TSortedDictionary<TKey, TValue>(Owner).WalkToTheRight(FCurrentEntry);
+  end;
 end;
-
-destructor TSortedDictionary<TKey, TValue>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FOwner);
-  inherited;
-end;
-
-function TSortedDictionary<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey,TValue>;
-begin
-  if FVer <> FOwner.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TSortedDictionary<TKey, TValue>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FOwner.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  { Do not continue on last node }
-  if not Assigned(FNext) then
-    Exit(false);
-
-  { Get the current value }
-  FValue.Key := FNext.FKey;
-  FValue.Value := FNext.FValue;
-
-  { Navigate further in the tree }
-  FNext := FOwner.WalkToTheRight(FNext);
-  Result := true;
-end;
-
 { TObjectSortedDictionary<TKey, TValue> }
 
 procedure TObjectSortedDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);

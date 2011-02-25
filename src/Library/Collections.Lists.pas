@@ -327,22 +327,15 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FList: TList<T>;
       FCurrentIndex: NativeInt;
-
     public
-      constructor Create(const AList: TList<T>);
-      destructor Destroy(); override;
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FArray: TArray<T>;
     FLength: NativeInt;
-    FVer: NativeInt;
 
     {$HINTS OFF}
     procedure QuickSort(ALeft, ARight: NativeInt; const ASortProc: TComparison<T>); overload;
@@ -815,20 +808,9 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FList: TLinkedList<T>;
       FCurrentEntry: PEntry;
-      FValue: T;
-
     public
-      { Constructor }
-      constructor Create(const AList: TLinkedList<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
@@ -836,7 +818,6 @@ type
     FCanCache: Boolean;
     FFirst, FLast, FFirstFree: PEntry;
     FCount, FFreeCount: NativeInt;
-    FVer: NativeInt;
 
     { Caching }
     function EntryAt(const AIndex: NativeInt; const AThrow: Boolean = True): PEntry;
@@ -1523,7 +1504,6 @@ begin
   inherited Create(ARules);
 
   FLength := 0;
-  FVer := 0;
   SetLength(FArray, AInitialCapacity);
 end;
 
@@ -1652,7 +1632,7 @@ begin
 
   { Put the element into the new position }
   FArray[AIndex] := AValue;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
@@ -1694,7 +1674,7 @@ begin
 
   { Update internals }
   Inc(FLength, LEnumLen);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TList<T>.Last: T;
@@ -1963,7 +1943,7 @@ begin
   ReplaceItem(FArray[AIndex], AValue);
 
   { Increment version }
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TList<T>.Shrink;
@@ -2041,7 +2021,7 @@ begin
 
   Result := True;
   Dec(FLength);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TList<T>.TryGetItemAt(const AIndex: NativeInt; out AValue: T): Boolean;
@@ -2060,43 +2040,20 @@ begin
   Sort(0, FLength, AAscending);
 end;
 
-
 { TList<T>.TEnumerator }
 
-constructor TList<T>.TEnumerator.Create(const AList: TList<T>);
+function TList<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FList := AList;
-  KeepObjectAlive(FList);
+  with TList<T>(Owner) do
+  begin
+    Result := FCurrentIndex < FLength;
 
-  FCurrentIndex := 0;
-  FVer := FList.FVer;
-end;
-
-destructor TList<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FList);
-  inherited;
-end;
-
-function TList<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FList.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  if FCurrentIndex > 0 then
-    Result := FList.FArray[FCurrentIndex - 1]
-  else
-    Result := default(T);
-end;
-
-function TList<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FList.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FCurrentIndex < FList.FLength;
-  Inc(FCurrentIndex);
+    if Result then
+    begin
+      ACurrent := FArray[FCurrentIndex];
+      Inc(FCurrentIndex);
+    end;
+  end;
 end;
 
 { TObjectList<T> }
@@ -2139,7 +2096,7 @@ begin
 
   { Put the element into the new position }
   FArray[AIndex] := AValue;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TSortedList<T>.Add(const ACollection: IEnumerable<T>);
@@ -2428,7 +2385,7 @@ begin
   FFirst := nil;
   FLast := nil;
   FCount := 0;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TLinkedList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
@@ -2461,7 +2418,6 @@ begin
   FCanCache := True;
   FCount := 0;
   FFreeCount := 0;
-  FVer := 0;
   FFirst := nil;
   FLast := nil;
   FFirstFree := nil;
@@ -2515,9 +2471,12 @@ begin
 end;
 
 function TLinkedList<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  { Create an enumerator }
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentEntry := FFirst;
+  Result := LEnumerator;
 end;
 
 function TLinkedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
@@ -2591,7 +2550,7 @@ begin
   if LCurrent = FFirst then
     FFirst := LNew;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Inc(FCount);
 end;
 
@@ -2654,7 +2613,7 @@ begin
   if LCurrent = FFirst then
     FFirst := LNewFirst;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TLinkedList<T>.Last: T;
@@ -2794,7 +2753,7 @@ begin
         FLast := LCurrent^.FPrev;
 
       ReleaseEntry(LCurrent);
-      Inc(FVer);
+      NotifyCollectionChanged();
       Dec(FCount);
       Exit;
     end;
@@ -2809,7 +2768,7 @@ begin
   ReplaceItem(EntryAt(AIndex)^.FValue, AValue);
 
   { Increment version }
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TLinkedList<T>.Single: T;
@@ -2859,7 +2818,7 @@ begin
   ReleaseEntry(LCurrent);
   Result := True;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Dec(FCount);
 end;
 
@@ -2879,39 +2838,12 @@ end;
 
 { TLinkedList<T>.TEnumerator }
 
-constructor TLinkedList<T>.TEnumerator.Create(const AList: TLinkedList<T>);
+function TLinkedList<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  FList := AList;
-  KeepObjectAlive(FList);
-
-  FVer := AList.FVer;
-  FCurrentEntry := AList.FFirst;
-end;
-
-destructor TLinkedList<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FList);
-  inherited;
-end;
-
-function TLinkedList<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FList.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TLinkedList<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FList.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
   Result := Assigned(FCurrentEntry);
-
   if Result then
   begin
-    FValue := FCurrentEntry^.FValue;
+    ACurrent := FCurrentEntry^.FValue;
     FCurrentEntry := FCurrentEntry^.FNext;
   end;
 end;
@@ -2986,7 +2918,7 @@ begin
     FFirst := LNew;
 
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Inc(FCount);
 end;
 
