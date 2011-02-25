@@ -3181,9 +3181,9 @@ type
 
 implementation
 uses
+  Collections.Dictionaries,
   Collections.Sets,
-  Collections.Lists,
-  Collections.Dictionaries;
+  Collections.Lists;
 
 function TypeKindToStr(const AKind: TTypeKind): String;
 begin
@@ -3229,7 +3229,6 @@ begin
   end;
 end;
 
-
 { TForwardingEnumerator<T> }
 
 function TForwardingEnumerator<T>.AcceptValue(const AValue: T): Boolean;
@@ -3263,7 +3262,6 @@ begin
       Break;
   end;
 end;
-
 
 { TEnexExtOps<T> }
 
@@ -5320,28 +5318,28 @@ end;
 function TEnexExclusionCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   { Load the first enum into the set }
-  if Assigned(FInEnumerator1) then
+  if Assigned(FInEnumerator2) then
   begin
-    while FInEnumerator1.MoveNext() do
-      FSet.Add(FInEnumerator1.Current);
+    while FInEnumerator2.MoveNext() do
+      FSet.Add(FInEnumerator2.Current);
 
-    FInEnumerator1 := nil;
+    FInEnumerator2 := nil;
   end;
 
   { Continue until we find what we need or we get to the bottom }
   while True do
   begin
     { Iterate over 1 }
-    Result := FInEnumerator2.MoveNext();
+    Result := FInEnumerator1.MoveNext();
 
     { Exit on bad result }
     if not Result then
       Exit;
 
     { Exit if the element is good }
-    if not FSet.Contains(FInEnumerator2.Current) then
+    if not FSet.Contains(FInEnumerator1.Current) then
     begin
-      ACurrent := FInEnumerator2.Current;
+      ACurrent := FInEnumerator1.Current;
       Exit;
     end;
   end;

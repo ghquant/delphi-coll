@@ -58,10 +58,8 @@ type
     TEnumerator = class(TEnumerator<Integer>)
     private
       FEnumerator: IEnumerator<Word>;
-
     public
-      function GetCurrent(): Integer; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: Integer): Boolean; override;
     end;
 
   private
@@ -1813,9 +1811,9 @@ end;
 procedure TTestEnex.InternalTestGroupBy(const Collection: IEnexCollection<Integer>);
 var
   LOdd, LEven: IEnexCollection<Integer>;
-  LGrouped: IEnexCollection<IEnexGroupingCollection<Boolean, Integer>>;
+  LGrouped: IEnexCollection<IGrouping<Boolean, Integer>>;
   LSelector: TFunc<Integer, Boolean>;
-  LGrouping: IEnexGroupingCollection<Boolean, Integer>;
+  LGrouping: IGrouping<Boolean, Integer>;
   LWasTrue, LWasFalse: Boolean;
 begin
   { Make a list }
@@ -3594,9 +3592,9 @@ end;
 procedure TTestEnex.TestGroupByCollection;
 var
   LEnum, LOdd, LEven: IEnexCollection<Integer>;
-  LGrouped: IEnexCollection<IEnexGroupingCollection<Boolean, Integer>>;
+  LGrouped: IEnexCollection<IGrouping<Boolean, Integer>>;
   LSelector: TFunc<Integer, Boolean>;
-  LGrouping: IEnexGroupingCollection<Boolean, Integer>;
+  LGrouping: IGrouping<Boolean, Integer>;
   LWasTrue, LWasFalse: Boolean;
 begin
   { Make a list }
@@ -5252,7 +5250,7 @@ function TBitSetAdapter.GetEnumerator: IEnumerator<Integer>;
 var
   LEnum: TEnumerator;
 begin
-  LEnum := TEnumerator.Create;
+  LEnum := TEnumerator.Create(Self);
   LEnum.FEnumerator := FBitSet.GetEnumerator;
   Result := LEnum;
 end;
@@ -5313,14 +5311,12 @@ end;
 
 { TBitSetAdapter.TEnumerator }
 
-function TBitSetAdapter.TEnumerator.GetCurrent: Integer;
-begin
-  Result := w2i(FEnumerator.GetCurrent);
-end;
 
-function TBitSetAdapter.TEnumerator.MoveNext: Boolean;
+function TBitSetAdapter.TEnumerator.TryMoveNext(out ACurrent: Integer): Boolean;
 begin
   Result := FEnumerator.MoveNext;
+  if Result then
+    ACurrent := w2i(FEnumerator.Current);
 end;
 
 {$IFEND}

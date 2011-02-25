@@ -663,11 +663,14 @@ begin
       { Decrease the count of the bag item }
       Dec(FCurrentWeight);
       Result := True;
+      Break;
     end else
     begin
       Result := FDictionaryEnumerator.MoveNext();
       if Result then
-        FCurrentWeight := FDictionaryEnumerator.Current.Value;
+        FCurrentWeight := FDictionaryEnumerator.Current.Value
+      else
+        Break;
     end;
   end;
 

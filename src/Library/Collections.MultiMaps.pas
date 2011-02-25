@@ -40,130 +40,39 @@ type
   TAbstractMultiMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IMultiMap<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-    { Generic MultiMap Pairs Enumerator }
-    TPairEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
-      FVer: NativeInt;
-      FDict: TAbstractMultiMap<TKey, TValue>;
-      FValue: TPair<TKey, TValue>;
-
-      FListIndex: NativeInt;
-      FDictEnum: IEnumerator<TPair<TKey, IList<TValue>>>;
-      FList: IList<TValue>;
+      FDictionaryEnumerator: IEnumerator<TPair<TKey, IList<TValue>>>;
+      FCurrentIndexInList: NativeInt;
+      FCurrentList: IList<TValue>;
 
     public
-      { Constructor }
-      constructor Create(const ADict: TAbstractMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TPair<TKey,TValue>; override;
-      function MoveNext(): Boolean; override;
+      constructor Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
+      function TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean; override;
     end;
 
-    { Generic MultiMap Keys Enumerator }
-    TKeyEnumerator = class(TEnumerator<TKey>)
-    private
-      FVer: NativeInt;
-      FDict: TAbstractMultiMap<TKey, TValue>;
-      FValue: TKey;
-      FDictEnum: IEnumerator<TKey>;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TAbstractMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TKey; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-    { Generic MultiMap Values Enumerator }
     TValueEnumerator = class(TEnumerator<TValue>)
     private
-      FVer: NativeInt;
-      FDict: TAbstractMultiMap<TKey, TValue>;
-      FValue: TValue;
-
-      FListIndex: NativeInt;
-      FDictEnum: IEnumerator<IList<TValue>>;
-      FList: IList<TValue>;
-
+      FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
-      { Constructor }
-      constructor Create(const ADict: TAbstractMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TValue; override;
-      function MoveNext(): Boolean; override;
+      constructor Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
+      function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
-    { Generic MultiMap Keys Collection }
-    TKeyCollection = class(TEnexCollection<TKey>)
-    private
-      FDict: TAbstractMultiMap<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount(): NativeInt; override;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TAbstractMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TKey>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
-
-      { Enex Overrides }
-      function Empty(): Boolean; override;
-    end;
-
-    { Generic MultiMap Values Collection }
     TValueCollection = class(TEnexCollection<TValue>)
     private
-      FDict: TAbstractMultiMap<TKey, TValue>;
-
+      FOwner: TAbstractMultiMap<TKey, TValue>;
     protected
-
-      { Hidden }
-      function GetCount: NativeInt; override;
+      function GetCount(): NativeInt; override;
     public
-      { Constructor }
-      constructor Create(const ADict: TAbstractMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
+      constructor Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
       function GetEnumerator(): IEnumerator<TValue>; override;
-
-      { Copy-To }
       procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
-
-      { Enex Overrides }
       function Empty(): Boolean; override;
     end;
     {$ENDREGION}
 
   private
-    FVer: NativeInt;
     FKnownCount: NativeInt;
     FEmptyList: IEnexIndexedCollection<TValue>;
     FKeyCollection: IEnexCollection<TKey>;
@@ -370,123 +279,38 @@ type
   TAbstractDistinctMultiMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IDistinctMultiMap<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-    { Generic MultiMap Pairs Enumerator }
-    TPairEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
     private
-      FVer: NativeInt;
-      FDict: TAbstractDistinctMultiMap<TKey, TValue>;
-      FValue: TPair<TKey, TValue>;
-
-      FSetEnum: IEnumerator<TValue>;
-      FDictEnum: IEnumerator<TPair<TKey, ISet<TValue>>>;
-      FSet: ISet<TValue>;
+      FDictionaryEnumerator: IEnumerator<TPair<TKey, ISet<TValue>>>;
+      FCurrentSetEnumerator: IEnumerator<TValue>;
 
     public
-      { Constructor }
-      constructor Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TPair<TKey,TValue>; override;
-      function MoveNext(): Boolean; override;
+      constructor Create(const AOwner: TAbstractDistinctMultiMap<TKey, TValue>);
+      function TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean; override;
     end;
 
-    { Generic MultiMap Keys Enumerator }
-    TKeyEnumerator = class(TEnumerator<TKey>)
-    private
-      FVer: NativeInt;
-      FDict: TAbstractDistinctMultiMap<TKey, TValue>;
-      FValue: TKey;
-      FDictEnum: IEnumerator<TKey>;
-
-    public
-      { Constructor }
-      constructor Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TKey; override;
-      function MoveNext(): Boolean; override;
-    end;
-
-    { Generic MultiMap Values Enumerator }
     TValueEnumerator = class(TEnumerator<TValue>)
     private
-      FVer: NativeInt;
-      FDict: TAbstractDistinctMultiMap<TKey, TValue>;
-      FValue: TValue;
-
-      FDictEnum: IEnumerator<ISet<TValue>>;
-      FSetEnum: IEnumerator<TValue>;
-      FSet: ISet<TValue>;
-
+      FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
-      { Constructor }
-      constructor Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TValue; override;
-      function MoveNext(): Boolean; override;
+      constructor Create(const AOwner: TAbstractDistinctMultiMap<TKey, TValue>);
+      function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
-    { Generic MultiMap Keys Collection }
-    TKeyCollection = class(TEnexCollection<TKey>)
-    private
-      FDict: TAbstractDistinctMultiMap<TKey, TValue>;
-
-    protected
-      { Hidden }
-      function GetCount(): NativeInt; override;
-    public
-      { Constructor }
-      constructor Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
-      function GetEnumerator(): IEnumerator<TKey>; override;
-
-      { Copy-To }
-      procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
-
-      { Enex Overrides }
-      function Empty(): Boolean; override;
-    end;
-
-    { Generic MultiMap Values Collection }
     TValueCollection = class(TEnexCollection<TValue>)
     private
-      FDict: TAbstractDistinctMultiMap<TKey, TValue>;
-
+      FOwner: TAbstractDistinctMultiMap<TKey, TValue>;
     protected
-      { Hidden }
-      function GetCount: NativeInt; override;
-
+      function GetCount(): NativeInt; override;
     public
-      { Constructor }
-      constructor Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
-
-      { Property }
-      property Count: NativeInt read GetCount;
-
-      { IEnumerable/ ICollection support }
+      constructor Create(const AOwner: TAbstractDistinctMultiMap<TKey, TValue>);
       function GetEnumerator(): IEnumerator<TValue>; override;
-
-      { Copy-To }
       procedure CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt); overload; override;
-
-      { Enex Overrides }
       function Empty(): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
-    FVer: NativeInt;
     FKnownCount: NativeInt;
     FEmptySet: IEnexCollection<TValue>;
     FKeyCollection: IEnexCollection<TKey>;
@@ -1235,7 +1059,7 @@ begin
 
   { Increase the version }
   Inc(FKnownCount);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TAbstractMultiMap<TKey, TValue>.Clear;
@@ -1246,7 +1070,7 @@ begin
 
   { Increase the version }
   FKnownCount := 0;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TAbstractMultiMap<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
@@ -1340,14 +1164,12 @@ begin
   { Create the dictionary }
   FDictionary := CreateDictionary(KeyRules);
 
-  FKeyCollection := TKeyCollection.Create(Self);
+  FKeyCollection := FDictionary.Keys;
   FValueCollection := TValueCollection.Create(Self);
 
   { Create an internal empty list }
   FEmptyList := CreateList(ValueRules);
-
   FKnownCount := 0;
-  FVer := 0;
 end;
 
 constructor TAbstractMultiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
@@ -1424,9 +1246,7 @@ begin
 
   { Assign output }
   Result := LNewList;
-
-  { Increase the version }
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TAbstractMultiMap<TKey, TValue>.GetCount: NativeInt;
@@ -1436,7 +1256,7 @@ end;
 
 function TAbstractMultiMap<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
-  Result := TPairEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self);
 end;
 
 function TAbstractMultiMap<TKey, TValue>.GetItemList(const AKey: TKey): IEnexIndexedCollection<TValue>;
@@ -1472,7 +1292,7 @@ begin
       Dec(FKnownCount, 1);
 
       { Increase the version }
-      Inc(FVer);
+      NotifyCollectionChanged();
     end;
   end;
 end;
@@ -1527,274 +1347,101 @@ begin
   FDictionary.Remove(AKey);
 
   { Increase the version }
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
-{ TAbstractMultiMap<TKey, TValue>.TPairEnumerator }
+{ TAbstractMultiMap<TKey, TValue>.TEnumerator }
 
-constructor TAbstractMultiMap<TKey, TValue>.TPairEnumerator.Create(const ADict: TAbstractMultiMap<TKey, TValue>);
+constructor TAbstractMultiMap<TKey, TValue>.TEnumerator.Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
 begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FVer := ADict.FVer;
-
-  { Get the enumerator }
-  FListIndex := 0;
-  FDictEnum := FDict.FDictionary.GetEnumerator();
-  FList := nil;
+  inherited Create(AOwner);
+  FDictionaryEnumerator := AOwner.FDictionary.GetEnumerator();
 end;
 
-destructor TAbstractMultiMap<TKey, TValue>.TPairEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TPairEnumerator.MoveNext: Boolean;
+function TAbstractMultiMap<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean;
 begin
   { Repeat until something happens }
   while True do
   begin
-    if FVer <> FDict.FVer then
-       ExceptionHelper.Throw_CollectionChangedError();
-
     { We're still in the same KV? }
-    if Assigned(FList) and (FListIndex < FList.Count) then
+    if Assigned(FCurrentList) and (FCurrentIndexInList < FCurrentList.Count) then
     begin
       { Next element }
-      FValue := TPair<TKey, TValue>.Create(FDictEnum.Current.Key, FList[FListIndex]);
-
-      Inc(FListIndex);
-      Result := true;
-
-      Exit;
+      ACurrent := TPair<TKey, TValue>.Create(FDictionaryEnumerator.Current.Key, FCurrentList[FCurrentIndexInList]);
+      Inc(FCurrentIndexInList);
+      Exit(True);
     end;
 
     { Get the next KV pair from the dictionary }
-    Result := FDictEnum.MoveNext();
+    Result := FDictionaryEnumerator.MoveNext();
     if not Result then
     begin
-      FList := nil;
+      FCurrentList := nil;
       Exit;
     end;
 
     { Reset the list }
-    FListIndex := 0;
-    FList := FDictEnum.Current.Value;
+    FCurrentIndexInList := 0;
+    FCurrentList := FDictionaryEnumerator.Current.Value;
   end;
 end;
-
-{ TAbstractMultiMap<TKey, TValue>.TKeyEnumerator }
-
-constructor TAbstractMultiMap<TKey, TValue>.TKeyEnumerator.Create(const ADict: TAbstractMultiMap<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FVer := ADict.FVer;
-  FValue := default(TKey);
-
-  { Create enumerator }
-  FDictEnum := FDict.FDictionary.Keys.GetEnumerator();
-end;
-
-destructor TAbstractMultiMap<TKey, TValue>.TKeyEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  { Move next and get the value }
-  Result := FDictEnum.MoveNext();
-  if Result then
-    FValue := FDictEnum.Current;
-end;
-
 
 { TAbstractMultiMap<TKey, TValue>.TValueEnumerator }
 
-constructor TAbstractMultiMap<TKey, TValue>.TValueEnumerator.Create(const ADict: TAbstractMultiMap<TKey, TValue>);
+constructor TAbstractMultiMap<TKey, TValue>.TValueEnumerator.Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
 begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FVer := ADict.FVer;
-
-  { Get the enumerator }
-  FListIndex := 0;
-  FDictEnum := FDict.FDictionary.Values.GetEnumerator();
-  FList := nil;
+  inherited Create(AOwner);
+  FOwnerEnumerator := AOwner.GetEnumerator();
 end;
 
-destructor TAbstractMultiMap<TKey, TValue>.TValueEnumerator.Destroy;
+function TAbstractMultiMap<TKey, TValue>.TValueEnumerator.TryMoveNext(out ACurrent: TValue): Boolean;
 begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
-begin
-  { Repeat until something happens }
-  while True do
-  begin
-    if FVer <> FDict.FVer then
-       ExceptionHelper.Throw_CollectionChangedError();
-
-    { We're still in the same KV? }
-    if Assigned(FList) and (FListIndex < FList.Count) then
-    begin
-      { Next element }
-      FValue := FList[FListIndex];
-
-      Inc(FListIndex);
-      Result := true;
-
-      Exit;
-    end;
-
-    { Get the next KV pair from the dictionary }
-    Result := FDictEnum.MoveNext();
-    if not Result then
-    begin
-      FList := nil;
-      Exit;
-    end;
-
-    { Reset the list }
-    FListIndex := 0;
-    FList := FDictEnum.Current;
-  end;
-end;
-
-{ TAbstractMultiMap<TKey, TValue>.TKeyCollection }
-
-constructor TAbstractMultiMap<TKey, TValue>.TKeyCollection.Create(const ADict: TAbstractMultiMap<TKey, TValue>);
-begin
-  inherited Create(ADict.KeyRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-destructor TAbstractMultiMap<TKey, TValue>.TKeyCollection.Destroy;
-begin
-  inherited;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TKeyCollection.Empty: Boolean;
-begin
-  Result := (FDict.FDictionary.Count = 0);
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as key }
-  Result := FDict.FDictionary.Count;
-end;
-
-function TAbstractMultiMap<TKey, TValue>.TKeyCollection.GetEnumerator: IEnumerator<TKey>;
-begin
-  Result := TKeyEnumerator.Create(Self.FDict);
-end;
-
-procedure TAbstractMultiMap<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
-begin
-  { Check for indexes }
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  if (Length(AArray) - AStartIndex) < FDict.FDictionary.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  { Simply copy using the dictionary provided methods }
-  FDict.FDictionary.Keys.CopyTo(AArray, AStartIndex);
+  Result := FOwnerEnumerator.MoveNext();
+  if Result then
+    ACurrent := FOwnerEnumerator.Current.Value;
 end;
 
 { TAbstractMultiMap<TKey, TValue>.TValueCollection }
 
-constructor TAbstractMultiMap<TKey, TValue>.TValueCollection.Create(const ADict: TAbstractMultiMap<TKey, TValue>);
+constructor TAbstractMultiMap<TKey, TValue>.TValueCollection.Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
 begin
-  inherited Create(ADict.ValueRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-destructor TAbstractMultiMap<TKey, TValue>.TValueCollection.Destroy;
-begin
-  inherited;
+  inherited Create(AOwner.ValueRules);
+  FOwner := AOwner;
 end;
 
 function TAbstractMultiMap<TKey, TValue>.TValueCollection.Empty: Boolean;
 begin
-  Result := (FDict.FDictionary.Count = 0);
+  Result := FOwner.Empty;
 end;
 
 function TAbstractMultiMap<TKey, TValue>.TValueCollection.GetCount: NativeInt;
 begin
-  { Number of elements is different; use the count provided by the dictionary }
-  Result := FDict.Count;
+  Result := FOwner.Count;
 end;
 
 function TAbstractMultiMap<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
 begin
-  Result := TValueEnumerator.Create(Self.FDict);
+  Result := TValueEnumerator.Create(FOwner);
 end;
 
 procedure TAbstractMultiMap<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
 var
   LList: IList<TValue>;
-  X, I: NativeInt;
+  X: NativeInt;
 begin
   { Check for indexes }
   if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (Length(AArray) - AStartIndex) < FDict.Count then
+  if (Length(AArray) - AStartIndex) < FOwner.Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   X := AStartIndex;
 
   { Iterate over all lists and copy them to array }
-  for LList in FDict.FDictionary.Values do
+  for LList in TAbstractMultiMap<TKey, TValue>(FOwner).FDictionary.Values do
   begin
-    if LList.Count > 0 then
-      for I := 0 to LList.Count - 1 do
-        AArray[X + I] := LList[I];
-
+    LList.CopyTo(AArray, X);
     Inc(X, LList.Count);
   end;
 end;
@@ -1825,7 +1472,7 @@ begin
 
     { Increase the version }
     Inc(FKnownCount);
-    Inc(FVer);
+    NotifyCollectionChanged();
   end;
 end;
 
@@ -1836,7 +1483,7 @@ begin
 
   { Increase the version }
   FKnownCount := 0;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
@@ -1931,13 +1578,11 @@ begin
   { Create the dictionary }
   FDictionary := CreateDictionary(KeyRules);
 
-  FKeyCollection := TKeyCollection.Create(Self);
+  FKeyCollection := FDictionary.Keys;
   FValueCollection := TValueCollection.Create(Self);
 
   FEmptySet := CreateSet(ValueRules);
-
   FKnownCount := 0;
-  FVer := 0;
 end;
 
 constructor TAbstractDistinctMultiMap<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
@@ -2019,7 +1664,7 @@ begin
   Result := LNewList;
 
   { Increase the version }
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.GetCount: NativeInt;
@@ -2029,7 +1674,7 @@ end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
-  Result := TPairEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self);
 end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.GetItemList(const AKey: TKey): IEnexCollection<TValue>;
@@ -2067,7 +1712,7 @@ begin
   end;
 
   { Increase th version }
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TAbstractDistinctMultiMap<TKey, TValue>.Remove(const APair: TPair<TKey, TValue>);
@@ -2121,253 +1766,93 @@ begin
   FDictionary.Remove(AKey);
 
   { Increase th version }
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
-
 
 { TAbstractDistinctMultiMap<TKey, TValue>.TPairEnumerator }
 
-constructor TAbstractDistinctMultiMap<TKey, TValue>.TPairEnumerator.Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
+constructor TAbstractDistinctMultiMap<TKey, TValue>.TEnumerator.Create(const AOwner: TAbstractDistinctMultiMap<TKey, TValue>);
 begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FVer := ADict.FVer;
-
-  { Get the enumerator }
-  FDictEnum := FDict.FDictionary.GetEnumerator();
+  inherited Create(AOwner);
+  FDictionaryEnumerator := AOwner.FDictionary.GetEnumerator();
 end;
 
-destructor TAbstractDistinctMultiMap<TKey, TValue>.TPairEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TPairEnumerator.GetCurrent: TPair<TKey,TValue>;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TPairEnumerator.MoveNext: Boolean;
+function TAbstractDistinctMultiMap<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean;
 begin
   { Repeat until something happens }
   while True do
   begin
-    if FVer <> FDict.FVer then
-       ExceptionHelper.Throw_CollectionChangedError();
-
-    { We're still in the same KV? }
-    if Assigned(FSetEnum) and FSetEnum.MoveNext() then
+    if Assigned(FCurrentSetEnumerator) and FCurrentSetEnumerator.MoveNext() then
     begin
       { Next element }
-      FValue.Key := FDictEnum.Current.Key;
-      FValue.Value := FSetEnum.Current;
-
-      Result := true;
-      Exit;
+      ACurrent.Key := FDictionaryEnumerator.Current.Key;
+      ACurrent.Value := FCurrentSetEnumerator.Current;
+      Exit(True);
     end;
 
-    { Get the next KV pair from the dictionary }
-    Result := FDictEnum.MoveNext();
-    if not Result then
-      Exit;
-
-    { Reset the list }
-    FSet := FDictEnum.Current.Value;
-    FSetEnum := FSet.GetEnumerator();
+    Result := FDictionaryEnumerator.MoveNext();
+    if Result then
+      FCurrentSetEnumerator := FDictionaryEnumerator.Current.Value.GetEnumerator()
+    else
+      Break;
   end;
 end;
-
-{ TAbstractDistinctMultiMap<TKey, TValue>.TKeyEnumerator }
-
-constructor TAbstractDistinctMultiMap<TKey, TValue>.TKeyEnumerator.Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
-begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-
-  FVer := ADict.FVer;
-  FValue := default(TKey);
-
-  { Create enumerator }
-  FDictEnum := FDict.FDictionary.Keys.GetEnumerator();
-end;
-
-destructor TAbstractDistinctMultiMap<TKey, TValue>.TKeyEnumerator.Destroy;
-begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  { Move next and get the value }
-  Result := FDictEnum.MoveNext();
-  if Result then
-    FValue := FDictEnum.Current;
-end;
-
 
 { TAbstractDistinctMultiMap<TKey, TValue>.TValueEnumerator }
 
-constructor TAbstractDistinctMultiMap<TKey, TValue>.TValueEnumerator.Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
+constructor TAbstractDistinctMultiMap<TKey, TValue>.TValueEnumerator.Create(const AOwner: TAbstractDistinctMultiMap<TKey, TValue>);
 begin
-  { Initialize }
-  FDict := ADict;
-  KeepObjectAlive(FDict);
-  FVer := ADict.FVer;
-
-  { Get the enumerator }
-  FDictEnum := FDict.FDictionary.Values.GetEnumerator();
+  inherited Create(AOwner);
+  FOwnerEnumerator := AOwner.GetEnumerator();
 end;
 
-destructor TAbstractDistinctMultiMap<TKey, TValue>.TValueEnumerator.Destroy;
+function TAbstractDistinctMultiMap<TKey, TValue>.TValueEnumerator.TryMoveNext(out ACurrent: TValue): Boolean;
 begin
-  ReleaseObject(FDict);
-  inherited;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
-begin
-  if FVer <> FDict.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
-begin
-  { Repeat until something happens }
-  while True do
-  begin
-    if FVer <> FDict.FVer then
-       ExceptionHelper.Throw_CollectionChangedError();
-
-    { We're still in the same KV? }
-    if Assigned(FSetEnum) and FSetEnum.MoveNext() then
-    begin
-      { Next element }
-      FValue := FSetEnum.Current;
-
-      Result := true;
-      Exit;
-    end;
-
-    { Get the next KV pair from the dictionary }
-    Result := FDictEnum.MoveNext();
-    if not Result then
-      Exit;
-
-    { Reset the list }
-    FSet := FDictEnum.Current;
-    FSetEnum := FSet.GetEnumerator();
-  end;
-end;
-
-{ TAbstractDistinctMultiMap<TKey, TValue>.TKeyCollection }
-
-constructor TAbstractDistinctMultiMap<TKey, TValue>.TKeyCollection.Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
-begin
-  inherited Create(ADict.KeyRules);
-
-  { Initialize }
-  FDict := ADict;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TKeyCollection.Empty: Boolean;
-begin
-  Result := (FDict.FDictionary.Count = 0);
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
-begin
-  { Number of elements is the same as key }
-  Result := FDict.FDictionary.Count;
-end;
-
-function TAbstractDistinctMultiMap<TKey, TValue>.TKeyCollection.GetEnumerator: IEnumerator<TKey>;
-begin
-  Result := TKeyEnumerator.Create(Self.FDict);
-end;
-
-procedure TAbstractDistinctMultiMap<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
-begin
-  { Check for indexes }
-  if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
-    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  if (Length(AArray) - AStartIndex) < FDict.FDictionary.Count then
-     ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
-
-  { Simply copy using the dictionary provided methods }
-  FDict.FDictionary.Keys.CopyTo(AArray, AStartIndex);
+  Result := FOwnerEnumerator.MoveNext();
+  if Result then
+    ACurrent := FOwnerEnumerator.Current.Value;
 end;
 
 { TAbstractDistinctMultiMap<TKey, TValue>.TValueCollection }
 
-constructor TAbstractDistinctMultiMap<TKey, TValue>.TValueCollection.Create(const ADict: TAbstractDistinctMultiMap<TKey, TValue>);
+constructor TAbstractDistinctMultiMap<TKey, TValue>.TValueCollection.Create(const AOwner: TAbstractDistinctMultiMap<TKey, TValue>);
 begin
-  inherited Create(ADict.ValueRules);
-
-  { Initialize }
-  FDict := ADict;
+  inherited Create(AOwner.ValueRules);
+  FOwner := AOwner;
 end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.TValueCollection.Empty: Boolean;
 begin
-  Result := (FDict.FDictionary.Count = 0);
+  Result := FOwner.Empty;
 end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.TValueCollection.GetCount: NativeInt;
 begin
-  { Number of elements is different; use the count provided by the dictionary }
-  Result := FDict.Count;
+  Result := FOwner.Count;
 end;
 
 function TAbstractDistinctMultiMap<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
 begin
-  Result := TValueEnumerator.Create(Self.FDict);
+  Result := TValueEnumerator.Create(FOwner);
 end;
 
 procedure TAbstractDistinctMultiMap<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
 var
   LSet: ISet<TValue>;
-  LValue: TValue;
   X: NativeInt;
 begin
   { Check for indexes }
   if (AStartIndex >= Length(AArray)) or (AStartIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
 
-  if (Length(AArray) - AStartIndex) < FDict.Count then
+  if (Length(AArray) - AStartIndex) < FOwner.Count then
      ExceptionHelper.Throw_ArgumentOutOfSpaceError('AArray');
 
   X := AStartIndex;
-
-  { Iterate over all lists and copy thtm to array }
-  for LSet in FDict.FDictionary.Values do
+  for LSet in FOwner.FDictionary.Values do
   begin
-    for LValue in LSet do
-    begin
-      AArray[X] := LValue;
-      Inc(X);
-    end;
+    LSet.CopyTo(AArray, X);
+    Inc(X, LSet.Count);
   end;
 end;
 

@@ -29,7 +29,8 @@
     * TForwardingEnumerator<T> is a special class that uses another enumerator as base.
     * Renamed IEnexGroupingCollection<TKey, T> into simply IGrouping<TKey, T>.
     * Rewritten all enumerators in the package to use the new interface.
-    * Introduced a new non-generic TCollection.
+    * Introduced a new non-generic TCollection. TCollection<T> derives from it.
+    
     
 ﻿========================
 = Minor Release: 1.1.1 =

@@ -30,7 +30,6 @@ unit Collections.Lists;
 interface
 uses SysUtils,
      Generics.Defaults,
-     Generics.Collections,
      Collections.Serialization,
      Collections.Base;
 
@@ -325,7 +324,7 @@ type
     TQuickSortStack = array[0..63] of TStackEntry;
 {$ENDIF}
 
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(Collections.Base.TEnumerator<T>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -806,7 +805,7 @@ type
       FValue: T;
     end;
 
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(Collections.Base.TEnumerator<T>)
     private
       FCurrentEntry: PEntry;
     public

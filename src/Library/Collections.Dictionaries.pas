@@ -38,7 +38,7 @@ type
   TAbstractDictionary<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IDictionary<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-    TKeyEnumerator = class(TEnumerator<TKey>)
+    TKeyEnumerator = class(Collections.Base.TEnumerator<TKey>)
     private
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -46,7 +46,7 @@ type
       function TryMoveNext(out ACurrent: TKey): Boolean; override;
     end;
 
-    TValueEnumerator = class(TEnumerator<TValue>)
+    TValueEnumerator = class(Collections.Base.TEnumerator<TValue>)
     private
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -265,7 +265,7 @@ type
   private type
     {$REGION 'Internal Types'}
     { Generic Dictionary Pairs Enumerator }
-    TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(Collections.Base.TEnumerator<TPair<TKey,TValue>>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -415,7 +415,7 @@ type
 
     TBucketArray = TArray<PEntry>;
 
-    TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(Collections.Base.TEnumerator<TPair<TKey,TValue>>)
     private
       FCurrentEntry: PEntry;
     public
@@ -574,7 +574,7 @@ type
       FBalance: ShortInt;
     end;
 
-    TEnumerator = class(TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(Collections.Base.TEnumerator<TPair<TKey,TValue>>)
     private
       FCurrentEntry: TNode;
     public

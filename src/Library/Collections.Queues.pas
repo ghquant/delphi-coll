@@ -130,25 +130,13 @@ type
     {$REGION 'Internal Types'}
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FQueue: TQueue<T>;
-      FElement: T;
-      FCount, FHead: NativeInt;
-
+      FLeftCount, FCurrentHead: NativeInt;
     public
-      { Constructor }
-      constructor Create(const AQueue : TQueue<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
-    FVer: NativeInt;
     FHead: NativeInt;
     FTail: NativeInt;
     FLength: NativeInt;
@@ -385,26 +373,15 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FQueue: TLinkedQueue<T>;
       FCurrentEntry: PEntry;
-      FValue: T;
     public
-      { Constructor }
-      constructor Create(const AQueue: TLinkedQueue<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FFirst, FLast, FFirstFree: PEntry;
     FCount, FFreeCount: NativeInt;
-    FVer: NativeInt;
 
     { Caching }
     function NeedEntry(const AValue: T): PEntry;
@@ -602,28 +579,16 @@ type
       FValue: TValue;
     end;
 
-    { Generic List Enumerator }
-    TPairEnumerator = class(TEnumerator<TPair<TPriority, TValue>>)
+    TEnumerator = class(TEnumerator<TPair<TPriority, TValue>>)
     private
-      FVer: NativeInt;
-      FQueue: TPriorityQueue<TPriority, TValue>;
       FCurrentIndex: NativeInt;
-
     public
-      { Constructor }
-      constructor Create(const AQueue: TPriorityQueue<TPriority, TValue>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): TPair<TPriority, TValue>; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: TPair<TPriority, TValue>): Boolean; override;
     end;
     {$ENDREGION}
 
   private
     FCount: NativeInt;
-    FVer: NativeInt;
     FSign: NativeInt;
     FArray: TArray<TPriorityPair>;
 
@@ -1020,7 +985,7 @@ begin
   FHead := 0;
   FLength := 0;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TQueue<T>.Contains(const AValue: T): Boolean;
@@ -1083,7 +1048,6 @@ constructor TQueue<T>.Create(const ARules: TRules<T>; const AInitialCapacity: Na
 begin
   inherited Create(ARules);
 
-  FVer := 0;
   FTail := 0;
   FLength := 0;
   FHead := 0;
@@ -1143,7 +1107,7 @@ begin
   FTail := (FTail + 1) mod Length(FArray);
   
   Inc(FLength);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TQueue<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
@@ -1202,7 +1166,7 @@ begin
   FHead := (FHead + 1) mod Length(FArray);
 
   Dec(FLength);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TQueue<T>.GetCapacity: NativeInt;
@@ -1216,8 +1180,12 @@ begin
 end;
 
 function TQueue<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentHead := FHead;
+  Result := LEnumerator;
 end;
 
 procedure TQueue<T>.Grow;
@@ -1340,7 +1308,7 @@ begin
   FArray := LNewArray;
   FTail := FLength;
   FHead := 0;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TQueue<T>.Shrink;
@@ -1374,47 +1342,20 @@ end;
 
 { TQueue<T>.TEnumerator }
 
-constructor TQueue<T>.TEnumerator.Create(const AQueue: TQueue<T>);
+function TQueue<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FQueue := AQueue;
-  KeepObjectAlive(FQueue);
+  with TQueue<T>(Owner) do
+  begin
+    Result := FLeftCount < FLength;
+    if Result then
+    begin
+      ACurrent := FArray[FCurrentHead];
 
-  FCount := 0;
-  FElement := Default(T);
-  FHead  := FQueue.FHead;
-  FVer := AQueue.FVer;
-end;
-
-destructor TQueue<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FQueue);
-  inherited;
-end;
-
-function TQueue<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FQueue.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FElement;
-end;
-
-function TQueue<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FQueue.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  if (FCount >= FQueue.FLength) then
-    Exit(false)
-  else
-    Result := true;
-
-  FElement := FQueue.FArray[FHead];
-
-  { Circulate Head }
-  FHead := (FHead + 1) mod Length(FQueue.FArray);
-  Inc(FCount);
+      { Circulate Head }
+      FCurrentHead := (FCurrentHead + 1) mod Length(FArray);
+      Inc(FLeftCount);
+    end;
+  end;
 end;
 
 { TObjectQueue<T> }
@@ -1531,7 +1472,7 @@ begin
   FFirst := nil;
   FLast := nil;
   FCount := 0;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TLinkedQueue<T>.Contains(const AValue: T): Boolean;
@@ -1645,7 +1586,7 @@ begin
   if not Assigned(FFirst) then
     FFirst := LNew;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Inc(FCount);
 end;
 
@@ -1724,7 +1665,7 @@ begin
 
   ReleaseEntry(LEntry);
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Dec(FCount);
 end;
 
@@ -1734,8 +1675,12 @@ begin
 end;
 
 function TLinkedQueue<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentEntry := FFirst;
+  Result := LEnumerator;
 end;
 
 function TLinkedQueue<T>.Last: T;
@@ -1853,42 +1798,14 @@ begin
     Result := FFirst^.FValue;
 end;
 
-
 { TLinkedQueue<T>.TEnumerator }
 
-constructor TLinkedQueue<T>.TEnumerator.Create(const AQueue: TLinkedQueue<T>);
+function TLinkedQueue<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  FQueue := AQueue;
-  KeepObjectAlive(FQueue);
-
-  FVer := AQueue.FVer;
-  FCurrentEntry := AQueue.FFirst;
-end;
-
-destructor TLinkedQueue<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FQueue);
-  inherited;
-end;
-
-function TLinkedQueue<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FQueue.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TLinkedQueue<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FQueue.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
   Result := Assigned(FCurrentEntry);
-
   if Result then
   begin
-    FValue := FCurrentEntry^.FValue;
+    ACurrent := FCurrentEntry^.FValue;
     FCurrentEntry := FCurrentEntry^.FNext;
   end;
 end;
@@ -1915,7 +1832,7 @@ begin
   end;
 
   { Dispose of all the stuff }
-  Inc(FVer);
+  NotifyCollectionChanged();
   FCount := 0;
 end;
 
@@ -1999,7 +1916,6 @@ begin
   inherited Create(APriorityRules, AValueRules);
 
   SetLength(FArray, AInitialCapacity);
-  FVer := 0;
   FCount := 0;
 
   if AAscending then
@@ -2057,7 +1973,7 @@ begin
 
   { And return the value }
   Result := LPair.FValue;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 destructor TPriorityQueue<TPriority, TValue>.Destroy;
@@ -2099,7 +2015,7 @@ begin
   FArray[I].FPriority := APriority;
   FArray[I].FValue := AValue;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TPriorityQueue<TPriority, TValue>.Enqueue(const AValue: TValue);
@@ -2122,7 +2038,7 @@ end;
 function TPriorityQueue<TPriority, TValue>.GetEnumerator: IEnumerator<TPair<TPriority, TValue>>;
 begin
   { Create an enumerator }
-  Result := TPairEnumerator.Create(Self);
+  Result := TEnumerator.Create(Self);
 end;
 
 procedure TPriorityQueue<TPriority, TValue>.Grow;
@@ -2215,43 +2131,21 @@ begin
     SetLength(FArray, FCount);
 end;
 
-{ TPriorityQueue<TPriority, TValue>.TPairEnumerator }
+{ TPriorityQueue<TPriority, TValue>.TEnumerator }
 
-constructor TPriorityQueue<TPriority, TValue>.TPairEnumerator.Create(const AQueue: TPriorityQueue<TPriority, TValue>);
+function TPriorityQueue<TPriority, TValue>.TEnumerator.TryMoveNext(out ACurrent: TPair<TPriority, TValue>): Boolean;
 begin
-  FQueue := AQueue;
-  KeepObjectAlive(FQueue);
-
-  FVer := AQueue.FVer;
-  FCurrentIndex := 0;
-end;
-
-destructor TPriorityQueue<TPriority, TValue>.TPairEnumerator.Destroy;
-begin
-  ReleaseObject(FQueue);
-  inherited;
-end;
-
-function TPriorityQueue<TPriority, TValue>.TPairEnumerator.GetCurrent: TPair<TPriority, TValue>;
-begin
-  if FVer <> FQueue.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  if FCurrentIndex > 0 then
+  with TPriorityQueue<TPriority, TValue>(Owner) do
   begin
-    Result.Key := FQueue.FArray[FCurrentIndex - 1].FPriority;
-    Result.Value := FQueue.FArray[FCurrentIndex - 1].FValue;
-  end else
-    Result := default(TPair<TPriority, TValue>);
-end;
+    Result := FCurrentIndex < FCount;
 
-function TPriorityQueue<TPriority, TValue>.TPairEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FQueue.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FCurrentIndex < FQueue.FCount;
-  Inc(FCurrentIndex);
+    if Result then
+    begin
+      ACurrent.Key := FArray[FCurrentIndex].FPriority;
+      ACurrent.Value := FArray[FCurrentIndex].FValue;
+      Inc(FCurrentIndex);
+    end;
+  end;
 end;
 
 { TObjectPriorityQueue<TPriority, TValue> }

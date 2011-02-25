@@ -523,9 +523,9 @@ begin
   LList.AddFirst(LOther);
 
   CheckEquals(3, LList.Count);
-  CheckEquals(3, LList[0]);
+  CheckEquals(1, LList[0]);
   CheckEquals(2, LList[1]);
-  CheckEquals(1, LList[2]);
+  CheckEquals(3, LList[2]);
 
   CheckException(EArgumentNilException,
     procedure() begin LList.AddFirst(nil); end,
@@ -687,6 +687,8 @@ begin
   CheckFalse(LValueDied);
   CheckTrue(L2 = LList[0]);
   L1.Free;
+  LValueDied := False;
+
   { -- }
   LList.OwnsObjects := True;
   CheckTrue(L2 = LList.ExtractFirst());
@@ -720,6 +722,8 @@ begin
   CheckFalse(LValueDied);
   CheckTrue(L1 = LList[0]);
   L2.Free;
+  LValueDied := False;
+
   { -- }
   LList.OwnsObjects := True;
   CheckTrue(L1 = LList.ExtractLast());
@@ -753,6 +757,8 @@ begin
   CheckFalse(LValueDied);
   CheckTrue(L2 = LList[0]);
   L1.Free;
+  LValueDied := False;
+
   { -- }
   LList.OwnsObjects := True;
   LList.RemoveFirst();
@@ -785,6 +791,8 @@ begin
   CheckFalse(LValueDied);
   CheckTrue(L1 = LList[0]);
   L2.Free;
+  LValueDied := False;
+
   { -- }
   LList.OwnsObjects := True;
   LList.RemoveLast();

@@ -30,7 +30,6 @@ program Samples;
 
 uses
   SysUtils,
-  Collections.Sets,
   Op_Select_View in 'Op_Select_View.pas',
   SplitStringEnumerable in 'SplitStringEnumerable.pas',
   List_Store_Load in 'List_Store_Load.pas';

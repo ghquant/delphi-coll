@@ -43,7 +43,6 @@ type
     are strings (parts of a given initial string) we need to type the generic base as TEnexCollection<string>.}
   TSplitStringCollection = class(TEnexCollection<string>)
   private type
-
     {
       This is the enumerator. It's a private type in TSplitStringCollection. Noone but this collection
       can instantiate it for ... safety reasons: usually the state is specific and only the collection code
@@ -53,23 +52,15 @@ type
     }
     TEnumerator = class(TEnumerator<string>)
     private
-      FSPC: TSplitStringCollection;
-      FCurrent: string;
       LNowIndex, LPrevIndex, FLength: NativeInt;
 
     public
       { The contructor. The collection will pass itself here. The enumerator needs to know who is it talking to. }
-      constructor Create(const ABaseCollection: TSplitStringCollection);
-
-      { Usual ... Check the implementation for details. }
-      destructor Destroy(); override;
-
-      { This one provides the currect "move-next-ed" element. }
-      function GetCurrent(): string; override;
+      constructor Create(const AOwner: TSplitStringCollection);
 
       { This method is called prior to anything else. We must return TRUE if the element was obtained, and store that element
         somewhere that GetCurrent can obtain. }
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: string): Boolean; override;
     end;
 
   private
@@ -124,7 +115,7 @@ implementation
 procedure RunSample();
 var
   LWord, LInput: string;
-  LGroup: IEnexGroupingCollection<Integer, string>;
+  LGroup: IGrouping<Integer, string>;
 begin
   WriteLn;
   WriteLn('=============== [SplitStringEnumerable] ============ ');
@@ -151,7 +142,7 @@ begin
   WriteLn('Write all words groupped by their length:');
   for LGroup in SplitString(LInput).
     Op.GroupBy<Integer>(function(S: String): Integer begin Exit(Length(S)) end).
-    Ordered(function(const L, R: IEnexGroupingCollection<Integer, string>): Integer begin Exit(L.Key - R.Key) end) do
+    Ordered(function(const L, R: IGrouping<Integer, string>): Integer begin Exit(L.Key - R.Key) end) do
   begin
     { Write the group key (the length) }
     Write('  # ', LGroup.Key, ' characters: ');
@@ -225,46 +216,26 @@ end;
 
 { TSplitStringCollection.TEnumerator }
 
-constructor TSplitStringCollection.TEnumerator.Create(const ABaseCollection: TSplitStringCollection);
+constructor TSplitStringCollection.TEnumerator.Create(const AOwner: TSplitStringCollection);
 begin
   { Store reference to our collection! }
-  FSPC := ABaseCollection;
-
-  { This is a quite tricky code to explain.
-      The short version: It needs to be here!
-      The long version: This function will check if our FSPC (TSplitStringCollection) is simply a
-      class reference or it has interface references to it. If there are external interface refs to it
-      one will be taken and stored locally somewhere. This is to prevend external code from destroying out parent
-      collection while this enumerator is still alive and needs that parent to be alive too. }
-  KeepObjectAlive(FSPC);
+  inherited Create(AOwner);
 
   { Initialize indexes. }
   LPrevIndex := 1;
   LNowIndex := 1;
 
   { This if to minimize length calls }
-  FLength := Length(FSPC.FInputString);
+  FLength := Length(AOwner.FInputString);
 end;
 
-destructor TSplitStringCollection.TEnumerator.Destroy;
+function TSplitStringCollection.TEnumerator.TryMoveNext(out ACurrent: string): Boolean;
+var
+  LOwner: TSplitStringCollection;
 begin
-  { This call is optional but will remove the intareface reference we
-    have stored for this object (IF WE HAVE STORED ANY!). If the object had no references then this is a NOP. Also it can be simply
-    skipped as the inherited destructor will still to the same job ... }
-  ReleaseObject(FSPC);
+  { Store a strong type to our owner collection. "Owner" is a property exposed by the base enumerator }
+  LOwner := TSplitStringCollection(Owner);
 
-  inherited;
-end;
-
-function TSplitStringCollection.TEnumerator.GetCurrent: string;
-begin
-  { Simply return the string. Don't worry if it might seem uninitialized.
-    The enumeration "protocol" says that MoveNext must be called prior to GetCurrent. }
-  Result := FCurrent;
-end;
-
-function TSplitStringCollection.TEnumerator.MoveNext: Boolean;
-begin
   { This is the function that will actually do the work! Wow, we have written so much
     in simple preparation. The code in this method will actually split the string: }
 
@@ -274,10 +245,10 @@ begin
   while LNowIndex <= FLength do
   begin
     { Check if the current character is a separator }
-    if FSPC.FInputString[LNowIndex] = FSPC.FSeparator then
+    if LOwner.FInputString[LNowIndex] = LOwner.FSeparator then
     begin
       { Yes, we will cut over the required part and place it for the taking }
-      FCurrent := System.Copy(FSPC.FInputString, LPrevIndex, (LNowIndex - LPrevIndex));
+      ACurrent := System.Copy(LOwner.FInputString, LPrevIndex, (LNowIndex - LPrevIndex));
 
       { Adjust previous idex so we know where to cut from. }
       LPrevIndex := LNowIndex + 1;
@@ -298,7 +269,7 @@ begin
   if LPrevIndex < LNowIndex then
   begin
     { Copy the last peice and mark the result as OK. }
-    FCurrent := Copy(FSPC.FInputString, LPrevIndex, FLength - LPrevIndex + 1);
+    ACurrent := Copy(LOwner.FInputString, LPrevIndex, FLength - LPrevIndex + 1);
     LPrevIndex := LNowIndex + 1;
 
     Result := true;

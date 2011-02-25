@@ -385,44 +385,20 @@ end;
 procedure TTestSortedList.TestDummyInsert;
 var
   List: TSortedList<String>;
-  Stack: TStack<String>;
 begin
   List := TSortedList<String>.Create(0);
-  Stack := TStack<String>.Create();
 
-  Stack.Push('s2');
-  Stack.Push('s1');
-  Stack.Push('s3');
+  CheckException(ENotSupportedException,
+    procedure() begin List.Insert(0, '3'); end,
+    'ENotSupportedException not thrown in Insert (not supp).'
+  );
 
-  List.Insert(0, '3');
-  List.Insert(1, '1');
-  List.Insert(0, '2');
-
-  Check((List.Count = 3) and (List.Count = List.GetCount()), 'List count expected to be 3');
-
-  { 1 2 3 }
-  List.Insert(3, '0');
-
-  { 0 1 2 3 }
-  List.Insert(4, '-1');
-
-  { 0 -1 1 2 3 }
-  List.Insert(2, '5');
-
-  Check((List.Count = 6) and (List.Count = List.GetCount()), 'List count expected to be 6');
-
-  List.Insert(2, Stack);
-
-  Check((List.Count = 9) and (List.Count = List.GetCount()), 'List count expected to be 9');
-
-  Check(List[6] = 's1', 'List[6] expected to be "s1"');
-  Check(List[7] = 's2', 'List[7] expected to be "s2"');
-  Check(List[8] = 's3', 'List[8] expected to be "s3"');
-
-  List.Insert(0, 'Back1');
+  CheckException(ENotSupportedException,
+    procedure() begin List.Insert(1, '3'); end,
+    'ENotSupportedException not thrown in Insert (not supp).'
+  );
 
   List.Free;
-  Stack.Free;
 end;
 
 procedure TTestSortedList.TestEnumerator;
@@ -528,44 +504,6 @@ begin
     'EArgumentOutOfRangeException not thrown in List.Items (index out of).'
   );
 
-  List.Add(2);
-  CheckException(EArgumentOutOfRangeException,
-    procedure()
-    begin
-      List.Insert(-1, 2);
-    end,
-    'EArgumentOutOfRangeException not thrown in constructor Insert(-1).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure()
-    begin
-      List.Insert(3, 99);
-    end,
-    'EArgumentOutOfRangeException not thrown in constructor Insert(2).'
-  );
-
-  CheckException(EArgumentNilException,
-    procedure() begin List.Insert(0, NullList); end,
-    'EArgumentNilException not thrown in Insert (nil enum).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure()
-    begin
-      List.Insert(-1, NullList);
-    end,
-    'EArgumentOutOfRangeException not thrown in constructor Insert(-1, nil).'
-  );
-
-  CheckException(EArgumentOutOfRangeException,
-    procedure()
-    begin
-      List.Insert(3, NullList);
-    end,
-    'EArgumentOutOfRangeException not thrown in constructor Insert(2, nil).'
-  );
-
   List.Free();
 end;
 
@@ -638,6 +576,16 @@ begin
   Check(List[2] = 1, 'List[2] expected to be 1');
   Check(List[3] = 2, 'List[3] expected to be 2');
   Check(List[4] = 6, 'List[4] expected to be 3');
+
+  CheckException(ENotSupportedException,
+    procedure() begin List[0] := 88 end,
+    'ENotSupportedException not thrown in [] <-.'
+  );
+
+  CheckException(ENotSupportedException,
+    procedure() begin List[1000] := 88 end,
+    'ENotSupportedException not thrown in [] <-.'
+  );
 
   List.Add(4);
   List.Add(5);

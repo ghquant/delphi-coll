@@ -132,26 +132,15 @@ type
     { Generic Stack List Enumerator }
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FStack: TStack<T>;
       FCurrentIndex: NativeInt;
-
     public
-      { Constructor }
-      constructor Create(const AStack: TStack<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FArray: TArray<T>;
     FLength: NativeInt;
-    FVer: NativeInt;
 
   protected
     ///  <summary>Returns the number of elements in the stack.</summary>
@@ -387,26 +376,15 @@ type
 
     TEnumerator = class(TEnumerator<T>)
     private
-      FVer: NativeInt;
-      FStack: TLinkedStack<T>;
       FCurrentEntry: PEntry;
-      FValue: T;
     public
-      { Constructor }
-      constructor Create(const AStack: TLinkedStack<T>);
-
-      { Destructor }
-      destructor Destroy(); override;
-
-      function GetCurrent(): T; override;
-      function MoveNext(): Boolean; override;
+      function TryMoveNext(out ACurrent: T): Boolean; override;
     end;
     {$ENDREGION}
 
   private var
     FFirst, FLast, FFirstFree: PEntry;
     FCount, FFreeCount: NativeInt;
-    FVer: NativeInt;
 
     { Caching }
     function NeedEntry(const AValue: T): PEntry;
@@ -784,7 +762,7 @@ begin
   SetLength(FArray, CDefaultSize);
   FLength := 0;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TStack<T>.Contains(const AValue: T): Boolean;
@@ -838,7 +816,6 @@ begin
   inherited Create(ARules);
 
   FLength := 0;
-  FVer := 0;
   SetLength(FArray, AInitialCapacity);
 end;
 
@@ -999,7 +976,7 @@ begin
     Result := FArray[FLength - 1];
 
     Dec(FLength);
-    Inc(FVer);
+    NotifyCollectionChanged();
   end else
     ExceptionHelper.Throw_CollectionEmptyError();
 end;
@@ -1013,7 +990,7 @@ begin
   { Add the element to the stack and increase the index }
   FArray[FLength] := AValue;
   Inc(FLength);
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 procedure TStack<T>.Remove(const AValue: T);
@@ -1041,7 +1018,7 @@ begin
         FArray[I] := FArray[I + 1];
 
     Dec(FLength);
-    Inc(FVer);
+    NotifyCollectionChanged();
   end;
 end;
 
@@ -1076,40 +1053,18 @@ end;
 
 { TStack<T>.TEnumerator }
 
-constructor TStack<T>.TEnumerator.Create(const AStack: TStack<T>);
+function TStack<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  { Initialize }
-  FStack := AStack;
-  KeepObjectAlive(FStack);
+  with TStack<T>(Owner) do
+  begin
+    Result := FCurrentIndex < FLength;
 
-  FCurrentIndex := 0;
-  FVer := AStack.FVer;
-end;
-
-destructor TStack<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FStack);
-  inherited;
-end;
-
-function TStack<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FStack.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  if FCurrentIndex > 0 then
-    Result := FStack.FArray[FCurrentIndex - 1]
-  else
-    Result := default(T);
-end;
-
-function TStack<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FStack.FVer then
-     ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FCurrentIndex < FStack.FLength;
-  Inc(FCurrentIndex);
+    if Result then
+    begin
+      ACurrent := FArray[FCurrentIndex];
+      Inc(FCurrentIndex);
+    end;
+  end;
 end;
 
 { TObjectStack<T> }
@@ -1226,7 +1181,7 @@ begin
   FFirst := nil;
   FLast := nil;
   FCount := 0;
-  Inc(FVer);
+  NotifyCollectionChanged();
 end;
 
 function TLinkedStack<T>.Contains(const AValue: T): Boolean;
@@ -1390,8 +1345,12 @@ begin
 end;
 
 function TLinkedStack<T>.GetEnumerator: IEnumerator<T>;
+var
+  LEnumerator: TEnumerator;
 begin
-  Result := TEnumerator.Create(Self);
+  LEnumerator := TEnumerator.Create(Self);
+  LEnumerator.FCurrentEntry := FFirst;
+  Result := LEnumerator;
 end;
 
 function TLinkedStack<T>.Last: T;
@@ -1487,7 +1446,7 @@ begin
 
   ReleaseEntry(LEntry);
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Dec(FCount);
 end;
 
@@ -1507,7 +1466,7 @@ begin
   if not Assigned(FFirst) then
     FFirst := LNew;
 
-  Inc(FVer);
+  NotifyCollectionChanged();
   Inc(FCount);
 end;
 
@@ -1548,7 +1507,7 @@ begin
         FLast := LCurrent^.FPrev;
 
       ReleaseEntry(LCurrent);
-      Inc(FVer);
+      NotifyCollectionChanged();
       Dec(FCount);
       Exit;
     end;
@@ -1581,39 +1540,12 @@ end;
 
 { TLinkedStack<T>.TEnumerator }
 
-constructor TLinkedStack<T>.TEnumerator.Create(const AStack: TLinkedStack<T>);
+function TLinkedStack<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  FStack := AStack;
-  KeepObjectAlive(FStack);
-
-  FVer := AStack.FVer;
-  FCurrentEntry := AStack.FFirst;
-end;
-
-destructor TLinkedStack<T>.TEnumerator.Destroy;
-begin
-  ReleaseObject(FStack);
-  inherited;
-end;
-
-function TLinkedStack<T>.TEnumerator.GetCurrent: T;
-begin
-  if FVer <> FStack.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
-  Result := FValue;
-end;
-
-function TLinkedStack<T>.TEnumerator.MoveNext: Boolean;
-begin
-  if FVer <> FStack.FVer then
-    ExceptionHelper.Throw_CollectionChangedError();
-
   Result := Assigned(FCurrentEntry);
-
   if Result then
   begin
-    FValue := FCurrentEntry^.FValue;
+    ACurrent := FCurrentEntry^.FValue;
     FCurrentEntry := FCurrentEntry^.FNext;
   end;
 end;

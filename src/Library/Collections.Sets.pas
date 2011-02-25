@@ -29,7 +29,6 @@ unit Collections.Sets;
 interface
 uses SysUtils,
      Generics.Defaults,
-     Generics.Collections,
      Collections.Base;
 
 type
@@ -113,7 +112,7 @@ type
   THashSet<T> = class(TAbstractSet<T>)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(Collections.Base.TEnumerator<T>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -236,7 +235,7 @@ type
 
     TBucketArray = TArray<PEntry>;
 
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(Collections.Base.TEnumerator<T>)
     private
       FCurrentEntry: PEntry;
     public
@@ -362,7 +361,7 @@ type
       FBalance: ShortInt;
     end;
 
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(Collections.Base.TEnumerator<T>)
     private
       FCurrentEntry: TNode;
     public
@@ -544,7 +543,7 @@ type
   TArraySet<T> = class(TAbstractSet<T>, ISortedSet<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(Collections.Base.TEnumerator<T>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -814,7 +813,7 @@ type
   TBitSet = class(TAbstractSet<Word>, ISortedSet<Word>)
   private type
     {$REGION 'Internal Types'}
-    TAscendingEnumerator = class(TEnumerator<Word>)
+    TAscendingEnumerator = class(Collections.Base.TEnumerator<Word>)
     private
       FValue: Word;
       FPageIndex, FBitIndex, FPage: NativeInt;
@@ -3555,7 +3554,7 @@ end;
 
 function TBitSet.TDescendingEnumerator.TryMoveNext(out ACurrent: Word): Boolean;
 const
-  CMask = NativeInt(1) shl ((CPageSize * 8) - 1);
+  CMask: NativeInt = NativeInt(1) shl ((CPageSize * 8) - 1);
 begin
   Result := false;
   while True do
