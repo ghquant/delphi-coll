@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all generic <c>list</c> collections.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractList<T> = class(TEnexCollection<T>, IEnexIndexedCollection<T>, IList<T>)
+  TAbstractList<T> = class(TAbstractOperableCollection<T>, IList<T>)
   protected
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>
@@ -115,23 +115,16 @@ type
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
-    ///  <summary>Clears the contents of the list.</summary>
-    ///  <remarks>The implementation in this class continues to remove the last element while the list is not empty. In most lists the last element is the easiest to
-    ///  remove from the spent time perspective. Most descending classes will most likely override this
-    ///  implementation with a better performing one.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>RemoveAt</c> method is not overridden.</exception>
-    procedure Clear(); virtual;
-
     ///  <summary>Appends an element to the back of the list.</summary>
     ///  <param name="AValue">The value to append.</param>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
-    procedure Add(const AValue: T); overload; virtual;
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Appends all elements from a given collection to the back of a list.</summary>
     ///  <param name="ACollection">The values to append.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
-    procedure Add(const ACollection: IEnumerable<T>); overload; virtual;
+    procedure AddAll(const ACollection: IEnumerable<T>); override;
 
     ///  <summary>Inserts an element into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
@@ -140,7 +133,7 @@ type
     ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
-    procedure Insert(const AIndex: NativeInt; const AValue: T); overload; virtual;
+    procedure Insert(const AIndex: NativeInt; const AValue: T); virtual;
 
     ///  <summary>Inserts the elements of a collection into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
@@ -150,13 +143,13 @@ type
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If one element based <c>Insert</c> method is not overridden.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload; virtual;
+    procedure InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>); virtual;
 
     ///  <summary>Removes a given value from the list.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>If the list does not contain the given value, nothing happens.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryExtractAt</c> method is not overridden.</exception>
-    procedure Remove(const AValue: T); virtual;
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Removes an element from the list at a given index.</summary>
     ///  <param name="AIndex">The index from which to remove the element.</param>
@@ -176,8 +169,10 @@ type
     ///  <summary>Checks whether the list contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
     ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
+    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
+    ///  value. Most descendant classes will most likely provide a better version.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>IndexOf</c> method is not overridden.</exception>
-    function Contains(const AValue: T): Boolean;
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -263,7 +258,7 @@ type
     ///  <remarks>This method is functionally identical to <c>Add</c>. Classes that implement this interface can simply
     ///  alias this method to <c>Add</c>.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
-    procedure AddLast(const AValue: T); overload; virtual;
+    procedure AddLast(const AValue: T); virtual;
 
     ///  <summary>Appends the elements from a collection to the back of the list.</summary>
     ///  <param name="ACollection">The values to append.</param>
@@ -271,18 +266,18 @@ type
     ///  alias this method to <c>Add</c>.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
-    procedure AddLast(const ACollection: IEnumerable<T>); overload; virtual;
+    procedure AddAllLast(const ACollection: IEnumerable<T>); virtual;
 
     ///  <summary>Appends an element to the front of the list.</summary>
     ///  <param name="AValue">The value to append.</param>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
-    procedure AddFirst(const AValue: T); overload; virtual;
+    procedure AddFirst(const AValue: T); virtual;
 
     ///  <summary>Appends the elements from a collection to the back of the list.</summary>
     ///  <param name="ACollection">The values to append.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
-    procedure AddFirst(const ACollection: IEnumerable<T>); overload; virtual;
+    procedure AddAllFirst(const ACollection: IEnumerable<T>); virtual;
 
     ///  <summary>Removes the first element of the list.</summary>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
@@ -307,7 +302,6 @@ type
     function ExtractLast(): T; virtual;
   end;
 
-
 type
   ///  <summary>The generic <c>list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
@@ -324,7 +318,7 @@ type
     TQuickSortStack = array[0..63] of TStackEntry;
 {$ENDIF}
 
-    TEnumerator = class(Collections.Base.TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -404,7 +398,7 @@ type
     ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
     ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure Insert(const AIndex: NativeInt; const AValue: T); overload; override;
+    procedure Insert(const AIndex: NativeInt; const AValue: T); override;
 
     ///  <summary>Inserts the elements of a collection into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
@@ -413,7 +407,7 @@ type
     ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload; override;
+    procedure InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>); override;
 
     ///  <summary>Reverses the elements in this list.</summary>
     ///  <param name="AStartIndex">The start index.</param>
@@ -652,7 +646,7 @@ type
 type
   ///  <summary>The generic <c>sorted list</c> collection.</summary>
   ///  <remarks>This type uses an internal array to store its values.</remarks>
-  TSortedList<T> = class(TList<T>, ISortedList<T>)
+  TSortedList<T> = class(TList<T>)
   private var
     FAscending: Boolean;
 
@@ -724,27 +718,27 @@ type
     ///  <param name="AIndex">The index where to insert the element.</param>
     ///  <remarks>This method always raises an exception because inserting is not allowed on sorted collections.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
-    procedure Insert(const AIndex: NativeInt; const AValue: T); overload; override;
+    procedure Insert(const AIndex: NativeInt; const AValue: T); override;
 
     ///  <summary>Add the elements from a collection to the list.</summary>
     ///  <param name="ACollection">The values to add.</param>
     ///  <param name="AIndex">The index where to insert the element.</param>
     ///  <remarks>This method always raises an exception because inserting is not allowed on sorted collections.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload; override;
+    procedure InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>); override;
 
     ///  <summary>Adds an element to the list.</summary>
     ///  <param name="AValue">The value to add.</param>
     ///  <remarks>The added value is not appended. The list tries to figure out where to insert it to keep its elements
     ///  ordered at all times.</remarks>
-    procedure Add(const AValue: T); overload; override;
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Add the elements from a collection to the list.</summary>
     ///  <param name="ACollection">The values to add.</param>
     ///  <remarks>The added values are not appended. The list tries to figure out where to insert the new values
     ///  to keep its elements ordered at all times.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Add(const ACollection: IEnumerable<T>); overload; override;
+    procedure AddAll(const ACollection: IEnumerable<T>); override;
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -805,7 +799,7 @@ type
       FValue: T;
     end;
 
-    TEnumerator = class(Collections.Base.TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentEntry: PEntry;
     public
@@ -863,7 +857,7 @@ type
     ///  <remarks>All elements starting with <paramref name="AIndex"/> are moved to the right by one and then
     ///  <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    procedure Insert(const AIndex: NativeInt; const AValue: T); overload; override;
+    procedure Insert(const AIndex: NativeInt; const AValue: T); override;
 
     ///  <summary>Inserts the elements of a collection into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
@@ -872,7 +866,7 @@ type
     ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload; override;
+    procedure InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>); override;
 
     ///  <summary>Removes a given value from the list.</summary>
     ///  <param name="AValue">The value to remove.</param>
@@ -979,7 +973,7 @@ type
 type
   ///  <summary>The generic <c>sorted linked list</c> collection.</summary>
   ///  <remarks>This type uses a linked list to store its values.</remarks>
-  TSortedLinkedList<T> = class(TLinkedList<T>, ISortedList<T>)
+  TSortedLinkedList<T> = class(TLinkedList<T>)
   private
     FAscending: Boolean;
 
@@ -1036,27 +1030,27 @@ type
     ///  <param name="AIndex">The index where to insert the element.</param>
     ///  <remarks>This method always raises an exception because inserting is not allowed on sorted collections.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
-    procedure Insert(const AIndex: NativeInt; const AValue: T); overload; override;
+    procedure Insert(const AIndex: NativeInt; const AValue: T); override;
 
     ///  <summary>Add the elements from a collection to the list.</summary>
     ///  <param name="ACollection">The values to add.</param>
     ///  <param name="AIndex">The index where to insert the element.</param>
     ///  <remarks>This method always raises an exception because inserting is not allowed on sorted collections.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload; override;
+    procedure InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>); override;
 
     ///  <summary>Adds an element to the list.</summary>
     ///  <param name="AValue">The value to add.</param>
     ///  <remarks>The added value is not appended. The list tries to figure out where to insert it to keep its elements
     ///  ordered at all times.</remarks>
-    procedure Add(const AValue: T); overload; override;
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Add the elements from a collection to the list.</summary>
     ///  <param name="ACollection">The values to add.</param>
     ///  <remarks>The added values are not appended. The list tries to figure out where to insert the new values
     ///  to keep its elements ordered at all times.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Add(const ACollection: IEnumerable<T>); overload; override;
+    procedure AddAll(const ACollection: IEnumerable<T>); override;
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the list considered to have the biggest value.</returns>
@@ -1091,28 +1085,14 @@ implementation
 
 { TAbstractList<T> }
 
-procedure TAbstractList<T>.Add(const ACollection: IEnumerable<T>);
+procedure TAbstractList<T>.AddAll(const ACollection: IEnumerable<T>);
 begin
-  Insert(GetCount(), ACollection);
+  InsertAll(GetCount(), ACollection);
 end;
 
 procedure TAbstractList<T>.Add(const AValue: T);
 begin
   Insert(GetCount(), AValue);
-end;
-
-procedure TAbstractList<T>.Clear;
-var
-  LList: IList<T>;
-  LElement: T;
-begin
-  LList := ToList();
-
-  for LElement in LList do
-  begin
-    Remove(LElement);
-    NotifyElementRemoved(LElement);
-  end;
 end;
 
 function TAbstractList<T>.Contains(const AValue: T): Boolean;
@@ -1244,7 +1224,7 @@ begin
   Result := IndexOf(AValue, 0, GetCount());
 end;
 
-procedure TAbstractList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
+procedure TAbstractList<T>.InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 var
   LIn: T;
   LIndex: NativeInt;
@@ -1353,9 +1333,9 @@ begin
   Insert(0, AValue);
 end;
 
-procedure TAbstractLinkedList<T>.AddFirst(const ACollection: IEnumerable<T>);
+procedure TAbstractLinkedList<T>.AddAllFirst(const ACollection: IEnumerable<T>);
 begin
-  Insert(0, ACollection);
+  InsertAll(0, ACollection);
 end;
 
 procedure TAbstractLinkedList<T>.AddLast(const AValue: T);
@@ -1363,9 +1343,9 @@ begin
   Insert(GetCount(), AValue);
 end;
 
-procedure TAbstractLinkedList<T>.AddLast(const ACollection: IEnumerable<T>);
+procedure TAbstractLinkedList<T>.AddAllLast(const ACollection: IEnumerable<T>);
 begin
-  Insert(GetCount(), ACollection);
+  InsertAll(GetCount(), ACollection);
 end;
 
 function TAbstractLinkedList<T>.ExtractFirst: T;
@@ -1634,7 +1614,7 @@ begin
   NotifyCollectionChanged();
 end;
 
-procedure TList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
+procedure TList<T>.InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 var
   LValue: T;
   LEnumArray: TArray<T>;
@@ -2098,7 +2078,7 @@ begin
   NotifyCollectionChanged();
 end;
 
-procedure TSortedList<T>.Add(const ACollection: IEnumerable<T>);
+procedure TSortedList<T>.AddAll(const ACollection: IEnumerable<T>);
 var
   LValue: T;
 begin
@@ -2201,7 +2181,7 @@ begin
   ExceptionHelper.Throw_OperationNotSupported('Insert');
 end;
 
-procedure TSortedList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
+procedure TSortedList<T>.InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 begin
   ExceptionHelper.Throw_OperationNotSupported('Insert');
 end;
@@ -2553,7 +2533,7 @@ begin
   Inc(FCount);
 end;
 
-procedure TLinkedList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
+procedure TLinkedList<T>.InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 var
   LCurrent, LNewFirst, LNewLast, LNew: PEntry;
   LValue: T;
@@ -2921,7 +2901,7 @@ begin
   Inc(FCount);
 end;
 
-procedure TSortedLinkedList<T>.Add(const ACollection: IEnumerable<T>);
+procedure TSortedLinkedList<T>.AddAll(const ACollection: IEnumerable<T>);
 var
   LValue: T;
 begin
@@ -2947,7 +2927,7 @@ begin
   if not Assigned(ACollection) then
      ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
-  Add(ACollection);
+  AddAll(ACollection);
 end;
 
 constructor TSortedLinkedList<T>.Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean);
@@ -2984,7 +2964,7 @@ begin
   ExceptionHelper.Throw_OperationNotSupported('Insert');
 end;
 
-procedure TSortedLinkedList<T>.Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
+procedure TSortedLinkedList<T>.InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 begin
   ExceptionHelper.Throw_OperationNotSupported('Insert');
 end;

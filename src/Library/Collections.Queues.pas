@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all generic <c>queue</c> collections.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractQueue<T> = class(TEnexCollection<T>, IQueue<T>)
+  TAbstractQueue<T> = class(TAbstractOperableCollection<T>, IQueue<T>)
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -79,19 +79,18 @@ type
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
-    ///  <summary>Clears the contents of the queue.</summary>
-    ///  <remarks>The current implementation will dequeue all elements while the stack reports it has any. It uses Enex <c>Empty</c> operation to check
-    ///  if the queue is empty. Most descending classes will most likely override this
-    ///  implementation with a better performing one.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Dequeue</c> method is not overridden.</exception>
-    procedure Clear(); virtual;
+    ///  <summary>Appends an element to the head of the queue.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    ///  <remarks>This implementation calls the <c>Add<c> method.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    procedure Enqueue(const AValue: T);
 
-    ///  <summary>Appends an element to the back of the queue.</summary>
-    ///  <param name="AValue">The value to enqueue.</param>
-    ///  <remarks>The implementation in this class always raises an exception. The implementation in this class
-    ///  always raises an exception.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
-    procedure Enqueue(const AValue: T); virtual;
+    ///  <summary>Reads the element from the bottom of the queue.</summary>
+    ///  <returns>The value at the bottom of the queue.</returns>
+    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.
+    ///  This implementation uses Enex <c>First</c> operation.</remarks>
+    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
+    function Peek(): T; virtual;
 
     ///  <summary>Retrieves the element from the head of the queue.</summary>
     ///  <returns>The value at the head of the queue.</returns>
@@ -100,27 +99,6 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
     function Dequeue(): T; virtual;
-
-    ///  <summary>Reads the element at the head of the queue.</summary>
-    ///  <returns>The value at the head of the queue.</returns>
-    ///  <remarks>This method does not remove the element from the head of the queue. It merely reads its value.</remarks>
-    ///  <remarks>The implementation in this class uses the Enex <c>First</c> operation to obtain the head of the queue.
-    ///  Most descendant classes will most likely provide a better version.</remarks>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
-    function Peek(): T; virtual;
-
-    ///  <summary>Removes an element from the queue.</summary>
-    ///  <param name="AValue">The element to remove. If there is no such element in the queue, nothing happens. The implementation in this class
-    ///  always raises an exception.</param>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
-    procedure Remove(const AValue: T); virtual;
-
-    ///  <summary>Checks whether the queue contains a given value.</summary>
-    ///  <param name="AValue">The value to check for.</param>
-    ///  <returns><c>True</c> if the value was found in the queue; <c>False</c> otherwise.</returns>
-    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
-    ///  value. Most descendant classes will most likely provide a better version.</remarks>
-    function Contains(const AValue: T): Boolean; virtual;
   end;
 
   ///  <summary>The generic <c>queue</c> collection.</summary>
@@ -128,7 +106,7 @@ type
   TQueue<T> = class(TAbstractQueue<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FLeftCount, FCurrentHead: NativeInt;
     public
@@ -174,19 +152,13 @@ type
 
     ///  <summary>Appends an element to the top of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
-    procedure Enqueue(const AValue: T); override;
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Dequeue(): T; override;
-
-    ///  <summary>Reads the element from the bottom of the queue.</summary>
-    ///  <returns>The value at the bottom of the queue.</returns>
-    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads its value.</remarks>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
-    function Peek(): T; override;
 
     ///  <summary>Checks whether the queue contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
@@ -371,7 +343,7 @@ type
       FValue: T;
     end;
 
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentEntry: PEntry;
     public
@@ -400,19 +372,13 @@ type
 
     ///  <summary>Appends an element to the top of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
-    procedure Enqueue(const AValue: T); override;
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the bottom of the queue.</summary>
     ///  <returns>The value at the bottom of the queue.</returns>
     ///  <remarks>This method removes the element from the bottom of the queue.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Dequeue(): T; override;
-
-    ///  <summary>Reads the element from the bottom of the queue.</summary>
-    ///  <returns>The value at the bottom of the queue.</returns>
-    ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads its value.</remarks>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
-    function Peek(): T; override;
 
     ///  <summary>Checks whether the queue contains a given value.</summary>
     ///  <param name="AValue">The value to check.</param>
@@ -579,7 +545,7 @@ type
       FValue: TValue;
     end;
 
-    TEnumerator = class(TEnumerator<TPair<TPriority, TValue>>)
+    TEnumerator = class(TAbstractEnumerator<TPair<TPriority, TValue>>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -772,29 +738,6 @@ implementation
 
 { TAbstractQueue<T> }
 
-procedure TAbstractQueue<T>.Clear;
-var
-  LElement: T;
-begin
-  while not Empty do
-  begin
-    LElement := Dequeue();
-    NotifyElementRemoved(LElement);
-  end;
-end;
-
-function TAbstractQueue<T>.Contains(const AValue: T): Boolean;
-var
-  LEnumerator: IEnumerator<T>;
-begin
-  LEnumerator := GetEnumerator();
-  while LEnumerator.MoveNext() do
-    if ElementsAreEqual(AValue, LEnumerator.Current) then
-      Exit(True);
-
-  Result := False;
-end;
-
 constructor TAbstractQueue<T>.Create(const ACollection: IEnumerable<T>);
 begin
   Create(TRules<T>.Default, ACollection);
@@ -855,19 +798,13 @@ end;
 
 procedure TAbstractQueue<T>.Enqueue(const AValue: T);
 begin
-  ExceptionHelper.Throw_OperationNotSupported('Enqueue');
+  Add(AValue);
 end;
 
 function TAbstractQueue<T>.Peek: T;
 begin
   Result := First();
 end;
-
-procedure TAbstractQueue<T>.Remove(const AValue: T);
-begin
-  ExceptionHelper.Throw_OperationNotSupported('Remove');
-end;
-
 
 { TQueue<T> }
 
@@ -1087,7 +1024,7 @@ begin
   Result := (FLength = 0);
 end;
 
-procedure TQueue<T>.Enqueue(const AValue: T);
+procedure TQueue<T>.Add(const AValue: T);
 var
   LNewCapacity: NativeInt;
 begin
@@ -1276,14 +1213,6 @@ begin
     { Circulate Head }
     LH := (LH + 1) mod Length(FArray);
   end;
-end;
-
-function TQueue<T>.Peek: T;
-begin
-  if FTail = FHead then
-    ExceptionHelper.Throw_CollectionEmptyError();
-
-  Result := FArray[FHead];
 end;
 
 procedure TQueue<T>.SetCapacity(const ANewCapacity: NativeInt);
@@ -1570,7 +1499,7 @@ begin
   Result := not Assigned(FLast);
 end;
 
-procedure TLinkedQueue<T>.Enqueue(const AValue: T);
+procedure TLinkedQueue<T>.Add(const AValue: T);
 var
   LNew: PEntry;
 begin
@@ -1750,14 +1679,6 @@ begin
 
   { Initialize the node }
   Result^.FValue := AValue;
-end;
-
-function TLinkedQueue<T>.Peek: T;
-begin
-  if not Assigned(FFirst) then
-    ExceptionHelper.Throw_CollectionEmptyError();
-
-  Result := FFirst^.FValue;
 end;
 
 procedure TLinkedQueue<T>.ReleaseEntry(const AEntry: PEntry);

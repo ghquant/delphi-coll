@@ -35,7 +35,7 @@ uses SysUtils,
 
 type
   ///  <summary>The base abstract class for all <c>bidi-maps</c> in this package.</summary>
-  TAbstractBidiMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IBidiMap<TKey, TValue>)
+  TAbstractBidiMap<TKey, TValue> = class abstract(TAbstractMap<TKey, TValue>, IBidiMap<TKey, TValue>)
   private
     FByKeyMap: IDistinctMultiMap<TKey, TValue>;
     FByValueMap: IDistinctMultiMap<TValue, TKey>;
@@ -119,18 +119,13 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the bidi-map.</summary>
-    procedure Clear();
-
-    ///  <summary>Adds a key-value pair to the bidi-map.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
-    procedure Add(const APair: TPair<TKey, TValue>); overload;
+    procedure Clear(); override;
 
     ///  <summary>Adds a key-value pair to the bidi-map.</summary>
     ///  <param name="AKey">The key of the pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload;
+    procedure Add(const AKey: TKey; const AValue: TValue); overload; override;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key (and its associated values) to remove.</param>
@@ -141,7 +136,7 @@ type
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair.</param>
     ///  <remarks>If the specified key was not found in the bidi-map, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey); overload;
+    procedure Remove(const AKey: TKey); overload; override;
 
     ///  <summary>Removes a key-value pair using a given value.</summary>
     ///  <param name="AValue">The value (and its associated keys) to remove.</param>
@@ -165,12 +160,12 @@ type
     ///  <summary>Checks whether the map contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
     ///  <returns><c>True</c> if the map contains a pair identified by the given key; <c>False</c> otherwise.</returns>
-    function ContainsKey(const AKey: TKey): Boolean;
+    function ContainsKey(const AKey: TKey): Boolean; override;
 
     ///  <summary>Checks whether the map contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the map contains a pair containing the given value; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AValue: TValue): Boolean;
+    function ContainsValue(const AValue: TValue): Boolean; override;
 
     ///  <summary>Checks whether the map contains the given key-value combination.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -547,11 +542,6 @@ begin
   { Add the K/V pair to the maps }
   FByKeyMap.Add(AKey, AValue);
   FByValueMap.Add(AValue, AKey);
-end;
-
-procedure TAbstractBidiMap<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
-begin
-  Add(APair.Key, APair.Value);
 end;
 
 procedure TAbstractBidiMap<TKey, TValue>.Clear;

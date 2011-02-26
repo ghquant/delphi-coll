@@ -35,8 +35,7 @@ uses SysUtils,
 
 type
   ///  <summary>The base abstract class for all <c>bidi-dictionary</c> collections.</summary>
-  TAbstractBidiDictionary<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>,
-      IMap<TKey, TValue>, IDictionary<TKey, TValue>, IBidiDictionary<TKey, TValue>)
+  TAbstractBidiDictionary<TKey, TValue> = class abstract(TAbstractMap<TKey, TValue>, IDictionary<TKey, TValue>, IBidiDictionary<TKey, TValue>)
   private
     FByKeyDictionary: IDictionary<TKey, TValue>;
     FByValueDictionary: IDictionary<TValue, TKey>;
@@ -46,8 +45,6 @@ type
     FKeyCollection: IEnexCollection<TKey>;
 
   protected
-    procedure IDictionary<TKey, TValue>.SetItem = SetValue;
-    function IDictionary<TKey, TValue>.GetItem = GetValue;
     function IDictionary<TKey, TValue>.Extract = ExtractValue;
 
     ///  <summary>Specifies the internal dictionary used as back-end to store key relations.</summary>
@@ -139,19 +136,14 @@ type
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
-    ///  <summary>Clears the contents of the bidi-dictionary.</summary>
-    procedure Clear();
-
-    ///  <summary>Adds a key-value pair to the bidi-dictionary.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key or value.</exception>
-    procedure Add(const APair: TPair<TKey, TValue>); overload;
+    ///  <summary>Clears the contents of the dictionary.</summary>
+    procedure Clear(); override;
 
     ///  <summary>Adds a key-value pair to the bidi-dictionary.</summary>
     ///  <param name="AKey">The key of the pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key or value.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload;
+    procedure Add(const AKey: TKey; const AValue: TValue); overload; override;
 
     ///  <summary>Extracts a value using a given key.</summary>
     ///  <param name="AKey">The key of the associated value.</param>
@@ -173,7 +165,7 @@ type
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair.</param>
-    procedure Remove(const AKey: TKey); overload;
+    procedure Remove(const AKey: TKey); overload; override;
 
     ///  <summary>Removes a key-value pair using a given value.</summary>
     ///  <param name="AValue">The value (and its associated key) to remove.</param>
@@ -196,12 +188,12 @@ type
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
     ///  <returns><c>True</c> if the dictionary contains a pair identified by the given key; <c>False</c> otherwise.</returns>
-    function ContainsKey(const AKey: TKey): Boolean;
+    function ContainsKey(const AKey: TKey): Boolean; override;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the dictionary contains a pair holding the given value; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AValue: TValue): Boolean;
+    function ContainsValue(const AValue: TValue): Boolean; override;
 
     ///  <summary>Checks whether the dictionary contains the given key-value combination.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -586,12 +578,6 @@ begin
 
   FByKeyDictionary.Add(AKey, AValue);
   FByValueDictionary.Add(AValue, AKey);
-end;
-
-procedure TAbstractBidiDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
-begin
-  { Redirect ... }
-  Add(APair.Key, APair.Value);
 end;
 
 procedure TAbstractBidiDictionary<TKey, TValue>.Clear;

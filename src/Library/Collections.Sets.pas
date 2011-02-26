@@ -35,7 +35,7 @@ type
   ///  <summary>The asbstract base for all generic <c>set</c> collections.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractSet<T> = class abstract(TEnexCollection<T>, ISet<T>)
+  TAbstractSet<T> = class abstract(TAbstractOperableCollection<T>, ISet<T>)
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -76,34 +76,6 @@ type
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
-
-    ///  <summary>Clears the contents of the set.</summary>
-    ///  <remarks>The implementation in this class iterates over all elements and puts them into a temporary list
-    ///  that is the used to remove each individual element. Most descending classes will most likely override this
-    ///  implementation with a better performing one.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
-    procedure Clear(); virtual;
-
-    ///  <summary>Adds an element to the set.</summary>
-    ///  <param name="AValue">The value to add.</param>
-    ///  <remarks>If the set already contains the given value, nothing happens. The implementation in this class
-    ///  always raises an exception.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
-    procedure Add(const AValue: T); virtual;
-
-    ///  <summary>Removes a given value from the set.</summary>
-    ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>If the set does not contain the given value, nothing happens. The implementation in this class
-    ///  always raises an exception.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
-    procedure Remove(const AValue: T); virtual;
-
-    ///  <summary>Checks whether the set contains a given value.</summary>
-    ///  <param name="AValue">The value to check.</param>
-    ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
-    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
-    ///  value. Most descendant classes will most likely provide a better version.</remarks>
-    function Contains(const AValue: T): Boolean; virtual;
   end;
 
 type
@@ -112,7 +84,7 @@ type
   THashSet<T> = class(TAbstractSet<T>)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(Collections.Base.TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -235,7 +207,7 @@ type
 
     TBucketArray = TArray<PEntry>;
 
-    TEnumerator = class(Collections.Base.TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentEntry: PEntry;
     public
@@ -361,7 +333,7 @@ type
       FBalance: ShortInt;
     end;
 
-    TEnumerator = class(Collections.Base.TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentEntry: TNode;
     public
@@ -543,7 +515,7 @@ type
   TArraySet<T> = class(TAbstractSet<T>, ISortedSet<T>, IDynamic)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(Collections.Base.TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -813,7 +785,7 @@ type
   TBitSet = class(TAbstractSet<Word>, ISortedSet<Word>)
   private type
     {$REGION 'Internal Types'}
-    TAscendingEnumerator = class(Collections.Base.TEnumerator<Word>)
+    TAscendingEnumerator = class(TAbstractEnumerator<Word>)
     private
       FValue: Word;
       FPageIndex, FBitIndex, FPage: NativeInt;
@@ -955,37 +927,6 @@ implementation
 
 { TAbstractSet<T> }
 
-procedure TAbstractSet<T>.Add(const AValue: T);
-begin
-  ExceptionHelper.Throw_OperationNotSupported('Add');
-end;
-
-procedure TAbstractSet<T>.Clear;
-var
-  LList: IList<T>;
-  LElement: T;
-begin
-  LList := ToList();
-
-  for LElement in LList do
-  begin
-    Remove(LElement);
-    NotifyElementRemoved(LElement);
-  end;
-end;
-
-function TAbstractSet<T>.Contains(const AValue: T): Boolean;
-var
-  LEnumerator: IEnumerator<T>;
-begin
-  LEnumerator := GetEnumerator();
-  while LEnumerator.MoveNext() do
-    if ElementsAreEqual(AValue, LEnumerator.Current) then
-      Exit(True);
-
-  Result := False;
-end;
-
 constructor TAbstractSet<T>.Create(const ACollection: IEnumerable<T>);
 begin
   Create(TRules<T>.Default, ACollection);
@@ -1038,11 +979,6 @@ constructor TAbstractSet<T>.Create(const ARules: TRules<T>);
 begin
   { Call inherited constructor }
   inherited Create(ARules);
-end;
-
-procedure TAbstractSet<T>.Remove(const AValue: T);
-begin
-  ExceptionHelper.Throw_OperationNotSupported('Remove');
 end;
 
 { THashSet<T> }

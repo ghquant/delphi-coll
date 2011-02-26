@@ -671,10 +671,48 @@ type
     property Key: TKey read GetKey;
   end;
 
+  ///  <summary>Specifies a set of methods specific to all simple (non-associative) collections.</summary>
+  ///  <remarks>This collection exposes operations such as <c>Add</c> or <c>Clear</c> that need to be implemented
+  ///  in almost every class out there.</remarks>
+  IOperableCollection<T> = interface(IEnexCollection<T>)
+    ///  <summary>Clears the contents of this collection.</summary>
+    procedure Clear();
+
+    ///  <summary>Adds an element to this collection.</summary>
+    ///  <param name="AValue">The value to add.</param>
+    ///  <remarks>Where exactly the element is added is unspecified and depends on the implementing collection.</remarks>
+    procedure Add(const AValue: T);
+
+    ///  <summary>Adds all the elements from a collection to this collection.</summary>
+    ///  <param name="ACollection">The values to add.</param>
+    ///  <remarks>Where exactly the elements are added is unspecified and depends on the implementing collection.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure AddAll(const ACollection: IEnumerable<T>);
+
+    ///  <summary>Removes an element from this collection.</summary>
+    ///  <param name="AValue">The value to remove. If there is no such element in the collection, nothing happens.</param>
+    procedure Remove(const AValue: T); overload;
+
+    ///  <summary>Removes all the elements from a collection that are also found in this collection.</summary>
+    ///  <param name="ACollection">The values to remove.</param>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure RemoveAll(const ACollection: IEnumerable<T>);
+
+    ///  <summary>Checks whether a specified element is contained in this collection.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the value was found in the collection; <c>False</c> otherwise.</returns>
+    function Contains(const AValue: T): Boolean; overload;
+
+    ///  <summary>Checks whether all the elements from a specified collection are contained in this collection.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the values were found in the collection; <c>False</c> otherwise.</returns>
+    function ContainsAll(const ACollection: IEnumerable<T>): Boolean;
+  end;
+
   ///  <summary>The Enex interface implemented in collections that allow indexed element access.</summary>
   ///  <remarks>This interface is inherited by other more specific interfaces such as lists. Indexed collections
   ///  allow their elements to be accesed given a numeric index.</remarks>
-  IEnexIndexedCollection<T> = interface(IEnexCollection<T>)
+  IEnexIndexedCollection<T> = interface(IOperableCollection<T>)
     ///  <summary>Returns the item from a given index.</summary>
     ///  <param name="AIndex">The index in the collection.</param>
     ///  <returns>The element at the specified position.</returns>
@@ -830,10 +868,7 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>stack</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>stack</c>.</remarks>
-  IStack<T> = interface(IEnexCollection<T>)
-    ///  <summary>Clears the contents of the stack.</summary>
-    procedure Clear();
-
+  IStack<T> = interface(IOperableCollection<T>)
     ///  <summary>Pushes an element to the top of the stack.</summary>
     ///  <param name="AValue">The value to push.</param>
     procedure Push(const AValue: T);
@@ -849,24 +884,12 @@ type
     ///  <remarks>This method does not remove the element from the top of the stack. It merely reads it's value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Peek(): T;
-
-    ///  <summary>Removes an element from the stack.</summary>
-    ///  <param name="AValue">The value to remove. If there is no such element in the stack, nothing happens.</param>
-    procedure Remove(const AValue: T);
-
-    ///  <summary>Checks whether the stack contains a given value.</summary>
-    ///  <param name="AValue">The value to check.</param>
-    ///  <returns><c>True</c> if the value was found in the stack; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>queue</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>queue</c>.</remarks>
-  IQueue<T> = interface(IEnexCollection<T>)
-    ///  <summary>Clears the contents of the queue.</summary>
-    procedure Clear();
-
-    ///  <summary>Appends an element to the top of the queue.</summary>
+  IQueue<T> = interface(IOperableCollection<T>)
+    ///  <summary>Appends an element to the head of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
     procedure Enqueue(const AValue: T);
 
@@ -881,11 +904,6 @@ type
     ///  <remarks>This method does not remove the element from the bottom of the queue. It merely reads it's value.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The queue is empty.</exception>
     function Peek(): T;
-
-    ///  <summary>Checks whether the queue contains a given value.</summary>
-    ///  <param name="AValue">The value to check.</param>
-    ///  <returns><c>True</c> if the value was found in the queue; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>priority queue</c>.</summary>
@@ -926,24 +944,7 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>set</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>set</c>.</remarks>
-  ISet<T> = interface(IEnexCollection<T>)
-    ///  <summary>Clears the contents of the set.</summary>
-    procedure Clear();
-
-    ///  <summary>Adds an element to the set.</summary>
-    ///  <param name="AValue">The value to add.</param>
-    ///  <remarks>If the set already contains the given value, nothing happens.</remarks>
-    procedure Add(const AValue: T);
-
-    ///  <summary>Removes a given value from the set.</summary>
-    ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>If the set does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: T);
-
-    ///  <summary>Checks whether the set contains a given value.</summary>
-    ///  <param name="AValue">The value to check.</param>
-    ///  <returns><c>True</c> if the value was found in the set; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+  ISet<T> = interface(IOperableCollection<T>)
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>sorted set</c>.</summary>
@@ -1017,18 +1018,6 @@ type
   ///  <summary>The Enex interface that defines the behavior of a <c>list</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>list</c>.</remarks>
   IList<T> = interface(IEnexIndexedCollection<T>)
-    ///  <summary>Clears the contents of the list.</summary>
-    procedure Clear();
-
-    ///  <summary>Appends an element to the list.</summary>
-    ///  <param name="AValue">The value to append.</param>
-    procedure Add(const AValue: T); overload;
-
-    ///  <summary>Appends the elements from a collection to the list.</summary>
-    ///  <param name="ACollection">The values to append.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Add(const ACollection: IEnumerable<T>); overload;
-
     ///  <summary>Inserts an element into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
     ///  <param name="AValue">The value to insert.</param>
@@ -1044,12 +1033,7 @@ type
     ///  <paramref name="ACollection"/> and then <paramref name="AValue"/> is placed at position <paramref name="AIndex"/>.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure Insert(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Checks whether the list contains a given value.</summary>
-    ///  <param name="AValue">The value to check.</param>
-    ///  <returns><c>True</c> if the value was found in the list; <c>False</c> otherwise.</returns>
-    function Contains(const AValue: T): Boolean;
+    procedure InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Removes an element from the list at a given index.</summary>
     ///  <param name="AIndex">The index from which to remove the element.</param>
@@ -1063,11 +1047,6 @@ type
     ///  The removed element is returned to the caller.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
     function ExtractAt(const AIndex: NativeInt): T;
-
-    ///  <summary>Removes a given value from the list.</summary>
-    ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>If the list does not contain the given value, nothing happens.</remarks>
-    procedure Remove(const AValue: T);
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
@@ -1124,7 +1103,7 @@ type
     ///  <remarks>This method is functionally identical to <c>Add</c>. Classes that implement this interface can simply
     ///  alias this method to <c>Add</c>.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure AddLast(const ACollection: IEnumerable<T>); overload;
+    procedure AddAllLast(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Appends an element to the front of the list.</summary>
     ///  <param name="AValue">The value to append.</param>
@@ -1133,7 +1112,7 @@ type
     ///  <summary>Appends the elements from a collection to the back of the list.</summary>
     ///  <param name="ACollection">The values to append.</param>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    procedure AddFirst(const ACollection: IEnumerable<T>); overload;
+    procedure AddAllFirst(const ACollection: IEnumerable<T>); overload;
 
     ///  <summary>Removes the first element of the list.</summary>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The list is empty.</exception>
@@ -1166,13 +1145,6 @@ type
     function Last(): T;
   end;
 
-  ///  <summary>The Enex interface that defines the behavior of a <c>sorted list</c>.</summary>
-  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>sorted list</c>.
-  ///  A <c>sorted list</c> maintains its elements in an ordered fashion at all times. Whenever a new element is added, it is
-  ///  automatically inserted in the right position.</remarks>
-  ISortedList<T> = interface(IList<T>)
-  end;
-
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections.</summary>
   ///  <remarks>This interface is inherited by all interfaces that provide <c>map</c>-like functionality.</remarks>
   IMap<TKey, TValue> = interface(IEnexAssociativeCollection<TKey, TValue>)
@@ -1184,6 +1156,12 @@ type
     ///  <param name="APair">The key-value pair to add.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
     procedure Add(const APair: TPair<TKey, TValue>); overload;
+
+    ///  <summary>Adds a collection of key-value pairs to the map.</summary>
+    ///  <param name="ACollection">The collection to add.</param>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure AddAll(const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
 {$IFEND}
 
     ///  <summary>Adds a key-value pair to the map.</summary>
@@ -1229,14 +1207,14 @@ type
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
     ///  <returns>The value associated with the key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
-    function GetItem(const AKey: TKey): TValue;
+    function GetValue(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
     ///  <param name="AKey">The key for which to set the value.</param>
     ///  <param name="AValue">The value to set.</param>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
-    procedure SetItem(const AKey: TKey; const AValue: TValue);
+    procedure SetValue(const AKey: TKey; const AValue: TValue);
 
     ///  <summary>Gets or sets the value for a given key.</summary>
     ///  <param name="AKey">The key for to operate on.</param>
@@ -1245,7 +1223,7 @@ type
     ///  otherwise the value of the specified key is modified.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">Trying to read the value of a key that is
     ///  not found in the dictionary.</exception>
-    property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
+    property Items[const AKey: TKey]: TValue read GetValue write SetValue; default;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>bidirectional dictionary</c>.</summary>
@@ -1638,7 +1616,7 @@ type
 
   ///  <summary>Non-generic base class for all collections.</summary>
   ///  <remarks>This class provides some basics like version management and count retrieval.</remarks>
-  TCollection = class abstract(TRefCountedObject)
+  TAbstractCollection = class abstract(TRefCountedObject)
   private
     FVersion: NativeInt;
 
@@ -1678,7 +1656,7 @@ type
   ///  <summary>Base class for all collections.</summary>
   ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
   ///  enumerability .</remarks>
-  TCollection<T> = class abstract(TCollection, ICollection<T>, IEnumerable<T>)
+  TAbstractCollection<T> = class abstract(TAbstractCollection, ICollection<T>, IEnumerable<T>)
   protected
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
@@ -1743,16 +1721,16 @@ type
   ///  <summary>Base class for all Enex enumerator objects.</summary>
   ///  <remarks>All Enex collection are expected to provide enumerators that derive from
   ///  this class.</remarks>
-  TEnumerator<T> = class abstract(TRefCountedObject, IEnumerator<T>)
+  TAbstractEnumerator<T> = class abstract(TRefCountedObject, IEnumerator<T>)
   private
     FCreatedAtVersion: NativeInt;
-    FOwner: TCollection;
+    FOwner: TAbstractCollection;
     FCurrent: T;
     FEnded: Boolean;
   protected
     ///  <summary>Specifies the owner collection.</summary>
     ///  <returns>The collection that generated this enumerator.</returns>
-    property Owner: TCollection read FOwner;
+    property Owner: TAbstractCollection read FOwner;
 
     ///  <summary>Returns the current element of the enumerated collection.</summary>
     ///  <remarks>This method is the getter for <c>Current</c> property. Use the property to obtain the element instead.</remarks>
@@ -1769,7 +1747,7 @@ type
     ///  <param name="AOwner">The owner collection.</param>
     ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
-    constructor Create(const AOwner: TCollection);
+    constructor Create(const AOwner: TAbstractCollection);
 
     ///  <summary>Destroys this enumerator object.</summary>
     destructor Destroy; override;
@@ -1794,7 +1772,7 @@ type
   ///  <summary>A variation of an enumerator object thet forwards all calls to an enclosed enumerator and allows filtering
   ///  the enumerated value.</summary>
   ///  <remarks>By default filtering is off, but it can be enaled by overriding the <c>AcceptValue</c> method.</remarks>
-  TForwardingEnumerator<T> = class abstract(TEnumerator<T>)
+  TForwardingEnumerator<T> = class abstract(TAbstractEnumerator<T>)
   private
     FForwardEnumerator: IEnumerator<T>;
   protected
@@ -1818,13 +1796,13 @@ type
     ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AEnumerator"/> is <c>nil</c>.</exception>
-    constructor Create(const AOwner: TCollection<T>; const AEnumerator: IEnumerator<T>);
+    constructor Create(const AOwner: TAbstractCollection; const AEnumerator: IEnumerator<T>);
   end;
 
   ///  <summary>Base class for all non-associative Enex collections.</summary>
   ///  <remarks>All normal Enex collections (ex. list or stack) are derived from this base class.
   ///  It implements the extended Enex operations based on enumerability.</remarks>
-  TEnexCollection<T> = class abstract(TCollection<T>, IComparable, IEnexCollection<T>)
+  TEnexCollection<T> = class abstract(TAbstractCollection<T>, IComparable, IEnexCollection<T>)
   private
     FElementRules: TRules<T>;
     FRemoveNotification: TRemoveNotification<T>;
@@ -2320,10 +2298,60 @@ type
     class function Fill(const AElement: T; const ACount: NativeInt): IEnexCollection<T>; overload; static;
   end;
 
+  ///  <summary>The base abstract class for simple (non-associative) collections.</summary>
+  ///  <remarks>This collection exposes some operations that need to be implemented in descending classes and some
+  ///  default implementations using Enex operations.</remarks>
+  TAbstractOperableCollection<T> = class abstract(TEnexCollection<T>, IOperableCollection<T>)
+  public
+    ///  <summary>Clears the contents of the collection.</summary>
+    ///  <remarks>This implementation uses Enex <c>First</c> operation to obtain the first element and then calls <c>Remove</c> to remove it.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
+    procedure Clear(); virtual;
+
+    ///  <summary>Appends an element to the back of the list.</summary>
+    ///  <param name="AValue">The value to append.</param>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure Add(const AValue: T); virtual;
+
+    ///  <summary>Adds all the elements from a collection to this collection.</summary>
+    ///  <param name="ACollection">The values to add.</param>
+    ///  <remarks>Where exactly the elements are added is unspecified and depends on the implementing collection. This method calls <c>Add</c> for each element
+    ///  in the supplied collection. For most descending collections this is OK.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    procedure AddAll(const ACollection: IEnumerable<T>); virtual;
+
+    ///  <summary>Removes a given value from the collection.</summary>
+    ///  <param name="AValue">The value to remove.</param>
+    ///  <remarks>If the collection does not contain the given value, nothing happens.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure Remove(const AValue: T); virtual;
+
+    ///  <summary>Removes all the elements from a collection that are also found in this collection.</summary>
+    ///  <param name="ACollection">The values to remove.</param>
+    ///  <remarks>This implementation calls <c>Remove</c> for each element in the collection.</remarks>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
+    procedure RemoveAll(const ACollection: IEnumerable<T>); virtual;
+
+    ///  <summary>Checks whether a specified element is contained in this collection.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the value was found in the collection; <c>False</c> otherwise.</returns>
+    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
+    ///  value. Most descendant classes will likely provide a better version.</remarks>
+    function Contains(const AValue: T): Boolean; virtual;
+
+    ///  <summary>Checks whether all the elements from a specified collection are contained in this collection.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the values were found in the collection; <c>False</c> otherwise.</returns>
+    ///  <remarks>The current implementation calls <c>Contains</c> on each individual element from the supplied collection.</remarks>
+    function ContainsAll(const ACollection: IEnumerable<T>): Boolean; virtual;
+  end;
+
   ///  <summary>Base class for all associative Enex collections.</summary>
   ///  <remarks>All associative Enex collections (ex. dictionary or multi-map) are derived from this base class.
   ///  It implements the extended Enex operations based on enumerability.</remarks>
-  TEnexAssociativeCollection<TKey, TValue> = class abstract(TCollection<TPair<TKey, TValue>>,
+  TEnexAssociativeCollection<TKey, TValue> = class abstract(TAbstractCollection<TPair<TKey, TValue>>,
       IEnexAssociativeCollection<TKey, TValue>)
   private
     FKeyRules: TRules<TKey>;
@@ -2564,7 +2592,57 @@ type
     ///  one key-value pair with the same key.</exception>
     function ToDictionary(): IDictionary<TKey, TValue>;
   end;
-{$ENDREGION}
+
+  ///  <summary>The base abstract class for associtative collections.</summary>
+  ///  <remarks>This collection exposes some operations that need to be implemented in descending classes and some
+  ///  default implementations using Enex operations.</remarks>
+  TAbstractMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IMap<TKey, TValue>)
+  public
+    ///  <summary>Clears the contents of the collection.</summary>
+    ///  <remarks>This implementation uses Enex <c>First</c> operation on collection's keys to obtain key and then calls <c>Remove</c> to remove it along side its value.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
+    procedure Clear(); virtual;
+
+    ///  <summary>Adds a key-value pair to the map.</summary>
+    ///  <param name="APair">The key-value pair to add.</param>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure Add(const APair: TPair<TKey, TValue>); overload;
+
+    ///  <summary>Adds a key-value pair to the map.</summary>
+    ///  <param name="AKey">The key of pair.</param>
+    ///  <param name="AValue">The value associated with the key.</param>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure Add(const AKey: TKey; const AValue: TValue); overload; virtual;
+
+    ///  <summary>Adds a collection of key-value pairs to the map.</summary>
+    ///  <param name="ACollection">The collection to add.</param>
+    ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
+    procedure AddAll(const ACollection: IEnumerable<TPair<TKey, TValue>>); virtual;
+
+    ///  <summary>Removes a key-value pair using a given key.</summary>
+    ///  <param name="AKey">The key of pair.</param>
+    ///  <remarks>If the specified key was not found in the map, nothing happens.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
+    procedure Remove(const AKey: TKey); virtual;
+
+    ///  <summary>Checks whether the map contains a key-value pair identified by the given key.</summary>
+    ///  <param name="AKey">The key to check for.</param>
+    ///  <returns><c>True</c> if the map contains a pair identified by the given key; <c>False</c> otherwise.</returns>
+    ///  <remarks>This implementation uses Enex operations to lookup the key. Most derived collections will override this method.</remarks>
+    function ContainsKey(const AKey: TKey): Boolean; virtual;
+
+    ///  <summary>Checks whether the map contains a key-value pair that contains a given value.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the map contains a pair containing the given value; <c>False</c> otherwise.</returns>
+    ///  <remarks>This implementation uses Enex operations to lookup the key. Most derived collections will override this method.</remarks>
+    function ContainsValue(const AValue: TValue): Boolean; virtual;
+  end;
+
+  {$ENDREGION}
 
 {$REGION 'Exception Support'}
 type
@@ -2770,7 +2848,7 @@ type
 
   TEnexSelectCollection<T, TOut> = class sealed(TEnexCollection<TOut>, IEnexCollection<TOut>)
   private type
-    TEnumerator = class(TEnumerator<TOut>)
+    TEnumerator = class(TAbstractEnumerator<TOut>)
     private
       FInEnumerator: IEnumerator<T>;
     public
@@ -2796,7 +2874,7 @@ type
 
   TEnexSelectClassCollection<T, TOut: class> = class sealed(TEnexCollection<TOut>, IEnexCollection<TOut>)
   private type
-    TEnumerator = class(TEnumerator<TOut>)
+    TEnumerator = class(TAbstractEnumerator<TOut>)
     private
       FInEnumerator: IEnumerator<T>;
     public
@@ -2814,7 +2892,7 @@ type
 
   TEnexConcatCollection<T> = class sealed(TEnexCollection<T>)
   private type
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FInEnumerator1, FInEnumerator2: IEnumerator<T>;
     public
@@ -2838,7 +2916,7 @@ type
 
   TEnexUnionCollection<T> = class sealed(TEnexCollection<T>)
   private type
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FInEnumerator1, FInEnumerator2: IEnumerator<T>;
       FSet: ISet<T>;
@@ -2857,7 +2935,7 @@ type
 
   TEnexExclusionCollection<T> = class sealed(TEnexCollection<T>)
   private type
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FInEnumerator1, FInEnumerator2: IEnumerator<T>;
       FSet: ISet<T>;
@@ -2876,7 +2954,7 @@ type
 
   TEnexIntersectionCollection<T> = class sealed(TEnexCollection<T>)
   private type
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FInEnumerator1, FInEnumerator2: IEnumerator<T>;
       FSet: ISet<T>;
@@ -2913,7 +2991,7 @@ type
 
   TEnexRangeCollection<T> = class sealed(TEnexCollection<T>)
   private type
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FInEnumerator: IEnumerator<T>;
       FCurrentIndex: NativeInt;
@@ -2971,7 +3049,7 @@ type
 
   TEnexFillCollection<T> = class sealed(TEnexCollection<T>)
   private type
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FRemaining: NativeInt;
     public
@@ -3007,7 +3085,7 @@ type
 
   TEnexTakeWhileCollection<T> = class sealed(TEnexCollection<T>)
   private type
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FInEnumerator: IEnumerator<T>;
     public
@@ -3084,7 +3162,7 @@ type
 
   TEnexSelectKeysCollection<TKey, TValue> = class sealed(TEnexCollection<TKey>)
   private type
-    TEnumerator = class(TEnumerator<TKey>)
+    TEnumerator = class(TAbstractEnumerator<TKey>)
     private
       FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -3105,7 +3183,7 @@ type
 
   TEnexSelectValuesCollection<TKey, TValue> = class sealed(TEnexCollection<TValue>)
   private type
-    TEnumerator = class(TEnumerator<TValue>)
+    TEnumerator = class(TAbstractEnumerator<TValue>)
     private
       FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -3190,9 +3268,9 @@ begin
   Result := GetEnumName(TypeInfo(TTypeKind), Ord(AKind));
 end;
 
-{ TEnumerator<T> }
+{ TAbstractEnumerator<T> }
 
-constructor TEnumerator<T>.Create(const AOwner: TCollection);
+constructor TAbstractEnumerator<T>.Create(const AOwner: TAbstractCollection);
 begin
   FOwner := AOwner;
   KeepObjectAlive(FOwner);
@@ -3200,13 +3278,13 @@ begin
   FEnded := False;
 end;
 
-destructor TEnumerator<T>.Destroy;
+destructor TAbstractEnumerator<T>.Destroy;
 begin
   ReleaseObject(FOwner);
   inherited;
 end;
 
-function TEnumerator<T>.GetCurrent: T;
+function TAbstractEnumerator<T>.GetCurrent: T;
 begin
   if FCreatedAtVersion <> FOwner.FVersion then
      ExceptionHelper.Throw_CollectionChangedError();
@@ -3214,7 +3292,7 @@ begin
   Result := FCurrent;
 end;
 
-function TEnumerator<T>.MoveNext: Boolean;
+function TAbstractEnumerator<T>.MoveNext: Boolean;
 begin
   if FCreatedAtVersion <> FOwner.FVersion then
      ExceptionHelper.Throw_CollectionChangedError();
@@ -3236,7 +3314,7 @@ begin
   Result := True;
 end;
 
-constructor TForwardingEnumerator<T>.Create(const AOwner: TCollection<T>; const AEnumerator: IEnumerator<T>);
+constructor TForwardingEnumerator<T>.Create(const AOwner: TAbstractCollection; const AEnumerator: IEnumerator<T>);
 begin
   inherited Create(AOwner);
 
@@ -3349,27 +3427,27 @@ begin
   Result := TEnexSelectCollection<T, TOut>.Create(FInstance, ASelector, ARules);
 end;
 
-{ TCollection }
+{ TAbstractCollection }
 
-procedure TCollection.NotifyCollectionChanged;
+procedure TAbstractCollection.NotifyCollectionChanged;
 begin
   Inc(FVersion);
 end;
 
-function TCollection.Version: NativeInt;
+function TAbstractCollection.Version: NativeInt;
 begin
   Result := FVersion;
 end;
 
 { TCollection<T> }
 
-procedure TCollection<T>.CopyTo(var AArray: array of T);
+procedure TAbstractCollection<T>.CopyTo(var AArray: array of T);
 begin
   { Call upper version }
   CopyTo(AArray, 0);
 end;
 
-procedure TCollection<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+procedure TAbstractCollection<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   LEnumerator: IEnumerator<T>;
   L, I: NativeInt;
@@ -3393,7 +3471,7 @@ begin
   end;
 end;
 
-function TCollection<T>.Empty: Boolean;
+function TAbstractCollection<T>.Empty: Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3404,7 +3482,7 @@ begin
   Result := (not LEnumerator.MoveNext());
 end;
 
-function TCollection<T>.GetCount: NativeInt;
+function TAbstractCollection<T>.GetCount: NativeInt;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3416,7 +3494,7 @@ begin
   while LEnumerator.MoveNext() do Inc(Result);
 end;
 
-function TCollection<T>.Single: T;
+function TAbstractCollection<T>.Single: T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3434,7 +3512,7 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-function TCollection<T>.SingleOrDefault(const ADefault: T): T;
+function TAbstractCollection<T>.SingleOrDefault(const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3452,7 +3530,7 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-function TCollection<T>.ToArray: TArray<T>;
+function TAbstractCollection<T>.ToArray: TArray<T>;
 var
   LCount: NativeInt;
   LResult: TArray<T>;
@@ -4499,6 +4577,76 @@ begin
   Result := TEnexWhereCollection<T>.Create(Self, APredicate, True); // Invert the result
 end;
 
+
+{ TAbstractOperableCollection<T> }
+
+procedure TAbstractOperableCollection<T>.Add(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Add');
+end;
+
+procedure TAbstractOperableCollection<T>.AddAll(const ACollection: IEnumerable<T>);
+var
+  LValue: T;
+begin
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  for LValue in ACollection do
+    Add(LValue);
+end;
+
+procedure TAbstractOperableCollection<T>.Clear;
+var
+  LValue: T;
+begin
+  while not Empty() do
+  begin
+    LValue := First();
+    Remove(LValue);
+
+    NotifyElementRemoved(LValue);
+  end;
+end;
+
+function TAbstractOperableCollection<T>.Contains(const AValue: T): Boolean;
+var
+  LEnumerator: IEnumerator<T>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if ElementsAreEqual(LEnumerator.Current, AValue) then
+      Exit(True);
+
+  Result := False;
+end;
+
+function TAbstractOperableCollection<T>.ContainsAll(const ACollection: IEnumerable<T>): Boolean;
+var
+  LValue: T;
+begin
+  Result := True;
+  for LValue in ACollection do
+    Result := Result and Contains(LValue);
+end;
+
+procedure TAbstractOperableCollection<T>.Remove(const AValue: T);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Remove');
+end;
+
+procedure TAbstractOperableCollection<T>.RemoveAll(const ACollection: IEnumerable<T>);
+var
+  LValue: T;
+begin
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  for LValue in ACollection do
+    Remove(LValue);
+end;
+
+
 { TEnexAssociativeCollection<TKey, TValue> }
 
 constructor TEnexAssociativeCollection<TKey, TValue>.Create;
@@ -4974,6 +5122,73 @@ begin
     end
   );
 end;
+
+
+{ TAbstractMap<TKey, TValue> }
+
+procedure TAbstractMap<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Add');
+end;
+
+procedure TAbstractMap<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
+begin
+  Add(APair.Key, APair.Value);
+end;
+
+procedure TAbstractMap<TKey, TValue>.AddAll(const ACollection: IEnumerable<TPair<TKey, TValue>>);
+var
+  LPair: TPair<TKey, TValue>;
+begin
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
+  for LPair in ACollection do
+    Add(LPair.Key, LPair.Value);
+end;
+
+procedure TAbstractMap<TKey, TValue>.Clear;
+var
+  LKeys: IList<TKey>;
+  LKey: TKey;
+begin
+  LKeys := SelectKeys().ToList();
+  for LKey in LKeys do
+  begin
+    Remove(LKey);
+    NotifyKeyRemoved(LKey);
+  end;
+end;
+
+function TAbstractMap<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
+var
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if KeysAreEqual(LEnumerator.Current.Key, AKey) then
+      Exit(True);
+
+  Result := False;
+end;
+
+function TAbstractMap<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
+var
+  LEnumerator: IEnumerator<TPair<TKey, TValue>>;
+begin
+  LEnumerator := GetEnumerator();
+  while LEnumerator.MoveNext() do
+    if ValuesAreEqual(LEnumerator.Current.Value, AValue) then
+      Exit(True);
+
+  Result := False;
+end;
+
+procedure TAbstractMap<TKey, TValue>.Remove(const AKey: TKey);
+begin
+  ExceptionHelper.Throw_OperationNotSupported('Remove');
+end;
+
 
 { TEnexWhereCollection<T> }
 
@@ -6688,6 +6903,5 @@ class procedure ExceptionHelper.Throw_TypeDoesNotHaveEnoughRtti(const ATypeInfo:
 begin
   raise ESerializationException.CreateResFmt(@STypeDoesNotHaveEnoughRtti, [GetTypeName(ATypeInfo), TypeKindToStr(ATypeInfo^.Kind)]);
 end;
-
 
 end.

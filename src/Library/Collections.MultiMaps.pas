@@ -37,10 +37,10 @@ uses SysUtils,
 
 type
   ///  <summary>The base abstract class for all <c>multi-maps</c> in this package.</summary>
-  TAbstractMultiMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IMultiMap<TKey, TValue>)
+  TAbstractMultiMap<TKey, TValue> = class abstract(TAbstractMap<TKey, TValue>, IMultiMap<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
+    TEnumerator = class(TAbstractEnumerator<TPair<TKey, TValue>>)
     private
       FDictionaryEnumerator: IEnumerator<TPair<TKey, IList<TValue>>>;
       FCurrentIndexInList: NativeInt;
@@ -51,7 +51,7 @@ type
       function TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean; override;
     end;
 
-    TValueEnumerator = class(TEnumerator<TValue>)
+    TValueEnumerator = class(TAbstractEnumerator<TValue>)
     private
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -147,23 +147,18 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the multi-map.</summary>
-    procedure Clear();
-
-    ///  <summary>Adds a key-value pair to the multi-map.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
-    procedure Add(const APair: TPair<TKey, TValue>); overload;
+    procedure Clear(); override;
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
     ///  <param name="AKey">The key of the pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload;
+    procedure Add(const AKey: TKey; const AValue: TValue); overload; override;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <remarks>If the specified key was not found in the multi-map, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey); overload;
+    procedure Remove(const AKey: TKey); overload; override;
 
     ///  <summary>Extracts all values using their key.</summary>
     ///  <param name="AKey">The key of the associated values.</param>
@@ -188,12 +183,12 @@ type
     ///  <summary>Checks whether the multi-map contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
     ///  <returns><c>True</c> if the map contains a pair identified by the given key; <c>False</c> otherwise.</returns>
-    function ContainsKey(const AKey: TKey): Boolean;
+    function ContainsKey(const AKey: TKey): Boolean; override;
 
     ///  <summary>Checks whether the multi-map contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the multi-map contains a pair containing the given value; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AValue: TValue): Boolean; overload;
+    function ContainsValue(const AValue: TValue): Boolean; overload; override;
 
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -276,10 +271,10 @@ type
 
 type
   ///  <summary>The base abstract class for all <c>distinct multi-maps</c> in this package.</summary>
-  TAbstractDistinctMultiMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IDistinctMultiMap<TKey, TValue>)
+  TAbstractDistinctMultiMap<TKey, TValue> = class abstract(TAbstractMap<TKey, TValue>, IDistinctMultiMap<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(TEnumerator<TPair<TKey, TValue>>)
+    TEnumerator = class(TAbstractEnumerator<TPair<TKey, TValue>>)
     private
       FDictionaryEnumerator: IEnumerator<TPair<TKey, ISet<TValue>>>;
       FCurrentSetEnumerator: IEnumerator<TValue>;
@@ -289,7 +284,7 @@ type
       function TryMoveNext(out ACurrent: TPair<TKey, TValue>): Boolean; override;
     end;
 
-    TValueEnumerator = class(TEnumerator<TValue>)
+    TValueEnumerator = class(TAbstractEnumerator<TValue>)
     private
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -385,23 +380,18 @@ type
     destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the multi-map.</summary>
-    procedure Clear();
-
-    ///  <summary>Adds a key-value pair to the multi-map.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
-    procedure Add(const APair: TPair<TKey, TValue>); overload;
+    procedure Clear(); override;
 
     ///  <summary>Adds a key-value pair to the multi-map.</summary>
     ///  <param name="AKey">The key of the pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The multi-map already contains a pair with the given key.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload;
+    procedure Add(const AKey: TKey; const AValue: TValue); overload; override;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair.</param>
     ///  <remarks>If the specified key was not found in the multi-map, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey); overload;
+    procedure Remove(const AKey: TKey); overload; override;
 
     ///  <summary>Extracts all values using their key.</summary>
     ///  <param name="AKey">The key of the associated values.</param>
@@ -426,12 +416,12 @@ type
     ///  <summary>Checks whether the multi-map contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
     ///  <returns><c>True</c> if the map contains a pair identified by the given key; <c>False</c> otherwise.</returns>
-    function ContainsKey(const AKey: TKey): Boolean;
+    function ContainsKey(const AKey: TKey): Boolean; override;
 
     ///  <summary>Checks whether the multi-map contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the multi-map contains a pair containing the given value; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AValue: TValue): Boolean; overload;
+    function ContainsValue(const AValue: TValue): Boolean; overload; override;
 
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -1037,12 +1027,6 @@ implementation
 
 { TAbstractMultiMap<TKey, TValue> }
 
-procedure TAbstractMultiMap<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
-begin
-  { Call the other add }
-  Add(APair.Key, APair.Value);
-end;
-
 procedure TAbstractMultiMap<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
 var
   LList: IList<TValue>;
@@ -1447,12 +1431,6 @@ begin
 end;
 
 { TAbstractDistinctMultiMap<TKey, TValue> }
-
-procedure TAbstractDistinctMultiMap<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
-begin
-  { Call the other add }
-  Add(APair.Key, APair.Value);
-end;
 
 procedure TAbstractDistinctMultiMap<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
 var

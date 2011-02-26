@@ -40,7 +40,7 @@ type
   TAbstractBag<T> = class(TEnexCollection<T>, IBag<T>)
   private type
     {$REGION 'Internal Types'}
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentWeight: NativeInt;
       FDictionaryEnumerator: IEnumerator<TPair<T, NativeUInt>>;

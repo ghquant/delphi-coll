@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all generic <c>stack (LIFO)</c> collection.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractStack<T> = class abstract(TEnexCollection<T>, IStack<T>)
+  TAbstractStack<T> = class abstract(TAbstractOperableCollection<T>, IStack<T>)
   public
     ///  <summary>Creates a new instance of this class.</summary>
     ///  <remarks>The default rule set is requested.</remarks>
@@ -79,18 +79,10 @@ type
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
-    ///  <summary>Clears the contents of the stack.</summary>
-    ///  <remarks>The current implementation will pop all elements while the stack reports it has any. It uses Enex <c>Empty</c> operation to check
-    ///  if the queue is empty.
-    ///  Most descending classes will most likely override this implementation with a better performing one.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Pop</c> method is not overridden.</exception>
-    procedure Clear(); virtual;
-
     ///  <summary>Pushes an element to the top of the stack.</summary>
     ///  <param name="AValue">The value to push.</param>
-    ///  <remarks>The implementation in this class always raises an exception. The implementation in this class
-    ///  always raises an exception.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
+    ///  <remarks>The implementation in this class always raises an exception. This implementation calls <c>Add</c> method.</remarks>
+    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
     procedure Push(const AValue: T); virtual;
 
     ///  <summary>Retrieves the element from the top of the stack.</summary>
@@ -103,24 +95,10 @@ type
 
     ///  <summary>Reads the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
-    ///  <remarks>This method does not remove the element from the top of the stack. It merely reads its value.</remarks>
-    ///  <remarks>The implementation in this class uses the Enex <c>Last</c> operation to obtain the head of the stack.
-    ///  Most descendant classes will most likely provide a better version.</remarks>
+    ///  <remarks>This method does not remove the element from the top of the stack. It merely reads its value. This implementation calls
+    ///  Enex <c>Last</c> operation.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Peek(): T; virtual;
-
-    ///  <summary>Removes an element from the stack.</summary>
-    ///  <param name="AValue">The value to remove. If there is no such element in the stack, nothing happens. The implementation in this class
-    ///  always raises an exception.</param>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
-    procedure Remove(const AValue: T); virtual;
-
-    ///  <summary>Checks whether the stack contains a given value.</summary>
-    ///  <param name="AValue">The value to check.</param>
-    ///  <returns><c>True</c> if the value was found in the stack; <c>False</c> otherwise.</returns>
-    ///  <remarks>The implementation in this class iterates over all elements and checks for the requested
-    ///  value. Most descendant classes will most likely provide a better version.</remarks>
-    function Contains(const AValue: T): Boolean; virtual;
   end;
 
 type
@@ -130,7 +108,7 @@ type
   private type
     {$REGION 'Internal Types'}
     { Generic Stack List Enumerator }
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -173,19 +151,13 @@ type
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
     ///  <param name="AValue">The value to push.</param>
-    procedure Push(const AValue: T); override;
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method removes the element from the top of the stack.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Pop(): T; override;
-
-    ///  <summary>Reads the element from the top of the stack.</summary>
-    ///  <returns>The value at the top of the stack.</returns>
-    ///  <remarks>This method does not remove the element from the top of the stack. It merely reads its value.</remarks>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
-    function Peek(): T; override;
 
     ///  <summary>Removes an element from the stack.</summary>
     ///  <param name="AValue">The value to remove. If there is no such element in the stack, nothing happens.</param>
@@ -374,7 +346,7 @@ type
       FValue: T;
     end;
 
-    TEnumerator = class(TEnumerator<T>)
+    TEnumerator = class(TAbstractEnumerator<T>)
     private
       FCurrentEntry: PEntry;
     public
@@ -404,19 +376,13 @@ type
 
     ///  <summary>Pushes an element to the top of the stack.</summary>
     ///  <param name="AValue">The value to push.</param>
-    procedure Push(const AValue: T); override;
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Retrieves the element from the top of the stack.</summary>
     ///  <returns>The value at the top of the stack.</returns>
     ///  <remarks>This method removes the element from the top of the stack.</remarks>
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
     function Pop(): T; override;
-
-    ///  <summary>Reads the element from the top of the stack.</summary>
-    ///  <returns>The value at the top of the stack.</returns>
-    ///  <remarks>This method does not remove the element from the top of the stack. It merely reads its value.</remarks>
-    ///  <exception cref="Collections.Base|ECollectionEmptyException">The stack is empty.</exception>
-    function Peek(): T; override;
 
     ///  <summary>Removes an element from the stack.</summary>
     ///  <param name="AValue">The value to remove. If there is no such element in the stack, nothing happens.</param>
@@ -579,29 +545,6 @@ implementation
 
 { TAbstractStack<T> }
 
-procedure TAbstractStack<T>.Clear;
-var
-  LElement: T;
-begin
-  while not Empty do
-  begin
-    LElement := Pop();
-    NotifyElementRemoved(LElement);
-  end;
-end;
-
-function TAbstractStack<T>.Contains(const AValue: T): Boolean;
-var
-  LEnumerator: IEnumerator<T>;
-begin
-  LEnumerator := GetEnumerator();
-  while LEnumerator.MoveNext() do
-    if ElementsAreEqual(AValue, LEnumerator.Current) then
-      Exit(True);
-
-  Result := False;
-end;
-
 constructor TAbstractStack<T>.Create(const ACollection: IEnumerable<T>);
 begin
   Create(TRules<T>.Default, ACollection);
@@ -667,12 +610,7 @@ end;
 
 procedure TAbstractStack<T>.Push(const AValue: T);
 begin
-  ExceptionHelper.Throw_OperationNotSupported('Push');
-end;
-
-procedure TAbstractStack<T>.Remove(const AValue: T);
-begin
-  ExceptionHelper.Throw_OperationNotSupported('Remove');
+  Add(AValue);
 end;
 
 { TStack<T> }
@@ -961,14 +899,6 @@ begin
       Result := FArray[I];
 end;
 
-function TStack<T>.Peek: T;
-begin
-  if FLength > 0 then
-     Result := FArray[FLength - 1]
-  else
-     ExceptionHelper.Throw_CollectionEmptyError();
-end;
-
 function TStack<T>.Pop: T;
 begin
   if FLength > 0 then
@@ -981,7 +911,7 @@ begin
     ExceptionHelper.Throw_CollectionEmptyError();
 end;
 
-procedure TStack<T>.Push(const AValue: T);
+procedure TStack<T>.Add(const AValue: T);
 begin
   { Ensure enough capacity }
   if (FLength >= Capacity) then
@@ -1422,14 +1352,6 @@ begin
   Result^.FValue := AValue;
 end;
 
-function TLinkedStack<T>.Peek: T;
-begin
-  if not Assigned(FLast) then
-    ExceptionHelper.Throw_CollectionEmptyError();
-
-  Result := FLast^.FValue;
-end;
-
 function TLinkedStack<T>.Pop: T;
 var
   LEntry: PEntry;
@@ -1450,7 +1372,7 @@ begin
   Dec(FCount);
 end;
 
-procedure TLinkedStack<T>.Push(const AValue: T);
+procedure TLinkedStack<T>.Add(const AValue: T);
 var
   LNew: PEntry;
 begin

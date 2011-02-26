@@ -30,6 +30,14 @@
     * Renamed IEnexGroupingCollection<TKey, T> into simply IGrouping<TKey, T>.
     * Rewritten all enumerators in the package to use the new interface.
     * Introduced a new non-generic TCollection. TCollection<T> derives from it.
+    * Removed ISortedList<T> ... There's nothing I can put in there to make it useful.
+    * TCollection renamed to TAbstractCollection and TCollection<T> renamed to TAbstractCollection<T>.
+    * TEnumerator<T> renamed to TAbstractEnumerator<T>;
+    * Added IOperableCollection<T> that exposes Add, AddAll, Remove, RemoveAll, Contains, ContainsAll and Clear methods.
+    * Added TOperableCollection<T> with default implementation of IOperableCollection<T>. All simple types adjusted accordingly.
+    * IList<T>.Insert(Collection) renamed to InsertAll. Add(Collection) renamed to AddAll.
+    * ILinkedList<T>.AddLast(Collection) renamed to AddAllLast. AddFirst renamed to AddAllFirst;
+    
     
     
 ﻿========================

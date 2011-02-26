@@ -35,10 +35,10 @@ uses SysUtils,
 type
   ///  <summary>The abstract base class for all generic <c>dictionary</c> collections.</summary>
   ///  <remarks>Descending class must implement all required methods and can implement all optional methods.</remarks>
-  TAbstractDictionary<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IDictionary<TKey, TValue>)
+  TAbstractDictionary<TKey, TValue> = class abstract(TAbstractMap<TKey, TValue>, IDictionary<TKey, TValue>)
   private type
     {$REGION 'Internal Types'}
-    TKeyEnumerator = class(Collections.Base.TEnumerator<TKey>)
+    TKeyEnumerator = class(TAbstractEnumerator<TKey>)
     private
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -46,7 +46,7 @@ type
       function TryMoveNext(out ACurrent: TKey): Boolean; override;
     end;
 
-    TValueEnumerator = class(Collections.Base.TEnumerator<TValue>)
+    TValueEnumerator = class(TAbstractEnumerator<TValue>)
     private
       FOwnerEnumerator: IEnumerator<TPair<TKey, TValue>>;
     public
@@ -87,7 +87,7 @@ type
     ///  <returns>The value associated with the key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the dictionary.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryGetValue</c> method is not overridden.</exception>
-    function GetItem(const AKey: TKey): TValue;
+    function GetValue(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
     ///  <param name="AKey">The key for which to set the value.</param>
@@ -95,7 +95,7 @@ type
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified. The implementation in this class always raises an exception.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
-    procedure SetItem(const AKey: TKey; const Value: TValue); virtual;
+    procedure SetValue(const AKey: TKey; const Value: TValue); virtual;
 
     ///  <summary>Replaces a given value with a new one.</summary>
     ///  <param name="ACurrent">The value to be replaced.</param>
@@ -162,32 +162,19 @@ type
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
 
-    ///  <summary>Clears the contents of the dictionary.</summary>
-    ///  <remarks>The implementation in this class iterates over all key-value pairs and puts the keys into a temporary list
-    ///  that is the used to remove each pair. Most descending classes will most likely override this
-    ///  implementation with a better performing one.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
-    procedure Clear(); virtual;
-
-    ///  <summary>Adds a key-value pair to the dictionary.</summary>
-    ///  <param name="APair">The key-value pair to add.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If the virtual <c>Add</c> method is not overridden.</exception>
-    procedure Add(const APair: TPair<TKey,TValue>); overload;
-
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <remarks>In the current implementation always raises an exception.</remarks>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The dictionary already contains a pair with the given key.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
-    procedure Add(const AKey: TKey; const AValue: TValue); overload; virtual;
+    procedure Add(const AKey: TKey; const AValue: TValue); overload; override;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair to remove.</param>
     ///  <remarks>If the specified key was not found in the dictionary, nothing happens.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryExtract</c> method is not overridden.</exception>
-    procedure Remove(const AKey: TKey);
+    procedure Remove(const AKey: TKey); override;
 
     ///  <summary>Extracts a value using a given key.</summary>
     ///  <param name="AKey">The key of the associated value.</param>
@@ -201,14 +188,14 @@ type
     ///  <param name="AKey">The key to check for.</param>
     ///  <returns><c>True</c> if the dictionary contains a pair identified by the given key; <c>False</c> otherwise.</returns>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>TryGetValue</c> method is not overridden.</exception>
-    function ContainsKey(const AKey: TKey): Boolean; virtual;
+    function ContainsKey(const AKey: TKey): Boolean; override;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair that contains a given value.</summary>
     ///  <param name="AValue">The value to check for.</param>
     ///  <returns><c>True</c> if the dictionary contains a pair containing the given value; <c>False</c> otherwise.</returns>
     ///  <remarks>The implementation in this class iterates over all pairs and checks for the requested
     ///  value. Most descendant classes will most likely provide a better version.</remarks>
-    function ContainsValue(const AValue: TValue): Boolean; virtual;
+    function ContainsValue(const AValue: TValue): Boolean; override;
 
     ///  <summary>Tries to obtain the value associated with a given key.</summary>
     ///  <param name="AKey">The key for which to try to retrieve the value.</param>
@@ -225,7 +212,7 @@ type
     ///  otherwise the value of the specified key is modified.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">Trying to read the value of a key that is
     ///  not found in the dictionary.</exception>
-    property Items[const AKey: TKey]: TValue read GetItem write SetItem; default;
+    property Items[const AKey: TKey]: TValue read GetValue write SetValue; default;
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
@@ -265,7 +252,7 @@ type
   private type
     {$REGION 'Internal Types'}
     { Generic Dictionary Pairs Enumerator }
-    TEnumerator = class(Collections.Base.TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(TAbstractEnumerator<TPair<TKey,TValue>>)
     private
       FCurrentIndex: NativeInt;
     public
@@ -306,7 +293,7 @@ type
     ///  <param name="AValue">The value to set.</param>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
-    procedure SetItem(const AKey: TKey; const Value: TValue); override;
+    procedure SetValue(const AKey: TKey; const Value: TValue); override;
 
     ///  <summary>Extracts the value associated to a key from the dictionary.</summary>
     ///  <param name="AKey">The key to search for.</param>
@@ -415,7 +402,7 @@ type
 
     TBucketArray = TArray<PEntry>;
 
-    TEnumerator = class(Collections.Base.TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(TAbstractEnumerator<TPair<TKey,TValue>>)
     private
       FCurrentEntry: PEntry;
     public
@@ -450,7 +437,7 @@ type
     ///  <param name="AValue">The value to set.</param>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
-    procedure SetItem(const AKey: TKey; const Value: TValue); override;
+    procedure SetValue(const AKey: TKey; const Value: TValue); override;
 
     ///  <summary>Extracts the value associated to a key from the dictionary.</summary>
     ///  <param name="AKey">The key to search for.</param>
@@ -574,7 +561,7 @@ type
       FBalance: ShortInt;
     end;
 
-    TEnumerator = class(Collections.Base.TEnumerator<TPair<TKey,TValue>>)
+    TEnumerator = class(TAbstractEnumerator<TPair<TKey,TValue>>)
     private
       FCurrentEntry: TNode;
     public
@@ -606,7 +593,7 @@ type
     ///  <param name="AValue">The value to set.</param>
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
-    procedure SetItem(const AKey: TKey; const Value: TValue); override;
+    procedure SetValue(const AKey: TKey; const Value: TValue); override;
 
     ///  <summary>Extracts the value associated to a key from the dictionary.</summary>
     ///  <param name="AKey">The key to search for.</param>
@@ -760,26 +747,6 @@ begin
   ExceptionHelper.Throw_OperationNotSupported('Add');
 end;
 
-procedure TAbstractDictionary<TKey, TValue>.Add(const APair: TPair<TKey, TValue>);
-begin
-  { Call the virtual method. }
-  Add(APair.Key, APair.Value);
-end;
-
-procedure TAbstractDictionary<TKey, TValue>.Clear;
-var
-  LList: IList<TKey>;
-  LKey: TKey;
-begin
-  LList := Keys.ToList();
-
-  for LKey in LList do
-  begin
-    Remove(LKey);
-    NotifyKeyRemoved(LKey);
-  end;
-end;
-
 function TAbstractDictionary<TKey, TValue>.ContainsKey(const AKey: TKey): Boolean;
 var
   LDummy: TValue;
@@ -873,7 +840,7 @@ begin
     ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
-function TAbstractDictionary<TKey, TValue>.GetItem(const AKey: TKey): TValue;
+function TAbstractDictionary<TKey, TValue>.GetValue(const AKey: TKey): TValue;
 begin
   if not TryGetValue(AKey, Result) then
     ExceptionHelper.Throw_KeyNotFoundError('AKey');
@@ -916,9 +883,9 @@ begin
   Result := FValueCollection;
 end;
 
-procedure TAbstractDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
+procedure TAbstractDictionary<TKey, TValue>.SetValue(const AKey: TKey; const Value: TValue);
 begin
-  ExceptionHelper.Throw_OperationNotSupported('SetItem');
+  ExceptionHelper.Throw_OperationNotSupported('SetValue');
 end;
 
 function TAbstractDictionary<TKey, TValue>.TryExtract(const AKey: TKey; out AValue: TValue): Boolean;
@@ -1287,7 +1254,7 @@ begin
   end;
 end;
 
-procedure TDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
+procedure TDictionary<TKey, TValue>.SetValue(const AKey: TKey; const Value: TValue);
 begin
   { Simply call insert }
   Insert(AKey, Value, false);
@@ -1796,7 +1763,7 @@ begin
   end;
 end;
 
-procedure TLinkedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
+procedure TLinkedDictionary<TKey, TValue>.SetValue(const AKey: TKey; const Value: TValue);
 begin
   { Simply call insert }
   Insert(AKey, Value, false);
@@ -2781,7 +2748,7 @@ begin
   ANode.Free;
 end;
 
-procedure TSortedDictionary<TKey, TValue>.SetItem(const AKey: TKey; const Value: TValue);
+procedure TSortedDictionary<TKey, TValue>.SetValue(const AKey: TKey; const Value: TValue);
 begin
   { Allow inserting and adding values }
   Insert(AKey, Value, true);
