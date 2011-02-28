@@ -35,64 +35,30 @@ uses SysUtils,
      Collections.Lists;
 
 type
-  TConformance_TAbstractList<T> = class(TConformance_IList<T>)
+  TConformance_TList = class(TConformance_IList)
   published
   end;
 
-  TConformance_TList<T> = class(TConformance_IList<T>)
+  TConformance_TSortedList = class(TConformance_IList)
   published
   end;
 
-  TConformance_TObjectList<T: class> = class(TConformance_IList<T>)
+  TConformance_TLinkedList = class(TConformance_ILinkedList)
   published
   end;
 
-  TConformance_TSortedList<T> = class(TConformance_IList<T>)
-  published
-  end;
-
-  TConformance_TObjectSortedList<T: class> = class(TConformance_IList<T>)
-  published
-  end;
-
-  TConformance_TLinkedList<T> = class(TConformance_ILinkedList<T>)
-  published
-  end;
-
-  TConformance_TObjectLinkedList<T: class> = class(TConformance_ILinkedList<T>)
-  published
-  end;
-
-  TConformance_TSortedLinkedList<T> = class(TConformance_IList<T>)
-  published
-  end;
-
-  TConformance_TObjectSortedLinkedList<T: class> = class(TConformance_ILinkedList<T>)
+  TConformance_TSortedLinkedList = class(TConformance_IList)
   published
   end;
 
 implementation
 
 initialization
-  RegisterTests('Conformance.Simple.Lists.Integer', [
-    TConformance_TAbstractList<Integer>.Suite,
-    TConformance_TList<Integer>.Suite,
-    TConformance_TSortedList<Integer>.Suite,
-    TConformance_TLinkedList<Integer>.Suite,
-    TConformance_TSortedLinkedList<Integer>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Lists.String', [
-    TConformance_TAbstractList<String>.Suite,
-    TConformance_TList<String>.Suite,
-    TConformance_TSortedList<String>.Suite,
-    TConformance_TLinkedList<String>.Suite,
-    TConformance_TSortedLinkedList<String>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Lists.Object', [
-    TConformance_TObjectList<TObject>.Suite,
-    TConformance_TObjectSortedList<TObject>.Suite,
-    TConformance_TObjectLinkedList<TObject>.Suite,
-    TConformance_TObjectSortedLinkedList<TObject>.Suite
+  RegisterTests('Conformance.Simple.Lists', [
+    TConformance_TList.Suite,
+    TConformance_TSortedList.Suite,
+    TConformance_TLinkedList.Suite,
+    TConformance_TSortedLinkedList.Suite
   ]);
 
 end.

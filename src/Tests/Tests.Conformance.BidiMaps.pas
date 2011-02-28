@@ -35,147 +35,61 @@ uses SysUtils,
      Collections.BidiMaps;
 
 type
-  TConformance_TAbstractBidiMap<TKey, TValue> = class(TConformance_IBidiMap<TKey, TValue>)
+  TConformance_TBidiMap = class(TConformance_IBidiMap)
   published
   end;
 
-  TConformance_TBidiMap<TKey, TValue> = class(TConformance_IBidiMap<TKey, TValue>)
+  TConformance_TSortedBidiMap = class(TConformance_IBidiMap)
   published
   end;
 
-  TConformance_TObjectBidiMap<TKey, TValue> = class(TConformance_IBidiMap<TKey, TValue>)
-  published
-  end;
-
-  TConformance_TSortedBidiMap<TKey, TValue> = class(TConformance_IBidiMap<TKey, TValue>)
-  published
-  end;
-
-  TConformance_TObjectSortedBidiMap<TKey, TValue> = class(TConformance_IBidiMap<TKey, TValue>)
-  published
-  end;
-
-  TConformance_TDoubleSortedBidiMap<TKey, TValue> = class(TConformance_IBidiMap<TKey, TValue>)
-  published
-  end;
-
-  TConformance_TObjectDoubleSortedBidiMap<TKey, TValue> = class(TConformance_IBidiMap<TKey, TValue>)
+  TConformance_TDoubleSortedBidiMap = class(TConformance_IBidiMap)
   published
   end;
 
 type
-  TConformance_TAbstractBidiMap_Keys<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_TBidiMap_Keys = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_TAbstractBidiMap_Values<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_TBidiMap_Values = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_TBidiMap_Keys<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_TSortedBidiMap_Keys = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_TBidiMap_Values<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_TSortedBidiMap_Values = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_TObjectBidiMap_Keys<T: class> = class(TConformance_IEnexCollection<T>)
+  TConformance_TDoubleSortedBidiMap_Keys = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_TObjectBidiMap_Values<T: class> = class(TConformance_IEnexCollection<T>)
+  TConformance_TDoubleSortedBidiMap_Values = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_TSortedBidiMap_Keys<T> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
-
-  TConformance_TSortedBidiMap_Values<T> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
-
-  TConformance_TObjectSortedBidiMap_Keys<T: class> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
-
-  TConformance_TObjectSortedBidiMap_Values<T: class> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
-
-  TConformance_TDoubleSortedBidiMap_Keys<T> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
-
-  TConformance_TDoubleSortedBidiMap_Values<T> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
-
-  TConformance_TObjectDoubleSortedBidiMap_Keys<T: class> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
-
-  TConformance_TObjectDoubleSortedBidiMap_Values<T: class> = class(TConformance_IEnexCollection<T>)
-  published
-  end;
 
 implementation
 
 initialization
-  RegisterTests('Conformance.Associative.BidiMaps.Integer/String', [
-    TConformance_TAbstractBidiMap<Integer, String>.Suite,
-    TConformance_TBidiMap<Integer, String>.Suite,
-    TConformance_TSortedBidiMap<Integer, String>.Suite,
-    TConformance_TDoubleSortedBidiMap<Integer, String>.Suite
-  ]);
-  RegisterTests('Conformance.Associative.BidiMaps.String/Integer', [
-    TConformance_TAbstractBidiMap<String, Integer>.Suite,
-    TConformance_TBidiMap<String, Integer>.Suite,
-    TConformance_TSortedBidiMap<String, Integer>.Suite,
-    TConformance_TDoubleSortedBidiMap<String, Integer>.Suite
-  ]);
-  RegisterTests('Conformance.Associative.BidiMaps.Object/String', [
-    TConformance_TObjectBidiMap<TObject, String>.Suite,
-    TConformance_TObjectSortedBidiMap<TObject, String>.Suite,
-    TConformance_TObjectDoubleSortedBidiMap<TObject, String>.Suite
-  ]);
-  RegisterTests('Conformance.Associative.BidiMaps.String/Object', [
-    TConformance_TObjectBidiMap<String, TObject>.Suite,
-    TConformance_TObjectSortedBidiMap<String, TObject>.Suite,
-    TConformance_TObjectDoubleSortedBidiMap<String, TObject>.Suite
+  RegisterTests('Conformance.Associative.BidiMaps', [
+    TConformance_TBidiMap.Suite,
+    TConformance_TSortedBidiMap.Suite,
+    TConformance_TDoubleSortedBidiMap.Suite
   ]);
 
-  RegisterTests('Conformance.Simple.Selectors.Integer', [
-    TConformance_TAbstractBidiMap_Keys<Integer>.Suite,
-    TConformance_TAbstractBidiMap_Values<Integer>.Suite,
-    TConformance_TBidiMap_Keys<Integer>.Suite,
-    TConformance_TBidiMap_Values<Integer>.Suite,
-    TConformance_TSortedBidiMap_Keys<Integer>.Suite,
-    TConformance_TSortedBidiMap_Values<Integer>.Suite,
-    TConformance_TDoubleSortedBidiMap_Keys<Integer>.Suite,
-    TConformance_TDoubleSortedBidiMap_Values<Integer>.Suite
+  RegisterTests('Conformance.Simple.Selectors', [
+    TConformance_TBidiMap_Keys.Suite,
+    TConformance_TBidiMap_Values.Suite,
+    TConformance_TSortedBidiMap_Keys.Suite,
+    TConformance_TSortedBidiMap_Values.Suite,
+    TConformance_TDoubleSortedBidiMap_Keys.Suite,
+    TConformance_TDoubleSortedBidiMap_Values.Suite
   ]);
-  RegisterTests('Conformance.Simple.Selectors.String', [
-    TConformance_TAbstractBidiMap_Keys<String>.Suite,
-    TConformance_TAbstractBidiMap_Values<String>.Suite,
-    TConformance_TBidiMap_Keys<String>.Suite,
-    TConformance_TBidiMap_Values<String>.Suite,
-    TConformance_TSortedBidiMap_Keys<String>.Suite,
-    TConformance_TSortedBidiMap_Values<String>.Suite,
-    TConformance_TDoubleSortedBidiMap_Keys<String>.Suite,
-    TConformance_TDoubleSortedBidiMap_Values<String>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Selectors.Object', [
-    TConformance_TObjectBidiMap_Keys<TObject>.Suite,
-    TConformance_TObjectBidiMap_Values<TObject>.Suite,
-    TConformance_TObjectSortedBidiMap_Keys<TObject>.Suite,
-    TConformance_TObjectSortedBidiMap_Values<TObject>.Suite,
-    TConformance_TObjectDoubleSortedBidiMap_Keys<TObject>.Suite,
-    TConformance_TObjectDoubleSortedBidiMap_Values<TObject>.Suite
-  ]);
-
-
 
 end.
 

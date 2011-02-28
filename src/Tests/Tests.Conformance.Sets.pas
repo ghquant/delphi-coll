@@ -35,71 +35,35 @@ uses SysUtils,
      Collections.Sets;
 
 type
-  TConformance_TAbstractSet<T> = class(TConformance_ISet<T>)
+  TConformance_THashSet = class(TConformance_ISet)
   published
   end;
 
-  TConformance_THashSet<T> = class(TConformance_ISet<T>)
+  TConformance_TLinkedSet = class(TConformance_ISet)
   published
   end;
 
-  TConformance_TObjectHashSet<T: class> = class(TConformance_ISet<T>)
+  TConformance_TSortedSet = class(TConformance_ISet)
   published
   end;
 
-  TConformance_TLinkedSet<T> = class(TConformance_ISet<T>)
+  TConformance_TArraySet = class(TConformance_ISet)
   published
   end;
 
-  TConformance_TObjectLinkedSet<T: class> = class(TConformance_ISet<T>)
-  published
-  end;
-
-  TConformance_TSortedSet<T> = class(TConformance_ISet<T>)
-  published
-  end;
-
-  TConformance_TObjectSortedSet<T: class> = class(TConformance_ISet<T>)
-  published
-  end;
-
-  TConformance_TArraySet<T> = class(TConformance_ISet<T>)
-  published
-  end;
-
-  TConformance_TObjectArraySet<T: class> = class(TConformance_ISet<T>)
-  published
-  end;
-
-  TConformance_TBitSet = class(TConformance_ISet<Word>)
+  TConformance_TBitSet = class(TConformance_ISet)
   published
   end;
 
 implementation
 
 initialization
-  RegisterTests('Conformance.Simple.Sets.Integer', [
-    TConformance_TAbstractSet<Integer>.Suite,
-    TConformance_THashSet<Integer>.Suite,
-    TConformance_TLinkedSet<Integer>.Suite,
-    TConformance_TSortedSet<Integer>.Suite,
-    TConformance_TArraySet<Integer>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Sets.String', [
-    TConformance_TAbstractSet<String>.Suite,
-    TConformance_THashSet<String>.Suite,
-    TConformance_TLinkedSet<String>.Suite,
-    TConformance_TSortedSet<String>.Suite,
-    TConformance_TArraySet<String>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Sets.Word', [
+  RegisterTests('Conformance.Simple.Sets', [
+    TConformance_THashSet.Suite,
+    TConformance_TLinkedSet.Suite,
+    TConformance_TSortedSet.Suite,
+    TConformance_TArraySet.Suite,
     TConformance_TBitSet.Suite
-  ]);
-  RegisterTests('Conformance.Sets.Object', [
-    TConformance_TObjectHashSet<TObject>.Suite,
-    TConformance_TObjectLinkedSet<TObject>.Suite,
-    TConformance_TObjectSortedSet<TObject>.Suite,
-    TConformance_TObjectArraySet<TObject>.Suite
   ]);
 
 end.

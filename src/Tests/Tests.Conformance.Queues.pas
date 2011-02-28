@@ -35,53 +35,25 @@ uses SysUtils,
      Collections.Queues;
 
 type
-  TConformance_TAbstractQueue<T> = class(TConformance_IQueue<T>)
+  TConformance_TQueue = class(TConformance_IQueue)
   published
   end;
 
-  TConformance_TQueue<T> = class(TConformance_IQueue<T>)
+  TConformance_TLinkedQueue = class(TConformance_IQueue)
   published
   end;
 
-  TConformance_TObjectQueue<T: class> = class(TConformance_IQueue<T>)
-  published
-  end;
-
-  TConformance_TLinkedQueue<T> = class(TConformance_IQueue<T>)
-  published
-  end;
-
-  TConformance_TObjectLinkedQueue<T: class> = class(TConformance_IQueue<T>)
-  published
-  end;
-
-  TConformance_TLinkedList_AsQueue<T> = class(TConformance_IQueue<T>)
-  published
-  end;
-
-  TConformance_TObjectLinkedList_AsQueue<T: class> = class(TConformance_IQueue<T>)
+  TConformance_TLinkedList_AsQueue = class(TConformance_IQueue)
   published
   end;
 
 implementation
 
 initialization
-  RegisterTests('Conformance.Simple.Queues.Integer', [
-    TConformance_TAbstractQueue<Integer>.Suite,
-    TConformance_TQueue<Integer>.Suite,
-    TConformance_TLinkedQueue<Integer>.Suite,
-    TConformance_TLinkedList_AsQueue<Integer>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Queues.String', [
-    TConformance_TAbstractQueue<String>.Suite,
-    TConformance_TQueue<String>.Suite,
-    TConformance_TLinkedQueue<String>.Suite,
-    TConformance_TLinkedList_AsQueue<String>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Queues.Object', [
-    TConformance_TObjectQueue<TObject>.Suite,
-    TConformance_TObjectLinkedQueue<TObject>.Suite,
-    TConformance_TObjectLinkedList_AsQueue<TObject>.Suite
+  RegisterTests('Conformance.Simple.Queues', [
+    TConformance_TQueue.Suite,
+    TConformance_TLinkedQueue.Suite,
+    TConformance_TLinkedList_AsQueue.Suite
   ]);
 
 end.

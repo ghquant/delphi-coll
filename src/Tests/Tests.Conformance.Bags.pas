@@ -35,43 +35,28 @@ uses SysUtils,
      Collections.Bags;
 
 type
-  TConformance_TAbstractBag<T> = class(TConformance_IBag<T>)
+  TConformance_TBag = class(TConformance_IBag)
   published
   end;
 
-  TConformance_TBag<T> = class(TConformance_IBag<T>)
+  TConformance_TObjectBag<T: class> = class(TConformance_IBag)
   published
   end;
 
-  TConformance_TObjectBag<T: class> = class(TConformance_IBag<T>)
+  TConformance_TSortedBag = class(TConformance_IBag)
   published
   end;
 
-  TConformance_TSortedBag<T> = class(TConformance_IBag<T>)
-  published
-  end;
-
-  TConformance_TObjectSortedBag<T: class> = class(TConformance_IBag<T>)
+  TConformance_TObjectSortedBag<T: class> = class(TConformance_IBag)
   published
   end;
 
 implementation
 
 initialization
-  RegisterTests('Conformance.Simple.Bags.Integer', [
-    TConformance_TAbstractBag<Integer>.Suite,
-    TConformance_TBag<Integer>.Suite,
-    TConformance_TSortedBag<Integer>.Suite
+  RegisterTests('Conformance.Simple.Bags', [
+    TConformance_TBag.Suite,
+    TConformance_TSortedBag.Suite
   ]);
-  RegisterTests('Conformance.Simple.Bags.String', [
-    TConformance_TAbstractBag<String>.Suite,
-    TConformance_TBag<String>.Suite,
-    TConformance_TSortedBag<String>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Bags.Object', [
-    TConformance_TObjectBag<TObject>.Suite,
-    TConformance_TObjectSortedBag<TObject>.Suite
-  ]);
-
 end.
 

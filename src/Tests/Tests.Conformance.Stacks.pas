@@ -35,53 +35,25 @@ uses SysUtils,
      Collections.Stacks;
 
 type
-  TConformance_TAbstractStack<T> = class(TConformance_IStack<T>)
+  TConformance_TStack = class(TConformance_IStack)
   published
   end;
 
-  TConformance_TStack<T> = class(TConformance_IStack<T>)
+  TConformance_TLinkedStack = class(TConformance_IStack)
   published
   end;
 
-  TConformance_TObjectStack<T: class> = class(TConformance_IStack<T>)
-  published
-  end;
-
-  TConformance_TLinkedStack<T> = class(TConformance_IStack<T>)
-  published
-  end;
-
-  TConformance_TObjectLinkedStack<T: class> = class(TConformance_IStack<T>)
-  published
-  end;
-
-  TConformance_TLinkedList_AsStack<T> = class(TConformance_IStack<T>)
-  published
-  end;
-
-  TConformance_TObjectLinkedList_AsStack<T: class> = class(TConformance_IStack<T>)
+  TConformance_TLinkedList_AsStack = class(TConformance_IStack)
   published
   end;
 
 implementation
 
 initialization
-  RegisterTests('Conformance.Simple.Stacks.Integer', [
-    TConformance_TAbstractStack<Integer>.Suite,
-    TConformance_TStack<Integer>.Suite,
-    TConformance_TLinkedStack<Integer>.Suite,
-    TConformance_TLinkedList_AsStack<Integer>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Stacks.String', [
-    TConformance_TAbstractStack<String>.Suite,
-    TConformance_TStack<String>.Suite,
-    TConformance_TLinkedStack<String>.Suite,
-    TConformance_TLinkedList_AsStack<String>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Stacks.Object', [
-    TConformance_TObjectStack<TObject>.Suite,
-    TConformance_TObjectLinkedStack<TObject>.Suite,
-    TConformance_TObjectLinkedList_AsStack<TObject>.Suite
+  RegisterTests('Conformance.Simple.Stacks', [
+    TConformance_TStack.Suite,
+    TConformance_TLinkedStack.Suite,
+    TConformance_TLinkedList_AsStack.Suite
   ]);
 
 end.

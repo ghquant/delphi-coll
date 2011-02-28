@@ -35,196 +35,160 @@ uses SysUtils,
      Collections.Sets;
 
 type
-  TConformance_TAbstractOperableCollection<T> = class(TConformance_IOperableCollection<T>)
+  TConformance_TAbstractOperableCollection = class(TConformance_IOperableCollection)
   published
   end;
 
-  TConformance_TAbstractMap<TKey, TValue> = class(TConformance_IMap<TKey, TValue>)
+  TConformance_TAbstractMap = class(TConformance_IMap)
   published
   end;
 
-  TConformance_IEnexCollection_Op_GroupBy<TKey, T> = class(TConformance_IGrouping<TKey, T>)
+  TConformance_IEnexCollection_Op_GroupBy = class(TConformance_IGrouping)
   published
   end;
 
-  TConformance_IEnexCollection_ToList<T> = class(TConformance_IList<T>)
+  TConformance_IEnexCollection_ToList = class(TConformance_IList)
   published
   end;
 
-  TConformance_IEnexCollection_ToSet<T> = class(TConformance_ISet<T>)
+  TConformance_IEnexCollection_ToSet = class(TConformance_ISet)
   published
   end;
 
-  TConformance_IEnexCollection_Where<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Where = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Distinct<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Distinct = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Ordered_1<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Ordered_1 = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Ordered_2<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Ordered_2 = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Reversed<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Reversed = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Concat<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Concat = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Union<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Union = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Exclude<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Exclude = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Intersect<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Intersect = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Range<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Range = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Take<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Take = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_TakeWhile<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_TakeWhile = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Skip<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Skip = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_SkipWhile<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_SkipWhile = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Op_Select_1<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Op_Select_1 = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Op_Select_2<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Op_Select_2 = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Op_Select_3<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Op_Select_3 = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Op_Select_4<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Op_Select_4 = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexCollection_Op_Select_5<T> = class(TConformance_IEnexCollection<T>)
+  TConformance_IEnexCollection_Op_Select_5 = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexAssociativeCollection_ToDictionary<TKey, TValue> = class(TConformance_IDictionary<TKey, TValue>)
+  TConformance_IEnexAssociativeCollection_ToDictionary = class(TConformance_IDictionary)
   published
   end;
 
-  TConformance_IEnexAssociativeCollection_SelectKeys<TKey, TValue> = class(TConformance_IEnexCollection<TKey>)
+  TConformance_IEnexAssociativeCollection_SelectKeys = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexAssociativeCollection_SelectValues<TKey, TValue> = class(TConformance_IEnexCollection<TValue>)
+  TConformance_IEnexAssociativeCollection_SelectValues = class(TConformance_IEnexCollection)
   published
   end;
 
-  TConformance_IEnexAssociativeCollection_DistinctByKeys<TKey, TValue> = class(TConformance_IEnexAssociativeCollection<TKey, TValue>)
+  TConformance_IEnexAssociativeCollection_DistinctByKeys = class(TConformance_IEnexAssociativeCollection)
   published
   end;
 
-  TConformance_IEnexAssociativeCollection_DistinctByValues<TKey, TValue> = class(TConformance_IEnexAssociativeCollection<TKey, TValue>)
+  TConformance_IEnexAssociativeCollection_DistinctByValues = class(TConformance_IEnexAssociativeCollection)
   published
   end;
 
-  TConformance_IEnexAssociativeCollection_Where<TKey, TValue> = class(TConformance_IEnexAssociativeCollection<TKey, TValue>)
+  TConformance_IEnexAssociativeCollection_Where = class(TConformance_IEnexAssociativeCollection)
   published
   end;
 
 implementation
 
 initialization
-  RegisterTests('Conformance.Simple.Specific.Integer', [
-    TConformance_TAbstractOperableCollection<Integer>.Suite,
-    TConformance_IEnexCollection_ToList<Integer>.Suite,
-    TConformance_IEnexCollection_ToSet<Integer>.Suite,
-    TConformance_IEnexCollection_Where<Integer>.Suite,
-    TConformance_IEnexCollection_Distinct<Integer>.Suite,
-    TConformance_IEnexCollection_Ordered_1<Integer>.Suite,
-    TConformance_IEnexCollection_Ordered_2<Integer>.Suite,
-    TConformance_IEnexCollection_Reversed<Integer>.Suite,
-    TConformance_IEnexCollection_Concat<Integer>.Suite,
-    TConformance_IEnexCollection_Union<Integer>.Suite,
-    TConformance_IEnexCollection_Exclude<Integer>.Suite,
-    TConformance_IEnexCollection_Intersect<Integer>.Suite,
-    TConformance_IEnexCollection_Range<Integer>.Suite,
-    TConformance_IEnexCollection_Take<Integer>.Suite,
-    TConformance_IEnexCollection_TakeWhile<Integer>.Suite,
-    TConformance_IEnexCollection_Skip<Integer>.Suite,
-    TConformance_IEnexCollection_SkipWhile<Integer>.Suite,
-    TConformance_IEnexCollection_Op_Select_1<Integer>.Suite,
-    TConformance_IEnexCollection_Op_Select_2<Integer>.Suite,
-    TConformance_IEnexCollection_Op_Select_3<Integer>.Suite,
-    TConformance_IEnexCollection_Op_Select_4<Integer>.Suite,
-    TConformance_IEnexCollection_Op_Select_5<Integer>.Suite
-  ]);
-  RegisterTests('Conformance.Simple.Specific.String', [
-    TConformance_TAbstractOperableCollection<String>.Suite,
-    TConformance_IEnexCollection_ToList<String>.Suite,
-    TConformance_IEnexCollection_ToSet<String>.Suite,
-    TConformance_IEnexCollection_Where<String>.Suite,
-    TConformance_IEnexCollection_Distinct<String>.Suite,
-    TConformance_IEnexCollection_Ordered_1<String>.Suite,
-    TConformance_IEnexCollection_Ordered_2<String>.Suite,
-    TConformance_IEnexCollection_Reversed<String>.Suite,
-    TConformance_IEnexCollection_Concat<String>.Suite,
-    TConformance_IEnexCollection_Union<String>.Suite,
-    TConformance_IEnexCollection_Exclude<String>.Suite,
-    TConformance_IEnexCollection_Intersect<String>.Suite,
-    TConformance_IEnexCollection_Range<String>.Suite,
-    TConformance_IEnexCollection_Take<String>.Suite,
-    TConformance_IEnexCollection_TakeWhile<String>.Suite,
-    TConformance_IEnexCollection_Skip<String>.Suite,
-    TConformance_IEnexCollection_SkipWhile<String>.Suite,
-    TConformance_IEnexCollection_Op_Select_1<String>.Suite,
-    TConformance_IEnexCollection_Op_Select_2<String>.Suite,
-    TConformance_IEnexCollection_Op_Select_3<String>.Suite,
-    TConformance_IEnexCollection_Op_Select_4<String>.Suite,
-    TConformance_IEnexCollection_Op_Select_5<String>.Suite
+  RegisterTests('Conformance.Simple.Specific', [
+    TConformance_IEnexCollection_ToList.Suite,
+    TConformance_IEnexCollection_ToSet.Suite,
+    TConformance_IEnexCollection_Where.Suite,
+    TConformance_IEnexCollection_Distinct.Suite,
+    TConformance_IEnexCollection_Ordered_1.Suite,
+    TConformance_IEnexCollection_Ordered_2.Suite,
+    TConformance_IEnexCollection_Reversed.Suite,
+    TConformance_IEnexCollection_Concat.Suite,
+    TConformance_IEnexCollection_Union.Suite,
+    TConformance_IEnexCollection_Exclude.Suite,
+    TConformance_IEnexCollection_Intersect.Suite,
+    TConformance_IEnexCollection_Range.Suite,
+    TConformance_IEnexCollection_Take.Suite,
+    TConformance_IEnexCollection_TakeWhile.Suite,
+    TConformance_IEnexCollection_Skip.Suite,
+    TConformance_IEnexCollection_SkipWhile.Suite,
+    TConformance_IEnexCollection_Op_Select_1.Suite,
+    TConformance_IEnexCollection_Op_Select_2.Suite,
+    TConformance_IEnexCollection_Op_Select_3.Suite,
+    TConformance_IEnexCollection_Op_Select_4.Suite,
+    TConformance_IEnexCollection_Op_Select_5.Suite
   ]);
 
-  RegisterTests('Conformance.Associative.Specific.Integer/String', [
-    TConformance_TAbstractMap<Integer, String>.Suite,
-    TConformance_IEnexAssociativeCollection_ToDictionary<Integer, String>.Suite,
-    TConformance_IEnexAssociativeCollection_SelectKeys<Integer, String>.Suite,
-    TConformance_IEnexAssociativeCollection_SelectValues<Integer, String>.Suite,
-    TConformance_IEnexAssociativeCollection_DistinctByKeys<Integer, String>.Suite,
-    TConformance_IEnexAssociativeCollection_DistinctByValues<Integer, String>.Suite,
-    TConformance_IEnexAssociativeCollection_Where<Integer, String>.Suite
-  ]);
-
-  RegisterTests('Conformance.Associative.Specific.String/Integer', [
-    TConformance_TAbstractMap<String, Integer>.Suite,
-    TConformance_IEnexAssociativeCollection_ToDictionary<String, Integer>.Suite,
-    TConformance_IEnexAssociativeCollection_SelectKeys<String, Integer>.Suite,
-    TConformance_IEnexAssociativeCollection_SelectValues<String, Integer>.Suite,
-    TConformance_IEnexAssociativeCollection_DistinctByKeys<String, Integer>.Suite,
-    TConformance_IEnexAssociativeCollection_DistinctByValues<String, Integer>.Suite,
-    TConformance_IEnexAssociativeCollection_Where<String, Integer>.Suite
+  RegisterTests('Conformance.Associative.Specific', [
+    TConformance_IEnexAssociativeCollection_ToDictionary.Suite,
+    TConformance_IEnexAssociativeCollection_SelectKeys.Suite,
+    TConformance_IEnexAssociativeCollection_SelectValues.Suite,
+    TConformance_IEnexAssociativeCollection_DistinctByKeys.Suite,
+    TConformance_IEnexAssociativeCollection_DistinctByValues.Suite,
+    TConformance_IEnexAssociativeCollection_Where.Suite
   ]);
 
 end.
