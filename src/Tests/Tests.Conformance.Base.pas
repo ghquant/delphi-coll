@@ -34,14 +34,38 @@ uses SysUtils,
      Collections.Base;
 
 type
-  TConformance_IEnumerable = class(TTestCaseEx)
+  TOrdering = (oNone, oInsert, oAscending, oDescending);
+  TElements = TArray<NativeInt>;
+  TPairs = TArray<TPair<NativeInt, NativeInt>>;
+
+  TConformance_IEnumerable_Simple = class(TTestCaseEx)
+  strict private
+    FEmpty, FOne, FFull: IEnumerable<NativeInt>;
+    FElements: TElements;
+    FOrdering: TOrdering;
+
+  protected
+    property Ordering: TOrdering read FOrdering;
+    property Elements: TElements read FElements;
+
+    procedure SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+    procedure SetUp; override;
+    procedure TearDown; override;
+
   published
     procedure Test_GetEnumerator();
     procedure Test_Enumerator_Early_Current;
     procedure Test_Enumerator_ReachEnd;
   end;
 
-  TConformance_ICollection = class(TConformance_IEnumerable)
+  TConformance_ICollection_Simple = class(TConformance_IEnumerable_Simple)
+  strict private
+    FEmpty, FOne, FFull: ICollection<NativeInt>;
+
+  protected
+    procedure SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Version();
     procedure Test_GetCount;
@@ -53,7 +77,14 @@ type
     procedure Test_ToArray;
   end;
 
-  TConformance_IEnexCollection = class(TConformance_ICollection)
+  TConformance_IEnexCollection = class(TConformance_ICollection_Simple)
+  strict private
+    FEmpty, FOne, FFull: IEnexCollection<NativeInt>;
+
+  protected
+    procedure SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_IEnexCollection(out AEmpty, AOne, AFull: IEnexCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_EqualsTo;
     procedure Test_ToList;
@@ -123,11 +154,26 @@ type
   end;
 
   TConformance_IGrouping = class(TConformance_IEnexCollection)
+  strict private
+    FEmpty, FOne, FFull: IGrouping<NativeInt, NativeInt>;
+    FKey: NativeInt;
+
+  protected
+    procedure SetUp_IEnexCollection(out AEmpty, AOne, AFull: IEnexCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_IGrouping(out AEmpty, AOne, AFull: IGrouping<NativeInt, NativeInt>; out AKey: NativeInt; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_GetKey;
   end;
 
   TConformance_IOperableCollection = class(TConformance_IEnexCollection)
+  strict private
+    FEmpty, FOne, FFull: IOperableCollection<NativeInt>;
+
+  protected
+    procedure SetUp_IEnexCollection(out AEmpty, AOne, AFull: IEnexCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Clear;
     procedure Test_Add;
@@ -139,6 +185,13 @@ type
   end;
 
   TConformance_IStack = class(TConformance_IOperableCollection)
+  strict private
+    FEmpty, FOne, FFull: IStack<NativeInt>;
+
+  protected
+    procedure SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_IStack(out AEmpty, AOne, AFull: IStack<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Push;
     procedure Test_Pop;
@@ -146,6 +199,13 @@ type
   end;
 
   TConformance_IQueue = class(TConformance_IOperableCollection)
+  strict private
+    FEmpty, FOne, FFull: IQueue<NativeInt>;
+
+  protected
+    procedure SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_IQueue(out AEmpty, AOne, AFull: IQueue<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Enqueue;
     procedure Test_Dequeue;
@@ -153,16 +213,37 @@ type
   end;
 
   TConformance_ISet = class(TConformance_IOperableCollection)
+  strict private
+    FEmpty, FOne, FFull: ISet<NativeInt>;
+
+  protected
+    procedure SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
   end;
 
   TConformance_ISortedSet = class(TConformance_ISet)
+  strict private
+    FEmpty, FOne, FFull: ISortedSet<NativeInt>;
+
+  protected
+    procedure SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_ISortedSet(out AEmpty, AOne, AFull: ISortedSet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Max;
     procedure Test_Min;
   end;
 
   TConformance_IBag = class(TConformance_ISet)
+  strict private
+    FEmpty, FOne, FFull: IBag<NativeInt>;
+
+  protected
+    procedure SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_IBag(out AEmpty, AOne, AFull: IBag<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_AddWeight;
     procedure Test_RemoveWeight;
@@ -173,6 +254,13 @@ type
   end;
 
   TConformance_IList = class(TConformance_IOperableCollection)
+  strict private
+    FEmpty, FOne, FFull: IList<NativeInt>;
+
+  protected
+    procedure SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_IList(out AEmpty, AOne, AFull: IList<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Insert;
     procedure Test_Insert_All;
@@ -189,6 +277,13 @@ type
   end;
 
   TConformance_ILinkedList = class(TConformance_IList)
+  strict private
+    FEmpty, FOne, FFull: ILinkedList<NativeInt>;
+
+  protected
+    procedure SetUp_IList(out AEmpty, AOne, AFull: IList<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+    procedure SetUp_ILinkedList(out AEmpty, AOne, AFull: ILinkedList<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_AddLast;
     procedure Test_AddAllLast;
@@ -202,7 +297,53 @@ type
     procedure Test_Last;
   end;
 
-  TConformance_IEnexAssociativeCollection = class(TConformance_ICollection)
+  TConformance_IEnumerable_Associative = class(TTestCaseEx)
+  strict private
+    FEmpty, FOne, FFull: IEnumerable<TPair<NativeInt, NativeInt>>;
+    FPairs: TPairs;
+    FKeyOrdering: TOrdering;
+
+  protected
+    property KeyOrdering: TOrdering read FKeyOrdering;
+    property Pairs: TPairs read FPairs;
+
+    procedure SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<TPair<NativeInt, NativeInt>>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure Test_GetEnumerator();
+    procedure Test_Enumerator_Early_Current;
+    procedure Test_Enumerator_ReachEnd;
+  end;
+
+  TConformance_ICollection_Associative = class(TConformance_IEnumerable_Associative)
+  strict private
+    FEmpty, FOne, FFull: ICollection<TPair<NativeInt, NativeInt>>;
+
+  protected
+    procedure SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<TPair<NativeInt, NativeInt>>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
+    procedure SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<TPair<NativeInt, NativeInt>>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
+  published
+    procedure Test_Version();
+    procedure Test_GetCount;
+    procedure Test_Empty;
+    procedure Test_Single;
+    procedure Test_SingleOrDefault;
+    procedure Test_CopyTo_1;
+    procedure Test_CopyTo_2;
+    procedure Test_ToArray;
+  end;
+
+  TConformance_IEnexAssociativeCollection = class(TConformance_ICollection_Associative)
+  strict private
+    FEmpty, FOne, FFull: IEnexAssociativeCollection<NativeInt, NativeInt>;
+
+  protected
+    procedure SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<TPair<NativeInt, NativeInt>>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
+    procedure SetUp_IEnexAssociativeCollection(out AEmpty, AOne, AFull: IEnexAssociativeCollection<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_ToDictionary;
     procedure Test_ValueForKey;
@@ -231,6 +372,13 @@ type
   end;
 
   TConformance_IMap = class(TConformance_IEnexAssociativeCollection)
+  strict private
+    FEmpty, FOne, FFull: IMap<NativeInt, NativeInt>;
+
+  protected
+    procedure SetUp_IEnexAssociativeCollection(out AEmpty, AOne, AFull: IEnexAssociativeCollection<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
+    procedure SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Clear;
     procedure Test_Add_1;
@@ -242,6 +390,13 @@ type
   end;
 
   TConformance_IDictionary = class(TConformance_IMap)
+  strict private
+    FEmpty, FOne, FFull: IMap<NativeInt, NativeInt>;
+
+  protected
+    procedure SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
+    procedure SetUp_IDictionary(out AEmpty, AOne, AFull: IDictionary<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_Extract;
     procedure Test_TryGetValue;
@@ -250,6 +405,13 @@ type
   end;
 
   TConformance_IBidiDictionary = class(TConformance_IMap)
+  strict private
+    FEmpty, FOne, FFull: IBidiDictionary<NativeInt, NativeInt>;
+
+  protected
+    procedure SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
+    procedure SetUp_IBidiDictionary(out AEmpty, AOne, AFull: IBidiDictionary<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_ExtractValueForKey;
     procedure Test_ExtractKeyForValue;
@@ -268,6 +430,13 @@ type
   end;
 
   TConformance_IBidiMap = class(TConformance_IMap)
+  strict private
+    FEmpty, FOne, FFull: IBidiMap<NativeInt, NativeInt>;
+
+  protected
+    procedure SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
+    procedure SetUp_IBidiMap(out AEmpty, AOne, AFull: IBidiMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_RemoveValuesForKey;
     procedure Test_RemoveKeysForValue;
@@ -280,6 +449,13 @@ type
   end;
 
   TConformance_IMultiMap = class(TConformance_IMap)
+  strict private
+    FEmpty, FOne, FFull: IMultiMap<NativeInt, NativeInt>;
+
+  protected
+    procedure SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
+    procedure SetUp_IMultiMap(out AEmpty, AOne, AFull: IMultiMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
   published
     procedure Test_ExtractValues;
     procedure Test_RemovePair_1;
@@ -293,66 +469,102 @@ type
 
 implementation
 
-{ TConformance_IEnumerable }
+{ TConformance_IEnumerable_Simple }
 
-procedure TConformance_IEnumerable.Test_Enumerator_Early_Current;
+procedure TConformance_IEnumerable_Simple.SetUp;
+begin
+  inherited;
+
+  SetUp_IEnumerable(FEmpty, FOne, FFull, FElements, FOrdering);
+end;
+
+procedure TConformance_IEnumerable_Simple.TearDown;
+begin
+  inherited;
+
+  FEmpty := nil;
+  FOne := nil;
+  FFull := nil;
+end;
+
+procedure TConformance_IEnumerable_Simple.Test_Enumerator_Early_Current;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_IEnumerable.Test_Enumerator_ReachEnd;
+procedure TConformance_IEnumerable_Simple.Test_Enumerator_ReachEnd;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_IEnumerable.Test_GetEnumerator;
+procedure TConformance_IEnumerable_Simple.Test_GetEnumerator;
 begin
   Fail('Not implemented!');
 end;
 
-{ TConformance_ICollection }
+{ TConformance_ICollection_Simple }
 
-procedure TConformance_ICollection.Test_CopyTo_1;
+procedure TConformance_ICollection_Simple.SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_ICollection(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
+procedure TConformance_ICollection_Simple.Test_CopyTo_1;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_ICollection.Test_CopyTo_2;
+procedure TConformance_ICollection_Simple.Test_CopyTo_2;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_ICollection.Test_Empty;
+procedure TConformance_ICollection_Simple.Test_Empty;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_ICollection.Test_GetCount;
+procedure TConformance_ICollection_Simple.Test_GetCount;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_ICollection.Test_Single;
+procedure TConformance_ICollection_Simple.Test_Single;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_ICollection.Test_SingleOrDefault;
+procedure TConformance_ICollection_Simple.Test_SingleOrDefault;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_ICollection.Test_ToArray;
+procedure TConformance_ICollection_Simple.Test_ToArray;
 begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_ICollection.Test_Version;
+procedure TConformance_ICollection_Simple.Test_Version;
 begin
   Fail('Not implemented!');
 end;
 
 { TConformance_IEnexCollection }
+
+procedure TConformance_IEnexCollection.SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_IEnexCollection(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
 
 procedure TConformance_IEnexCollection.Test_Aggregate;
 begin
@@ -681,12 +893,32 @@ end;
 
 { TConformance_IGrouping }
 
+procedure TConformance_IGrouping.SetUp_IEnexCollection(out AEmpty, AOne, AFull: IEnexCollection<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_IGrouping(FEmpty, FOne, FFull, FKey, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_IGrouping.Test_GetKey;
 begin
   Fail('Not implemented!');
 end;
 
 { TConformance_IOperableCollection }
+
+procedure TConformance_IOperableCollection.SetUp_IEnexCollection(out AEmpty, AOne, AFull: IEnexCollection<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_IOperableCollection(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
 
 procedure TConformance_IOperableCollection.Test_Add;
 begin
@@ -725,6 +957,16 @@ end;
 
 { TConformance_IStack }
 
+procedure TConformance_IStack.SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_IStack(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_IStack.Test_Peek;
 begin
   Fail('Not implemented!');
@@ -741,6 +983,16 @@ begin
 end;
 
 { TConformance_IQueue }
+
+procedure TConformance_IQueue.SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_IQueue(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
 
 procedure TConformance_IQueue.Test_Dequeue;
 begin
@@ -759,6 +1011,16 @@ end;
 
 { TConformance_ISortedSet }
 
+procedure TConformance_ISortedSet.SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_ISortedSet(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_ISortedSet.Test_Max;
 begin
   Fail('Not implemented!');
@@ -770,6 +1032,16 @@ begin
 end;
 
 { TConformance_IList }
+
+procedure TConformance_IList.SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_IList(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
 
 procedure TConformance_IList.Test_ExtractAt;
 begin
@@ -833,6 +1105,16 @@ end;
 
 { TConformance_ILinkedList }
 
+procedure TConformance_ILinkedList.SetUp_IList(out AEmpty, AOne, AFull: IList<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_ILinkedList(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_ILinkedList.Test_AddAllFirst;
 begin
   Fail('Not implemented!');
@@ -883,7 +1165,103 @@ begin
   Fail('Not implemented!');
 end;
 
+
+{ TConformance_IEnumerable_Associative }
+
+procedure TConformance_IEnumerable_Associative.SetUp;
+begin
+  inherited;
+
+  SetUp_IEnumerable(FEmpty, FOne, FFull, FPairs, FKeyOrdering);
+end;
+
+procedure TConformance_IEnumerable_Associative.TearDown;
+begin
+  inherited;
+
+  FEmpty := nil;
+  FOne := nil;
+  FFull := nil;
+end;
+
+procedure TConformance_IEnumerable_Associative.Test_Enumerator_Early_Current;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_IEnumerable_Associative.Test_Enumerator_ReachEnd;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_IEnumerable_Associative.Test_GetEnumerator;
+begin
+  Fail('Not implemented!');
+end;
+
+{ TConformance_ICollection_Associative }
+
+procedure TConformance_ICollection_Associative.SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<TPair<NativeInt, NativeInt>>;
+  out APairs: TPairs; out AKeyOrdering: TOrdering);
+begin
+  SetUp_ICollection(FEmpty, FOne, FFull, APairs, AKeyOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
+procedure TConformance_ICollection_Associative.Test_CopyTo_1;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_ICollection_Associative.Test_CopyTo_2;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_ICollection_Associative.Test_Empty;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_ICollection_Associative.Test_GetCount;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_ICollection_Associative.Test_Single;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_ICollection_Associative.Test_SingleOrDefault;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_ICollection_Associative.Test_ToArray;
+begin
+  Fail('Not implemented!');
+end;
+
+procedure TConformance_ICollection_Associative.Test_Version;
+begin
+  Fail('Not implemented!');
+end;
+
 { TConformance_IEnexAssociativeCollection }
+
+procedure TConformance_IEnexAssociativeCollection.SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<TPair<NativeInt, NativeInt>>;
+  out APairs: TPairs; out AKeyOrdering: TOrdering);
+begin
+  SetUp_IEnexAssociativeCollection(FEmpty, FOne, FFull, APairs, AKeyOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_DistinctByKeys;
 begin
@@ -1007,6 +1385,16 @@ end;
 
 { TConformance_IMap }
 
+procedure TConformance_IMap.SetUp_IEnexAssociativeCollection(out AEmpty, AOne, AFull: IEnexAssociativeCollection<NativeInt, NativeInt>;
+  out APairs: TPairs; out AKeyOrdering: TOrdering);
+begin
+  SetUp_IMap(FEmpty, FOne, FFull, APairs, AKeyOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_IMap.Test_AddAll;
 begin
   Fail('Not implemented!');
@@ -1044,6 +1432,16 @@ end;
 
 { TConformance_IDictionary }
 
+procedure TConformance_IDictionary.SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>;
+  out APairs: TPairs; out AKeyOrdering: TOrdering);
+begin
+  SetUp_IMap(FEmpty, FOne, FFull, APairs, AKeyOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_IDictionary.Test_Extract;
 begin
   Fail('Not implemented!');
@@ -1065,6 +1463,16 @@ begin
 end;
 
 { TConformance_IBidiDictionary }
+
+procedure TConformance_IBidiDictionary.SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>;
+  out APairs: TPairs; out AKeyOrdering: TOrdering);
+begin
+  SetUp_IBidiDictionary(FEmpty, FOne, FFull, APairs, AKeyOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
 
 procedure TConformance_IBidiDictionary.Test_ContainsPair_1;
 begin
@@ -1138,6 +1546,16 @@ end;
 
 { TConformance_IBidiMap }
 
+procedure TConformance_IBidiMap.SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>;
+  out APairs: TPairs; out AKeyOrdering: TOrdering);
+begin
+  SetUp_IBidiMap(FEmpty, FOne, FFull, APairs, AKeyOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_IBidiMap.Test_ContainsPair_1;
 begin
   Fail('Not implemented!');
@@ -1179,6 +1597,16 @@ begin
 end;
 
 { TConformance_IMultiMap }
+
+procedure TConformance_IMultiMap.SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>;
+  out APairs: TPairs; out AKeyOrdering: TOrdering);
+begin
+  SetUp_IMultiMap(FEmpty, FOne, FFull, APairs, AKeyOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
 
 procedure TConformance_IMultiMap.Test_ContainsPair_1;
 begin
@@ -1222,6 +1650,16 @@ end;
 
 { TConformance_IBag }
 
+procedure TConformance_IBag.SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_IBag(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
+end;
+
 procedure TConformance_IBag.Test_AddWeight;
 begin
   Fail('Not implemented!');
@@ -1250,6 +1688,18 @@ end;
 procedure TConformance_IBag.Test_SetWeight;
 begin
   Fail('Not implemented!');
+end;
+
+{ TConformance_ISet }
+
+procedure TConformance_ISet.SetUp_IOperableCollection(out AEmpty, AOne, AFull: IOperableCollection<NativeInt>;
+  out AElements: TElements; out AOrdering: TOrdering);
+begin
+  SetUp_ISet(FEmpty, FOne, FFull, AElements, AOrdering);
+
+  AEmpty := FEmpty;
+  AOne := FOne;
+  AFull := FFull;
 end;
 
 end.
