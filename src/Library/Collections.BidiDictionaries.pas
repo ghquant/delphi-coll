@@ -45,7 +45,10 @@ type
     FKeyCollection: IEnexCollection<TKey>;
 
   protected
-    function IDictionary<TKey, TValue>.Extract = ExtractValue;
+    function IDictionary<TKey, TValue>.Extract = ExtractValueForKey;
+    function IDictionary<TKey, TValue>.TryGetValue = TryGetValueForKey;
+    function IDictionary<TKey, TValue>.GetValue = GetValueForKey;
+    procedure IDictionary<TKey, TValue>.SetValue = SetValueForKey;
 
     ///  <summary>Specifies the internal dictionary used as back-end to store key relations.</summary>
     ///  <returns>A map used as back-end.</summary>
@@ -73,7 +76,7 @@ type
     ///  <param name="AKey">The key for which to obtain the associated value.</param>
     ///  <returns>The associated value.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetValue(const AKey: TKey): TValue;
+    function GetValueForKey(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
     ///  <param name="AKey">The key for which to set the value.</param>
@@ -81,13 +84,13 @@ type
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The new value is already used by another key.</exception>
-    procedure SetValue(const AKey: TKey; const AValue: TValue);
+    procedure SetValueForKey(const AKey: TKey; const AValue: TValue);
 
     ///  <summary>Returns the key associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated key.</param>
     ///  <returns>The associated key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    function GetKey(const AValue: TValue): TKey;
+    function GetKeyForValue(const AValue: TValue): TKey;
 
     ///  <summary>Sets the key for a given value.</summary>
     ///  <param name="AValue">The value for which to set the key.</param>
@@ -95,46 +98,12 @@ type
     ///  <remarks>If the dictionary does not contain the value, this method acts like <c>Add</c>; otherwise the
     ///  key of the specified value is modified.</remarks>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The new key is already used by another value.</exception>
-    procedure SetKey(const AValue: TValue; const AKey: TKey);
+    procedure SetKeyForValue(const AValue: TValue; const AKey: TKey);
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of TPair<TKey,TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set describing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the bidi-map.</param>
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set describing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the bidi-map.</param>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-          const ACollection: IEnumerable<TPair<TKey,TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set describing the keys in the bidi-map.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the bidi-map.</param>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-          const AArray: array of TPair<TKey,TValue>); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
     procedure Clear(); override;
@@ -150,40 +119,40 @@ type
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
-    function ExtractValue(const AKey: TKey): TValue;
+    function ExtractValueForKey(const AKey: TKey): TValue;
 
     ///  <summary>Extracts a key using a given value.</summary>
     ///  <param name="AValue">The value of the associated key.</param>
     ///  <returns>The key associated with the value.</returns>
     ///  <remarks>This function is identical to <c>RemoveValue</c> but will return the stored key. If there is no pair with the given value, an exception is raised.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AValue"/> is not part of the map.</exception>
-    function ExtractKey(const AValue: TValue): TKey;
+    function ExtractKeyForValue(const AValue: TValue): TKey;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key (and its associated value) to remove.</param>
-    procedure RemoveKey(const AKey: TKey);
+    procedure RemoveValueForKey(const AKey: TKey);
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key of the pair.</param>
-    procedure Remove(const AKey: TKey); overload; override;
+    procedure Remove(const AKey: TKey); override;
 
     ///  <summary>Removes a key-value pair using a given value.</summary>
     ///  <param name="AValue">The value (and its associated key) to remove.</param>
-    procedure RemoveValue(const AValue: TValue);
+    procedure RemoveKeyForValue(const AValue: TValue);
 
     ///  <summary>Removes a specific key-value combination.</summary>
     ///  <param name="AKey">The key to remove.</param>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>This method only removes a key-value combination if that combination actually exists in the bidi-dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
+    procedure RemovePair(const AKey: TKey; const AValue: TValue); overload;
 
     ///  <summary>Removes a specific key-value combination.</summary>
     ///  <param name="AKey">The key to remove.</param>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>This method only removes a key-value combination if that combination actually exists in the bidi-dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
-    procedure Remove(const APair: TPair<TKey, TValue>); overload;
+    procedure RemovePair(const APair: TPair<TKey, TValue>); overload;
 
     ///  <summary>Checks whether the dictionary contains a key-value pair identified by the given key.</summary>
     ///  <param name="AKey">The key to check for.</param>
@@ -210,25 +179,25 @@ type
     ///  <param name="AKey">The key for which to try to retrieve the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
-    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
+    function TryGetValueForKey(const AKey: TKey; out AFoundValue: TValue): Boolean;
 
     ///  <summary>Tries to obtain the key associated with a given value.</summary>
     ///  <param name="AValue">The value for which to try to retrieve the key.</param>
     ///  <param name="AFoundKey">The found key (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a key for the given value; <c>False</c> otherwise.</returns>
-    function TryGetKey(const AValue: TValue; out AFoundKey: TKey): Boolean;
+    function TryGetKeyForValue(const AValue: TValue; out AFoundKey: TKey): Boolean;
 
     ///  <summary>Returns the value associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated value.</param>
     ///  <returns>The associated value.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the bidi-dictionary.</exception>
-    property ByKey[const AKey: TKey]: TValue read GetValue write SetValue;
+    property ByKey[const AKey: TKey]: TValue read GetValueForKey write SetValueForKey;
 
     ///  <summary>Returns the key associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated key.</param>
     ///  <returns>The associated value.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the bidi-dictionary.</exception>
-    property ByValue[const AValue: TValue]: TKey read GetKey write SetKey;
+    property ByValue[const AValue: TValue]: TKey read GetKeyForValue write SetKeyForValue;
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the bidi-dictionary.</returns>
@@ -324,17 +293,21 @@ type
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the values.</remarks>
     function CreateValueDictionary(const AValueRules: TRules<TValue>;
       const AKeyRules: TRules<TKey>): IDictionary<TValue, TKey>; override;
-
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AInitialCapacity">The map's initial capacity.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt); overload;
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="AInitialCapacity">The map's initial capacity.</param>
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
+
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt); overload;
   end;
 
@@ -371,7 +344,7 @@ type
   ///  <remarks>This type uses a <c>sorted dictionary</c> to store its keys and a <c>hash-based dictionary</c> for its values.</remarks>
   TSortedBidiDictionary<TKey, TValue> = class(TAbstractBidiDictionary<TKey, TValue>)
   private
-    FAscSort: Boolean;
+    FAscending: Boolean;
 
   protected
     ///  <summary>Called when the dictionary needs to initialize the key sub-dictionary.</summary>
@@ -387,49 +360,24 @@ type
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the values.</remarks>
     function CreateValueDictionary(const AValueRules: TRules<TValue>;
       const AKeyRules: TRules<TKey>): IDictionary<TValue, TKey>; override;
-
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscending: Boolean = true); overload;
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed. The keys are stored in ascending order.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <remarks>The keys are stored in ascending order.</remarks>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean = true); overload;
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <param name="AAscending">Pass in a value of <c>True</c> if the keys should be kept in ascending order.
+    ///  Pass in <c>False</c> for descending order.</param>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AAscending: Boolean); overload;
   end;
 
   ///  <summary>The generic <c>bidirectional dictionary</c> collection designed to store objects.</summary>
@@ -465,7 +413,7 @@ type
   ///  <remarks>This type uses two <c>sorted dictionaries</c> to store its keys and values.</remarks>
   TDoubleSortedBidiDictionary<TKey, TValue> = class(TAbstractBidiDictionary<TKey, TValue>)
   private
-    FAscKeys, FAscValues: Boolean;
+    FAscendingKeys, FAscendingValues: Boolean;
 
   protected
     ///  <summary>Called when the dictionary needs to initialize the key sub-dictionary.</summary>
@@ -483,57 +431,26 @@ type
       const AKeyRules: TRules<TKey>): IDictionary<TValue, TKey>; override;
 
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed. The keys and values are stored in ascending order.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey,TValue>>;
-      const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <remarks>The keys and values are stored in ascending order.</remarks>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of TPair<TKey,TValue>;
-      const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
+    ///  <summary>Creates a new <c>bi-directional dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <param name="AAscendingKeys">Pass in a value of <c>True</c> if the keys should be kept in ascending order.
+    ///  Pass in <c>False</c> for descending order.</param>
+    ///  <param name="AAscendingValues">Pass in a value of <c>True</c> if the values should be kept in ascending order.
+    ///  Pass in <c>False</c> for descending order.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AAscendingKeys: Boolean = true; const AAscendingValues: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscendingKeys: Boolean = true;
-      const AAscendingValues: Boolean = true); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    ///  <param name="AValueRules">The rule set describing the values.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscendingKeys">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <param name="AAscendingValues">A value specifying whether the values are sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TKey,TValue>; const AAscendingKeys: Boolean = true;
-      const AAscendingValues: Boolean = true); overload;
+      const AAscendingKeys: Boolean; const AAscendingValues: Boolean); overload;
   end;
 
   ///  <summary>The generic <c>bidirectional dictionary</c> collection designed to store objects.</summary>
@@ -635,71 +552,13 @@ begin
   FKeyCollection := FByKeyDictionary.Keys;
 end;
 
-constructor TAbstractBidiDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>);
-begin
-  { Call the correct constructor }
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray);
-end;
-
-constructor TAbstractBidiDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>);
-var
-  I: NativeInt;
-begin
-  { Call the correct constructor }
-  Create(AKeyRules, AValueRules);
-
-  { Copy all items in }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
-end;
-
-constructor TAbstractBidiDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const ACollection: IEnumerable<TPair<TKey, TValue>>);
-var
-  LValue: TPair<TKey, TValue>;
-begin
-  { Call the correct constructor }
-  Create(AKeyRules, AValueRules);
-
-  for LValue in ACollection do
-  begin
-{$IF CompilerVersion < 22}
-    Add(LValue);
-{$ELSE}
-    Add(LValue.Key, LValue.Value);
-{$IFEND}
-  end;
-end;
-
-constructor TAbstractBidiDictionary<TKey, TValue>.Create;
-begin
-  { Call the correct constructor }
-  Create(TRules<TKey>.Default, TRules<TValue>.Default);
-end;
-
-constructor TAbstractBidiDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>);
-begin
-  { Call the correct constructor }
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection);
-end;
-
-destructor TAbstractBidiDictionary<TKey, TValue>.Destroy;
-begin
-  Clear();
-
-  inherited;
-end;
-
 function TAbstractBidiDictionary<TKey, TValue>.Empty: Boolean;
 begin
   { Redirect }
   Result := FByKeyDictionary.Empty();
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.ExtractKey(const AValue: TValue): TKey;
+function TAbstractBidiDictionary<TKey, TValue>.ExtractKeyForValue(const AValue: TValue): TKey;
 begin
   if FByValueDictionary.TryGetValue(AValue, Result) then
   begin
@@ -710,7 +569,7 @@ begin
     ExceptionHelper.Throw_KeyNotFoundError('AValue');
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.ExtractValue(const AKey: TKey): TValue;
+function TAbstractBidiDictionary<TKey, TValue>.ExtractValueForKey(const AKey: TKey): TValue;
 begin
   if FByKeyDictionary.TryGetValue(AKey, Result) then
   begin
@@ -732,13 +591,13 @@ begin
   Result := FByKeyDictionary.GetEnumerator();
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.GetKey(const AValue: TValue): TKey;
+function TAbstractBidiDictionary<TKey, TValue>.GetKeyForValue(const AValue: TValue): TKey;
 begin
   { Use indexed property. }
   Result := FByValueDictionary[AValue];
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.GetValue(const AKey: TKey): TValue;
+function TAbstractBidiDictionary<TKey, TValue>.GetValueForKey(const AKey: TKey): TValue;
 begin
   { Use indexed property. }
   Result := FByKeyDictionary[AKey];
@@ -772,7 +631,7 @@ begin
   Result := FByValueDictionary.MinKey;
 end;
 
-procedure TAbstractBidiDictionary<TKey, TValue>.Remove(const AKey: TKey; const AValue: TValue);
+procedure TAbstractBidiDictionary<TKey, TValue>.RemovePair(const AKey: TKey; const AValue: TValue);
 var
   LAssociatedValue: TValue;
 begin
@@ -789,16 +648,16 @@ end;
 procedure TAbstractBidiDictionary<TKey, TValue>.Remove(const AKey: TKey);
 begin
   { Redirect ... }
-  RemoveKey(AKey);
+  RemoveValueForKey(AKey);
 end;
 
-procedure TAbstractBidiDictionary<TKey, TValue>.Remove(const APair: TPair<TKey, TValue>);
+procedure TAbstractBidiDictionary<TKey, TValue>.RemovePair(const APair: TPair<TKey, TValue>);
 begin
   { Redirect ... }
-  Remove(APair.Key, APair.Value);
+  RemovePair(APair.Key, APair.Value);
 end;
 
-procedure TAbstractBidiDictionary<TKey, TValue>.RemoveKey(const AKey: TKey);
+procedure TAbstractBidiDictionary<TKey, TValue>.RemoveValueForKey(const AKey: TKey);
 var
   LAssociatedValue: TValue;
 begin
@@ -812,7 +671,7 @@ begin
   end;
 end;
 
-procedure TAbstractBidiDictionary<TKey, TValue>.RemoveValue(const AValue: TValue);
+procedure TAbstractBidiDictionary<TKey, TValue>.RemoveKeyForValue(const AValue: TValue);
 var
   LAssociatedKey: TKey;
 begin
@@ -836,7 +695,7 @@ begin
   Result := FValueCollection;
 end;
 
-procedure TAbstractBidiDictionary<TKey, TValue>.SetKey(const AValue: TValue; const AKey: TKey);
+procedure TAbstractBidiDictionary<TKey, TValue>.SetKeyForValue(const AValue: TValue; const AKey: TKey);
 var
   LOldKey: TKey;
 begin
@@ -855,7 +714,7 @@ begin
   FByValueDictionary[AValue] := AKey;
 end;
 
-procedure TAbstractBidiDictionary<TKey, TValue>.SetValue(const AKey: TKey; const AValue: TValue);
+procedure TAbstractBidiDictionary<TKey, TValue>.SetValueForKey(const AKey: TKey; const AValue: TValue);
 var
   LOldValue: TValue;
 begin
@@ -874,13 +733,13 @@ begin
   FByKeyDictionary[AKey] := AValue;
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.TryGetKey(const AValue: TValue; out AFoundKey: TKey): Boolean;
+function TAbstractBidiDictionary<TKey, TValue>.TryGetKeyForValue(const AValue: TValue; out AFoundKey: TKey): Boolean;
 begin
   { Act as a bridge }
   Result := FByValueDictionary.TryGetValue(AValue, AFoundKey);
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
+function TAbstractBidiDictionary<TKey, TValue>.TryGetValueForKey(const AKey: TKey; out AFoundValue: TValue): Boolean;
 begin
   { Act as a bridge }
   Result := FByKeyDictionary.TryGetValue(AKey, AFoundValue);
@@ -894,17 +753,21 @@ end;
 
 { TBidiDictionary<TKey, TValue> }
 
-constructor TBidiDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
-begin
-  FInitialCapacity := AInitialCapacity;
-  inherited Create();
-end;
-
 constructor TBidiDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt);
 begin
   FInitialCapacity := AInitialCapacity;
   inherited Create(AKeyRules, AValueRules);
+end;
+
+constructor TBidiDictionary<TKey, TValue>.Create;
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, CDefaultSize);
+end;
+
+constructor TBidiDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+begin
+  Create(AKeyRules, AValueRules, CDefaultSize);
 end;
 
 function TBidiDictionary<TKey, TValue>.CreateKeyDictionary(
@@ -949,39 +812,6 @@ end;
 
 { TSortedBidiDictionary<TKey, TValue> }
 
-constructor TSortedBidiDictionary<TKey, TValue>.Create(
-  const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AArray);
-end;
-
-constructor TSortedBidiDictionary<TKey, TValue>.Create(
-  const ACollection: IEnumerable<TPair<TKey, TValue>>;
-  const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(ACollection);
-end;
-
-constructor TSortedBidiDictionary<TKey, TValue>.Create(const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create();
-end;
-
-constructor TSortedBidiDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
-begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AKeyRules, AValueRules, AArray);
-end;
-
 function TSortedBidiDictionary<TKey, TValue>.CreateKeyDictionary(
   const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>): IDictionary<TKey, TValue>;
@@ -989,7 +819,7 @@ var
   LDictionary: TSortedDictionary<TKey, TValue>;
 begin
   { Use a double sorted map }
-  LDictionary := TSortedDictionary<TKey, TValue>.Create(AKeyRules, AValueRules, FAscSort);
+  LDictionary := TSortedDictionary<TKey, TValue>.Create(AKeyRules, AValueRules, FAscending);
   LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
 
   Result := LDictionary;
@@ -1010,21 +840,20 @@ end;
 
 constructor TSortedBidiDictionary<TKey, TValue>.Create(
   const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const ACollection: IEnumerable<TPair<TKey, TValue>>;
   const AAscending: Boolean);
 begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AKeyRules, AValueRules, ACollection);
+  FAscending := AAscending;
+  inherited Create(AKeyRules, AValueRules);
 end;
 
-constructor TSortedBidiDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AAscending: Boolean);
+constructor TSortedBidiDictionary<TKey, TValue>.Create;
 begin
-  { Do the dew and continue }
-  FAscSort := AAscending;
-  inherited Create(AKeyRules, AValueRules);
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, True);
+end;
+
+constructor TSortedBidiDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+begin
+  Create(AKeyRules, AValueRules, True);
 end;
 
 { TObjectSortedBidiDictionary<TKey, TValue> }
@@ -1043,50 +872,6 @@ end;
 
 { TDoubleSortedBidiDictionary<TKey, TValue> }
 
-constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create(
-  const AArray: array of TPair<TKey, TValue>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do the dew and continue }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(AArray);
-end;
-
-constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create(
-  const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do the dew and continue }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(ACollection);
-end;
-
-constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create(
-  const AAscendingKeys, AAscendingValues: Boolean);
-begin
-  { Do the dew and continue }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create();
-end;
-
-constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do the dew and continue }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(AKeyRules, AValueRules, AArray);
-end;
-
 function TDoubleSortedBidiDictionary<TKey, TValue>.CreateKeyDictionary(
   const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>): IDictionary<TKey, TValue>;
@@ -1094,7 +879,7 @@ var
   LDictionary: TSortedDictionary<TKey, TValue>;
 begin
   { Use a double sorted map }
-  LDictionary := TSortedDictionary<TKey, TValue>.Create(AKeyRules, AValueRules, FAscKeys);
+  LDictionary := TSortedDictionary<TKey, TValue>.Create(AKeyRules, AValueRules, FAscendingKeys);
   LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
 
   Result := LDictionary;
@@ -1107,7 +892,7 @@ var
   LDictionary: TSortedDictionary<TValue, TKey>;
 begin
   { Use a double sorted map }
-  LDictionary := TSortedDictionary<TValue, TKey>.Create(AValueRules, AKeyRules, FAscValues);
+  LDictionary := TSortedDictionary<TValue, TKey>.Create(AValueRules, AKeyRules, FAscendingValues);
   LDictionary.KeyRemoveNotification := NotifyValueRemoved;
 
   Result := LDictionary;
@@ -1115,25 +900,22 @@ end;
 
 constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create(
   const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscendingKeys,
-  AAscendingValues: Boolean);
-begin
-  { Do the dew and continue }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
-
-  inherited Create(AKeyRules, AValueRules, ACollection);
-end;
-
-constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
   const AAscendingKeys, AAscendingValues: Boolean);
 begin
-  { Do the dew and continue }
-  FAscKeys := AAscendingKeys;
-  FAscValues := AAscendingValues;
+  FAscendingKeys := AAscendingKeys;
+  FAscendingValues := AAscendingValues;
 
   inherited Create(AKeyRules, AValueRules);
+end;
+
+constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create;
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, True, True);
+end;
+
+constructor TDoubleSortedBidiDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+begin
+  Create(AKeyRules, AValueRules, True, True);
 end;
 
 { TObjectDoubleSortedBidiDictionary<TKey, TValue> }

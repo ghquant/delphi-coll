@@ -25,12 +25,12 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-unit Tests.Dynamic;
+unit Tests.Internal.Dynamic;
 interface
 {$IF CompilerVersion > 21}
 uses SysUtils,
      Rtti,
-     Tests.Utils,
+     Tests.Internal.Basics,
      TestFramework,
      Generics.Collections,
      Collections.Dynamic,
@@ -117,7 +117,8 @@ begin
   LList.Add(TCompositeObject.Create(999, '999'));
 
   { Select only integers }
-  LSelectedInts := TList<Integer>.Create(LList.Op.Select<Integer>('FInteger'));
+  LSelectedInts := TList<Integer>.Create();
+  LSelectedInts.AddAll(LList.Op.Select<Integer>('FInteger'));
 
   CheckEquals(5, LSelectedInts.Count);
   CheckEquals(111, LSelectedInts[0]);
@@ -126,7 +127,8 @@ begin
   CheckEquals(444, LSelectedInts[3]);
   CheckEquals(999, LSelectedInts[4]);
 
-  LSelectedStrs := TList<string>.Create(LList.Op.Select<string>('FString'));
+  LSelectedStrs := TList<string>.Create();
+  LSelectedStrs.AddAll(LList.Op.Select<string>('FString'));
 
   CheckEquals(5, LSelectedStrs.Count);
   CheckEquals('111', LSelectedStrs[0]);
@@ -156,7 +158,8 @@ begin
   LList.Add(TCompositeObject.Create(999, '999'));
 
   { Select only integers }
-  LSelected := TList<TValue>.Create(LList.Op.Select('FInteger'));
+  LSelected := TList<TValue>.Create();
+  LSelected.AddAll(LList.Op.Select('FInteger'));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals(111, LSelected[0].AsInteger);
@@ -166,7 +169,7 @@ begin
   CheckEquals(999, LSelected[4].AsInteger);
 
   LSelected.Clear();
-  LSelected.Add(LList.Op.Select('FString'));
+  LSelected.AddAll(LList.Op.Select('FString'));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals('111', LSelected[0].AsString);
@@ -195,7 +198,8 @@ begin
   LList.Add(TCompositeObject.Create(999, '999'));
 
   { Select only integers }
-  LSelected := TList<TView>.Create(LList.Op.Select(['FInteger', '_String']));
+  LSelected := TList<TView>.Create();
+  LSelected.AddAll(LList.Op.Select(['FInteger', '_String']));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals(111, LSelected[0].FInteger);
@@ -230,7 +234,8 @@ begin
   LList.Add(TCompositeObject.Create(999, '999'));
 
   { Select only integers }
-  LSelectedInts := TList<Integer>.Create(LList.Op.Select<Integer>('_Integer'));
+  LSelectedInts := TList<Integer>.Create();
+  LSelectedInts.AddAll(LList.Op.Select<Integer>('_Integer'));
 
   CheckEquals(5, LSelectedInts.Count);
   CheckEquals(111, LSelectedInts[0]);
@@ -239,7 +244,8 @@ begin
   CheckEquals(444, LSelectedInts[3]);
   CheckEquals(999, LSelectedInts[4]);
 
-  LSelectedStrs := TList<string>.Create(LList.Op.Select<string>('_String'));
+  LSelectedStrs := TList<string>.Create();
+  LSelectedStrs.AddAll(LList.Op.Select<string>('_String'));
 
   CheckEquals(5, LSelectedStrs.Count);
   CheckEquals('111', LSelectedStrs[0]);
@@ -269,7 +275,8 @@ begin
   LList.Add(TCompositeObject.Create(999, '999'));
 
   { Select only integers }
-  LSelected := TList<TValue>.Create(LList.Op.Select('_Integer'));
+  LSelected := TList<TValue>.Create();
+  LSelected.AddAll(LList.Op.Select('_Integer'));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals(111, LSelected[0].AsInteger);
@@ -279,7 +286,7 @@ begin
   CheckEquals(999, LSelected[4].AsInteger);
 
   LSelected.Clear();
-  LSelected.Add(LList.Op.Select('_String'));
+  LSelected.AddAll(LList.Op.Select('_String'));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals('111', LSelected[0].AsString);
@@ -346,7 +353,8 @@ begin
   LList.Add(TCompositeRecord.Create(999, '999'));
 
   { Select only integers }
-  LSelectedInts := TList<Integer>.Create(LList.Op.Select<Integer>('FInteger'));
+  LSelectedInts := TList<Integer>.Create();
+  LSelectedInts.AddAll(LList.Op.Select<Integer>('FInteger'));
 
   CheckEquals(5, LSelectedInts.Count);
   CheckEquals(111, LSelectedInts[0]);
@@ -355,7 +363,8 @@ begin
   CheckEquals(444, LSelectedInts[3]);
   CheckEquals(999, LSelectedInts[4]);
 
-  LSelectedStrs := TList<string>.Create(LList.Op.Select<string>('FString'));
+  LSelectedStrs := TList<string>.Create();
+  LSelectedStrs.AddAll(LList.Op.Select<string>('FString'));
 
   CheckEquals(5, LSelectedStrs.Count);
   CheckEquals('111', LSelectedStrs[0]);
@@ -384,7 +393,8 @@ begin
   LList.Add(TCompositeRecord.Create(999, '999'));
 
   { Select only integers }
-  LSelected := TList<TValue>.Create(LList.Op.Select('FInteger'));
+  LSelected := TList<TValue>.Create();
+  LSelected.AddAll(LList.Op.Select('FInteger'));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals(111, LSelected[0].AsInteger);
@@ -394,7 +404,7 @@ begin
   CheckEquals(999, LSelected[4].AsInteger);
 
   LSelected.Clear();
-  LSelected.Add(LList.Op.Select('FString'));
+  LSelected.AddAll(LList.Op.Select('FString'));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals('111', LSelected[0].AsString);
@@ -422,7 +432,8 @@ begin
   LList.Add(TCompositeRecord.Create(999, '999'));
 
   { Select only integers }
-  LSelected := TList<TView>.Create(LList.Op.Select(['FInteger', 'FString']));
+  LSelected := TList<TView>.Create();
+  LSelected.AddAll(LList.Op.Select(['FInteger', 'FString']));
 
   CheckEquals(5, LSelected.Count);
   CheckEquals(111, LSelected[0].FInteger);
@@ -565,10 +576,13 @@ begin
 end;
 
 initialization
-  TestFramework.RegisterTest(TTestDynamic.Suite);
-  TestFramework.RegisterTest(TTestMember.Suite);
+  TestFramework.RegisterTests('Internal.Dynamic', [
+    TTestDynamic.Suite,
+    TTestMember.Suite
+  ]);
 
 {$ELSE}
 implementation
 {$IFEND}
 end.
+

@@ -39,45 +39,9 @@ type
   ///  the non-required method.</remarks>
   TAbstractQueue<T> = class(TAbstractOperableCollection<T>, IQueue<T>)
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <remarks>Override this constructor in descending classes to perform more initialization required for
-    ///  that specific type.</remarks>
-    constructor Create(const ARules: TRules<T>); overload; virtual;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="ARules">A rule set describing the elements in the set.</param>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
+    ///  <summary>Creates a new <c>queue</c> collection.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
+    constructor Create(const ARules: TRules<T>);
 
     ///  <summary>Appends an element to the head of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
@@ -133,17 +97,17 @@ type
     ///  is greater than the number of elements, it means that the queue has some extra capacity to operate upon.</remarks>
     function GetCapacity(): NativeInt;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt); overload;
+    ///  <summary>Creates a new <c>queue</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>queue</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the queue.</param>
-    constructor Create(const ARules: TRules<T>); overload; override;
+    constructor Create(const ARules: TRules<T>); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AInitialCapacity">The queue's initial capacity.</param>
+    ///  <summary>Creates a new <c>queue</c> collection.</summary>
+    ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <param name="ARules">A rule set describing the elements in the queue.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
@@ -363,6 +327,15 @@ type
     ///  <returns>A positive value specifying the number of elements in the queue.</returns>
     function GetCount(): NativeInt; override;
   public
+    ///  <summary>Creates a new <c>queue</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new <c>queue</c> collection.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the queue.</param>
+    constructor Create(const ARules: TRules<T>); overload;
+
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
     destructor Destroy(); override;
@@ -738,48 +711,6 @@ implementation
 
 { TAbstractQueue<T> }
 
-constructor TAbstractQueue<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
-end;
-
-constructor TAbstractQueue<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
-constructor TAbstractQueue<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all in }
-  for I := 0 to Length(AArray) - 1 do
-    Enqueue(AArray[I]);
-end;
-
-constructor TAbstractQueue<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-    Enqueue(LValue);
-end;
-
-constructor TAbstractQueue<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
 constructor TAbstractQueue<T>.Create(const ARules: TRules<T>);
 begin
   inherited Create(ARules);
@@ -788,12 +719,6 @@ end;
 function TAbstractQueue<T>.Dequeue: T;
 begin
   ExceptionHelper.Throw_OperationNotSupported('Dequeue');
-end;
-
-destructor TAbstractQueue<T>.Destroy;
-begin
-  Clear();
-  inherited;
 end;
 
 procedure TAbstractQueue<T>.Enqueue(const AValue: T);
@@ -976,24 +901,23 @@ begin
   end;
 end;
 
-constructor TQueue<T>.Create(const AInitialCapacity: NativeInt);
+constructor TQueue<T>.Create;
 begin
-  Create(TRules<T>.Default, AInitialCapacity);
+  Create(TRules<T>.Default, CDefaultSize);
 end;
 
 constructor TQueue<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   inherited Create(ARules);
 
-  FTail := 0;
-  FLength := 0;
-  FHead := 0;
-  SetLength(FArray, AInitialCapacity);
+  if AInitialCapacity <= 0 then
+    SetLength(FArray, 0)
+  else
+   SetLength(FArray, AInitialCapacity);
 end;
 
 constructor TQueue<T>.Create(const ARules: TRules<T>);
 begin
-  { Call upper constructor }
   Create(ARules, CDefaultSize);
 end;
 
@@ -1440,6 +1364,16 @@ begin
     Inc(X);
     LCurrent := LCurrent^.FNext;
   end;
+end;
+
+constructor TLinkedQueue<T>.Create;
+begin
+  Create(TRules<T>.Default);
+end;
+
+constructor TLinkedQueue<T>.Create(const ARules: TRules<T>);
+begin
+  inherited Create(ARules);
 end;
 
 function TLinkedQueue<T>.ElementAt(const AIndex: NativeInt): T;

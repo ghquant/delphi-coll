@@ -709,25 +709,6 @@ type
     function ContainsAll(const ACollection: IEnumerable<T>): Boolean;
   end;
 
-  ///  <summary>The Enex interface implemented in collections that allow indexed element access.</summary>
-  ///  <remarks>This interface is inherited by other more specific interfaces such as lists. Indexed collections
-  ///  allow their elements to be accesed given a numeric index.</remarks>
-  IEnexIndexedCollection<T> = interface(IOperableCollection<T>)
-    ///  <summary>Returns the item from a given index.</summary>
-    ///  <param name="AIndex">The index in the collection.</param>
-    ///  <returns>The element at the specified position.</returns>
-    ///  <remarks>This method is similar to <c>ElementAt</c>. The only difference is that this method is guaranteed
-    ///  to provide the fastest lookup (normally <c>ElementAt</c> should also use the same method in indexed collections).</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    function GetItem(const AIndex: NativeInt): T;
-
-    ///  <summary>Returns the item from a given index.</summary>
-    ///  <param name="AIndex">The index in the collection.</param>
-    ///  <returns>The element at the specified position.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
-    property Items[const AIndex: NativeInt]: T read GetItem; default;
-  end;
-
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific associative collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all associative collections implemented in this package. It also introduces
   ///  a large se of extended operations that can pe performed on any collection that supports enumerability.</remarks>
@@ -963,29 +944,26 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>bag</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>bag</c>.</remarks>
-  IBag<T> = interface(IEnexCollection<T>)
-    ///  <summary>Clears the contents of the bag.</summary>
-    procedure Clear();
-
+  IBag<T> = interface(ISet<T>)
     ///  <summary>Adds an element to the bag.</summary>
     ///  <param name="AValue">The element to add.</param>
     ///  <param name="AWeight">The weight of the element.</param>
     ///  <remarks>If the bag already contains the given value, it's stored weight is incremented to by <paramref name="AWeight"/>.
     ///  If the value of <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Add(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure AddWeight(const AValue: T; const AWeight: NativeUInt);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <param name="AWeight">The weight to remove.</param>
     ///  <remarks>This method decreses the weight of the stored item by <paramref name="AWeight"/>. If the resulting weight is less
     ///  than zero or zero, the element is removed for the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Remove(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure RemoveWeight(const AValue: T; const AWeight: NativeUInt);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>This method completely removes an item from the bag ignoring it's stored weight. Nothing happens if the given value
     ///  is not in the bag to begin with.</remarks>
-    procedure RemoveAll(const AValue: T);
+    procedure RemoveAllWeight(const AValue: T);
 
     ///  <summary>Checks whether the bag contains an element with at least the required weight.</summary>
     ///  <param name="AValue">The value to check.</param>
@@ -993,7 +971,7 @@ type
     ///  <returns><c>True</c> if the condition is met; <c>False</c> otherwise.</returns>
     ///  <remarks>This method checks whether the bag contains the given value and that the contained value has at least the
     ///  given weight.</remarks>
-    function Contains(const AValue: T; const AWeight: NativeUInt = 1): Boolean;
+    function ContainsWeight(const AValue: T; const AWeight: NativeUInt): Boolean;
 
     ///  <summary>Returns the weight of an element.</param>
     ///  <param name="AValue">The value to check.</param>
@@ -1017,7 +995,7 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>list</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>list</c>.</remarks>
-  IList<T> = interface(IEnexIndexedCollection<T>)
+  IList<T> = interface(IOperableCollection<T>)
     ///  <summary>Inserts an element into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
     ///  <param name="AValue">The value to insert.</param>
@@ -1087,11 +1065,29 @@ type
     ///  <param name="AValue">The value to search for.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     function LastIndexOf(const AValue: T): NativeInt; overload;
+
+    ///  <summary>Returns the item at a given index.</summary>
+    ///  <param name="AIndex">The index in the list.</param>
+    ///  <returns>The element at the specified position.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    function GetItem(const AIndex: NativeInt): T;
+
+    ///  <summary>Sets the item at a given index.</summary>
+    ///  <param name="AIndex">The index in the list.</param>
+    ///  <param name="AValue">The new value.</param>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    procedure SetItem(const AIndex: NativeInt; const AValue: T);
+
+    ///  <summary>Returns the item at a given index.</summary>
+    ///  <param name="AIndex">The index in the collection.</param>
+    ///  <returns>The element at the specified position.</returns>
+    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AIndex"/> is out of bounds.</exception>
+    property Items[const AIndex: NativeInt]: T read GetItem write SetItem; default;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>linked list</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>linked list</c>.</remarks>
-  ILinkedList<T> = interface(IEnexIndexedCollection<T>)
+  ILinkedList<T> = interface(IList<T>)
     ///  <summary>Appends an element to the back of list.</summary>
     ///  <param name="AValue">The value to append.</param>
     ///  <remarks>This method is functionally identical to <c>Add</c>. Classes that implement this interface can simply
@@ -1151,7 +1147,7 @@ type
     ///  <summary>Clears the contents of the map.</summary>
     procedure Clear();
 
-{$IF CompilerVersion < 22}
+{$IF CompilerVersion > 21}
     ///  <summary>Adds a key-value pair to the map.</summary>
     ///  <param name="APair">The key-value pair to add.</param>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The map already contains a pair with the given key.</exception>
@@ -1235,36 +1231,36 @@ type
     ///  <returns>The value associated with the key.</returns>
     ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the stored value. If there is no pair with the given key, an exception is raised.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
-    function ExtractValue(const AKey: TKey): TValue;
+    function ExtractValueForKey(const AKey: TKey): TValue;
 
     ///  <summary>Extracts a key using a given value.</summary>
     ///  <param name="AValue">The value of the associated key.</param>
     ///  <returns>The key associated with the value.</returns>
     ///  <remarks>This function is identical to <c>RemoveValue</c> but will return the stored key. If there is no pair with the given value, an exception is raised.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AValue"/> is not part of the map.</exception>
-    function ExtractKey(const AValue: TValue): TKey;
+    function ExtractKeyForValue(const AValue: TValue): TKey;
 
     ///  <summary>Removes a key-value pair using a given key.</summary>
     ///  <param name="AKey">The key (and its associated value) to remove.</param>
-    procedure RemoveKey(const AKey: TKey);
+    procedure RemoveValueForKey(const AKey: TKey);
 
     ///  <summary>Removes a key-value pair using a given value.</summary>
     ///  <param name="AValue">The value (and its associated key) to remove.</param>
-    procedure RemoveValue(const AValue: TValue);
+    procedure RemoveKeyForValue(const AValue: TValue);
 
     ///  <summary>Removes a specific key-value combination.</summary>
     ///  <param name="AKey">The key to remove.</param>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
+    procedure RemovePair(const AKey: TKey; const AValue: TValue); overload;
 
-{$IF CompilerVersion < 22}
+{$IF CompilerVersion > 21}
     ///  <summary>Removes a key-value combination.</summary>
     ///  <param name="APair">The pair to remove.</param>
     ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
-    procedure Remove(const APair: TPair<TKey, TValue>); overload;
+    procedure RemovePair(const APair: TPair<TKey, TValue>); overload;
 {$IFEND}
 
     ///  <summary>Checks whether the map contains the given key-value combination.</summary>
@@ -1273,7 +1269,7 @@ type
     ///  <returns><c>True</c> if the dictionary contains the given association; <c>False</c> otherwise.</returns>
     function ContainsPair(const AKey: TKey; const AValue: TValue): Boolean; overload;
 
-{$IF CompilerVersion < 22}
+{$IF CompilerVersion > 21}
     ///  <summary>Checks whether the map contains a given key-value combination.</summary>
     ///  <param name="APair">The key-value pair combination.</param>
     ///  <returns><c>True</c> if the dictionary contains the given association; <c>False</c> otherwise.</returns>
@@ -1284,13 +1280,13 @@ type
     ///  <param name="AKey">The key for which to try to retreive the value.</param>
     ///  <param name="AFoundValue">The found value (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a value for the given key; <c>False</c> otherwise.</returns>
-    function TryGetValue(const AKey: TKey; out AFoundValue: TValue): Boolean;
+    function TryGetValueForKey(const AKey: TKey; out AFoundValue: TValue): Boolean;
 
     ///  <summary>Returns the value associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated value.</param>
     ///  <returns>The associated value.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetValue(const AKey: TKey): TValue;
+    function GetValueForKey(const AKey: TKey): TValue;
 
     ///  <summary>Sets the value for a given key.</summary>
     ///  <param name="AKey">The key for which to set the value.</param>
@@ -1298,25 +1294,25 @@ type
     ///  <remarks>If the dictionary does not contain the key, this method acts like <c>Add</c>; otherwise the
     ///  value of the specified key is modified.</remarks>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The new value is already used by another key.</exception>
-    procedure SetValue(const AKey: TKey; const AValue: TValue);
+    procedure SetValueForKey(const AKey: TKey; const AValue: TValue);
 
     ///  <summary>Returns the value associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated value.</param>
     ///  <returns>The associated value.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    property ByKey[const AKey: TKey]: TValue read GetValue write SetValue;
+    property ByKey[const AKey: TKey]: TValue read GetValueForKey write SetValueForKey;
 
     ///  <summary>Tries to obtain the key associated with a given value.</summary>
     ///  <param name="AValue">The value for which to try to retreive the key.</param>
     ///  <param name="AFoundKey">The found key (if the result is <c>True</c>).</param>
     ///  <returns><c>True</c> if the dictionary contains a key for the given value; <c>False</c> otherwise.</returns>
-    function TryGetKey(const AValue: TValue; out AFoundKey: TKey): Boolean;
+    function TryGetKeyForValue(const AValue: TValue; out AFoundKey: TKey): Boolean;
 
     ///  <summary>Returns the key associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated key.</param>
     ///  <returns>The associated key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    function GetKey(const AValue: TValue): TKey;
+    function GetKeyForValue(const AValue: TValue): TKey;
 
     ///  <summary>Sets the key for a given value.</summary>
     ///  <param name="AValue">The value for which to set the key.</param>
@@ -1324,13 +1320,13 @@ type
     ///  <remarks>If the dictionary does not contain the value, this method acts like <c>Add</c>; otherwise the
     ///  key of the specified value is modified.</remarks>
     ///  <exception cref="Collections.Base|EDuplicateKeyException">The new key is already used by another value.</exception>
-    procedure SetKey(const AValue: TValue; const AKey: TKey);
+    procedure SetKeyForValue(const AValue: TValue; const AKey: TKey);
 
     ///  <summary>Returns the key associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated key.</param>
     ///  <returns>The associated key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    property ByValue[const AValue: TValue]: TKey read GetKey write SetKey;
+    property ByValue[const AValue: TValue]: TKey read GetKeyForValue write SetKeyForValue;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>bidirectional multi-map</c>.</summary>
@@ -1341,27 +1337,27 @@ type
     ///  <param name="AKey">The key (and its associated values) to remove.</param>
     ///  <remarks>This method removes all the values that are associated with the given key. The rule set's cleanup
     ///  routines are used to cleanup the values that are dropped from the map.</remarks>
-    procedure RemoveKey(const AKey: TKey);
+    procedure RemoveValuesForKey(const AKey: TKey);
 
     ///  <summary>Removes a key-value pair using a given value.</summary>
     ///  <param name="AValue">The value (and its associated keys) to remove.</param>
     ///  <remarks>This method removes all the keys that are associated with the given value. The rule set's cleanup
     ///  routines are used to cleanup the keys that are dropped from the map.</remarks>
-    procedure RemoveValue(const AValue: TValue);
+    procedure RemoveKeysForValue(const AValue: TValue);
 
     ///  <summary>Removes a specific key-value combination.</summary>
     ///  <param name="AKey">The key to remove.</param>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
-    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
+    procedure RemovePair(const AKey: TKey; const AValue: TValue); overload;
 
-{$IF CompilerVersion < 22}
+{$IF CompilerVersion > 21}
     ///  <summary>Removes a key-value combination.</summary>
     ///  <param name="APair">The pair to remove.</param>
     ///  <remarks>This method only remove a key-value combination if that combination actually exists in the dictionary.
     ///  If the key is associated with another value, nothing happens.</remarks>
-    procedure Remove(const APair: TPair<TKey, TValue>); overload;
+    procedure RemovePair(const APair: TPair<TKey, TValue>); overload;
 {$IFEND}
 
     ///  <summary>Checks whether the map contains the given key-value combination.</summary>
@@ -1370,7 +1366,7 @@ type
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
     function ContainsPair(const AKey: TKey; const AValue: TValue): Boolean; overload;
 
-{$IF CompilerVersion < 22}
+{$IF CompilerVersion > 21}
     ///  <summary>Checks whether the map contains a given key-value combination.</summary>
     ///  <param name="APair">The key-value pair combination.</param>
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
@@ -1381,141 +1377,76 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetValueList(const AKey: TKey): IEnexCollection<TValue>;
+    function GetValuesByKey(const AKey: TKey): IEnexCollection<TValue>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    property ByKey[const AKey: TKey]: IEnexCollection<TValue> read GetValueList;
+    property ByKey[const AKey: TKey]: IEnexCollection<TValue> read GetValuesByKey;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    function GetKeyList(const AValue: TValue): IEnexCollection<TKey>;
+    function GetKeysByValue(const AValue: TValue): IEnexCollection<TKey>;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    property ByValue[const AValue: TValue]: IEnexCollection<TKey> read GetKeyList;
+    property ByValue[const AValue: TValue]: IEnexCollection<TKey> read GetKeysByValue;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>multi-map</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>multi-map</c>. In a
   ///  <c>multi-map</c>, a key is associated with multiple values, not just one.</remarks>
   IMultiMap<TKey, TValue> = interface(IMap<TKey, TValue>)
-
     ///  <summary>Extracts all values using their key.</summary>
     ///  <param name="AKey">The key of the associated values.</param>
     ///  <returns>A collection of values associated with the key.</returns>
     ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
-    function Extract(const AKey: TKey): IEnexCollection<TValue>;
+    function ExtractValues(const AKey: TKey): IEnexCollection<TValue>;
 
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
     ///  specified value from the collection of values associated with the given key.</remarks>
-    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
+    procedure RemovePair(const AKey: TKey; const AValue: TValue); overload;
 
-{$IF CompilerVersion < 22}
+{$IF CompilerVersion > 21}
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="APair">The key and its associated value to remove.</param>
     ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
     ///  specified value from the collection of values associated with the given key.</remarks>
-    procedure Remove(const APair: TPair<TKey, TValue>); overload;
+    procedure RemovePair(const APair: TPair<TKey, TValue>); overload;
 {$IFEND}
 
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
     ///  <param name="AValue">The value associated with the key.</param>
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AKey: TKey; const AValue: TValue): Boolean; overload;
+    function ContainsPair(const AKey: TKey; const AValue: TValue): Boolean; overload;
 
-{$IF CompilerVersion < 22}
+{$IF CompilerVersion > 21}
     ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
     ///  <param name="APair">The key-value pair to check for.</param>
     ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsValue(const APair: TPair<TKey, TValue>): Boolean; overload;
+    function ContainsPair(const APair: TPair<TKey, TValue>): Boolean; overload;
 {$IFEND}
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetItemList(const AKey: TKey): IEnexIndexedCollection<TValue>;
+    function GetValues(const AKey: TKey): IEnexCollection<TValue>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    property Items[const AKey: TKey]: IEnexIndexedCollection<TValue> read GetItemList; default;
-
-    ///  <summary>Tries to extract the collection of values associated with a key.</summary>
-    ///  <param name="AKey">The key for which to obtain the associated values.</param>
-    ///  <param name="AValues">The Enex collection that stores the associated values.</param>
-    ///  <returns><c>True</c> if the key exists in the collection; <c>False</c> otherwise;</returns>
-    function TryGetValues(const AKey: TKey; out AValues: IEnexIndexedCollection<TValue>): Boolean; overload;
-
-    ///  <summary>Tries to extract the collection of values associated with a key.</summary>
-    ///  <param name="AKey">The key for which to obtain the associated values.</param>
-    ///  <returns>The associated collection if the key if valid; an empty collection otherwise.</returns>
-    function TryGetValues(const AKey: TKey): IEnexIndexedCollection<TValue>; overload;
-  end;
-
-  ///  <summary>The Enex interface that defines the behavior of a <c>distinct multi-map</c>.</summary>
-  ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>distinct multi-map</c>. In a
-  ///  <c>dictinct multi-map</c>, a key is associated with multiple distinct values.</remarks>
-  IDistinctMultiMap<TKey, TValue> = interface(IMap<TKey, TValue>)
-
-    ///  <summary>Extracts all values using their key.</summary>
-    ///  <param name="AKey">The key of the associated values.</param>
-    ///  <returns>A collection of values associated with the key.</returns>
-    ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
-    function Extract(const AKey: TKey): IEnexCollection<TValue>;
-
-    ///  <summary>Removes a key-value pair using a given key and value.</summary>
-    ///  <param name="AKey">The key associated with the value.</param>
-    ///  <param name="AValue">The value to remove.</param>
-    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
-    ///  specified value from the collection of values associated with the given key.</remarks>
-    procedure Remove(const AKey: TKey; const AValue: TValue); overload;
-
-{$IF CompilerVersion < 22}
-    ///  <summary>Removes a key-value pair using a given key and value.</summary>
-    ///  <param name="APair">The key and its associated value to remove.</param>
-    ///  <remarks>A multi-map allows storing multiple values for a given key. This method allows removing only the
-    ///  specified value from the collection of values associated with the given key.</remarks>
-    procedure Remove(const APair: TPair<TKey, TValue>); overload;
-{$IFEND}
-
-    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
-    ///  <param name="AKey">The key associated with the value.</param>
-    ///  <param name="AValue">The value associated with the key.</param>
-    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsValue(const AKey: TKey; const AValue: TValue): Boolean; overload;
-
-{$IF CompilerVersion < 22}
-    ///  <summary>Checks whether the multi-map contains a given key-value combination.</summary>
-    ///  <param name="APair">The key-value pair to check for.</param>
-    ///  <returns><c>True</c> if the map contains the given association; <c>False</c> otherwise.</returns>
-    function ContainsValue(const APair: TPair<TKey, TValue>): Boolean; overload;
-{$IFEND}
-
-    ///  <summary>Returns the collection of values associated with a key.</summary>
-    ///  <param name="AKey">The key for which to obtain the associated values.</param>
-    ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetItemList(const Key: TKey): IEnexCollection<TValue>;
-
-    ///  <summary>Returns the collection of values associated with a key.</summary>
-    ///  <param name="AKey">The key for which to obtain the associated values.</param>
-    ///  <returns>An Enex collection that contains the values associated with this key.</returns>
-    ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    property Items[const Key: TKey]: IEnexCollection<TValue> read GetItemList; default;
+    property Items[const AKey: TKey]: IEnexCollection<TValue> read GetValues; default;
 
     ///  <summary>Tries to extract the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
@@ -4220,7 +4151,8 @@ var
   LList: TList<T>;
 begin
   { Create an itermediary LList }
-  LList := TList<T>.Create(Self);
+  LList := TList<T>.Create(ElementRules);
+  LList.AddAll(Self);
   LList.Reverse();
 
   { Pass the LList further }
@@ -4333,7 +4265,8 @@ var
   LList: TList<T>;
 begin
   { Create an itermediary LList }
-  LList := TList<T>.Create(Self);
+  LList := TList<T>.Create(ElementRules);
+  LList.AddAll(Self);
   LList.Sort(ASortProc);
 
   { Pass the LList further }
@@ -4345,7 +4278,8 @@ var
   LList: TList<T>;
 begin
   { Create an itermediary LList }
-  LList := TList<T>.Create(Self);
+  LList := TList<T>.Create(ElementRules);
+  LList.AddAll(Self);
   LList.Sort(AAscending);
 
   { Pass the LList further }
@@ -4456,13 +4390,15 @@ end;
 function TEnexCollection<T>.ToList: IList<T>;
 begin
   { Simply make up a list }
-  Result := TList<T>.Create(Self);
+  Result := TList<T>.Create(ElementRules);
+  Result.AddAll(Self);
 end;
 
 function TEnexCollection<T>.ToSet: ISet<T>;
 begin
   { Simply make up a bag }
-  Result := THashSet<T>.Create(Self);
+  Result := THashSet<T>.Create(ElementRules);
+  Result.AddAll(Self);
 end;
 
 function TEnexCollection<T>.Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
@@ -4898,7 +4834,8 @@ end;
 
 function TEnexAssociativeCollection<TKey, TValue>.ToDictionary: IDictionary<TKey, TValue>;
 begin
-  Result := TDictionary<TKey, TValue>.Create(Self);
+  Result := TDictionary<TKey, TValue>.Create(KeyRules, ValueRules);
+  Result.AddAll(Self);
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;

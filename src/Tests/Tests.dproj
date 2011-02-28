@@ -54,42 +54,20 @@
 			<DelphiCompile Include="Tests.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="Tests.Base.pas"/>
-			<DCCReference Include="Tests.Bag.pas"/>
-			<DCCReference Include="Tests.BidiMap.pas"/>
-			<DCCReference Include="Tests.Dictionary.pas"/>
-			<DCCReference Include="Tests.DistinctMultiMap.pas"/>
-			<DCCReference Include="Tests.DoubleSortedBidiMap.pas"/>
-			<DCCReference Include="Tests.DoubleSortedDistinctMultiMap.pas"/>
-			<DCCReference Include="Tests.DoubleSortedMultiMap.pas"/>
-			<DCCReference Include="Tests.HashSet.pas"/>
-			<DCCReference Include="Tests.LinkedList.pas"/>
-			<DCCReference Include="Tests.LinkedQueue.pas"/>
-			<DCCReference Include="Tests.LinkedStack.pas"/>
-			<DCCReference Include="Tests.List.pas"/>
-			<DCCReference Include="Tests.LinkedDictionary.pas"/>
-			<DCCReference Include="Tests.LinkedSet.pas"/>
-			<DCCReference Include="Tests.MultiMap.pas"/>
-			<DCCReference Include="Tests.PriorityQueue.pas"/>
-			<DCCReference Include="Tests.Queue.pas"/>
-			<DCCReference Include="Tests.ArraySet.pas"/>
-			<DCCReference Include="Tests.SortedBag.pas"/>
-			<DCCReference Include="Tests.SortedBidiMap.pas"/>
-			<DCCReference Include="Tests.SortedDictionary.pas"/>
-			<DCCReference Include="Tests.SortedDistinctMultiMap.pas"/>
-			<DCCReference Include="Tests.SortedList.pas"/>
-			<DCCReference Include="Tests.SortedMultiMap.pas"/>
-			<DCCReference Include="Tests.SortedSet.pas"/>
-			<DCCReference Include="Tests.SortedLinkedList.pas"/>
-			<DCCReference Include="Tests.Stack.pas"/>
-			<DCCReference Include="Tests.Utils.pas"/>
-			<DCCReference Include="Tests.Enex.pas"/>
-			<DCCReference Include="Tests.Dynamic.pas"/>
-			<DCCReference Include="Tests.BitSet.pas"/>
-			<DCCReference Include="Tests.BidiDictionary.pas"/>
-			<DCCReference Include="Tests.SortedBidiDictionary.pas"/>
-			<DCCReference Include="Tests.DoubleSortedBidiDictionary.pas"/>
-			<DCCReference Include="Tests.Serialization.pas"/>
+			<DCCReference Include="Tests.Conformance.Base.pas"/>
+			<DCCReference Include="Tests.Conformance.Lists.pas"/>
+			<DCCReference Include="Tests.Conformance.Stacks.pas"/>
+			<DCCReference Include="Tests.Conformance.Queues.pas"/>
+			<DCCReference Include="Tests.Conformance.Sets.pas"/>
+			<DCCReference Include="Tests.Conformance.Dictionaries.pas"/>
+			<DCCReference Include="Tests.Conformance.BidiDictionaries.pas"/>
+			<DCCReference Include="Tests.Conformance.MultiMaps.pas"/>
+			<DCCReference Include="Tests.Conformance.BidiMaps.pas"/>
+			<DCCReference Include="Tests.Conformance.Bags.pas"/>
+			<DCCReference Include="Tests.Internal.Basics.pas"/>
+			<DCCReference Include="Tests.Internal.Serialization.pas"/>
+			<DCCReference Include="Tests.Internal.Dynamic.pas"/>
+			<DCCReference Include="Tests.Conformance.Specific.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

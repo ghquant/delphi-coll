@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all <c>bag</c> collections.</summary>
   ///  <remarks>This base class introduces and implements all bag operations. Specific <c>bag</c> implementations must
   ///  override only one method in order to create the specific dictionary type that is going to hold the element to weight associations.</remarks>
-  TAbstractBag<T> = class(TEnexCollection<T>, IBag<T>)
+  TAbstractBag<T> = class(TAbstractOperableCollection<T>, IBag<T>)
   private type
     {$REGION 'Internal Types'}
     TEnumerator = class(TAbstractEnumerator<T>)
@@ -84,62 +84,45 @@ type
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
     function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; virtual; abstract;
   public
-    ///  <summary>Creates a new <c>TAbstractBag&lt;T&gt;</c> instance.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new <c>TAbstractBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new <c>TAbstractBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new <c>TAbstractBag&lt;T&gt;</c> instance.</summary>
+    ///  <summary>Creates a new <c>bag</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the bag.</param>
-    constructor Create(const ARules: TRules<T>); overload;
-
-    ///  <summary>Creates a new <c>TAbstractBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new <c>TAbstractBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
+    constructor Create(const ARules: TRules<T>);
 
     ///  <summary>Clears the contents of the bag.</summary>
-    procedure Clear();
+    procedure Clear(); override;
+
+    ///  <summary>Adds an element into the bag with a weight of <c>1</c>.</summary>
+    ///  <param name="AValue">The value to add.</param>
+    procedure Add(const AValue: T); override;
 
     ///  <summary>Adds an element to the bag.</summary>
     ///  <param name="AValue">The element to add.</param>
     ///  <param name="AWeight">The weight of the element.</param>
     ///  <remarks>If the bag already contains the given value, its stored weight is incremented to by <paramref name="AWeight"/>.
     ///  If the value of <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Add(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure AddWeight(const AValue: T; const AWeight: NativeUInt = 1);
+
+    ///  <summary>Decreases the weight for an element by <c>1</c>.</summary>
+    ///  <param name="AValue">The value to decrese weight for.</param>
+    procedure Remove(const AValue: T); override;
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <param name="AWeight">The weight to remove.</param>
     ///  <remarks>This method decreses the weight of the stored item by <paramref name="AWeight"/>. If the resulting weight is less
     ///  than zero or zero, the element is removed from the bag. If <paramref name="AWeight"/> is zero, nothing happens.</remarks>
-    procedure Remove(const AValue: T; const AWeight: NativeUInt = 1);
+    procedure RemoveWeight(const AValue: T; const AWeight: NativeUInt = 1);
 
     ///  <summary>Removes an element from the bag.</summary>
     ///  <param name="AValue">The value to remove.</param>
     ///  <remarks>This method completely removes an item from the bag ignoring its stored weight. Nothing happens if the given value
     ///  is not in the bag to begin with.</remarks>
-    procedure RemoveAll(const AValue: T);
+    procedure RemoveAllWeight(const AValue: T);
+
+    ///  <summary>Checks whether the bag contains an element with at least the weight of <c>1</c>.</summary>
+    ///  <param name="AValue">The value to check for.</param>
+    ///  <returns><c>True</c> if the condition is met; <c>False</c> otherwise.</returns>
+    function Contains(const AValue: T): Boolean; override;
 
     ///  <summary>Checks whether the bag contains an element with at least the required weight.</summary>
     ///  <param name="AValue">The value to check.</param>
@@ -147,7 +130,7 @@ type
     ///  <returns><c>True</c> if the condition is met; <c>False</c> otherwise.</returns>
     ///  <remarks>This method checks whether the bag contains the given value and that the contained value has at least the
     ///  given weight.</remarks>
-    function Contains(const AValue: T; const AWeight: NativeUInt = 1): Boolean;
+    function ContainsWeight(const AValue: T; const AWeight: NativeUInt = 1): Boolean;
 
     ///  <summary>Sets or gets the weight of an item in the bag.</summary>
     ///  <param name="AValue">The value.</param>
@@ -254,16 +237,20 @@ type
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the bag.</remarks>
     function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
   public
-    ///  <summary>Creates a new <c>TBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
-    ///  <remarks>The default rule set is requested for the bag's elements.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt); overload;
+    ///  <summary>Creates a new <c>bag</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new <c>TBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="ARules">The rule set describing the bag's elements.</param>
-    ///  <param name="AInitialCapacity">The bag's initial capacity.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
+    ///  <summary>Creates a new <c>bag</c> collection.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
+    constructor Create(const ARules: TRules<T>); overload;
+
+    ///  <summary>Creates a new <c>bag</c> collection.</summary>
+    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
+    ///  <param name="AInitialCapacity">The stack's initial capacity.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
+
   end;
 
   ///  <summary>The generic <c>bag</c> collection designed to store objects.</summary>
@@ -291,7 +278,7 @@ type
   ///  <remarks>This particular <c>bag</c> implementation uses an AVL-based dictionary to store its element to weight associations.</remarks>
   TSortedBag<T> = class(TAbstractBag<T>)
   private var
-    FAscSort: Boolean;
+    FAscendingSort: Boolean;
 
   protected
     ///  <summary>Called when the bag needs to initialize its internal dictionary.</summary>
@@ -299,41 +286,21 @@ type
     ///  <remarks>This method creates an AVL-based dictionary used as the underlying back-end for the bag.</remarks>
     function CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>; override;
   public
-    ///  <summary>Creates a new <c>TSortedBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested for the bag's elements.</remarks>
-    constructor Create(const AAscending: Boolean = true); overload;
+    ///  <summary>Creates a new <c>bag</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed. The elements are stored in ascending order.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new <c>TSortedBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested for the bag's elements.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new <c>TSortedBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested for the bag's elements.</remarks>
-    constructor Create(const AArray: array of T; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new <c>TSortedBag&lt;T&gt;</c> instance.</summary>
+    ///  <summary>Creates a new <c>bag</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the bag.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const ARules: TRules<T>; const AAscending: Boolean = true); overload;
+    ///  <remarks>The elements are stored in ascending order.</remarks>
+    constructor Create(const ARules: TRules<T>); overload;
 
-    ///  <summary>Creates a new <c>TSortedBag&lt;T&gt;</c> instance.</summary>
+    ///  <summary>Creates a new <c>bag</c> collection.</summary>
+    ///  <param name="AAscending">Pass in a value of <c>True</c> if the elements should be kept in ascending order.
+    ///  Pass in <c>False</c> for descending order.</param>
     ///  <param name="ARules">A rule set describing the elements in the bag.</param>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean = true); overload;
-
-    ///  <summary>Creates a new <c>TSortedBag&lt;T&gt;</c> instance.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the bag.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean = true); overload;
+    constructor Create(const ARules: TRules<T>; const AAscending: Boolean); overload;
   end;
 
   ///  <summary>The generic sorted <c>bag</c> collection designed to store objects.</summary>
@@ -360,7 +327,12 @@ implementation
 
 { TAbstractBag<T> }
 
-procedure TAbstractBag<T>.Add(const AValue: T; const AWeight: NativeUInt);
+procedure TAbstractBag<T>.Add(const AValue: T);
+begin
+  AddWeight(AValue, 1);
+end;
+
+procedure TAbstractBag<T>.AddWeight(const AValue: T; const AWeight: NativeUInt);
 var
   LOldCount: NativeUInt;
 begin
@@ -402,7 +374,12 @@ begin
   end;
 end;
 
-function TAbstractBag<T>.Contains(const AValue: T; const AWeight: NativeUInt): Boolean;
+function TAbstractBag<T>.Contains(const AValue: T): Boolean;
+begin
+  Result := ContainsWeight(AValue, 1);
+end;
+
+function TAbstractBag<T>.ContainsWeight(const AValue: T; const AWeight: NativeUInt): Boolean;
 var
   LInCount: NativeUInt;
 begin
@@ -448,68 +425,10 @@ begin
   end;
 end;
 
-constructor TAbstractBag<T>.Create();
-begin
-  { Call upper constructor }
-  Create(TRules<T>.Default);
-end;
-
-constructor TAbstractBag<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  { Call upper constructor }
-  Create(TRules<T>.Default, ACollection);
-end;
-
-constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Call upper constructor }
-  Create(ARules);
-
-  { Iterate and add }
-  for LValue in ACollection do
-    Add(LValue);
-end;
-
-constructor TAbstractBag<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all items in }
-  for I := 0 to Length(AArray) - 1 do
-  begin
-    Add(AArray[I]);
-  end;
-end;
-
 constructor TAbstractBag<T>.Create(const ARules: TRules<T>);
 begin
   inherited Create(ARules);
-
   FDictionary := CreateDictionary(ElementRules);
-  NotifyCollectionChanged();
-  FKnownCount := 0;
-end;
-
-constructor TAbstractBag<T>.Create(const AArray: array of T);
-begin
-  { Call upper constructor }
-  Create(TRules<T>.Default, AArray);
-end;
-
-destructor TAbstractBag<T>.Destroy;
-begin
-  { Clear the bag first }
-  Clear();
-
-  inherited;
 end;
 
 function TAbstractBag<T>.Empty: Boolean;
@@ -575,7 +494,7 @@ begin
   Result := LEnumerator;
 end;
 
-procedure TAbstractBag<T>.Remove(const AValue: T; const AWeight: NativeUInt);
+procedure TAbstractBag<T>.RemoveWeight(const AValue: T; const AWeight: NativeUInt);
 var
   LOldCount: NativeUInt;
 begin
@@ -602,7 +521,12 @@ begin
   NotifyCollectionChanged();
 end;
 
-procedure TAbstractBag<T>.RemoveAll(const AValue: T);
+procedure TAbstractBag<T>.Remove(const AValue: T);
+begin
+  RemoveWeight(AValue, 1);
+end;
+
+procedure TAbstractBag<T>.RemoveAllWeight(const AValue: T);
 var
   LOldCount: NativeUInt;
 begin
@@ -680,16 +604,20 @@ end;
 
 { TBag<T> }
 
-constructor TBag<T>.Create(const AInitialCapacity: NativeInt);
-begin
-  FInitialCapacity := AInitialCapacity;
-  inherited Create();
-end;
-
 constructor TBag<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
   FInitialCapacity := AInitialCapacity;
   inherited Create(ARules);
+end;
+
+constructor TBag<T>.Create;
+begin
+  Create(TRules<T>.Default, CDefaultSize);
+end;
+
+constructor TBag<T>.Create(const ARules: TRules<T>);
+begin
+  Create(ARules, CDefaultSize);
 end;
 
 function TBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
@@ -719,57 +647,32 @@ end;
 
 { TSortedBag<T> }
 
+constructor TSortedBag<T>.Create;
+begin
+  Create(TRules<T>.Default, True);
+end;
+
+constructor TSortedBag<T>.Create(const ARules: TRules<T>);
+begin
+  Create(ARules, True);
+end;
+
 function TSortedBag<T>.CreateDictionary(const ARules: TRules<T>): IDictionary<T, NativeUInt>;
 var
   LDictionary: TSortedDictionary<T, NativeUInt>;
 begin
   { Create a sorted dictionary }
-  LDictionary := TSortedDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, FAscSort);
+  LDictionary := TSortedDictionary<T, NativeUInt>.Create(ARules, TRules<NativeUInt>.Default, FAscendingSort);
   LDictionary.KeyRemoveNotification := NotifyElementRemoved;
 
   Result := LDictionary;
 end;
 
-constructor TSortedBag<T>.Create(const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create();
-end;
-
-constructor TSortedBag<T>.Create(const ACollection: IEnumerable<T>; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(ACollection);
-end;
-
-constructor TSortedBag<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(ARules, ACollection);
-end;
-
-constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(ARules, AArray);
-end;
-
 constructor TSortedBag<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
 begin
   { Call upper constructor }
-  FAscSort := AAscending;
+  FAscendingSort := AAscending;
   inherited Create(ARules);
-end;
-
-constructor TSortedBag<T>.Create(const AArray: array of T; const AAscending: Boolean);
-begin
-  { Call upper constructor }
-  FAscSort := AAscending;
-  inherited Create(AArray);
 end;
 
 { TObjectSortedBag<T> }

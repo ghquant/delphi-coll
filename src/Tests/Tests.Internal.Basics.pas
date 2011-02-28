@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2009-2011, Ciobanu Alexandru
+* Copyright (c) 2008-2011, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,16 +25,22 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-unit Tests.Base;
+unit Tests.Internal.Basics;
 interface
-uses SysUtils,
-     TypInfo,
-     Rtti,
-     Tests.Utils,
-     TestFramework,
-     Generics.Defaults,
-     Collections.Base,
-     Collections.Lists;
+uses
+  SysUtils,
+  TestFramework,
+  Generics.Defaults,
+  Collections.Base;
+
+type
+  TClassOfException = class of Exception;
+
+  { Our test case }
+  TTestCaseEx = class(TTestCase)
+  protected
+    procedure CheckException(const AExType: TClassOfException; const AProc: TProc; const Msg : String);
+  end;
 
 type
   TTestBase = class(TTestCaseEx)
@@ -71,7 +77,44 @@ type
     procedure Test_Default;
   end;
 
+type
+  TInsensitiveStringComparer = class(TStringComparer)
+  public
+    function Compare(const Left, Right: string): Integer; override;
+    function Equals(const Left, Right: string): Boolean;
+      reintroduce; overload; override;
+    function GetHashCode(const Value: string): Integer;
+      reintroduce; overload; override;
+  end;
+
+var
+  StringCaseInsensitiveComparer: TInsensitiveStringComparer;
+
+
 implementation
+
+{ TTestCaseEx }
+
+procedure TTestCaseEx.CheckException(const AExType: TClassOfException; const AProc: TProc; const Msg: String);
+var
+  bWasEx : Boolean;
+begin
+  bWasEx := False;
+
+  try
+    { Cannot self-link }
+    AProc();
+  except
+    on E : Exception do
+    begin
+       if E is AExType then
+          bWasEx := True;
+    end;
+  end;
+
+  Check(bWasEx, Msg);
+end;
+
 
 var
   TestDestroy: Integer;
@@ -386,9 +429,36 @@ begin
   LStrRules := TRules<string>.Default;
 end;
 
+{ TInsensitiveStringComparer }
+
+function TInsensitiveStringComparer.Compare(const Left, Right: string): Integer;
+begin
+  Result := CompareText(Left, Right);
+end;
+
+function TInsensitiveStringComparer.Equals(const Left, Right: string): Boolean;
+begin
+  Result := SameText(Left, Right);
+end;
+
+function TInsensitiveStringComparer.GetHashCode(const Value: string): Integer;
+var
+  Upped: string;
+begin
+  Upped := AnsiUpperCase(Value);
+  Result := BobJenkinsHash(PChar(Upped)^, SizeOf(Char) * Length(Upped), 0);
+end;
+
 
 initialization
-  TestFramework.RegisterTest(TTestBase.Suite);
-  TestFramework.RegisterTest(TTestRules.Suite);
+  StringCaseInsensitiveComparer := TInsensitiveStringComparer.Create;
+
+  RegisterTests('Internal.Support', [
+    TTestBase.Suite,
+    TTestRules.Suite
+  ]);
+
+finalization
+  StringCaseInsensitiveComparer.Free;
 
 end.

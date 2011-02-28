@@ -77,39 +77,9 @@ type
     ///  <remarks>The current implementation iterates over all elements until the element at the specified index is reached.</remarks>
     function TryGetItemAt(const AIndex: NativeInt; out AValue: T): Boolean; virtual;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const AArray: array of T); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    constructor Create(const ARules: TRules<T>); overload; virtual;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T); overload;
+    constructor Create(const ARules: TRules<T>);
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
@@ -375,19 +345,19 @@ type
     ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
     function TryGetItemAt(const AIndex: NativeInt; out AValue: T): Boolean; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AInitialCapacity">The list's initial capacity.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt); overload;
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    constructor Create(const ARules: TRules<T>); overload; override;
+    constructor Create(const ARules: TRules<T>); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
+    ///  <param name="AInitialCapacity">The set's initial capacity.</param>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AInitialCapacity">The list's initial capacity.</param>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload; virtual;
+    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload;
 
     ///  <summary>Clears the contents of the list.</summary>
     procedure Clear(); override;
@@ -660,58 +630,22 @@ type
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
     procedure SetItem(const AIndex: NativeInt; const AValue: T); override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscending: Boolean); overload;
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed. The elements are stored in ascending order.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <param name="AInitialCapacity">Specifies the initial capacity of the list.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    constructor Create(const ARules: TRules<T>; const AAscending: Boolean); overload;
+    ///  <remarks>The elements are stored in ascending order.</remarks>
+    constructor Create(const ARules: TRules<T>); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
+    ///  <param name="AInitialCapacity">The set's initial capacity.</param>
+    ///  <param name="AAscending">Pass in a value of <c>True</c> if the elements should be kept in ascending order.
+    ///  Pass in <c>False</c> for descending order.</param>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AInitialCapacity">The list's initial capacity.</param>
-    constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt); overload; override;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <param name="AInitialCapacity">Specifies the initial capacity of the list.</param>
     constructor Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean); overload;
 
     ///  <summary>Adds an element to the list.</summary>
     ///  <param name="AValue">The value to add.</param>
@@ -840,9 +774,14 @@ type
     ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
     function TryGetItemAt(const AIndex: NativeInt; out AValue: T): Boolean; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
+
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    constructor Create(const ARules: TRules<T>); overload; override;
+    constructor Create(const ARules: TRules<T>); overload;
 
     ///  <summary>Destroys this instance.</summary>
     ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
@@ -985,45 +924,21 @@ type
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
     procedure SetItem(const AIndex: NativeInt; const AValue: T); override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscending: Boolean); overload;
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed. The elements are stored in ascending order.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AArray: array of T; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
+    ///  <remarks>The elements are stored in ascending order.</remarks>
+    constructor Create(const ARules: TRules<T>); overload;
+
+    ///  <summary>Creates a new <c>list</c> collection.</summary>
+    ///  <param name="AAscending">Pass in a value of <c>True</c> if the elements should be kept in ascending order.
+    ///  Pass in <c>False</c> for descending order.</param>
+    ///  <param name="ARules">A rule set describing the elements in the list.</param>
     constructor Create(const ARules: TRules<T>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="ACollection">A collection to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    constructor Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    ///  <param name="AArray">An array to copy elements from.</param>
-    ///  <param name="AAscending">Specifies whether the elements are kept sorted in ascending order.</param>
-    constructor Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ARules">A rule set describing the elements in the list.</param>
-    constructor Create(const ARules: TRules<T>); overload; override;
 
     ///  <summary>Adds an element to the list.</summary>
     ///  <param name="AValue">The value to add.</param>
@@ -1098,49 +1013,6 @@ end;
 function TAbstractList<T>.Contains(const AValue: T): Boolean;
 begin
   Result := IndexOf(AValue) >= 0;
-end;
-
-constructor TAbstractList<T>.Create(const ACollection: IEnumerable<T>);
-begin
-  Create(TRules<T>.Default, ACollection);
-end;
-
-constructor TAbstractList<T>.Create;
-begin
-  Create(TRules<T>.Default);
-end;
-
-constructor TAbstractList<T>.Create(const AArray: array of T);
-begin
-  Create(TRules<T>.Default, AArray);
-end;
-
-constructor TAbstractList<T>.Create(const ARules: TRules<T>; const AArray: array of T);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  { Copy all in }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
-end;
-
-
-constructor TAbstractList<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>);
-var
-  LValue: T;
-begin
-  { Call upper constructor }
-  Create(ARules);
-
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-    Add(LValue);
 end;
 
 constructor TAbstractList<T>.Create(const ARules: TRules<T>);
@@ -1468,22 +1340,22 @@ end;
 
 constructor TList<T>.Create(const ARules: TRules<T>);
 begin
-  { Call upper constructor }
   Create(ARules, CDefaultSize);
-end;
-
-constructor TList<T>.Create(const AInitialCapacity: NativeInt);
-begin
-  Create(TRules<T>.Default, AInitialCapacity);
 end;
 
 constructor TList<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
 begin
-  { Call the upper constructor }
   inherited Create(ARules);
 
-  FLength := 0;
-  SetLength(FArray, AInitialCapacity);
+  if AInitialCapacity <= 0 then
+    SetLength(FArray, 0)
+  else
+    SetLength(FArray, AInitialCapacity);
+end;
+
+constructor TList<T>.Create;
+begin
+  Create(TRules<T>.Default, CDefaultSize);
 end;
 
 procedure TList<T>.Deserialize(const AContext: TInputContext);
@@ -2131,47 +2003,18 @@ begin
   end;
 end;
 
-constructor TSortedList<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
+constructor TSortedList<T>.Create(const ARules: TRules<T>);
 begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize, AAscending);
+  Create(ARules, CDefaultSize, True);
 end;
 
-constructor TSortedList<T>.Create(const ARules: TRules<T>;
-  const ACollection: IEnumerable<T>; const AAscending: Boolean);
-var
-  LValue: T;
+constructor TSortedList<T>.Create();
 begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize, AAscending);
-
-  { Initialize instance }
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Try to copy the given Enumerable }
-  for LValue in ACollection do
-    Add(LValue);
-end;
-
-constructor TSortedList<T>.Create(const AAscending: Boolean);
-begin
-  Create(TRules<T>.Default, AAscending);
-end;
-
-constructor TSortedList<T>.Create(const AInitialCapacity: NativeInt; const AAscending: Boolean);
-begin
-  Create(TRules<T>.Default, AInitialCapacity, AAscending);
-end;
-
-constructor TSortedList<T>.Create(const ACollection: IEnumerable<T>; const AAscending: Boolean);
-begin
-  Create(TRules<T>.Default, ACollection, AAscending);
+  Create(TRules<T>.Default, CDefaultSize, True);
 end;
 
 constructor TSortedList<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt; const AAscending: Boolean);
 begin
-  { Call the upper constructor }
   inherited Create(ARules, AInitialCapacity);
   FAscending := AAscending;
 end;
@@ -2314,28 +2157,6 @@ begin
   Result := J;
 end;
 
-constructor TSortedList<T>.Create(const AArray: array of T; const AAscending: Boolean);
-begin
-  Create(TRules<T>.Default, AArray, AAscending);
-end;
-
-constructor TSortedList<T>.Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(ARules, CDefaultSize, AAscending);
-
-  { Copy from array }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
-end;
-
-constructor TSortedList<T>.Create(const ARules: TRules<T>; const AInitialCapacity: NativeInt);
-begin
-  Create(ARules, AInitialCapacity, True);
-end;
-
 { TObjectSortedList<T> }
 
 procedure TObjectSortedList<T>.HandleElementRemoved(const AElement: T);
@@ -2389,17 +2210,15 @@ begin
   end;
 end;
 
+constructor TLinkedList<T>.Create;
+begin
+  Create(TRules<T>.Default);
+end;
+
 constructor TLinkedList<T>.Create(const ARules: TRules<T>);
 begin
-  { Call the upper constructor }
   inherited Create(ARules);
-
   FCanCache := True;
-  FCount := 0;
-  FFreeCount := 0;
-  FFirst := nil;
-  FLast := nil;
-  FFirstFree := nil;
 end;
 
 destructor TLinkedList<T>.Destroy;
@@ -2913,50 +2732,20 @@ begin
     Add(LValue);
 end;
 
-constructor TSortedLinkedList<T>.Create(const AAscending: Boolean);
+constructor TSortedLinkedList<T>.Create();
 begin
-  Create(TRules<T>.Default, AAscending);
+  Create(TRules<T>.Default, True);
 end;
 
-constructor TSortedLinkedList<T>.Create(const ARules: TRules<T>; const ACollection: IEnumerable<T>; const AAscending: Boolean);
+constructor TSortedLinkedList<T>.Create(const ARules: TRules<T>);
 begin
-  { Call the good contructor }
-  Create(ARules, AAscending);
-
-  { Initialize instance }
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  AddAll(ACollection);
-end;
-
-constructor TSortedLinkedList<T>.Create(const ARules: TRules<T>; const AArray: array of T; const AAscending: Boolean);
-var
-  I: NativeInt;
-begin
-  { Call the good contructor }
-  Create(ARules, AAscending);
-
-  { Add all elements }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
+  Create(ARules, True);
 end;
 
 constructor TSortedLinkedList<T>.Create(const ARules: TRules<T>; const AAscending: Boolean);
 begin
-  { Call the upper constructor }
   inherited Create(ARules);
   FAscending := AAscending;
-end;
-
-constructor TSortedLinkedList<T>.Create(const ACollection: IEnumerable<T>; const AAscending: Boolean);
-begin
-  Create(TRules<T>.Default, ACollection, AAscending);
-end;
-
-constructor TSortedLinkedList<T>.Create(const AArray: array of T; const AAscending: Boolean);
-begin
-  Create(TRules<T>.Default, AArray, AAscending);
 end;
 
 procedure TSortedLinkedList<T>.Insert(const AIndex: NativeInt; const AValue: T);
@@ -2989,11 +2778,6 @@ begin
     Result := FFirst^.FValue
   else
     Result := FLast^.FValue;
-end;
-
-constructor TSortedLinkedList<T>.Create(const ARules: TRules<T>);
-begin
-  Create(ARules, True);
 end;
 
 procedure TSortedLinkedList<T>.SetItem(const AIndex: NativeInt; const AValue: T);

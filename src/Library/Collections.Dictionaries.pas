@@ -114,53 +114,11 @@ type
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
     function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; virtual;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const AArray: array of TPair<TKey, TValue>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; virtual;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy pairs from.</param>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const ACollection: IEnumerable<TPair<TKey, TValue>>); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy pairs from.</param>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Add</c> method is not overridden.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TKey,TValue>); overload;
-
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
 
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
@@ -301,17 +259,17 @@ type
     ///  <returns><c>True</c> if the value was found and stored in <paramref name="AValue"/> parameter; <c>False</c> otherwise.</returns>
     function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt); overload;
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; override;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
@@ -448,17 +406,17 @@ type
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
     function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AInitialCapacity: NativeInt); overload;
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; override;
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     ///  <param name="AInitialCapacity">The dictionary's initial capacity.</param>
@@ -604,56 +562,23 @@ type
     ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in this implementation.</exception>
     function TryExtract(const AKey: TKey; out AValue: TValue): Boolean; override;
   public
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    constructor Create(const AAscending: Boolean); overload;
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
+    ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
+    ///  specific a set of rules need to be passed. The keys are stored in ascending order.</remarks>
+    constructor Create(); overload;
 
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    ///  <remarks>The default rule set is requested.</remarks>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
+    ///  <remarks>The keys are stored in ascending order.</remarks>
+    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload;
+
+    ///  <summary>Creates a new <c>dictionary</c> collection.</summary>
+    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
+    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
+    ///  <param name="AAscending">Pass in a value of <c>True</c> if the keys should be kept in ascending order.
+    ///  Pass in <c>False</c> for descending order.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order. The default is <c>True</c>.</param>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>); overload; override;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <param name="ACollection">A collection to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="ACollection"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const ACollection: IEnumerable<TPair<TKey,TValue>>; const AAscending: Boolean); overload;
-
-    ///  <summary>Creates a new instance of this class.</summary>
-    ///  <param name="AKeyRules">A rule set describing the keys in the dictionary.</param>
-    ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
-    ///  <param name="AArray">An array to copy the key-value pairs from.</param>
-    ///  <param name="AAscending">A value specifying whether the keys are sorted in ascending order.</param>
-    ///  <exception cref="Collections.Base|EDuplicateKeyException"><paramref name="AArray"/> contains pairs with equal keys.</exception>
-    constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-      const AArray: array of TPair<TKey,TValue>; const AAscending: Boolean); overload;
 
     ///  <summary>Clears the contents of the dictionary.</summary>
     procedure Clear(); override;
@@ -766,73 +691,13 @@ begin
   Result := False;
 end;
 
-constructor TAbstractDictionary<TKey, TValue>.Create;
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default);
-end;
-
-constructor TAbstractDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection);
-end;
-
-constructor TAbstractDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const ACollection: IEnumerable<TPair<TKey, TValue>>);
-var
-  LValue: TPair<TKey, TValue>;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules);
-
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-  begin
-{$IF CompilerVersion < 22}
-    Add(LValue);
-{$ELSE}
-    Add(LValue.Key, LValue.Value);
-{$IFEND}
-  end;
-end;
-
-constructor TAbstractDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules);
-
-  { Copy all items in }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
-end;
-
-constructor TAbstractDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray);
-end;
-
 constructor TAbstractDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
-  { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
 
   FKeyCollection := TKeyCollection.Create(Self);
   FValueCollection := TValueCollection.Create(Self);
 end;
-
-destructor TAbstractDictionary<TKey, TValue>.Destroy;
-begin
-  Clear();
-  inherited;
-end;
-
 
 function TAbstractDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
 begin
@@ -1092,27 +957,24 @@ begin
   end;
 end;
 
-constructor TDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AInitialCapacity);
-end;
-
 constructor TDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt);
 begin
-  { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
 
-  FCount := 0;
-  FFreeCount := 0;
-  FFreeList := 0;
+  if AInitialCapacity <= 0 then
+    InitializeInternals(CDefaultSize)
+  else
+    InitializeInternals(AInitialCapacity)
+end;
 
-  InitializeInternals(AInitialCapacity);
+constructor TDictionary<TKey, TValue>.Create();
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, CDefaultSize);
 end;
 
 constructor TDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
-  { Call upper constructor }
   Create(AKeyRules, AValueRules, CDefaultSize);
 end;
 
@@ -1459,24 +1321,10 @@ begin
   end;
 end;
 
-constructor TLinkedDictionary<TKey, TValue>.Create(const AInitialCapacity: NativeInt);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AInitialCapacity);
-end;
-
 constructor TLinkedDictionary<TKey, TValue>.Create(
-  const AKeyRules: TRules<TKey>;
-  const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt);
+  const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>; const AInitialCapacity: NativeInt);
 begin
-  { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
-
-  FCount := 0;
-  FFreeCount := 0;
-
-  FHead := nil;
-  FTail := nil;
-  FFirstFree := nil;
 
   if AInitialCapacity <= 0 then
     InitializeInternals(CDefaultSize)
@@ -1484,10 +1332,13 @@ begin
     InitializeInternals(AInitialCapacity)
 end;
 
+constructor TLinkedDictionary<TKey, TValue>.Create();
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, CDefaultSize);
+end;
 
 constructor TLinkedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
-  { Call upper constructor }
   Create(AKeyRules, AValueRules, CDefaultSize);
 end;
 
@@ -2314,73 +2165,25 @@ begin
   end;
 end;
 
+constructor TSortedDictionary<TKey, TValue>.Create();
+begin
+  Create(TRules<TKey>.Default, TRules<TValue>.Default, True);
+end;
+
 constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
   Create(AKeyRules, AValueRules, True);
 end;
 
-constructor TSortedDictionary<TKey, TValue>.Create(const AAscending: Boolean);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AAscending);
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, ACollection, AAscending);
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const ACollection: IEnumerable<TPair<TKey, TValue>>; const AAscending: Boolean);
-var
-  LValue: TPair<TKey, TValue>;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules, AAscending);
-
-  if not Assigned(ACollection) then
-     ExceptionHelper.Throw_ArgumentNilError('ACollection');
-
-  { Pump in all items }
-  for LValue in ACollection do
-  begin
-{$IFNDEF BUG_GENERIC_INCOMPAT_TYPES}
-    Add(LValue);
-{$ELSE}
-    Add(LValue.Key, LValue.Value);
-{$ENDIF}
-  end;
-end;
-
 constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>;
   const AValueRules: TRules<TValue>; const AAscending: Boolean);
 begin
-  { Call the upper constructor }
   inherited Create(AKeyRules, AValueRules);
-
-  FCount := 0;
 
   if AAscending then
     FSignFix := 1
   else
     FSignFix := -1;
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
-begin
-  Create(TRules<TKey>.Default, TRules<TValue>.Default, AArray, AAscending);
-end;
-
-constructor TSortedDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>;
-  const AArray: array of TPair<TKey, TValue>; const AAscending: Boolean);
-var
-  I: NativeInt;
-begin
-  { Call upper constructor }
-  Create(AKeyRules, AValueRules, AAscending);
-
-  { Copy all items in }
-  for I := 0 to Length(AArray) - 1 do
-    Add(AArray[I]);
 end;
 
 function TSortedDictionary<TKey, TValue>.FindLeftMostNode: TNode;

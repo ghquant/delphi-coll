@@ -19,47 +19,27 @@ uses
   TestFramework,
   GUITestRunner,
   TextTestRunner,
-  Tests.Base in 'Tests.Base.pas',
-  Tests.Bag in 'Tests.Bag.pas',
-  Tests.BidiMap in 'Tests.BidiMap.pas',
-  Tests.Dictionary in 'Tests.Dictionary.pas',
-  Tests.DistinctMultiMap in 'Tests.DistinctMultiMap.pas',
-  Tests.DoubleSortedBidiMap in 'Tests.DoubleSortedBidiMap.pas',
-  Tests.DoubleSortedDistinctMultiMap in 'Tests.DoubleSortedDistinctMultiMap.pas',
-  Tests.DoubleSortedMultiMap in 'Tests.DoubleSortedMultiMap.pas',
-  Tests.HashSet in 'Tests.HashSet.pas',
-  Tests.LinkedList in 'Tests.LinkedList.pas',
-  Tests.LinkedQueue in 'Tests.LinkedQueue.pas',
-  Tests.LinkedStack in 'Tests.LinkedStack.pas',
-  Tests.List in 'Tests.List.pas',
-  Tests.LinkedDictionary in 'Tests.LinkedDictionary.pas',
-  Tests.LinkedSet in 'Tests.LinkedSet.pas',
-  Tests.MultiMap in 'Tests.MultiMap.pas',
-  Tests.PriorityQueue in 'Tests.PriorityQueue.pas',
-  Tests.Queue in 'Tests.Queue.pas',
-  Tests.ArraySet in 'Tests.ArraySet.pas',
-  Tests.SortedBag in 'Tests.SortedBag.pas',
-  Tests.SortedBidiMap in 'Tests.SortedBidiMap.pas',
-  Tests.SortedDictionary in 'Tests.SortedDictionary.pas',
-  Tests.SortedDistinctMultiMap in 'Tests.SortedDistinctMultiMap.pas',
-  Tests.SortedList in 'Tests.SortedList.pas',
-  Tests.SortedMultiMap in 'Tests.SortedMultiMap.pas',
-  Tests.SortedSet in 'Tests.SortedSet.pas',
-  Tests.SortedLinkedList in 'Tests.SortedLinkedList.pas',
-  Tests.Stack in 'Tests.Stack.pas',
-  Tests.Utils in 'Tests.Utils.pas',
-  Tests.Enex in 'Tests.Enex.pas',
-  Tests.Dynamic in 'Tests.Dynamic.pas',
-  Tests.BitSet in 'Tests.BitSet.pas',
-  Tests.BidiDictionary in 'Tests.BidiDictionary.pas',
-  Tests.SortedBidiDictionary in 'Tests.SortedBidiDictionary.pas',
-  Tests.DoubleSortedBidiDictionary in 'Tests.DoubleSortedBidiDictionary.pas',
-  Tests.Serialization in 'Tests.Serialization.pas';
+  Tests.Conformance.Base in 'Tests.Conformance.Base.pas',
+  Tests.Conformance.Lists in 'Tests.Conformance.Lists.pas',
+  Tests.Conformance.Stacks in 'Tests.Conformance.Stacks.pas',
+  Tests.Conformance.Queues in 'Tests.Conformance.Queues.pas',
+  Tests.Conformance.Sets in 'Tests.Conformance.Sets.pas',
+  Tests.Conformance.Dictionaries in 'Tests.Conformance.Dictionaries.pas',
+  Tests.Conformance.BidiDictionaries in 'Tests.Conformance.BidiDictionaries.pas',
+  Tests.Conformance.MultiMaps in 'Tests.Conformance.MultiMaps.pas',
+  Tests.Conformance.BidiMaps in 'Tests.Conformance.BidiMaps.pas',
+  Tests.Conformance.Bags in 'Tests.Conformance.Bags.pas',
+  Tests.Internal.Basics in 'Tests.Internal.Basics.pas',
+  Tests.Internal.Serialization in 'Tests.Internal.Serialization.pas',
+  Tests.Internal.Dynamic in 'Tests.Internal.Dynamic.pas',
+  Tests.Conformance.Specific in 'Tests.Conformance.Specific.pas';
 
 {$R *.RES}
 
+
 begin
   Application.Initialize;
+
   if IsConsole then
     with TextTestRunner.RunRegisteredTests do
       Free

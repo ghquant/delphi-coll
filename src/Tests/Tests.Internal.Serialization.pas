@@ -25,14 +25,14 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-unit Tests.Serialization;
+unit Tests.Internal.Serialization;
 interface
 uses SysUtils,
      Types,
      Classes,
      Math,
      DateUtils,
-     Tests.Utils,
+     Tests.Internal.Basics,
      TestFramework,
      Collections.Base,
      Collections.Serialization;
@@ -564,13 +564,13 @@ begin
 
 
   if FRawByteString_Empty <> AOther.FRawByteString_Empty then
-    raise EFieldFailError.Create('FRawByteString_Empty', FRawByteString_Empty, AOther.FRawByteString_Empty);
+    raise EFieldFailError.Create('FRawByteString_Empty', string(FRawByteString_Empty), string(AOther.FRawByteString_Empty));
 
   if FRawByteString_One <> AOther.FRawByteString_One then
-    raise EFieldFailError.Create('FRawByteString_One', FRawByteString_One, AOther.FRawByteString_One);
+    raise EFieldFailError.Create('FRawByteString_One', string(FRawByteString_One), string(AOther.FRawByteString_One));
 
   if FRawByteString_Long <> AOther.FRawByteString_Long then
-    raise EFieldFailError.Create('FRawByteString_Long', FRawByteString_Long, AOther.FRawByteString_Long);
+    raise EFieldFailError.Create('FRawByteString_Long', string(FRawByteString_Long), string(AOther.FRawByteString_Long));
 
 
   if UCS4StringToWideString(FUcs4String_Empty) <> UCS4StringToWideString(AOther.FUcs4String_Empty) then
@@ -1399,6 +1399,7 @@ begin
 end;
 
 initialization
-  TestFramework.RegisterTest(TTestSerialization.Suite);
+  TestFramework.RegisterTest('Internal.Serialization', TTestSerialization.Suite);
 
 end.
+

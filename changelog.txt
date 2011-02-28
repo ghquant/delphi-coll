@@ -37,6 +37,16 @@
     * Added TOperableCollection<T> with default implementation of IOperableCollection<T>. All simple types adjusted accordingly.
     * IList<T>.Insert(Collection) renamed to InsertAll. Add(Collection) renamed to AddAll.
     * ILinkedList<T>.AddLast(Collection) renamed to AddAllLast. AddFirst renamed to AddAllFirst;
+    * New TAbstractMap<TKey, TValue> collection wich is a base class for all associative maps.
+    * All collections now have only 3 contructors:
+      1. The default parameterless one.
+      2. The one that accepts the rule set (or sets for associative).
+      3. The one that accepts the rule set(s) and additional information that can be:
+         a) Sorting of elements/keys.
+         b) Sorting of keys and sorting of values.
+         c) Initial capacity.
+         d) Initial capacity and sorting of elements/keys.
+    * Reworked the interface of IBag<T> to accomodate the new changes.
     
     
     
