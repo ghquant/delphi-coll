@@ -569,7 +569,7 @@ type
     ///  <remarks>This method traverses the whole list and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function Any(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks that all elements in the list satisfy a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -577,7 +577,7 @@ type
     ///  <remarks>This method traverses the whole list and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function All(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this list are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
@@ -1280,7 +1280,7 @@ begin
     Result := AAggregator(Result, FArray[I]);
 end;
 
-function TList<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TList<T>.All(const APredicate: TPredicate<T>): Boolean;
 var
   I: NativeInt;
 begin
@@ -1295,7 +1295,7 @@ begin
   Result := true;
 end;
 
-function TList<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TList<T>.Any(const APredicate: TPredicate<T>): Boolean;
 var
   I: NativeInt;
 begin

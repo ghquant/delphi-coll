@@ -97,16 +97,6 @@ type
     procedure Test_FirstWhereOrDefault;
     procedure Test_FirstWhereNot;
     procedure Test_FirstWhereNotOrDefault;
-    procedure Test_FirstWhereLower;
-    procedure Test_FirstWhereLowerOrDefault;
-    procedure Test_FirstWhereLowerOrEqual;
-    procedure Test_FirstWhereLowerOrEqualOrDefault;
-    procedure Test_FirstWhereGreater;
-    procedure Test_FirstWhereGreaterOrDefault;
-    procedure Test_FirstWhereGreaterOrEqual;
-    procedure Test_FirstWhereGreaterOrEqualOrDefault;
-    procedure Test_FirstWhereBetween;
-    procedure Test_FirstWhereBetweenOrDefault;
     procedure Test_Last;
     procedure Test_LastOrDefault;
     procedure Test_Aggregate;
@@ -117,11 +107,6 @@ type
     procedure Test_All;
     procedure Test_Where;
     procedure Test_WhereNot;
-    procedure Test_WhereLower;
-    procedure Test_WhereLowerOrEqual;
-    procedure Test_WhereGreater;
-    procedure Test_WhereGreaterOrEqual;
-    procedure Test_WhereBetween;
     procedure Test_Distinct;
     procedure Test_Ordered_1;
     procedure Test_Ordered_2;
@@ -133,18 +118,8 @@ type
     procedure Test_Range;
     procedure Test_Take;
     procedure Test_TakeWhile;
-    procedure Test_TakeWhileLower;
-    procedure Test_TakeWhileLowerOrEqual;
-    procedure Test_TakeWhileGreater;
-    procedure Test_TakeWhileGreaterOrEqual;
-    procedure Test_TakeWhileBetween;
     procedure Test_Skip;
     procedure Test_SkipWhile;
-    procedure Test_SkipWhileLower;
-    procedure Test_SkipWhileLowerOrEqual;
-    procedure Test_SkipWhileGreater;
-    procedure Test_SkipWhileGreaterOrEqual;
-    procedure Test_SkipWhileBetween;
     procedure Test_Op_Select_1;
     procedure Test_Op_Select_2;
     procedure Test_Op_Select_3;
@@ -359,16 +334,6 @@ type
     procedure Test_Includes;
     procedure Test_Where;
     procedure Test_WhereNot;
-    procedure Test_WhereKeyLower;
-    procedure Test_WhereKeyLowerOrEqual;
-    procedure Test_WhereKeyGreater;
-    procedure Test_WhereKeyGreaterOrEqual;
-    procedure Test_WhereKeyBetween;
-    procedure Test_WhereValueLower;
-    procedure Test_WhereValueLowerOrEqual;
-    procedure Test_WhereValueGreater;
-    procedure Test_WhereValueGreaterOrEqual;
-    procedure Test_WhereValueBetween;
   end;
 
   TConformance_IMap = class(TConformance_IEnexAssociativeCollection)
@@ -467,7 +432,46 @@ type
     procedure Test_TryGetValues_2;
   end;
 
+  function GenerateUniqueRandomElements: TElements;
+
 implementation
+
+const
+  CElements = 100;
+
+function GenerateUniqueRandomElements: TElements;
+var
+  X, Y, R, L: NativeInt;
+  LWas: Boolean;
+begin
+  Randomize;
+
+  L := 0;
+  SetLength(Result, CElements);
+  for X := 0 to CElements - 1 do
+  begin
+
+    LWas := True;
+    while LWas do
+    begin
+      LWas := False;
+      R := Random(MaxInt);
+
+      for Y := 0 to L - 1 do
+        if Result[Y] = R then
+        begin
+          LWas := True;
+          Break;
+        end;
+
+      if not LWas then
+      begin
+        Result[L] := R;
+        Inc(L);
+      end;
+    end;
+  end;
+end;
 
 { TConformance_IEnumerable_Simple }
 
@@ -489,17 +493,98 @@ end;
 
 procedure TConformance_IEnumerable_Simple.Test_Enumerator_Early_Current;
 begin
-  Fail('Not implemented!');
+  {
+    Tests:
+      1. Current MUST return something even if MoveNext() was not used.
+  }
+  CheckTrue(FEmpty.GetEnumerator().Current = Default(NativeInt), 'Expected Current to be default for [empty].');
+  CheckTrue(FOne.GetEnumerator().Current = Default(NativeInt), 'Expected Current to be default for [one].');
+  CheckTrue(FFull.GetEnumerator().Current = Default(NativeInt), 'Expected Current to be default for [full].');
 end;
 
 procedure TConformance_IEnumerable_Simple.Test_Enumerator_ReachEnd;
+var
+  LEnumerator: IEnumerator<NativeInt>;
+  LLast, LIndex: NativeInt;
+  LList: Generics.Collections.TList<NativeInt>;
+  LIsFirst: Boolean;
 begin
-  Fail('Not implemented!');
+  {
+    Tests:
+      1. MoveNext() returns false for Empty.
+      2. MoveNext() returns false then true for One.
+      3. MoveNext() returns true until end is reached.
+      4. Ordering of elements is preserved.
+      5. Elements are all enumerated!
+      6. After last MoveNext() the next one is also False and Current is not changed.
+  }
+  LEnumerator := FEmpty.GetEnumerator();
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 1.MoveNext() for [empty]');
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 2.MoveNext() for [empty]');
+
+  LEnumerator := FOne.GetEnumerator();
+  CheckTrue(LEnumerator.MoveNext(), 'Expected a valid 1.MoveNext() for [one]');
+  LLast := LEnumerator.Current;
+
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 2.MoveNext() for [one]');
+  CheckEquals(LLast, LEnumerator.Current, 'Expected the last value to remain constant for [one]');
+
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 3.MoveNext() for [one]');
+  CheckEquals(LLast, LEnumerator.Current, 'Expected the last value to remain constant for [one]');
+  CheckEquals(LLast, FElements[0], 'Expected the only value to be valid [one]');
+
+  LEnumerator := FFull.GetEnumerator();
+  LList := Generics.Collections.TList<NativeInt>.Create();
+  LList.AddRange(FElements);
+  LIsFirst := False;
+  LIndex := 0;
+
+  while LEnumerator.MoveNext() do
+  begin
+    if LIsFirst then
+      LIsFirst := False
+    else begin
+      { Check ordering if applied }
+      if FOrdering = oAscending then
+        CheckTrue(LEnumerator.Current >= LLast, 'Expected Vi >= Vi-1 always for [full]!')
+      else if FOrdering = oDescending then
+        CheckTrue(LEnumerator.Current <= LLast, 'Expected Vi <= Vi-1 always for [full]!');
+    end;
+
+    LLast := LEnumerator.Current;
+
+    if FOrdering = oInsert then
+      CheckTrue(LList[LIndex] = LLast, 'Expected insert ordering to apply for [full].');
+
+    LList.Remove(LEnumerator.Current);
+    Inc(LIndex);
+  end;
+
+  { Check that all elements have been enumerated }
+  CheckEquals(0, LList.Count, 'Expected that all elements are enumerated in [full].');
+  LList.Free;
 end;
 
 procedure TConformance_IEnumerable_Simple.Test_GetEnumerator;
+var
+  LEnumerator: IEnumerator<NativeInt>;
 begin
-  Fail('Not implemented!');
+  {
+    Tests:
+      1. MUST return a valid enumerator.
+      2. MUST return always a new enumerator and not re-use another.
+  }
+  LEnumerator := FEmpty.GetEnumerator();
+  CheckTrue(Assigned(LEnumerator), 'Expected a non-nil enumerator for [empty].');
+  CheckTrue(Pointer(LEnumerator) <> Pointer(FEmpty.GetEnumerator()), 'Expected a new object enumerator for [empty].');
+
+  LEnumerator := FOne.GetEnumerator();
+  CheckTrue(Assigned(LEnumerator), 'Expected a non-nil enumerator for [one].');
+  CheckTrue(Pointer(LEnumerator) <> Pointer(FOne.GetEnumerator()), 'Expected a new object enumerator for [one].');
+
+  LEnumerator := FFull.GetEnumerator();
+  CheckTrue(Assigned(LEnumerator), 'Expected a non-nil enumerator for [full].');
+  CheckTrue(Pointer(LEnumerator) <> Pointer(FFull.GetEnumerator()), 'Expected a new object enumerator for [full].');
 end;
 
 { TConformance_ICollection_Simple }
@@ -515,43 +600,241 @@ begin
 end;
 
 procedure TConformance_ICollection_Simple.Test_CopyTo_1;
+var
+  LArray: TArray<NativeInt>;
+  LEnumerator: IEnumerator<NativeInt>;
+  LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. EArgumentOutOfRangeException when index is negative;
+       2. EArgumentOutOfSpaceException when index exceeds the free space in the array.
+       3. The all elements for [full].
+  }
+  SetLength(LArray, 1);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray, -1); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray, 2); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo(2)'
+  );
+  FEmpty.CopyTo(LArray, 0);
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray, 0); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo(0)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.CopyTo(LArray, 0); end,
+    'EArgumentOutOfRangeException not thrown in [one].CopyTo(0)'
+  );
+  SetLength(LArray, 10);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.CopyTo(LArray, -1); end,
+    'EArgumentOutOfRangeException not thrown in [one].CopyTo(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.CopyTo(LArray, 10); end,
+    'EArgumentOutOfRangeException not thrown in [one].CopyTo(10)'
+  );
+  FOne.CopyTo(LArray, 9);
+  CheckEquals(LArray[9], Elements[0], 'Expected the element to be coopied properly [one].');
+
+
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray, 0); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo(0)'
+  );
+  SetLength(LArray, Length(Elements) - 1);
+  CheckException(EArgumentOutOfSpaceException,
+    procedure() begin FFull.CopyTo(LArray, 0); end,
+    'EArgumentOutOfSpaceException not thrown in [full].CopyTo(0)'
+  );
+  SetLength(LArray, Length(Elements) + 1);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray, -1); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray, Length(LArray)); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo(L)'
+  );
+  FFull.CopyTo(LArray, 1);
+
+  LEnumerator := FFull.GetEnumerator();
+  LIndex := 1;
+  while LEnumerator.MoveNext() do
+  begin
+    CheckEquals(LEnumerator.Current, LArray[LIndex], 'Expected the copied array to be same order as enumerator for [full].');
+    Inc(LIndex);
+  end;
+  CheckEquals(Length(LArray), LIndex, 'Expected same count as enumerator for [full]');
 end;
 
 procedure TConformance_ICollection_Simple.Test_CopyTo_2;
+var
+  LArray: TArray<NativeInt>;
+  LEnumerator: IEnumerator<NativeInt>;
+  LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. EArgumentOutOfRangeException when index is negative;
+       2. EArgumentOutOfSpaceException when index exceeds the free space in the array.
+       3. The all elements for [full].
+  }
+  SetLength(LArray, 1);
+  FEmpty.CopyTo(LArray);
+
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo()'
+  );
+  SetLength(LArray, 10);
+  FOne.CopyTo(LArray, 9);
+  CheckEquals(LArray[9], Elements[0], 'Expected the element to be coopied properly [one].');
+
+
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo()'
+  );
+  SetLength(LArray, Length(Elements) - 1);
+  CheckException(EArgumentOutOfSpaceException,
+    procedure() begin FFull.CopyTo(LArray); end,
+    'EArgumentOutOfSpaceException not thrown in [full].CopyTo()'
+  );
+  SetLength(LArray, Length(Elements) + 1);
+  FFull.CopyTo(LArray, 1);
+
+  LEnumerator := FFull.GetEnumerator();
+  LIndex := 1;
+  while LEnumerator.MoveNext() do
+  begin
+    CheckEquals(LEnumerator.Current, LArray[LIndex], 'Expected the copied array to be same order as enumerator for [full].');
+    Inc(LIndex);
+  end;
+  CheckEquals(Length(LArray), LIndex, 'Expected same count as enumerator for [full]');
 end;
 
 procedure TConformance_ICollection_Simple.Test_Empty;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. Empty is True for [empty].
+       2. Empty is False for [one].
+       3. Empty is False for [full].
+  }
+
+  CheckTrue(FEmpty.Empty, 'Expected empty for [empty].');
+  CheckFalse(FOne.Empty, 'Expected non-empty for [one].');
+  CheckFalse(FFull.Empty, 'Expected non-empty for [full].');
 end;
 
 procedure TConformance_ICollection_Simple.Test_GetCount;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. Count for [empty] is zero.
+       2. Count for [one] is one.
+       3. Count for [full] is equal to the length of element array.
+  }
+
+  CheckEquals(0, FEmpty.GetCount(), 'Expected zero count for [empty].');
+  CheckEquals(1, FOne.GetCount(), 'Expected 1 count for [one].');
+  CheckEquals(Length(Elements), FFull.GetCount(), 'Expected > 1 count for [full].');
 end;
 
 procedure TConformance_ICollection_Simple.Test_Single;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. ECollectionEmptyException for [empty].
+       2. The value for [one].
+       3. ECollectionNotOneException for [full].
+  }
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Single(); end,
+    'ECollectionEmptyException not thrown in [empty].Single()'
+  );
+
+  CheckEquals(Elements[0], FOne.Single(), 'Expected "single" value failed for [one]');
+
+  CheckException(ECollectionNotOneException,
+    procedure() begin FFull.Single(); end,
+    'ECollectionNotOneException not thrown in [full].Single()'
+  );
 end;
 
 procedure TConformance_ICollection_Simple.Test_SingleOrDefault;
+var
+  LSingle: NativeInt;
+  LEnumerator: IEnumerator<NativeInt>;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. ECollectionEmptyException for [empty].
+       2. The value for [one].
+       3. The default value for [full].
+  }
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.SingleOrDefault(-1); end,
+    'ECollectionEmptyException not thrown in [empty].SingleOrDefault()'
+  );
+
+  LSingle := FOne.Single();
+  CheckEquals(LSingle, FOne.SingleOrDefault(LSingle - 1), 'Expected "single" value failed for [one]');
+
+  LEnumerator := FFull.GetEnumerator();
+  LEnumerator.MoveNext();
+  LSingle := LEnumerator.Current;
+
+  CheckEquals(LSingle - 1, FFull.SingleOrDefault(LSingle - 1), 'Expected "default" value failed for [full]');
 end;
 
 procedure TConformance_ICollection_Simple.Test_ToArray;
+var
+  LArray: TArray<NativeInt>;
+  LEnumerator: IEnumerator<NativeInt>;
+  LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. An empty array for [empty].
+       2. One-element array for [one].
+       3. The all elements for [full].
+  }
+  LArray := FEmpty.ToArray();
+  CheckEquals(0, Length(LArray), 'Expected a length of zero for the elements of [empty].');
+
+  LArray := FOne.ToArray();
+  CheckEquals(1, Length(LArray), 'Expected a length of 1 for the elements of [one].');
+  CheckEquals(Elements[0], LArray[0], 'Expected a proper single element for [one].');
+
+  LArray := FFull.ToArray();
+  CheckEquals(Length(Elements), Length(LArray), 'Expected a proper length for [full].');
+  LEnumerator := FFull.GetEnumerator();
+
+  LIndex := 0;
+  while LEnumerator.MoveNext() do
+  begin
+    CheckEquals(LEnumerator.Current, LArray[LIndex], 'Expected the copied array to be same order as enumerator for [full]');
+    Inc(LIndex);
+  end;
+  CheckEquals(Length(LArray), LIndex, 'Expected same count as enumerator for [full]');
 end;
 
 procedure TConformance_ICollection_Simple.Test_Version;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. Version() for [empty] is zero.
+      2. Version() for [one] is non-zero.
+      3. Version() for [full] is bigger than for [one]
+  }
+
+  CheckEquals(0, FEmpty.Version(), 'Expected the version for [empty] to be zero.');
+  CheckTrue(FOne.Version() > FEmpty.Version(), 'Expected the version for [one] to be bigger than zero.');
+  CheckTrue(FFull.Version() > FEmpty.Version(), 'Expected the version for [full] to be bigger than for [one].');
 end;
 
 { TConformance_IEnexCollection }
@@ -567,23 +850,159 @@ begin
 end;
 
 procedure TConformance_IEnexCollection.Test_Aggregate;
+var
+  LAggregator: TFunc<NativeInt, NativeInt, NativeInt>;
+  LSum, I: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. EArgumentNilException in all cases for nil predicates.
+      2. ECollectionEmptyException for [empty].
+      3. Proper aggregation for [one].
+      4. Real aggregation for [full].
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.Aggregate(nil) end,
+    'EArgumentNilException not thrown in [empty].Aggregate()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.Aggregate(nil) end,
+    'EArgumentNilException not thrown in [one].Aggregate()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.Aggregate(nil) end,
+    'EArgumentNilException not thrown in [full].Aggregate()'
+  );
+
+  LAggregator := function(Arg1, Arg2: NativeInt): NativeInt begin Exit(Arg1 + Arg2); end;
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Aggregate(LAggregator) end,
+    'ECollectionEmptyException not thrown in [empty].Aggregate()'
+  );
+
+  CheckEquals(Elements[0], FOne.Aggregate(LAggregator), 'Expected the only element for [one]');
+
+  LSum := 0;
+  for I := 0 to Length(Elements) - 1 do
+    Inc(LSum, Elements[I]);
+
+  CheckEquals(LSum, FFull.Aggregate(LAggregator), 'Expected the sum of elements for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_AggregateOrDefault;
+var
+  LAggregator: TFunc<NativeInt, NativeInt, NativeInt>;
+  LSum, I: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. EArgumentNilException in all cases for nil predicates.
+      2. Proper aggregation for [one].
+      3. Real aggregation for [full].
+      4. Default for [empty].
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.AggregateOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [empty].AggregateOrDefault()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.AggregateOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [one].AggregateOrDefault()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.AggregateOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [full].AggregateOrDefault()'
+  );
+
+  LAggregator := function(Arg1, Arg2: NativeInt): NativeInt begin Exit(Arg1 + Arg2); end;
+
+  CheckEquals(-1, FEmpty.AggregateOrDefault(LAggregator, -1), 'Expected the only element for [empty]');
+  CheckEquals(Elements[0], FOne.AggregateOrDefault(LAggregator, Elements[0] - 1), 'Expected the only element for [one]');
+
+  LSum := 0;
+  for I := 0 to Length(Elements) - 1 do
+    Inc(LSum, Elements[I]);
+
+  CheckEquals(LSum, FFull.AggregateOrDefault(LAggregator, -1), 'Expected the sum of elements for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_All;
+var
+  LAlwaysTruePredicate,
+    LPredicate: TPredicate<NativeInt>;
+  LLast: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. EArgumentNilException for nil predicates.
+      2. True for [empty]
+      3. True for an always true predicate.
+      4. Proper All for [one] and [full].
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.All(nil) end,
+    'EArgumentNilException not thrown in [empty].All()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.All(nil) end,
+    'EArgumentNilException not thrown in [one].All()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.All(nil) end,
+    'EArgumentNilException not thrown in [full].All()'
+  );
+
+  LAlwaysTruePredicate := function(Arg: NativeInt): Boolean begin Exit(True); end;
+  CheckEquals(True, FEmpty.All(LAlwaysTruePredicate), 'Expected all = true for [empty]');
+  CheckEquals(True, FOne.All(LAlwaysTruePredicate), 'Expected all = true for [empty]');
+  CheckEquals(True, FFull.All(LAlwaysTruePredicate), 'Expected all = true for [empty]');
+
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg = Elements[0]); end;
+  CheckEquals(True, FOne.All(LPredicate), 'Expected all = true for [one]');
+
+  LLast := FFull.Last;
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg = LLast); end;
+  CheckEquals(False, FFull.All(LPredicate), 'Expected all = false for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_Any;
+var
+  LAlwaysFalsePredicate,
+    LPredicate: TPredicate<NativeInt>;
+  LLast: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. EArgumentNilException for nil predicates.
+      2. False for [empty]
+      3. False for an always false predicate.
+      4. Proper All for [one] and [full].
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.Any(nil) end,
+    'EArgumentNilException not thrown in [empty].Any()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.Any(nil) end,
+    'EArgumentNilException not thrown in [one].Any()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.Any(nil) end,
+    'EArgumentNilException not thrown in [full].Any()'
+  );
+
+  LAlwaysFalsePredicate := function(Arg: NativeInt): Boolean begin Exit(false); end;
+  CheckEquals(False, FEmpty.Any(LAlwaysFalsePredicate), 'Expected any = false for [empty]');
+  CheckEquals(False, FOne.Any(LAlwaysFalsePredicate), 'Expected any = false for [empty]');
+  CheckEquals(False, FFull.Any(LAlwaysFalsePredicate), 'Expected any = false for [empty]');
+
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg = Elements[0]); end;
+  CheckEquals(True, FOne.Any(LPredicate), 'Expected any = true for [one]');
+
+  LLast := FFull.Last;
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg = LLast); end;
+  CheckEquals(True, FFull.Any(LPredicate), 'Expected any = true for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_Concat;
@@ -592,18 +1011,105 @@ begin
 end;
 
 procedure TConformance_IEnexCollection.Test_Distinct;
+var
+  LSet: ISet<NativeInt>;
+  LDistinct: IEnexCollection<NativeInt>;
+  LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. Equivalent to ToSet().
+      2. [empty] is empty.
+      3. [one] has one.
+  }
+
+  LDistinct := FEmpty.Distinct();
+  CheckTrue(LDistinct.Empty, 'Expected empty distinct result for [empty]');
+
+  LDistinct := FOne.Distinct();
+  CheckEquals(1, LDistinct.Count, 'Expected 1-length distinct result for [one]');
+  CheckEquals(FOne.Single(), LDistinct.Single(), 'Expected the same element for [one]');
+
+  LDistinct := FFull.Distinct();
+  LSet := FFull.ToSet();
+  CheckEquals(FFull.Count, LDistinct.Count, 'Expected N-length distinct result for [full]');
+
+  for LValue in LDistinct do
+  begin
+    CheckTrue(LSet.Contains(LValue), 'Expected the distinct element to be in the set [full].');
+    LSet.Remove(LValue);
+  end;
+
+  CheckTrue(LSet.Empty, 'Expected same elements in distinct of [full] as in set of [full].');
 end;
 
 procedure TConformance_IEnexCollection.Test_ElementAt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. EArgumentOutOfRangeException for negative, always
+      2. EArgumentOutOfRangeException for [empty]
+      3. EArgumentOutOfRangeException for actual out of range.
+      4. ElementAt[0] = First and ElementAt[L-1] = Last.
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.ElementAt(-1) end,
+    'EArgumentNilException not thrown in [empty].ElementAt(-1)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.ElementAt(-1) end,
+    'EArgumentNilException not thrown in [one].ElementAt(-1)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.ElementAt(-1) end,
+    'EArgumentNilException not thrown in [full].ElementAt(-1)'
+  );
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.ElementAt(0) end,
+    'ECollectionEmptyException not thrown in [empty].ElementAt(0)'
+  );
+  CheckException(ECollectionEmptyException,
+    procedure() begin FOne.ElementAt(1) end,
+    'ECollectionEmptyException not thrown in [one].ElementAt(1)'
+  );
+  CheckException(ECollectionEmptyException,
+    procedure() begin FFull.ElementAt(FFull.GetCount()) end,
+    'ECollectionEmptyException not thrown in [full].ElementAt(L)'
+  );
+
+  CheckEquals(Elements[0], FOne.ElementAt(0), 'Expected element[0] to be correct in [one]');
+  CheckEquals(FFull.First, FFull.ElementAt(0), 'Expected element[0] to be equal to First in [full]');
+  CheckEquals(FFull.Last, FFull.ElementAt(FFull.GetCount() - 1), 'Expected element[L-1] to be equal to Last in [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_ElementAtOrDefault;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. EArgumentOutOfRangeException for negative, always
+      2. The default for [empty], or out-of-range.
+      4. ElementAtOrDefault[0] = First and ElementAtOrDefault[L-1] = Last.
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.ElementAtOrDefault(-1, -1) end,
+    'EArgumentNilException not thrown in [empty].ElementAtOrDefault(-1)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.ElementAtOrDefault(-1, -1) end,
+    'EArgumentNilException not thrown in [one].ElementAtOrDefault(-1)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.ElementAtOrDefault(-1, -1) end,
+    'EArgumentNilException not thrown in [full].ElementAtOrDefault(-1)'
+  );
+
+  CheckEquals(-1, FEmpty.ElementAtOrDefault(0, -1), 'Expected default in [empty]');
+  CheckEquals(-1, FOne.ElementAtOrDefault(1, -1), 'Expected default in [one]');
+  CheckEquals(-1, FFull.ElementAtOrDefault(1, FFull.Count - 1), 'Expected default in [full]');
+
+  CheckEquals(Elements[0], FOne.ElementAtOrDefault(0, Elements[0] - 1), 'Expected element[0] to be correct in [one]');
+  CheckEquals(FFull.First, FFull.ElementAtOrDefault(0, FFull.First - 1), 'Expected element[0] to be equal to First in [full]');
+  CheckEquals(FFull.Last, FFull.ElementAtOrDefault(FFull.GetCount() - 1, FFull.Last - 1), 'Expected element[L-1] to be equal to Last in [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_EqualsTo;
@@ -617,83 +1123,211 @@ begin
 end;
 
 procedure TConformance_IEnexCollection.Test_First;
+var
+  LEnumerator: IEnumerator<NativeInt>;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. ECollectionEmptyException for [empty].
+      2. The actual element for [one].
+      3. The actual first element for [full].
+  }
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.First() end,
+    'ECollectionEmptyException not thrown in [empty].First()'
+  );
+
+  CheckEquals(Elements[0], FOne.First(), 'Expected proper first for [one].');
+
+  LEnumerator := FFull.GetEnumerator();
+  LEnumerator.MoveNext();
+  CheckEquals(LEnumerator.Current, FFull.First(), 'Expected proper first for [full].');
 end;
 
 procedure TConformance_IEnexCollection.Test_FirstOrDefault;
+var
+  LEnumerator: IEnumerator<NativeInt>;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. The default for [empty]
+      2. The actual element for [one].
+      3. The actual first element for [full].
+  }
+
+  CheckEquals(-1, FEmpty.FirstOrDefault(-1), 'Expected proper first for [empty].');
+  CheckEquals(Elements[0], FOne.FirstOrDefault(Elements[0] - 1), 'Expected proper first for [one].');
+
+  LEnumerator := FFull.GetEnumerator();
+  LEnumerator.MoveNext();
+  CheckEquals(LEnumerator.Current, FFull.FirstOrDefault(LEnumerator.Current - 1), 'Expected proper first for [full].');
 end;
 
 procedure TConformance_IEnexCollection.Test_FirstWhere;
+var
+  LAlwaysFalsePredicate,
+    LPredicate: TPredicate<NativeInt>;
 begin
-  Fail('Not implemented!');
-end;
+  { Tests:
+      1. ECollectionFilteredEmptyException for [empty].
+      2. ECollectionFilteredEmptyException for [one] but wrong predicate.
+      3. ECollectionFilteredEmptyException for [full] but wrong predicate.
+      4. The actual element for [one] with a proper predicate.
+      5. The actual elemnts for [full] with a proper predicate.
+      6. EArgumentNilException if the predicate is nil.
+  }
 
-procedure TConformance_IEnexCollection.Test_FirstWhereBetween;
-begin
-  Fail('Not implemented!');
-end;
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.FirstWhere(nil) end,
+    'EArgumentNilException not thrown in [empty].FirstWhere()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.FirstWhere(nil) end,
+    'EArgumentNilException not thrown in [one].FirstWhere()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.FirstWhere(nil) end,
+    'EArgumentNilException not thrown in [full].FirstWhere()'
+  );
 
-procedure TConformance_IEnexCollection.Test_FirstWhereBetweenOrDefault;
-begin
-  Fail('Not implemented!');
-end;
+  LAlwaysFalsePredicate := function(Arg: NativeInt): Boolean begin Exit(false); end;
 
-procedure TConformance_IEnexCollection.Test_FirstWhereGreater;
-begin
-  Fail('Not implemented!');
-end;
+  CheckException(ECollectionFilteredEmptyException,
+    procedure() begin FFull.FirstWhere(LAlwaysFalsePredicate) end,
+    'ECollectionFilteredEmptyException not thrown in [empty].FirstWhere(false)'
+  );
+  CheckException(ECollectionFilteredEmptyException,
+    procedure() begin FFull.FirstWhere(LAlwaysFalsePredicate) end,
+    'ECollectionFilteredEmptyException not thrown in [one].FirstWhere(false)'
+  );
+  CheckException(ECollectionFilteredEmptyException,
+    procedure() begin FFull.FirstWhere(LAlwaysFalsePredicate) end,
+    'ECollectionFilteredEmptyException not thrown in [full].FirstWhere(false)'
+  );
 
-procedure TConformance_IEnexCollection.Test_FirstWhereGreaterOrDefault;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_FirstWhereGreaterOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_FirstWhereGreaterOrEqualOrDefault;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_FirstWhereLower;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_FirstWhereLowerOrDefault;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_FirstWhereLowerOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_FirstWhereLowerOrEqualOrDefault;
-begin
-  Fail('Not implemented!');
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg = Elements[0]); end;
+  CheckEquals(Elements[0], FOne.FirstWhere(LPredicate), 'Expected first element for [one]');
+  CheckEquals(Elements[0], FFull.FirstWhere(LPredicate), 'Expected proper element for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_FirstWhereNot;
+var
+  LAlwaysTruePredicate,
+    LPredicate: TPredicate<NativeInt>;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. ECollectionFilteredEmptyException for [empty].
+      2. ECollectionFilteredEmptyException for [one] but wrong predicate.
+      3. ECollectionFilteredEmptyException for [full] but wrong predicate.
+      4. The actual element for [one] with a proper predicate.
+      5. The actual elemnts for [full] with a proper predicate.
+      6. EArgumentNilException if the predicate is nil.
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.FirstWhereNot(nil) end,
+    'EArgumentNilException not thrown in [empty].FirstWhereNot()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.FirstWhereNot(nil) end,
+    'EArgumentNilException not thrown in [one].FirstWhereNot()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.FirstWhereNot(nil) end,
+    'EArgumentNilException not thrown in [full].FirstWhereNot()'
+  );
+
+  LAlwaysTruePredicate := function(Arg: NativeInt): Boolean begin Exit(true); end;
+
+  CheckException(ECollectionFilteredEmptyException,
+    procedure() begin FFull.FirstWhereNot(LAlwaysTruePredicate) end,
+    'ECollectionFilteredEmptyException not thrown in [empty].FirstWhereNot(false)'
+  );
+  CheckException(ECollectionFilteredEmptyException,
+    procedure() begin FFull.FirstWhereNot(LAlwaysTruePredicate) end,
+    'ECollectionFilteredEmptyException not thrown in [one].FirstWhereNot(false)'
+  );
+  CheckException(ECollectionFilteredEmptyException,
+    procedure() begin FFull.FirstWhereNot(LAlwaysTruePredicate) end,
+    'ECollectionFilteredEmptyException not thrown in [full].FirstWhereNot(false)'
+  );
+
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg <> Elements[0]); end;
+  CheckEquals(Elements[0], FOne.FirstWhereNot(LPredicate), 'Expected first element for [one]');
+  CheckEquals(Elements[0], FFull.FirstWhereNot(LPredicate), 'Expected proper element for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_FirstWhereNotOrDefault;
+var
+  LAlwaysTruePredicate,
+    LPredicate: TPredicate<NativeInt>;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. ECollectionFilteredEmptyException for [empty].
+      2. ECollectionFilteredEmptyException for [one] but wrong predicate.
+      3. ECollectionFilteredEmptyException for [full] but wrong predicate.
+      4. The actual element for [one] with a proper predicate.
+      5. The actual elemnts for [full] with a proper predicate.
+      6. EArgumentNilException if the predicate is nil.
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.FirstWhereNotOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [empty].FirstWhereOrDefault()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.FirstWhereNotOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [one].FirstWhereOrDefault()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.FirstWhereNotOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [full].FirstWhereOrDefault()'
+  );
+
+  LAlwaysTruePredicate := function(Arg: NativeInt): Boolean begin Exit(True); end;
+  CheckEquals(-1, FEmpty.FirstWhereNotOrDefault(LAlwaysTruePredicate, -1), 'Expected -1 element for [empty]');
+  CheckEquals(-1, FOne.FirstWhereNotOrDefault(LAlwaysTruePredicate, -1), 'Expected -1 element for [one]');
+  CheckEquals(-1, FFull.FirstWhereNotOrDefault(LAlwaysTruePredicate, -1), 'Expected -1 element for [full]');
+
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg <> Elements[0]); end;
+  CheckEquals(Elements[0], FOne.FirstWhereNotOrDefault(LPredicate, Elements[0] - 1), 'Expected first element for [one]');
+  CheckEquals(Elements[0], FFull.FirstWhereNotOrDefault(LPredicate, Elements[0] - 1), 'Expected proper element for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_FirstWhereOrDefault;
+var
+  LAlwaysFalsePredicate,
+    LPredicate: TPredicate<NativeInt>;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. ECollectionFilteredEmptyException for [empty].
+      2. ECollectionFilteredEmptyException for [one] but wrong predicate.
+      3. ECollectionFilteredEmptyException for [full] but wrong predicate.
+      4. The actual element for [one] with a proper predicate.
+      5. The actual elemnts for [full] with a proper predicate.
+      6. EArgumentNilException if the predicate is nil.
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.FirstWhereOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [empty].FirstWhereOrDefault()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.FirstWhereOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [one].FirstWhereOrDefault()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.FirstWhereOrDefault(nil, -1) end,
+    'EArgumentNilException not thrown in [full].FirstWhereOrDefault()'
+  );
+
+  LAlwaysFalsePredicate := function(Arg: NativeInt): Boolean begin Exit(false); end;
+  CheckEquals(-1, FEmpty.FirstWhereOrDefault(LAlwaysFalsePredicate, -1), 'Expected -1 element for [empty]');
+  CheckEquals(-1, FOne.FirstWhereOrDefault(LAlwaysFalsePredicate, -1), 'Expected -1 element for [one]');
+  CheckEquals(-1, FFull.FirstWhereOrDefault(LAlwaysFalsePredicate, -1), 'Expected -1 element for [full]');
+
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit(Arg = Elements[0]); end;
+  CheckEquals(Elements[0], FOne.FirstWhereOrDefault(LPredicate, Elements[0] - 1), 'Expected first element for [one]');
+  CheckEquals(Elements[0], FFull.FirstWhereOrDefault(LPredicate, Elements[0] - 1), 'Expected proper element for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_Intersect;
@@ -702,23 +1336,117 @@ begin
 end;
 
 procedure TConformance_IEnexCollection.Test_Last;
+var
+  LEnumerator: IEnumerator<NativeInt>;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. ECollectionEmptyException for [empty].
+      2. The actual element for [one].
+      3. The actual first element for [full].
+  }
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Last() end,
+    'ECollectionEmptyException not thrown in [empty].Last()'
+  );
+
+  CheckEquals(Elements[0], FOne.Last(), 'Expected proper last for [one].');
+
+  LEnumerator := FFull.GetEnumerator();
+  while LEnumerator.MoveNext() do;
+  CheckEquals(LEnumerator.Current, FFull.Last(), 'Expected proper last for [full].');
 end;
 
 procedure TConformance_IEnexCollection.Test_LastOrDefault;
+var
+  LEnumerator: IEnumerator<NativeInt>;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. The default for [empty]
+      2. The actual element for [one].
+      3. The actual first element for [full].
+  }
+
+  CheckEquals(-1, FEmpty.LastOrDefault(-1), 'Expected proper last for [empty].');
+  CheckEquals(Elements[0], FOne.LastOrDefault(Elements[0] - 1), 'Expected proper last for [one].');
+
+  LEnumerator := FFull.GetEnumerator();
+  while LEnumerator.MoveNext() do;
+  CheckEquals(LEnumerator.Current, FFull.LastOrDefault(LEnumerator.Current - 1), 'Expected proper last for [full].');
 end;
 
 procedure TConformance_IEnexCollection.Test_Max;
+var
+  LMax, LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. ECollectionEmptyException for [empty].
+      2. The actual element for [one].
+      3. The actual max for [full].
+      4. Max = Last for ascending and First for descending.
+  }
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Max() end,
+    'ECollectionEmptyException not thrown in [empty].Max()'
+  );
+
+  CheckEquals(Elements[0], FOne.Max(), 'Expected proper max for [one]');
+
+  LMax := Elements[0];
+  for LIndex := 1 to Length(Elements) - 1 do
+    if LMax < Elements[LIndex] then
+      LMax := Elements[LIndex];
+
+  CheckEquals(LMax, FFull.Max(), 'Expected proper max for [full]');
+
+  if Ordering = oAscending then
+  begin
+    CheckEquals(FFull.Max(), FFull.Last(), 'Expected Max to be equal to Last in [full]');
+    CheckEquals(FFull.Max(), FFull.ElementAt(FFull.Count - 1), 'Expected Max to be equal to [L-1] in [full]');
+  end;
+  if Ordering = oDescending then
+  begin
+    CheckEquals(FFull.Max(), FFull.First(), 'Expected Max to be equal to First in [full]');
+    CheckEquals(FFull.Max(), FFull.ElementAt(0), 'Expected Max to be equal to [0] in [full]');
+  end;
 end;
 
 procedure TConformance_IEnexCollection.Test_Min;
+var
+  LMin, LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. ECollectionEmptyException for [empty].
+      2. The actual element for [one].
+      3. The actual min for [full].
+      4. Min = First for ascending and Last for descending.
+  }
+
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Min() end,
+    'ECollectionEmptyException not thrown in [empty].Min()'
+  );
+
+  CheckEquals(Elements[0], FOne.Min(), 'Expected proper min for [one]');
+
+  LMin := Elements[0];
+  for LIndex := 1 to Length(Elements) - 1 do
+    if LMin > Elements[LIndex] then
+      LMin := Elements[LIndex];
+
+  CheckEquals(LMin, FFull.Min(), 'Expected proper min for [full]');
+
+  if Ordering = oAscending then
+  begin
+    CheckEquals(FFull.Min(), FFull.First(), 'Expected Min to be equal to First in [full]');
+    CheckEquals(FFull.Max(), FFull.ElementAt(0), 'Expected Max to be equal to [0] in [full]');
+  end;
+  if Ordering = oDescending then
+  begin
+    CheckEquals(FFull.Min(), FFull.Last(), 'Expected Min to be equal to Last in [full]');
+    CheckEquals(FFull.Max(), FFull.ElementAt(FFull.Count - 1), 'Expected Max to be equal to [L-1] in [full]');
+  end;
 end;
 
 procedure TConformance_IEnexCollection.Test_Op_GroupBy;
@@ -767,8 +1495,35 @@ begin
 end;
 
 procedure TConformance_IEnexCollection.Test_Reversed;
+var
+  LReversed: IEnexCollection<NativeInt>;
+  LArray: TArray<NativeInt>;
+  LIndex, LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Test:
+      1. [empty] is empty.
+      2. [one] is one.
+      3. [full] is reversed.
+      4. order is preserved in reversed.
+  }
+
+  LReversed := FEmpty.Reversed();
+  CheckTrue(LReversed.Empty, 'Expected reversed of [empty] to be empty');
+
+  LReversed := FOne.Reversed();
+  CheckEquals(1, LReversed.Count, 'Expected reversed of [one] to be 1-length.');
+  CheckEquals(FOne.Single, LReversed.Single, 'Expected reversed of [one] to have the same element.');
+
+  LReversed := FFull.Reversed();
+  CheckEquals(FFull.Count, LReversed.Count, 'Expected reversed of [full] to be the same length.');
+  LArray := LReversed.ToArray();
+
+  LIndex := Length(LArray) - 1;
+  for LValue in FFull do
+  begin
+    CheckEquals(LValue, LArray[LIndex], 'Expected proper reversing in [full].');
+    Dec(LIndex);
+  end;
 end;
 
 procedure TConformance_IEnexCollection.Test_Skip;
@@ -777,31 +1532,6 @@ begin
 end;
 
 procedure TConformance_IEnexCollection.Test_SkipWhile;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_SkipWhileBetween;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_SkipWhileGreater;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_SkipWhileGreaterOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_SkipWhileLower;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_SkipWhileLowerOrEqual;
 begin
   Fail('Not implemented!');
 end;
@@ -816,34 +1546,33 @@ begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_IEnexCollection.Test_TakeWhileBetween;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_TakeWhileGreater;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_TakeWhileGreaterOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_TakeWhileLower;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexCollection.Test_TakeWhileLowerOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
 procedure TConformance_IEnexCollection.Test_ToList;
+var
+  LList: IList<NativeInt>;
+  LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  {  Tests:
+       1. Empty list for [empty].
+       2. List with one element for [one].
+       3. List with all elements for [full].
+       4. New list each time.
+  }
+
+  LList := FEmpty.ToList();
+  CheckTrue(Pointer(LList) <> Pointer(FEmpty.ToList()), 'Expected new list for [empty]');
+  CheckTrue(LList.Empty, 'Expected empty list for [empty]');
+
+  LList := FOne.ToList();
+  CheckTrue(Pointer(LList) <> Pointer(FOne.ToList()), 'Expected new list for [one]');
+  CheckEquals(1, LList.GetCount(), 'Expected one-element list for [one]');
+  CheckEquals(Elements[0], LList.GetItem(0), 'Expected proper element copy for [one]');
+
+  LList := FFull.ToList();
+  CheckTrue(Pointer(LList) <> Pointer(FFull.ToList()), 'Expected new list for [full]');
+  CheckEquals(Length(Elements), LList.GetCount(), 'Expected full-element list for [full]');
+
+  for LIndex := 0 to LList.Count - 1 do
+    CheckEquals(Elements[LIndex], LList.GetItem(LIndex), 'Expected proper element copy for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_ToSet;
@@ -857,38 +1586,103 @@ begin
 end;
 
 procedure TConformance_IEnexCollection.Test_Where;
+var
+  LAlwaysFalsePredicate,
+    LPredicate: TPredicate<NativeInt>;
+  LCollection: IEnexCollection<NativeInt>;
+  LF, LL: NativeInt;
 begin
-  Fail('Not implemented!');
-end;
+  { Tests:
+      1. EArgumentNilException for nil predicates.
+      2. Empty collection for always false predicate.
+  }
 
-procedure TConformance_IEnexCollection.Test_WhereBetween;
-begin
-  Fail('Not implemented!');
-end;
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.Where(nil) end,
+    'EArgumentNilException not thrown in [empty].Where()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.Where(nil) end,
+    'EArgumentNilException not thrown in [one].Where()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.Where(nil) end,
+    'EArgumentNilException not thrown in [full].Where()'
+  );
 
-procedure TConformance_IEnexCollection.Test_WhereGreater;
-begin
-  Fail('Not implemented!');
-end;
+  LAlwaysFalsePredicate := function(Arg: NativeInt): Boolean begin Exit(False); end;
 
-procedure TConformance_IEnexCollection.Test_WhereGreaterOrEqual;
-begin
-  Fail('Not implemented!');
-end;
+  LCollection := FEmpty.Where(LAlwaysFalsePredicate);
+  CheckEquals(True, LCollection.Empty, 'Expected empty where collection for [empty]');
 
-procedure TConformance_IEnexCollection.Test_WhereLower;
-begin
-  Fail('Not implemented!');
-end;
+  LCollection := FOne.Where(LAlwaysFalsePredicate);
+  CheckEquals(True, LCollection.Empty, 'Expected empty where collection for [one]');
 
-procedure TConformance_IEnexCollection.Test_WhereLowerOrEqual;
-begin
-  Fail('Not implemented!');
+  LCollection := FFull.Where(LAlwaysFalsePredicate);
+  CheckEquals(True, LCollection.Empty, 'Expected empty where collection for [full]');
+
+  LF := FOne.First; LL := FOne.Last;
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit((Arg = LF) or (Arg = LL)); end;
+  LCollection := FOne.Where(LPredicate);
+  CheckEquals(1, LCollection.Count, 'Expected 1-length where collection for [one]');
+  CheckEquals(LF, LCollection.First, 'Expected proper selected element for [one]');
+
+  LF := FFull.First; LL := FFull.Last;
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit((Arg = LF) or (Arg = LL)); end;
+  LCollection := FFull.Where(LPredicate);
+  CheckEquals(2, LCollection.Count, 'Expected 2-length where collection for [one]');
+  CheckEquals(LF, LCollection.First, 'Expected proper 1 selected element for [one]');
+  CheckEquals(LL, LCollection.Last, 'Expected proper 2 selected element for [one]');
 end;
 
 procedure TConformance_IEnexCollection.Test_WhereNot;
+var
+  LAlwaysTruePredicate,
+    LPredicate: TPredicate<NativeInt>;
+  LCollection: IEnexCollection<NativeInt>;
+  LF, LL: NativeInt;
 begin
-  Fail('Not implemented!');
+  { Tests:
+      1. EArgumentNilException for nil predicates.
+      2. Empty collection for always false predicate.
+  }
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.WhereNot(nil) end,
+    'EArgumentNilException not thrown in [empty].WhereNot()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.WhereNot(nil) end,
+    'EArgumentNilException not thrown in [one].WhereNot()'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.WhereNot(nil) end,
+    'EArgumentNilException not thrown in [full].WhereNot()'
+  );
+
+  LAlwaysTruePredicate := function(Arg: NativeInt): Boolean begin Exit(True); end;
+
+  LCollection := FEmpty.WhereNot(LAlwaysTruePredicate);
+  CheckEquals(True, LCollection.Empty, 'Expected empty where collection for [empty]');
+
+  LCollection := FOne.WhereNot(LAlwaysTruePredicate);
+  CheckEquals(True, LCollection.Empty, 'Expected empty where collection for [one]');
+
+  LCollection := FFull.WhereNot(LAlwaysTruePredicate);
+  CheckEquals(True, LCollection.Empty, 'Expected empty where collection for [full]');
+
+  LF := FOne.First; LL := FOne.Last;
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit((Arg <> LF) and (Arg <> LL)); end;
+  LCollection := FOne.WhereNot(LPredicate);
+  CheckEquals(1, LCollection.Count, 'Expected 1-length where collection for [one]');
+  CheckEquals(LF, LCollection.First, 'Expected proper selected element for [one]');
+
+  LF := FFull.First; LL := FFull.Last;
+  LPredicate := function(Arg: NativeInt): Boolean begin Exit((Arg <> LF) and (Arg <> LL)); end;
+  LCollection := FFull.WhereNot(LPredicate);
+  CheckEquals(2, LCollection.Count, 'Expected 2-length where collection for [one]');
+  CheckEquals(LF, LCollection.First, 'Expected proper 1 selected element for [one]');
+  CheckEquals(LL, LCollection.Last, 'Expected proper 2 selected element for [one]');
 end;
 
 { TConformance_IGrouping }
@@ -1328,57 +2122,7 @@ begin
   Fail('Not implemented!');
 end;
 
-procedure TConformance_IEnexAssociativeCollection.Test_WhereKeyBetween;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereKeyGreater;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereKeyGreaterOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereKeyLower;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereKeyLowerOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
 procedure TConformance_IEnexAssociativeCollection.Test_WhereNot;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereValueBetween;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereValueGreater;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereValueGreaterOrEqual;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereValueLower;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_IEnexAssociativeCollection.Test_WhereValueLowerOrEqual;
 begin
   Fail('Not implemented!');
 end;

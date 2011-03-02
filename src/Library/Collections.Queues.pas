@@ -256,7 +256,7 @@ type
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function Any(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks that all elements in the queue satisfy a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -264,7 +264,7 @@ type
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function All(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this queue are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
@@ -467,7 +467,7 @@ type
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function Any(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks that all elements in the queue satisfy a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -475,7 +475,7 @@ type
     ///  <remarks>This method traverses the whole queue and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function All(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this queue are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
@@ -785,7 +785,7 @@ begin
   end;
 end;
 
-function TQueue<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TQueue<T>.All(const APredicate: TPredicate<T>): Boolean;
 var
   I, LH: NativeInt;
 begin
@@ -808,7 +808,7 @@ begin
   Result := true;
 end;
 
-function TQueue<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TQueue<T>.Any(const APredicate: TPredicate<T>): Boolean;
 var
   I, LH: NativeInt;
 begin
@@ -1267,7 +1267,7 @@ begin
   end;
 end;
 
-function TLinkedQueue<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TLinkedQueue<T>.All(const APredicate: TPredicate<T>): Boolean;
 var
   LCurrent: PEntry;
 begin
@@ -1287,7 +1287,7 @@ begin
   Result := true;
 end;
 
-function TLinkedQueue<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TLinkedQueue<T>.Any(const APredicate: TPredicate<T>): Boolean;
 var
   LCurrent: PEntry;
 begin

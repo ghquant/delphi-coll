@@ -213,7 +213,7 @@ type
     ///  <remarks>This method traverses the whole bag and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function Any(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks that all elements in the bag satisfy a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -221,7 +221,7 @@ type
     ///  <remarks>This method traverses the whole bag and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function All(const APredicate: TPredicate<T>): Boolean; override;
   end;
 
 type
@@ -350,13 +350,13 @@ begin
   NotifyCollectionChanged();
 end;
 
-function TAbstractBag<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TAbstractBag<T>.All(const APredicate: TPredicate<T>): Boolean;
 begin
   { Use TDictionary's Keys }
   Result := FDictionary.Keys.All(APredicate);
 end;
 
-function TAbstractBag<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TAbstractBag<T>.Any(const APredicate: TPredicate<T>): Boolean;
 begin
   { Use TDictionary's Keys }
   Result := FDictionary.Keys.Any(APredicate);

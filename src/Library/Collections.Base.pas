@@ -37,6 +37,12 @@ uses
 
 {$REGION 'Base Collection Interfaces'}
 type
+  ///  <summary>The predicate that accepts two input values.</summary>
+  ///  <param name="Arg1">The first argument.</param>
+  ///  <param name="Arg2">The second argument.</param>
+  ///  <returns>A boolean value that indicates the result of the logical predicate.</returns>
+  TPredicate<T1, T2> = reference to function(Arg1: T1; Arg2: T2): Boolean;
+
   ///  <summary>Base interface describing all enumerators in this package.</summary>
   ///  <remarks><see cref="Collections.Base|IEnumerator&lt;T&gt;">Collections.Base.IEnumerator&lt;T&gt;</see> is implemented by
   ///  all enumerator objects in this package.</remarks>
@@ -311,14 +317,14 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the predicate.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhere(const APredicate: TFunc<T, Boolean>): T;
+    function FirstWhere(const APredicate: TPredicate<T>): T;
 
     ///  <summary>Returns the first element that satisfies the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given predicate; <paramref name="ADefault"/> otherwise.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhereOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
+    function FirstWhereOrDefault(const APredicate: TPredicate<T>; const ADefault: T): T;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
@@ -326,14 +332,14 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements that do not satisfy the predicate.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhereNot(const APredicate: TFunc<T, Boolean>): T;
+    function FirstWhereNot(const APredicate: TPredicate<T>): T;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that does not satisfy the given predicate; <paramref name="ADefault"/> otherwise.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhereNotOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
+    function FirstWhereNotOrDefault(const APredicate: TPredicate<T>; const ADefault: T): T;
 
     ///  <summary>Returns the first element lower than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
@@ -466,7 +472,7 @@ type
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean;
+    function Any(const APredicate: TPredicate<T>): Boolean;
 
     ///  <summary>Checks that all elements in the collection satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -474,19 +480,19 @@ type
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function All(const APredicate: TFunc<T, Boolean>): Boolean;
+    function All(const APredicate: TPredicate<T>): Boolean;
 
     ///  <summary>Selects only the elements that satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function Where(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function WhereNot(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that are less than a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
@@ -581,7 +587,7 @@ type
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function TakeWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function TakeWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
@@ -627,7 +633,7 @@ type
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function SkipWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function SkipWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
@@ -786,13 +792,13 @@ type
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
+    function Where(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereNot(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
@@ -1823,14 +1829,14 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements satisfy the predicate.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhere(const APredicate: TFunc<T, Boolean>): T; virtual;
+    function FirstWhere(const APredicate: TPredicate<T>): T; virtual;
 
     ///  <summary>Returns the first element that satisfies the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that satisfies the given predicate; or <paramref name="ADefault"/> otherwise.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhereOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T; virtual;
+    function FirstWhereOrDefault(const APredicate: TPredicate<T>; const ADefault: T): T; virtual;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
@@ -1838,14 +1844,14 @@ type
     ///  <exception cref="Collections.Base|ECollectionEmptyException">The collection is empty.</exception>
     ///  <exception cref="Collections.Base|ECollectionFilteredEmptyException">No elements that do not satisfy the predicate.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhereNot(const APredicate: TFunc<T, Boolean>): T;
+    function FirstWhereNot(const APredicate: TPredicate<T>): T;
 
     ///  <summary>Returns the first element that does not satisfy the given predicate or a default value.</summary>
     ///  <param name="APredicate">The predicate to use.</param>
     ///  <param name="ADefault">The default value.</param>
     ///  <returns>The first element that does not satisfy the given predicate; or <paramref name="ADefault"/> otherwise.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function FirstWhereNotOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
+    function FirstWhereNotOrDefault(const APredicate: TPredicate<T>; const ADefault: T): T;
 
     ///  <summary>Returns the first element lower than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
@@ -1978,7 +1984,7 @@ type
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; virtual;
+    function Any(const APredicate: TPredicate<T>): Boolean; virtual;
 
     ///  <summary>Checks that all elements in the collection satisfies a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -1986,7 +1992,7 @@ type
     ///  <remarks>This method traverses the whole collection and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; virtual;
+    function All(const APredicate: TPredicate<T>): Boolean; virtual;
 
     ///  <summary>Checks whether the elements in this collection are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
@@ -2002,13 +2008,13 @@ type
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function Where(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function WhereNot(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Selects only the elements that are less than a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
@@ -2103,7 +2109,7 @@ type
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function TakeWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function TakeWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
@@ -2149,7 +2155,7 @@ type
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function SkipWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+    function SkipWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
@@ -2455,13 +2461,13 @@ type
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
+    function Where(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereNot(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
@@ -2767,12 +2773,12 @@ type
 
   private
     FCollection: TEnexCollection<T>;
-    FPredicate: TFunc<T, Boolean>;
+    FPredicate: TPredicate<T>;
     FInvertResult: Boolean;
 
   public
     constructor Create(const ACollection: TEnexCollection<T>;
-      const APredicate: TFunc<T, Boolean>; const AInvertResult: Boolean); overload;
+      const APredicate: TPredicate<T>; const AInvertResult: Boolean); overload;
     destructor Destroy(); override;
     function GetEnumerator(): IEnumerator<T>; override;
   end;
@@ -2841,8 +2847,8 @@ type
     destructor Destroy(); override;
     function GetEnumerator(): IEnumerator<T>; override;
     function Empty(): Boolean; override;
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function Any(const APredicate: TPredicate<T>): Boolean; override;
+    function All(const APredicate: TPredicate<T>): Boolean; override;
   end;
 
   TEnexUnionCollection<T> = class sealed(TEnexCollection<T>)
@@ -3009,8 +3015,8 @@ type
     function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
     function ElementAt(const AIndex: NativeInt): T; override;
     function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function Any(const APredicate: TPredicate<T>): Boolean; override;
+    function All(const APredicate: TPredicate<T>): Boolean; override;
     function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
   end;
 
@@ -3025,10 +3031,10 @@ type
 
   private
     FCollection: TEnexCollection<T>;
-    FPredicate: TFunc<T, Boolean>;
+    FPredicate: TPredicate<T>;
 
   public
-    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>); overload;
     destructor Destroy(); override;
     function GetEnumerator(): IEnumerator<T>; override;
   end;
@@ -3044,10 +3050,10 @@ type
 
   private
     FCollection: TEnexCollection<T>;
-    FPredicate: TFunc<T, Boolean>;
+    FPredicate: TPredicate<T>;
 
   public
-    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>); overload;
+    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>); overload;
     destructor Destroy(); override;
     function GetEnumerator(): IEnumerator<T>; override;
   end;
@@ -3076,8 +3082,8 @@ type
       function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
       function ElementAt(const AIndex: NativeInt): T; override;
       function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
-      function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
-      function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+      function Any(const APredicate: TPredicate<T>): Boolean; override;
+      function All(const APredicate: TPredicate<T>): Boolean; override;
       function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
     end;
 
@@ -3142,11 +3148,11 @@ type
 
   var
     FCollection: TEnexAssociativeCollection<TKey, TValue>;
-    FPredicate: TFunc<TKey, TValue, Boolean>;
+    FPredicate: TPredicate<TKey, TValue>;
     FInvertResult: Boolean;
   public
     constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>;
-        const APredicate: TFunc<TKey, TValue, Boolean>; const AInvertResult: Boolean); overload;
+        const APredicate: TPredicate<TKey, TValue>; const AInvertResult: Boolean); overload;
     destructor Destroy(); override;
     function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
   end;
@@ -3533,7 +3539,7 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexCollection<T>.All(const APredicate: TPredicate<T>): Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3553,7 +3559,7 @@ begin
   Result := true;
 end;
 
-function TEnexCollection<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexCollection<T>.Any(const APredicate: TPredicate<T>): Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3803,7 +3809,7 @@ begin
     Result := ADefault;
 end;
 
-function TEnexCollection<T>.FirstWhere(const APredicate: TFunc<T, Boolean>): T;
+function TEnexCollection<T>.FirstWhere(const APredicate: TPredicate<T>): T;
 var
   LEnumerator: IEnumerator<T>;
   LWasOne: Boolean;
@@ -3938,7 +3944,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereNot(const APredicate: TFunc<T, Boolean>): T;
+function TEnexCollection<T>.FirstWhereNot(const APredicate: TPredicate<T>): T;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -3952,7 +3958,7 @@ begin
 end;
 
 function TEnexCollection<T>.FirstWhereNotOrDefault(
-  const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
+  const APredicate: TPredicate<T>; const ADefault: T): T;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -3966,7 +3972,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereOrDefault(const APredicate: TFunc<T, Boolean>; const ADefault: T): T;
+function TEnexCollection<T>.FirstWhereOrDefault(const APredicate: TPredicate<T>; const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -4169,7 +4175,7 @@ begin
   Result := TEnexSkipCollection<T>.Create(Self, ACount);
 end;
 
-function TEnexCollection<T>.SkipWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+function TEnexCollection<T>.SkipWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -4296,7 +4302,7 @@ begin
   Result := TEnexTakeCollection<T>.Create(Self, ACount);
 end;
 
-function TEnexCollection<T>.TakeWhile(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+function TEnexCollection<T>.TakeWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -4411,7 +4417,7 @@ begin
   Result := TEnexUnionCollection<T>.Create(Self, ACollection);
 end;
 
-function TEnexCollection<T>.Where(const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+function TEnexCollection<T>.Where(const APredicate: TPredicate<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -4503,7 +4509,7 @@ begin
 end;
 
 function TEnexCollection<T>.WhereNot(
-  const APredicate: TFunc<T, Boolean>): IEnexCollection<T>;
+  const APredicate: TPredicate<T>): IEnexCollection<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -4866,7 +4872,7 @@ begin
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.Where(
-  const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
+  const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -4964,7 +4970,7 @@ begin
 end;
 
 function TEnexAssociativeCollection<TKey, TValue>.WhereNot(
-  const APredicate: TFunc<TKey, TValue, Boolean>): IEnexAssociativeCollection<TKey, TValue>;
+  const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -5130,7 +5136,7 @@ end;
 { TEnexWhereCollection<T> }
 
 constructor TEnexWhereCollection<T>.Create(const ACollection: TEnexCollection<T>;
-  const APredicate: TFunc<T, Boolean>; const AInvertResult: Boolean);
+  const APredicate: TPredicate<T>; const AInvertResult: Boolean);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -5257,12 +5263,12 @@ end;
 
 { TEnexConcatCollection<T> }
 
-function TEnexConcatCollection<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexConcatCollection<T>.All(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FCollection1.All(APredicate) and FCollection2.All(APredicate);
 end;
 
-function TEnexConcatCollection<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexConcatCollection<T>.Any(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FCollection1.Any(APredicate) or FCollection2.Any(APredicate);
 end;
@@ -5734,7 +5740,7 @@ begin
   end;
 end;
 
-function TEnexFillCollection<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexFillCollection<T>.All(const APredicate: TPredicate<T>): Boolean;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -5745,7 +5751,7 @@ begin
     Result := true;
 end;
 
-function TEnexFillCollection<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexFillCollection<T>.Any(const APredicate: TPredicate<T>): Boolean;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -6000,7 +6006,7 @@ end;
 
 { TEnexTakeWhileCollection<T> }
 
-constructor TEnexTakeWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>);
+constructor TEnexTakeWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -6049,7 +6055,7 @@ end;
 
 { TEnexSkipWhileCollection<T> }
 
-constructor TEnexSkipWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TFunc<T, Boolean>);
+constructor TEnexSkipWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -6197,12 +6203,12 @@ begin
   Result := FList.AggregateOrDefault(AAggregator, ADefault);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.All(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FList.All(APredicate);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Any(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FList.Any(APredicate);
 end;
@@ -6389,7 +6395,7 @@ end;
 
 constructor TEnexAssociativeWhereCollection<TKey, TValue>.Create(
   const ACollection: TEnexAssociativeCollection<TKey, TValue>;
-  const APredicate: TFunc<TKey, TValue, Boolean>;
+  const APredicate: TPredicate<TKey, TValue>;
   const AInvertResult: Boolean);
 begin
   { Check arguments }

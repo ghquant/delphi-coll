@@ -641,7 +641,7 @@ type
     ///  <remarks>This method traverses the whole set and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>True</c>. The logical equivalent of this operation is "OR".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Any(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function Any(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks that all elements in the set satisfy a given predicate.</summary>
     ///  <param name="APredicate">The predicate to check for each element.</param>
@@ -649,7 +649,7 @@ type
     ///  <remarks>This method traverses the whole set and checks the value of the predicate for each element. This method
     ///  stops on the first element for which the predicate returns <c>False</c>. The logical equivalent of this operation is "AND".</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function All(const APredicate: TFunc<T, Boolean>): Boolean; override;
+    function All(const APredicate: TPredicate<T>): Boolean; override;
 
     ///  <summary>Checks whether the elements in this set are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
@@ -919,7 +919,7 @@ end;
 
 function THashSet<T>.Empty: Boolean;
 begin
-  Result := (FCount = 0);
+  Result := (Count = 0);
 end;
 
 function THashSet<T>.FindEntry(const AKey: T): NativeInt;
@@ -2581,7 +2581,7 @@ begin
   end;
 end;
 
-function TArraySet<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
+function TArraySet<T>.All(const APredicate: TPredicate<T>): Boolean;
 var
   I: NativeInt;
 begin
@@ -2596,7 +2596,7 @@ begin
   Result := true;
 end;
 
-function TArraySet<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
+function TArraySet<T>.Any(const APredicate: TPredicate<T>): Boolean;
 var
   I: NativeInt;
 begin

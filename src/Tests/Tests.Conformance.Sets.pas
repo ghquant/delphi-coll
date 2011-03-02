@@ -36,6 +36,9 @@ uses SysUtils,
 
 type
   TConformance_THashSet = class(TConformance_ISet)
+  protected
+    procedure SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
+
   published
   end;
 
@@ -56,6 +59,24 @@ type
   end;
 
 implementation
+
+{ TConformance_THashSet }
+
+procedure TConformance_THashSet.SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering);
+var
+  LItem: NativeInt;
+begin
+  AElements := GenerateUniqueRandomElements();
+  AOrdering := oNone;
+
+  AEmpty := THashSet<NativeInt>.Create();
+  AOne := THashSet<NativeInt>.Create();
+  AOne.Add(AElements[0]);
+  AFull := THashSet<NativeInt>.Create();
+
+  for LItem in AElements do
+    AFull.Add(LItem);
+end;
 
 initialization
   RegisterTests('Conformance.Simple.Sets', [
