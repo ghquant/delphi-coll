@@ -1575,7 +1575,7 @@ type
     ///  <remarks>This function returns a number that is modified by the implementing collection each time
     ///  the collection changes. This version can be used to identify if a collection has chnaged since last time it was used
     ///  in a specific piece of code.</remarks>
-    function Version(): NativeInt;
+    function Version(): NativeInt; virtual;
 
     ///  <summary>Checks whether the collection is empty.</summary>
     ///  <returns><c>True</c> if the collection is empty; <c>False</c> otherwise.</returns>
@@ -1742,14 +1742,8 @@ type
   TEnexCollection<T> = class abstract(TAbstractCollection<T>, IComparable, IEnexCollection<T>)
   private
     FElementRules: TRules<T>;
-    FRemoveNotification: TRemoveNotification<T>;
 
   protected
-    ///  <summary>Specifies a custom remove notification method that will be called by this
-    ///  collection when elements are removed.</summary>
-    ///  <returns>The notification method.</returns>
-    property RemoveNotification: TRemoveNotification<T> read FRemoveNotification write FRemoveNotification;
-
     ///  <summary>Compares two values for equality.</summary>
     ///  <param name="ALeft">The first value.</param>
     ///  <param name="ARight">The second value.</param>
@@ -1778,20 +1772,6 @@ type
     ///  <summary>Specifies the rule set that describes the stored elements.</summary>
     ///  <returns>A rule set describing the stored elements.</returns>
     property ElementRules: TRules<T> read FElementRules;
-
-    ///  <summary>Override in descendant classed to properly handle elements that are removed from
-    ///  the collection.</summary>
-    ///  <param name="AElement">The element being removed.</param>
-    ///  <remarks>This method is called by the collection when an element is removed and the caller has
-    ///  no possibility of obtaining it. For example, a call to <c>Clear</c> calls this method for each element
-    ///  of the collection.</remarks>
-    procedure HandleElementRemoved(const AElement: T); virtual;
-
-    ///  <summary>Call this method in descendant collections to properly invoke the removal mechanism.</summary>
-    ///  <param name="AElement">The element being removed.</param>
-    ///  <remarks>This method verifies if a custom removal notification is registered and calls it. Otherwise the normal
-    ///  removal mechanisms are involved.</remarks>
-    procedure NotifyElementRemoved(const AElement: T);
   public
     ///  <summary>Instantiates this class.</summary>
     ///  <remarks>The default comparer and equality comparer are requested if this constructor is used. Do not call this method if
@@ -2239,7 +2219,29 @@ type
   ///  <remarks>This collection exposes some operations that need to be implemented in descending classes and some
   ///  default implementations using Enex operations.</remarks>
   TAbstractOperableCollection<T> = class abstract(TEnexCollection<T>, IOperableCollection<T>)
+  private
+    FRemoveNotification: TRemoveNotification<T>;
+
+  protected
+    ///  <summary>Override in descendant classed to properly handle elements that are removed from
+    ///  the collection.</summary>
+    ///  <param name="AElement">The element being removed.</param>
+    ///  <remarks>This method is called by the collection when an element is removed and the caller has
+    ///  no possibility of obtaining it. For example, a call to <c>Clear</c> calls this method for each element
+    ///  of the collection.</remarks>
+    procedure HandleElementRemoved(const AElement: T); virtual;
+
+    ///  <summary>Call this method in descendant collections to properly invoke the removal mechanism.</summary>
+    ///  <param name="AElement">The element being removed.</param>
+    ///  <remarks>This method verifies if a custom removal notification is registered and calls it. Otherwise the normal
+    ///  removal mechanisms are involved.</remarks>
+    procedure NotifyElementRemoved(const AElement: T);
   public
+    ///  <summary>Specifies a custom remove notification method that will be called by this
+    ///  collection when elements are removed.</summary>
+    ///  <returns>The notification method.</returns>
+    property RemoveNotification: TRemoveNotification<T> read FRemoveNotification write FRemoveNotification;
+
     ///  <summary>Clears the contents of the collection.</summary>
     ///  <remarks>This implementation uses Enex <c>First</c> operation to obtain the first element and then calls <c>Remove</c> to remove it.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
@@ -4018,11 +4020,6 @@ begin
     Result := CMagic * Result + GetElementHashCode(LEnumerator.Current);
 end;
 
-procedure TEnexCollection<T>.HandleElementRemoved(const AElement: T);
-begin
- // Nothing
-end;
-
 function TEnexCollection<T>.Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
 begin
   { Check arguments }
@@ -4127,15 +4124,6 @@ begin
     if not LEnumerator.MoveNext() then
       Exit;
   end;
-end;
-
-procedure TEnexCollection<T>.NotifyElementRemoved(const AElement: T);
-begin
-  { Handle removal }
-  if Assigned(FRemoveNotification) then
-    FRemoveNotification(AElement)
-  else
-    HandleElementRemoved(AElement);
 end;
 
 function TEnexCollection<T>.Op: TEnexExtOps<T>;
@@ -4570,6 +4558,20 @@ begin
   Result := True;
   for LValue in ACollection do
     Result := Result and Contains(LValue);
+end;
+
+procedure TAbstractOperableCollection<T>.HandleElementRemoved(const AElement: T);
+begin
+  // Nothing
+end;
+
+procedure TAbstractOperableCollection<T>.NotifyElementRemoved(const AElement: T);
+begin
+  { Handle removal }
+  if Assigned(FRemoveNotification) then
+    FRemoveNotification(AElement)
+  else
+    HandleElementRemoved(AElement);
 end;
 
 procedure TAbstractOperableCollection<T>.Remove(const AValue: T);

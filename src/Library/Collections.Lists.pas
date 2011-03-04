@@ -1850,6 +1850,9 @@ end;
 
 procedure TList<T>.Sort(const ASortProc: TComparison<T>);
 begin
+  if not Assigned(ASortProc) then
+    ExceptionHelper.Throw_ArgumentNilError('ASortProc');
+
   { Call the better method }
   Sort(0, FLength, ASortProc);
 end;
