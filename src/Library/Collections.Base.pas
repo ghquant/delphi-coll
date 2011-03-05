@@ -3667,6 +3667,9 @@ var
   LEnumerator: IEnumerator<T>;
   LCount: NativeInt;
 begin
+  if AIndex < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
   { Retrieve the enumerator object }
   LEnumerator := GetEnumerator();
   LCount := 0;
@@ -3689,6 +3692,9 @@ var
   LEnumerator: IEnumerator<T>;
   LCount: NativeInt;
 begin
+  if AIndex < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
   { Retrieve the enumerator object }
   LEnumerator := GetEnumerator();
   LCount := 0;
@@ -4136,6 +4142,11 @@ end;
 
 function TEnexCollection<T>.Range(const AStart, AEnd: NativeInt): IEnexCollection<T>;
 begin
+  if AStart < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AStart');
+  if AEnd < AStart then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AEnd');
+
   { Create a new Enex collection }
   Result := TEnexRangeCollection<T>.Create(Self, AStart, AEnd);
 end;
@@ -4555,6 +4566,9 @@ function TAbstractOperableCollection<T>.ContainsAll(const ACollection: IEnumerab
 var
   LValue: T;
 begin
+  if not Assigned(ACollection) then
+    ExceptionHelper.Throw_ArgumentNilError('ACollection');
+
   Result := True;
   for LValue in ACollection do
     Result := Result and Contains(LValue);
@@ -5626,32 +5640,26 @@ function TEnexRangeCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boole
 begin
   with TEnexRangeCollection<T>(Owner) do
   begin
-    { Skip the required amount of elements }
-    if (FCurrentIndex <= FStart) then
+    while FCurrentIndex < FStart do
     begin
-      while (FCurrentIndex <= FStart) do
-      begin
-        { Move cursor }
-        Result := FInEnumerator.MoveNext();
-
-        if not Result then
-          Exit;
-
-        Inc(FCurrentIndex);
-      end;
-    end else
-    begin
-      { Check if we're finished }
-      if (FCurrentIndex > FEnd) then
-        Exit(false);
-
-      { Move the cursor next in the sub-enum, and increase index }
+      { Move cursor }
       Result := FInEnumerator.MoveNext();
-      if Result then
-        ACurrent := FInEnumerator.Current;
-
+      if not Result then
+        Exit;
       Inc(FCurrentIndex);
     end;
+
+    { Check if we're finished }
+    if (FCurrentIndex > FEnd) then
+      Exit(false);
+
+    { Move the cursor next in the sub-enum, and increase index }
+    Result := FInEnumerator.MoveNext();
+    if not Result then
+      Exit;
+
+    ACurrent := FInEnumerator.Current;
+    Inc(FCurrentIndex);
   end;
 end;
 

@@ -315,6 +315,9 @@ end;
 
 function TConformance_TBitSet.TBitSetAdapter.All(const APredicate: TPredicate<NativeInt>): Boolean;
 begin
+  if not Assigned(APredicate) then
+    Result := FBitSet.All(nil)
+  else
   Result := FBitSet.All(
     function(AValue: Word): Boolean
     begin
@@ -325,6 +328,9 @@ end;
 
 function TConformance_TBitSet.TBitSetAdapter.Any(const APredicate: TPredicate<NativeInt>): Boolean;
 begin
+  if not Assigned(APredicate) then
+    Result := FBitSet.Any(nil)
+  else
   Result := FBitSet.Any(
     function(AValue: Word): Boolean
     begin
@@ -411,14 +417,7 @@ end;
 
 class function TConformance_TBitSet.TBitSetAdapter.i2w(const AInt: NativeInt): Word;
 begin
-  Result := SmallInt(AInt);
-
-  {
-  if AInt = -1 then
-    Result := $FFFF
-  else
-    Result := AInt;
-  }
+  Result := Word(SmallInt(AInt));
 end;
 
 class function TConformance_TBitSet.TBitSetAdapter.ic2w(const ACollection: IEnumerable<NativeInt>): IEnumerable<Word>;
@@ -426,6 +425,9 @@ var
   LList: IList<Word>;
   I: NativeInt;
 begin
+  if not Assigned(ACollection) then
+    Exit(nil);
+
   LList := TList<Word>.Create;
   for I in ACollection do
     LList.Add(i2w(I));
@@ -480,14 +482,7 @@ end;
 
 class function TConformance_TBitSet.TBitSetAdapter.w2i(const AWord: Word): NativeInt;
 begin
-  Result := SmallInt(AWord);
-
-  {
-  if AWord = $FFFF then
-    Result := -1
-  else
-    Result := AWord;
-    }
+  Result := SmallInt(Word(AWord));
 end;
 
 { TBitSetAdapter.TEnumerator }
@@ -523,7 +518,7 @@ begin
   for I := 0 to Length(AElements) - 1 do
   begin
     LItem := TBitSetAdapter.i2w(AElements[I]);
-    AElements[I] := LItem;
+    AElements[I] := TBitSetAdapter.w2i(LItem);
     LFull.FBitSet.Add(LItem);
   end;
 

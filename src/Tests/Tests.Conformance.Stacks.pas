@@ -36,6 +36,8 @@ uses SysUtils,
 
 type
   TConformance_TStack = class(TConformance_IStack)
+  protected
+    procedure SetUp_IStack(out AEmpty, AOne, AFull: IStack<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
   published
   end;
 
@@ -48,6 +50,29 @@ type
   end;
 
 implementation
+
+{ TConformance_TStack }
+
+procedure TConformance_TStack.SetUp_IStack(out AEmpty, AOne, AFull: IStack<NativeInt>; out AElements: TElements; out AOrdering: TOrdering);
+var
+  LItem: NativeInt;
+  LEmpty, LOne, LFull: TStack<NativeInt>;
+begin
+  AElements := GenerateRepeatableRandomElements();
+  AOrdering := oInsert;
+
+  LEmpty := TStack<NativeInt>.Create(); LEmpty.RemoveNotification := RemoveNotification;
+  LOne := TStack<NativeInt>.Create(); LOne.RemoveNotification := RemoveNotification;
+  LOne.Push(AElements[0]);
+  LFull := TStack<NativeInt>.Create(); LFull.RemoveNotification := RemoveNotification;
+
+  for LItem in AElements do
+    LFull.Push(LItem);
+
+  AEmpty := LEmpty;
+  AOne := LOne;
+  AFull := LFull;
+end;
 
 initialization
   RegisterTests('Conformance.Simple.Stacks', [

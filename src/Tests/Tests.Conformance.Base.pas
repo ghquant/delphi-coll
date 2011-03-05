@@ -154,8 +154,8 @@ type
     FRemovedList: Generics.Collections.TList<NativeInt>;
 
     procedure EnsureOrdering(const ACollection: IOperableCollection<NativeInt>);
-
   protected
+    property RemovedList: Generics.Collections.TList<NativeInt> read FRemovedList;
     procedure RemoveNotification(const AValue: NativeInt);
 
     procedure SetUp_IEnexCollection(out AEmpty, AOne, AFull: IEnexCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
@@ -447,6 +447,7 @@ type
   end;
 
   function GenerateUniqueRandomElements: TElements;
+  function GenerateRepeatableRandomElements: TElements;
   function GenerateUniqueRandomElement(const AKnownElements: TElements): NativeInt;
 
 implementation
@@ -473,6 +474,28 @@ begin
         LWas := True;
         Break;
       end;
+  end;
+end;
+
+function GenerateRepeatableRandomElements: TElements;
+var
+  I, R: NativeInt;
+begin
+  Randomize;
+
+  SetLength(Result, CElements);
+  I := 0;
+  while I < CElements do
+  begin
+    R := Random(MaxInt);
+    Result[I] := R;
+    Inc(I);
+
+    if (Random(2) = 1) and (I > 1) then
+    begin
+      Result[I] := Result[I - 2];
+      Inc(I);
+    end;
   end;
 end;
 
@@ -546,15 +569,6 @@ var
   LList: Generics.Collections.TList<NativeInt>;
   LIsFirst: Boolean;
 begin
-  {
-    Tests:
-      1. MoveNext() returns false for Empty.
-      2. MoveNext() returns false then true for One.
-      3. MoveNext() returns true until end is reached.
-      4. Ordering of elements is preserved.
-      5. Elements are all enumerated!
-      6. After last MoveNext() the next one is also False and Current is not changed.
-  }
   LEnumerator := FEmpty.GetEnumerator();
   CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 1.MoveNext() for [empty]');
   CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 2.MoveNext() for [empty]');
@@ -591,7 +605,7 @@ begin
     LLast := LEnumerator.Current;
 
     if FOrdering = oInsert then
-      CheckTrue(LList[LIndex] = LLast, 'Expected insert ordering to apply for [full].');
+      CheckTrue(FElements[LIndex] = LLast, 'Expected insert ordering to apply for [full].');
 
     LList.Remove(LEnumerator.Current);
     Inc(LIndex);
@@ -785,12 +799,6 @@ end;
 
 procedure TConformance_ICollection_Simple.Test_Single;
 begin
-  {  Tests:
-       1. ECollectionEmptyException for [empty].
-       2. The value for [one].
-       3. ECollectionNotOneException for [full].
-  }
-
   CheckException(ECollectionEmptyException,
     procedure() begin FEmpty.Single(); end,
     'ECollectionEmptyException not thrown in [empty].Single()'
@@ -807,27 +815,16 @@ end;
 procedure TConformance_ICollection_Simple.Test_SingleOrDefault;
 var
   LSingle: NativeInt;
-  LEnumerator: IEnumerator<NativeInt>;
 begin
-  {  Tests:
-       1. ECollectionEmptyException for [empty].
-       2. The value for [one].
-       3. The default value for [full].
-  }
-
-  CheckException(ECollectionEmptyException,
-    procedure() begin FEmpty.SingleOrDefault(-1); end,
-    'ECollectionEmptyException not thrown in [empty].SingleOrDefault()'
+  CheckException(ECollectionNotOneException,
+    procedure() begin FFull.SingleOrDefault(-1); end,
+    'ECollectionNotOneException not thrown in [full].SingleOrDefault()'
   );
+
+  CheckEquals(-1, FEmpty.SingleOrDefault(-1), 'Expected "-1" value failed for [one]');
 
   LSingle := FOne.Single();
   CheckEquals(LSingle, FOne.SingleOrDefault(LSingle - 1), 'Expected "single" value failed for [one]');
-
-  LEnumerator := FFull.GetEnumerator();
-  LEnumerator.MoveNext();
-  LSingle := LEnumerator.Current;
-
-  CheckEquals(LSingle - 1, FFull.SingleOrDefault(LSingle - 1), 'Expected "default" value failed for [full]');
 end;
 
 procedure TConformance_ICollection_Simple.Test_ToArray;
@@ -836,11 +833,6 @@ var
   LEnumerator: IEnumerator<NativeInt>;
   LIndex: NativeInt;
 begin
-  {  Tests:
-       1. An empty array for [empty].
-       2. One-element array for [one].
-       3. The all elements for [full].
-  }
   LArray := FEmpty.ToArray();
   CheckEquals(0, Length(LArray), 'Expected a length of zero for the elements of [empty].');
 
@@ -1099,7 +1091,8 @@ begin
 
   LDistinct := FFull.Distinct();
   LSet := FFull.ToSet();
-  CheckEquals(FFull.Count, LDistinct.Count, 'Expected N-length distinct result for [full]');
+  CheckTrue(FFull.Count >= LDistinct.Count, 'Expected distinct length >= [full]');
+  CheckEquals(LSet.Count, LDistinct.Count, 'Expected N-length distinct result for [full]');
 
   for LValue in LDistinct do
   begin
@@ -1119,30 +1112,30 @@ begin
       4. ElementAt[0] = First and ElementAt[L-1] = Last.
   }
 
-  CheckException(EArgumentNilException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.ElementAt(-1) end,
-    'EArgumentNilException not thrown in [empty].ElementAt(-1)'
+    'EArgumentOutOfRangeException not thrown in [empty].ElementAt(-1)'
   );
-  CheckException(EArgumentNilException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FOne.ElementAt(-1) end,
-    'EArgumentNilException not thrown in [one].ElementAt(-1)'
+    'EArgumentOutOfRangeException not thrown in [one].ElementAt(-1)'
   );
-  CheckException(EArgumentNilException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FFull.ElementAt(-1) end,
-    'EArgumentNilException not thrown in [full].ElementAt(-1)'
+    'EArgumentOutOfRangeException not thrown in [full].ElementAt(-1)'
   );
 
-  CheckException(ECollectionEmptyException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.ElementAt(0) end,
-    'ECollectionEmptyException not thrown in [empty].ElementAt(0)'
+    'EArgumentOutOfRangeException not thrown in [empty].ElementAt(0)'
   );
-  CheckException(ECollectionEmptyException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FOne.ElementAt(1) end,
-    'ECollectionEmptyException not thrown in [one].ElementAt(1)'
+    'EArgumentOutOfRangeException not thrown in [one].ElementAt(1)'
   );
-  CheckException(ECollectionEmptyException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FFull.ElementAt(FFull.GetCount()) end,
-    'ECollectionEmptyException not thrown in [full].ElementAt(L)'
+    'EArgumentOutOfRangeException not thrown in [full].ElementAt(L)'
   );
 
   CheckEquals(Elements[0], FOne.ElementAt(0), 'Expected element[0] to be correct in [one]');
@@ -1158,22 +1151,22 @@ begin
       4. ElementAtOrDefault[0] = First and ElementAtOrDefault[L-1] = Last.
   }
 
-  CheckException(EArgumentNilException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.ElementAtOrDefault(-1, -1) end,
-    'EArgumentNilException not thrown in [empty].ElementAtOrDefault(-1)'
+    'EArgumentOutOfRangeException not thrown in [empty].ElementAtOrDefault(-1)'
   );
-  CheckException(EArgumentNilException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FOne.ElementAtOrDefault(-1, -1) end,
-    'EArgumentNilException not thrown in [one].ElementAtOrDefault(-1)'
+    'EArgumentOutOfRangeException not thrown in [one].ElementAtOrDefault(-1)'
   );
-  CheckException(EArgumentNilException,
+  CheckException(EArgumentOutOfRangeException,
     procedure() begin FFull.ElementAtOrDefault(-1, -1) end,
-    'EArgumentNilException not thrown in [full].ElementAtOrDefault(-1)'
+    'EArgumentOutOfRangeException not thrown in [full].ElementAtOrDefault(-1)'
   );
 
   CheckEquals(-1, FEmpty.ElementAtOrDefault(0, -1), 'Expected default in [empty]');
   CheckEquals(-1, FOne.ElementAtOrDefault(1, -1), 'Expected default in [one]');
-  CheckEquals(-1, FFull.ElementAtOrDefault(1, FFull.Count - 1), 'Expected default in [full]');
+  CheckEquals(-1, FFull.ElementAtOrDefault(FFull.Count, -1), 'Expected default in [full]');
 
   CheckEquals(Elements[0], FOne.ElementAtOrDefault(0, Elements[0] - 1), 'Expected element[0] to be correct in [one]');
   CheckEquals(FFull.First, FFull.ElementAtOrDefault(0, FFull.First - 1), 'Expected element[0] to be equal to First in [full]');
@@ -1182,10 +1175,17 @@ end;
 
 procedure TConformance_IEnexCollection.Test_EqualsTo;
 begin
-  Fail('Not implemented!');
+  CheckTrue(FEmpty.EqualsTo(FEmpty), 'Expected [empty] = [empty]');
+  CheckFalse(FOne.EqualsTo(FEmpty), 'Expected [one] <> [empty]');
+  CheckFalse(FEmpty.EqualsTo(FOne), 'Expected [empty] <> [one]');
+  CheckTrue(FFull.EqualsTo(FFull), 'Expected [full] = [full]');
+  CheckFalse(FFull.EqualsTo(FFull.Concat(FOne)), 'Expected [full] <> [full + one]');
+  CheckFalse(FFull.EqualsTo(FFull.Exclude(FOne)), 'Expected [full] <> [full - one]');
 end;
 
 procedure TConformance_IEnexCollection.Test_Exclude;
+var
+  LList: IList<NativeInt>;
 begin
   { Tests:
       1. EArgumentNilException for nil collections.
@@ -1212,20 +1212,19 @@ begin
   CheckTrue( FEmpty.Exclude(FOne).EqualsTo(FEmpty), 'Expected [empty] - [one] = [empty]');
   CheckTrue( FOne.Exclude(FEmpty).EqualsTo(FOne), 'Expected [one] - [empty] = [one]');
   CheckTrue( FOne.Exclude(FOne).EqualsTo(FEmpty), 'Expected [one] - [one] = [empty]');
-  CheckTrue( FFull.Exclude(FOne).EqualsTo(FFull.Skip(1)), 'Expected [full] - [one] = [full - 1]');
   CheckTrue( FFull.Exclude(FFull).EqualsTo(FEmpty), 'Expected [full] - [full] = [empty]');
+
+  LList := FFull.ToList();
+  while LList.Contains(FOne.Single) do
+    LList.Remove(FOne.Single);
+
+  CheckTrue( FFull.Exclude(FOne).EqualsTo(LList), 'Expected [full] - [one] = [full - 1]');
 end;
 
 procedure TConformance_IEnexCollection.Test_First;
 var
   LEnumerator: IEnumerator<NativeInt>;
 begin
-  { Tests:
-      1. ECollectionEmptyException for [empty].
-      2. The actual element for [one].
-      3. The actual first element for [full].
-  }
-
   CheckException(ECollectionEmptyException,
     procedure() begin FEmpty.First() end,
     'ECollectionEmptyException not thrown in [empty].First()'
@@ -1503,13 +1502,6 @@ procedure TConformance_IEnexCollection.Test_Max;
 var
   LMax, LIndex: NativeInt;
 begin
-  { Tests:
-      1. ECollectionEmptyException for [empty].
-      2. The actual element for [one].
-      3. The actual max for [full].
-      4. Max = Last for ascending and First for descending.
-  }
-
   CheckException(ECollectionEmptyException,
     procedure() begin FEmpty.Max() end,
     'ECollectionEmptyException not thrown in [empty].Max()'
@@ -1540,13 +1532,6 @@ procedure TConformance_IEnexCollection.Test_Min;
 var
   LMin, LIndex: NativeInt;
 begin
-  { Tests:
-      1. ECollectionEmptyException for [empty].
-      2. The actual element for [one].
-      3. The actual min for [full].
-      4. Min = First for ascending and Last for descending.
-  }
-
   CheckException(ECollectionEmptyException,
     procedure() begin FEmpty.Min() end,
     'ECollectionEmptyException not thrown in [empty].Min()'
@@ -1576,7 +1561,7 @@ end;
 procedure TConformance_IEnexCollection.Test_Ordered_1;
 var
   LComparer: TComparison<NativeInt>;
-  LSet: ISet<NativeInt>;
+  LList: IList<NativeInt>;
   LOrdered: IEnexCollection<NativeInt>;
   LValue, LPrev: NativeInt;
   LFirst: Boolean;
@@ -1615,14 +1600,14 @@ begin
   CheckEquals(1, LOrdered.Count, 'Expected 1-length asc ordered for [one]');
   CheckEquals(LOrdered.Single, FOne.Single, 'Expected correct asc ordered for [one]');
   LOrdered := FFull.Ordered(LComparer);
-  LSet := FFull.ToSet();
+  LList := FFull.ToList();
   CheckEquals(FFull.Count, LOrdered.Count, 'Expected N-length asc ordered for [full]');
   LFirst := True;
   LPrev := 0;
   for LValue in LOrdered do
   begin
-    CheckTrue(LSet.Contains(LValue), 'Expected the asc value to be in [full]');
-    LSet.Remove(LValue);
+    CheckTrue(LList.Contains(LValue), 'Expected the asc value to be in [full]');
+    LList.Remove(LValue);
 
     if LFirst then
       LFirst := False
@@ -1631,7 +1616,7 @@ begin
     end;
     LPrev := LValue;
   end;
-  CheckTrue(LSet.Empty, 'Expected all asc values to be in [full]');
+  CheckTrue(LList.Empty, 'Expected all asc values to be in [full]');
 
   { Descending }
   LComparer := function(const L, R: NativeInt): Integer
@@ -1646,14 +1631,14 @@ begin
   CheckEquals(1, LOrdered.Count, 'Expected 1-length desc ordered for [one]');
   CheckEquals(LOrdered.Single, FOne.Single, 'Expected correct desc ordered for [one]');
   LOrdered := FFull.Ordered(LComparer);
-  LSet := FFull.ToSet();
+  LList := FFull.ToList();
   CheckEquals(FFull.Count, LOrdered.Count, 'Expected N-length desc ordered for [full]');
   LFirst := True;
   LPrev := 0;
   for LValue in LOrdered do
   begin
-    CheckTrue(LSet.Contains(LValue), 'Expected the desc value to be in [full]');
-    LSet.Remove(LValue);
+    CheckTrue(LList.Contains(LValue), 'Expected the desc value to be in [full]');
+    LList.Remove(LValue);
 
     if LFirst then
       LFirst := False
@@ -1662,12 +1647,12 @@ begin
     end;
     LPrev := LValue;
   end;
-  CheckTrue(LSet.Empty, 'Expected all desc values to be in [full]');
+  CheckTrue(LList.Empty, 'Expected all desc values to be in [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_Ordered_2;
 var
-  LSet: ISet<NativeInt>;
+  LList: IList<NativeInt>;
   LOrdered: IEnexCollection<NativeInt>;
   LValue, LPrev: NativeInt;
   LFirst: Boolean;
@@ -1685,14 +1670,14 @@ begin
   CheckEquals(1, LOrdered.Count, 'Expected 1-length asc ordered for [one]');
   CheckEquals(LOrdered.Single, FOne.Single, 'Expected correct asc ordered for [one]');
   LOrdered := FFull.Ordered(True);
-  LSet := FFull.ToSet();
+  LList := FFull.ToList();
   CheckEquals(FFull.Count, LOrdered.Count, 'Expected N-length asc ordered for [full]');
   LFirst := True;
   LPrev := 0;
   for LValue in LOrdered do
   begin
-    CheckTrue(LSet.Contains(LValue), 'Expected the asc value to be in [full]');
-    LSet.Remove(LValue);
+    CheckTrue(LList.Contains(LValue), 'Expected the asc value to be in [full]');
+    LList.Remove(LValue);
 
     if LFirst then
       LFirst := False
@@ -1701,7 +1686,7 @@ begin
     end;
     LPrev := LValue;
   end;
-  CheckTrue(LSet.Empty, 'Expected all asc values to be in [full]');
+  CheckTrue(LList.Empty, 'Expected all asc values to be in [full]');
 
   { Descending }
   LOrdered := FEmpty.Ordered(False);
@@ -1710,14 +1695,14 @@ begin
   CheckEquals(1, LOrdered.Count, 'Expected 1-length desc ordered for [one]');
   CheckEquals(LOrdered.Single, FOne.Single, 'Expected correct desc ordered for [one]');
   LOrdered := FFull.Ordered(False);
-  LSet := FFull.ToSet();
+  LList := FFull.ToList();
   CheckEquals(FFull.Count, LOrdered.Count, 'Expected N-length desc ordered for [full]');
   LFirst := True;
   LPrev := 0;
   for LValue in LOrdered do
   begin
-    CheckTrue(LSet.Contains(LValue), 'Expected the desc value to be in [full]');
-    LSet.Remove(LValue);
+    CheckTrue(LList.Contains(LValue), 'Expected the desc value to be in [full]');
+    LList.Remove(LValue);
 
     if LFirst then
       LFirst := False
@@ -1726,7 +1711,7 @@ begin
     end;
     LPrev := LValue;
   end;
-  CheckTrue(LSet.Empty, 'Expected all desc values to be in [full]');
+  CheckTrue(LList.Empty, 'Expected all desc values to be in [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_Range;
@@ -1774,7 +1759,7 @@ begin
 
   LRange := FFull.Range(0, 0);
   CheckFalse(LRange.Empty, 'Expected a 1 range for [full]');
-  CheckEquals(FFull.Single, LRange.Single, 'Expected a 1 range for [full]');
+  CheckEquals(FFull.First, LRange.Single, 'Expected a 1 range for [full]');
 
   LRange := FFull.Range(0, FFull.Count - 1);
   CheckTrue(LRange.EqualsTo(FFull), 'Expected a N range for [full]');
@@ -1814,7 +1799,7 @@ end;
 
 procedure TConformance_IEnexCollection.Test_Skip;
 var
-  LRange: IEnexCollection<NativeInt>;
+  LRange, LCut: IEnexCollection<NativeInt>;
 begin
   CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.Skip(-1) end,
@@ -1844,7 +1829,11 @@ begin
   LRange := FEmpty.Skip(1); CheckTrue(LRange.Empty, 'Expected an empty skip for [empty]');
   LRange := FOne.Skip(1); CheckTrue(LRange.Empty, 'Expected an empty skip for [empty]');
   LRange := FFull.Skip(FFull.Count); CheckTrue(LRange.Empty, 'Expected an empty skip for [full]');
-  LRange := FFull.Skip(1); CheckTrue(LRange.EqualsTo(FFull.Range(1, FFull.Count - 1)), 'Expected an N skip for [full]');
+
+  LRange := FFull.Skip(1);
+  LCut := FFull.Range(1, FFull.Count - 1);
+  CheckEquals(LCut.Count, LRange.Count, 'Expected proper count for [full]');
+  CheckTrue(LRange.EqualsTo(LCut), 'Expected an N skip for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_SkipWhile;
@@ -1964,7 +1953,6 @@ end;
 procedure TConformance_IEnexCollection.Test_ToList;
 var
   LList: IList<NativeInt>;
-  LIndex: NativeInt;
 begin
   LList := FEmpty.ToList();
   CheckTrue(Pointer(LList) <> Pointer(FEmpty.ToList()), 'Expected new list for [empty]');
@@ -1978,14 +1966,26 @@ begin
   LList := FFull.ToList();
   CheckTrue(Pointer(LList) <> Pointer(FFull.ToList()), 'Expected new list for [full]');
   CheckEquals(Length(Elements), LList.GetCount(), 'Expected full-element list for [full]');
-
-  for LIndex := 0 to LList.Count - 1 do
-    CheckEquals(Elements[LIndex], LList.GetItem(LIndex), 'Expected proper element copy for [full]');
+  CheckTrue(LList.EqualsTo(FFull), 'Expected proper element copy for [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_ToSet;
+var
+  LSet: ISet<NativeInt>;
+  LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  LSet := FEmpty.ToSet();
+  CheckTrue(LSet.Empty, 'Expected empty set for [empty]');
+
+  LSet := FOne.ToSet();
+  CheckEquals(1, LSet.Count, 'Expected 1-L set for [one]');
+  CheckEquals(LSet.Single, FOne.Single, 'Expected same set element for [one]');
+
+  LSet := FFull.ToSet();
+  CheckTrue(LSet.Count <= FFull.Count, 'Expected the set to have less or equal elements as [full]');
+
+  for LValue in FFull do
+    CheckTrue(LSet.Contains(LValue), 'Expected set to contain all elements in [full]');
 end;
 
 procedure TConformance_IEnexCollection.Test_Union;
@@ -2389,18 +2389,95 @@ begin
 end;
 
 procedure TConformance_IStack.Test_Peek;
+var
+  LLastVersion: NativeInt;
+  LValue: NativeInt;
+  LList: IList<NativeInt>;
+  LPop: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Peek() end,
+    'ECollectionEmptyException not thrown in [empty].Peek()'
+  );
+
+  LLastVersion := FOne.Version;
+  LValue := FOne.Single;
+  LPop := FOne.Peek();
+  CheckEquals(LLastVersion, FOne.Version, 'Expected the version to be same in [one]');
+  CheckEquals(LValue, LPop, 'Expected the version to be same in [one]');
+  CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [one]');
+
+  LList := FFull.ToList();
+  while not FFull.Empty do
+  begin
+    LLastVersion := FFull.Version;
+    LPop := FFull.Peek();
+    CheckEquals(LLastVersion, FFull.Version, 'Did not expected the version to be different in [full]');
+    CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [full]');
+    CheckTrue(LList.Contains(LPop), 'Expected all elements to be peeked in [full]');
+    LList.Remove(LPop);
+    FFull.Pop();
+    RemovedList.Clear;
+  end;
+
+  CheckTrue(LList.Empty, 'Expected all elements to be peeked in [full]');
 end;
 
 procedure TConformance_IStack.Test_Pop;
+var
+  LLastVersion: NativeInt;
+  LValue: NativeInt;
+  LList: IList<NativeInt>;
+  LPop: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Pop() end,
+    'ECollectionEmptyException not thrown in [empty].Pop()'
+  );
+
+  LLastVersion := FOne.Version;
+  LValue := FOne.Single;
+  LPop := FOne.Pop();
+  CheckNotEquals(LLastVersion, FOne.Version, 'Did not expect the version to be same in [one]');
+  CheckEquals(LValue, LPop, 'Expected the version to be same in [one]');
+  CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [one]');
+
+  LList := FFull.ToList();
+  while not FFull.Empty do
+  begin
+    LLastVersion := FFull.Version;
+    LPop := FFull.Pop();
+    CheckNotEquals(LLastVersion, FFull.Version, 'Expected the version to be different in [full]');
+    CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [full]');
+    CheckTrue(LList.Contains(LPop), 'Expected all elements to be poped in [full]');
+    LList.Remove(LPop);
+  end;
+
+  CheckTrue(LList.Empty, 'Expected all elements to be poped in [full]');
 end;
 
 procedure TConformance_IStack.Test_Push;
+var
+  LLastVersion: NativeInt;
+  LNew, I: NativeInt;
 begin
-  Fail('Not implemented!');
+  LLastVersion := FEmpty.Version;
+  FEmpty.Push(FOne.Single);
+  CheckTrue(FEmpty.Contains(FOne.Single), 'Expected [empty] to contain [one]');
+  CheckNotEquals(LLastVersion, FEmpty.Version, 'Expected the version to differ in [empty]');
+  FEmpty.Push(FOne.Single);
+  CheckTrue(FEmpty.Contains(FOne.Single), 'Expected [empty] to contain [one] again');
+
+  for I := 0 to FFull.Count - 1 do
+  begin
+    LNew := GenerateUniqueRandomElement(Elements);
+    LLastVersion := FFull.Version;
+    FFull.Push(LNew);
+    CheckNotEquals(LLastVersion, FFull.Version, 'Expected the version to differ in [full]');
+    CheckTrue(FFull.Contains(LNew), 'Expected [full] to contain "new" value.');
+  end;
+
+  CheckEquals(0, RemovedList.Count, 'Did not expect any element to be removed!');
 end;
 
 { TConformance_IQueue }

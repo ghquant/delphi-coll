@@ -856,6 +856,7 @@ begin
     begin
       NotifyElementRemoved(FEntryArray[I].FKey);
       FEntryArray[I].FKey := default(T);
+      NotifyCollectionChanged();
     end;
 
   if Length(FEntryArray) > 0 then
@@ -864,8 +865,6 @@ begin
   FFreeList := -1;
   FCount := 0;
   FFreeCount := 0;
-
-  NotifyCollectionChanged();
 end;
 
 function THashSet<T>.Contains(const AValue: T): Boolean;
@@ -1537,7 +1536,6 @@ begin
         FHead := LEntry^.FNext;
 
       { Kill this entry }
-      NotifyElementRemoved(LEntry^.FValue);
       ReleaseEntry(LEntry);
       Dec(FCount);
       NotifyCollectionChanged();
@@ -2650,12 +2648,15 @@ procedure TArraySet<T>.Clear;
 var
   I: NativeInt;
 begin
-  { If we need to cleanup }
-  for I := 0 to FCount - 1 do
-    NotifyElementRemoved(FArray[I]);
-
   { Reset the length }
-  FCount := 0;
+  if FCount > 0 then
+  begin
+    for I := 0 to FCount - 1 do
+      NotifyElementRemoved(FArray[I]);
+
+    NotifyCollectionChanged();
+    FCount := 0;
+  end;
 end;
 
 function TArraySet<T>.Contains(const AValue: T): Boolean;
@@ -2715,8 +2716,10 @@ end;
 
 function TArraySet<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
-  { Check range }
-  if (AIndex >= FCount) or (AIndex < 0) then
+  if AIndex < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
+  if AIndex >= FCount then
      Result := ADefault
   else
      Result := FArray[AIndex];
@@ -2954,7 +2957,9 @@ end;
 procedure TBitSet.Clear;
 var
   LPage, LBit, LCurrent: NativeInt;
+  LChanged: Boolean;
 begin
+  LChanged := False;
   for LPage := 0 to Length(FBitArray) - 1 do
   begin
     LCurrent := FBitArray[LPage];
@@ -2964,8 +2969,13 @@ begin
       for LBit := 0 to (CPageSize * 8) - 1 do
         if (LCurrent and (1 shl LBit)) <> 0 then
           NotifyElementRemoved(LBit + LPage * CPageSize * 8);
+
+      LChanged := True;
     end;
   end;
+
+  if LChanged then
+    NotifyCollectionChanged();
 
   { Kill array }
   SetLength(FBitArray, 0);
@@ -3143,8 +3153,13 @@ begin
   if LPage >= Length(FBitArray) then
     Exit;
 
-  { The page is mapped, let's check the bit }
   LMask := 1 shl LBit;
+
+  { Verify if the bit was already set, and do nothing if so }
+  if (FBitArray[LPage] and LMask) = LMask then
+    Exit;
+
+  { The page is mapped, let's check the bit }
   FBitArray[LPage] := FBitArray[LPage] and not LMask;
 
   { Update internals }

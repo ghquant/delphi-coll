@@ -628,14 +628,16 @@ procedure TStack<T>.Clear;
 var
   I: NativeInt;
 begin
-  for I := 0 to FLength - 1 do
-    NotifyElementRemoved(FArray[I]);
+  if FLength > 0 then
+  begin
+    for I := 0 to FLength - 1 do
+      NotifyElementRemoved(FArray[I]);
 
-  { Simply reset all to default }
-  SetLength(FArray, CDefaultSize);
-  FLength := 0;
-
-  NotifyCollectionChanged();
+    { Simply reset all to default }
+    FLength := 0;
+    SetLength(FArray, 0);
+    NotifyCollectionChanged();
+  end;
 end;
 
 function TStack<T>.Contains(const AValue: T): Boolean;
@@ -704,6 +706,9 @@ end;
 function TStack<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   { Check range }
+  if AIndex < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
   if (AIndex >= FLength) then
      Result := ADefault
   else
