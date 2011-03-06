@@ -43,6 +43,9 @@ uses SysUtils,
       5. A derived TEnumerator from TAbstractEnumerator.
       6. The forwarding enumerator.
       7. TAbstractOperableCollection with a minimum implementation.
+      8. Stack.Peek = Last
+      9. Queue.Peek = First
+     10. Push-Pop, Enqueue-Dequeue chain
 
 }
 
@@ -94,6 +97,7 @@ type
   strict private
     FEmpty, FOne, FFull: IEnexCollection<NativeInt>;
 
+    function GetCountOf(const APredicate: TPredicate<NativeInt>): NativeInt;
   protected
     procedure SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
     procedure SetUp_IEnexCollection(out AEmpty, AOne, AFull: IEnexCollection<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
@@ -220,9 +224,6 @@ type
     procedure SetUp_ISet(out AEmpty, AOne, AFull: ISet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
     procedure SetUp_ISortedSet(out AEmpty, AOne, AFull: ISortedSet<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); virtual; abstract;
 
-  published
-    procedure Test_Max;
-    procedure Test_Min;
   end;
 
   TConformance_IBag = class(TConformance_ISet)
@@ -252,15 +253,11 @@ type
 
   published
     procedure Test_Insert;
-    procedure Test_Insert_All;
+    procedure Test_InsertAll;
     procedure Test_RemoveAt;
     procedure Test_ExtractAt;
-    procedure Test_IndexOf_1;
-    procedure Test_IndexOf_2;
-    procedure Test_IndexOf_3;
-    procedure Test_LastIndexOf_1;
-    procedure Test_LastIndexOf_2;
-    procedure Test_LastIndexOf_3;
+    procedure Test_IndexOf;
+    procedure Test_LastIndexOf;
     procedure Test_GetItem;
     procedure Test_SetItem;
   end;
@@ -282,8 +279,8 @@ type
     procedure Test_RemoveLast;
     procedure Test_ExtractFirst;
     procedure Test_ExtractLast;
-    procedure Test_First;
-    procedure Test_Last;
+    procedure Test_ILinkedList_First;
+    procedure Test_ILinkedList_Last;
   end;
 
   TConformance_IEnumerable_Associative = class(TTestCaseEx)
@@ -867,6 +864,16 @@ begin
 end;
 
 { TConformance_IEnexCollection }
+
+function TConformance_IEnexCollection.GetCountOf(const APredicate: TPredicate<NativeInt>): NativeInt;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to Length(Elements) - 1 do
+    if APredicate(Elements[I]) then
+      Inc(Result);
+end;
 
 procedure TConformance_IEnexCollection.SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<NativeInt>;
   out AElements: TElements; out AOrdering: TOrdering);
@@ -1718,11 +1725,6 @@ procedure TConformance_IEnexCollection.Test_Range;
 var
   LRange: IEnexCollection<NativeInt>;
 begin
-  { Tests:
-      1. EArgumentOutOfRangeException for negative, always
-      2. EArgumentOutOfRangeException for last < first, always
-  }
-
   CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.Range(-1, 0) end,
     'EArgumentOutOfRangeException not thrown in [empty].Range(-1, 0)'
@@ -2051,7 +2053,7 @@ begin
   LF := FFull.First; LL := FFull.Last;
   LPredicate := function(Arg: NativeInt): Boolean begin Exit((Arg = LF) or (Arg = LL)); end;
   LCollection := FFull.Where(LPredicate);
-  CheckEquals(2, LCollection.Count, 'Expected 2-length where collection for [one]');
+  CheckEquals(GetCountOf(LPredicate), LCollection.Count, 'Expected 2-length where collection for [one]');
   CheckEquals(LF, LCollection.First, 'Expected proper 1 selected element for [one]');
   CheckEquals(LL, LCollection.Last, 'Expected proper 2 selected element for [one]');
 end;
@@ -2096,7 +2098,7 @@ begin
   LF := FFull.First; LL := FFull.Last;
   LPredicate := function(Arg: NativeInt): Boolean begin Exit((Arg <> LF) and (Arg <> LL)); end;
   LCollection := FFull.WhereNot(LPredicate);
-  CheckEquals(2, LCollection.Count, 'Expected 2-length where collection for [one]');
+  CheckEquals(FFull.Count - GetCountOf(LPredicate), LCollection.Count, 'Expected 2-length where collection for [one]');
   CheckEquals(LF, LCollection.First, 'Expected proper 1 selected element for [one]');
   CheckEquals(LL, LCollection.Last, 'Expected proper 2 selected element for [one]');
 end;
@@ -2493,18 +2495,95 @@ begin
 end;
 
 procedure TConformance_IQueue.Test_Dequeue;
+var
+  LLastVersion: NativeInt;
+  LValue: NativeInt;
+  LList: IList<NativeInt>;
+  LPop: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Dequeue() end,
+    'ECollectionEmptyException not thrown in [empty].Dequeue()'
+  );
+
+  LLastVersion := FOne.Version;
+  LValue := FOne.Single;
+  LPop := FOne.Dequeue();
+  CheckNotEquals(LLastVersion, FOne.Version, 'Did not expect the version to be same in [one]');
+  CheckEquals(LValue, LPop, 'Expected the version to be same in [one]');
+  CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [one]');
+
+  LList := FFull.ToList();
+  while not FFull.Empty do
+  begin
+    LLastVersion := FFull.Version;
+    LPop := FFull.Dequeue();
+    CheckNotEquals(LLastVersion, FFull.Version, 'Expected the version to be different in [full]');
+    CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [full]');
+    CheckTrue(LList.Contains(LPop), 'Expected all elements to be poped in [full]');
+    LList.Remove(LPop);
+  end;
+
+  CheckTrue(LList.Empty, 'Expected all elements to be poped in [full]');
 end;
 
 procedure TConformance_IQueue.Test_Enqueue;
+var
+  LLastVersion: NativeInt;
+  LNew, I: NativeInt;
 begin
-  Fail('Not implemented!');
+  LLastVersion := FEmpty.Version;
+  FEmpty.Enqueue(FOne.Single);
+  CheckTrue(FEmpty.Contains(FOne.Single), 'Expected [empty] to contain [one]');
+  CheckNotEquals(LLastVersion, FEmpty.Version, 'Expected the version to differ in [empty]');
+  FEmpty.Enqueue(FOne.Single);
+  CheckTrue(FEmpty.Contains(FOne.Single), 'Expected [empty] to contain [one] again');
+
+  for I := 0 to FFull.Count - 1 do
+  begin
+    LNew := GenerateUniqueRandomElement(Elements);
+    LLastVersion := FFull.Version;
+    FFull.Enqueue(LNew);
+    CheckNotEquals(LLastVersion, FFull.Version, 'Expected the version to differ in [full]');
+    CheckTrue(FFull.Contains(LNew), 'Expected [full] to contain "new" value.');
+  end;
+
+  CheckEquals(0, RemovedList.Count, 'Did not expect any element to be removed!');
 end;
 
 procedure TConformance_IQueue.Test_Peek;
+var
+  LLastVersion: NativeInt;
+  LValue: NativeInt;
+  LList: IList<NativeInt>;
+  LPop: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Peek() end,
+    'ECollectionEmptyException not thrown in [empty].Peek()'
+  );
+
+  LLastVersion := FOne.Version;
+  LValue := FOne.Single;
+  LPop := FOne.Peek();
+  CheckEquals(LLastVersion, FOne.Version, 'Expected the version to be same in [one]');
+  CheckEquals(LValue, LPop, 'Expected the version to be same in [one]');
+  CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [one]');
+
+  LList := FFull.ToList();
+  while not FFull.Empty do
+  begin
+    LLastVersion := FFull.Version;
+    LPop := FFull.Peek();
+    CheckEquals(LLastVersion, FFull.Version, 'Did not expected the version to be different in [full]');
+    CheckEquals(0, RemovedList.Count, 'Expected the number of removed elements to not grow in [full]');
+    CheckTrue(LList.Contains(LPop), 'Expected all elements to be peeked in [full]');
+    LList.Remove(LPop);
+    FFull.Dequeue();
+    RemovedList.Clear;
+  end;
+
+  CheckTrue(LList.Empty, 'Expected all elements to be peeked in [full]');
 end;
 
 { TConformance_ISortedSet }
@@ -2519,15 +2598,6 @@ begin
   AFull := FFull;
 end;
 
-procedure TConformance_ISortedSet.Test_Max;
-begin
-  Fail('Not implemented!');
-end;
-
-procedure TConformance_ISortedSet.Test_Min;
-begin
-  Fail('Not implemented!');
-end;
 
 { TConformance_IList }
 
@@ -2542,63 +2612,359 @@ begin
 end;
 
 procedure TConformance_IList.Test_ExtractAt;
+var
+  LValue, LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.ExtractAt(-1) end,
+    'EArgumentOutOfRangeException not thrown in [empty].ExtractAt(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.ExtractAt(0) end,
+    'EArgumentOutOfRangeException not thrown in [empty].ExtractAt(0)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.ExtractAt(-1) end,
+    'EArgumentOutOfRangeException not thrown in [one].ExtractAt(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.ExtractAt(1) end,
+    'EArgumentOutOfRangeException not thrown in [one].ExtractAt(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.ExtractAt(-1) end,
+    'EArgumentOutOfRangeException not thrown in [full].ExtractAt(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.ExtractAt(FFull.Count) end,
+    'EArgumentOutOfRangeException not thrown in [full].ExtractAt(L)'
+  );
+
+  LValue := FOne.Single;
+  LVersion := FOne.Version;
+  CheckEquals(LValue, FOne.ExtractAt(0));
+  CheckEquals(0, RemovedList.Count);
+  CheckNotEquals(LVersion, FOne.Version);
+
+  while not FFull.Empty do
+  begin
+    LValue := FFull.First;
+    LVersion := FFull.Version;
+    CheckEquals(LValue, FFull.ExtractAt(0));
+    CheckEquals(0, RemovedList.Count);
+    CheckNotEquals(LVersion, FOne.Version);
+    RemovedList.Clear;
+  end;
 end;
 
 procedure TConformance_IList.Test_GetItem;
+var
+  LIndex, LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.GetItem(-1) end,
+    'EArgumentOutOfRangeException not thrown in [empty].GetItem(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.GetItem(0) end,
+    'EArgumentOutOfRangeException not thrown in [empty].GetItem(0)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.GetItem(-1) end,
+    'EArgumentOutOfRangeException not thrown in [one].GetItem(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.GetItem(1) end,
+    'EArgumentOutOfRangeException not thrown in [one].GetItem(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.GetItem(-1) end,
+    'EArgumentOutOfRangeException not thrown in [full].GetItem(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.GetItem(FFull.Count) end,
+    'EArgumentOutOfRangeException not thrown in [full].GetItem(L)'
+  );
+
+  CheckEquals(FOne.Single, FOne.GetItem(0));
+  CheckEquals(FOne.ElementAt(0), FOne.GetItem(0));
+
+  LIndex := 0;
+  for LValue in FFull do
+  begin
+    CheckEquals(LValue, FFull.GetItem(LIndex));
+    CheckEquals(LValue, FFull.ElementAt(LIndex));
+
+    Inc(LIndex);
+  end;
 end;
 
-procedure TConformance_IList.Test_IndexOf_1;
+procedure TConformance_IList.Test_IndexOf;
+var
+  LExpIndex, LValue, I: NativeInt;
 begin
-  Fail('Not implemented!');
-end;
+  CheckEquals(-1, FEmpty.IndexOf(FOne.Single));
+  CheckEquals(-1, FOne.IndexOf(FOne.Single - 1));
+  CheckEquals(0, FOne.IndexOf(FOne.Single));
 
-procedure TConformance_IList.Test_IndexOf_2;
-begin
-  Fail('Not implemented!');
-end;
+  for LValue in FFull do
+  begin
+    LExpIndex := -1;
+    for I := 0 to FFull.Count - 1 do
+      if FFull.GetItem(I) = LValue then
+      begin
+        LExpIndex := I;
+        Break;
+      end;
 
-procedure TConformance_IList.Test_IndexOf_3;
-begin
-  Fail('Not implemented!');
+    CheckEquals(LExpIndex, FFull.IndexOf(LValue));
+  end;
+
+  CheckEquals(-1, FFull.IndexOf(GenerateUniqueRandomElement(Elements)));
 end;
 
 procedure TConformance_IList.Test_Insert;
+var
+  LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.Insert(-1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [empty].Insert(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.Insert(1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [empty].Insert(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.Insert(-1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [one].Insert(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.Insert(2, -1) end,
+    'EArgumentOutOfRangeException not thrown in [one].Insert(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.Insert(-1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [full].Insert(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.Insert(FFull.Count + 1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [full].Insert(1)'
+  );
+
+  LVersion := FEmpty.Version;
+  FEmpty.Insert(0, FOne.Single);
+  CheckEquals(1, FEmpty.Count);
+  CheckEquals(FOne.Single, FEmpty.GetItem(0));
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LVersion := FEmpty.Version;
+  FEmpty.Insert(0, FOne.Single - 1);
+  CheckEquals(2, FEmpty.Count);
+  CheckEquals(FOne.Single - 1, FEmpty.GetItem(0));
+  CheckEquals(FOne.Single, FEmpty.GetItem(1));
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LVersion := FEmpty.Version;
+  FEmpty.Insert(1, FOne.Single - 2);
+  CheckEquals(3, FEmpty.Count);
+  CheckEquals(FOne.Single - 1, FEmpty.GetItem(0));
+  CheckEquals(FOne.Single - 2, FEmpty.GetItem(1));
+  CheckEquals(FOne.Single, FEmpty.GetItem(2));
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LVersion := FEmpty.Version;
+  FEmpty.Insert(3, FOne.Single - 3);
+  CheckEquals(4, FEmpty.Count);
+  CheckEquals(FOne.Single - 1, FEmpty.GetItem(0));
+  CheckEquals(FOne.Single - 2, FEmpty.GetItem(1));
+  CheckEquals(FOne.Single, FEmpty.GetItem(2));
+  CheckEquals(FOne.Single - 3, FEmpty.GetItem(3));
+  CheckNotEquals(LVersion, FEmpty.Version);
 end;
 
-procedure TConformance_IList.Test_Insert_All;
+procedure TConformance_IList.Test_InsertAll;
+var
+  LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.InsertAll(-1, FOne) end,
+    'EArgumentOutOfRangeException not thrown in [empty].InsertAll(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.InsertAll(1, FOne) end,
+    'EArgumentOutOfRangeException not thrown in [empty].InsertAll(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.InsertAll(-1, FOne) end,
+    'EArgumentOutOfRangeException not thrown in [one].InsertAll(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.InsertAll(2, FOne) end,
+    'EArgumentOutOfRangeException not thrown in [one].InsertAll(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.InsertAll(-1, FOne) end,
+    'EArgumentOutOfRangeException not thrown in [full].InsertAll(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.InsertAll(FFull.Count + 1, FOne) end,
+    'EArgumentOutOfRangeException not thrown in [full].InsertAll(1)'
+  );
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.InsertAll(0, nil) end,
+    'EArgumentNilException not thrown in [empty].InsertAll(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.InsertAll(0, nil) end,
+    'EArgumentNilException not thrown in [one].InsertAll(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.InsertAll(0, nil) end,
+    'EArgumentNilException not thrown in [full].InsertAll(nil)'
+  );
+
+  FOne.Add(FOne.Single - 1);
+
+  LVersion := FEmpty.Version;
+  FEmpty.InsertAll(0, FOne);
+  CheckEquals(2, FEmpty.Count);
+  CheckEquals(FOne.First, FEmpty.GetItem(0));
+  CheckEquals(FOne.Last, FEmpty.GetItem(1));
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LVersion := FEmpty.Version;
+  FEmpty.InsertAll(1, FOne);
+  CheckEquals(4, FEmpty.Count);
+  CheckEquals(FOne.First, FEmpty.GetItem(0));
+  CheckEquals(FOne.First, FEmpty.GetItem(1));
+  CheckEquals(FOne.Last, FEmpty.GetItem(2));
+  CheckEquals(FOne.Last, FEmpty.GetItem(3));
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LVersion := FEmpty.Version;
+  FEmpty.InsertAll(4, FOne);
+  CheckEquals(6, FEmpty.Count);
+  CheckEquals(FOne.First, FEmpty.GetItem(0));
+  CheckEquals(FOne.First, FEmpty.GetItem(1));
+  CheckEquals(FOne.Last, FEmpty.GetItem(2));
+  CheckEquals(FOne.Last, FEmpty.GetItem(3));
+  CheckEquals(FOne.First, FEmpty.GetItem(4));
+  CheckEquals(FOne.Last, FEmpty.GetItem(5));
+  CheckNotEquals(LVersion, FEmpty.Version);
 end;
 
-procedure TConformance_IList.Test_LastIndexOf_1;
+procedure TConformance_IList.Test_LastIndexOf;
+var
+  LExpIndex, LValue, I: NativeInt;
 begin
-  Fail('Not implemented!');
-end;
+  CheckEquals(-1, FEmpty.LastIndexOf(FOne.Single));
+  CheckEquals(-1, FOne.LastIndexOf(FOne.Single - 1));
+  CheckEquals(0, FOne.LastIndexOf(FOne.Single));
 
-procedure TConformance_IList.Test_LastIndexOf_2;
-begin
-  Fail('Not implemented!');
-end;
+  for LValue in FFull do
+  begin
+    LExpIndex := -1;
+    for I := FFull.Count - 1 downto 0 do
+      if FFull.GetItem(I) = LValue then
+      begin
+        LExpIndex := I;
+        Break;
+      end;
 
-procedure TConformance_IList.Test_LastIndexOf_3;
-begin
-  Fail('Not implemented!');
+    CheckEquals(LExpIndex, FFull.LastIndexOf(LValue));
+  end;
+
+  CheckEquals(-1, FFull.LastIndexOf(GenerateUniqueRandomElement(Elements)));
 end;
 
 procedure TConformance_IList.Test_RemoveAt;
+var
+  LValue, LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.RemoveAt(-1) end,
+    'EArgumentOutOfRangeException not thrown in [empty].RemoveAt(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.RemoveAt(0) end,
+    'EArgumentOutOfRangeException not thrown in [empty].RemoveAt(0)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.RemoveAt(-1) end,
+    'EArgumentOutOfRangeException not thrown in [one].RemoveAt(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.RemoveAt(1) end,
+    'EArgumentOutOfRangeException not thrown in [one].RemoveAt(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.RemoveAt(-1) end,
+    'EArgumentOutOfRangeException not thrown in [full].RemoveAt(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.RemoveAt(FFull.Count) end,
+    'EArgumentOutOfRangeException not thrown in [full].RemoveAt(L)'
+  );
+
+  LValue := FOne.Single;
+  LVersion := FOne.Version;
+  FOne.RemoveAt(0);
+  CheckEquals(1, RemovedList.Count);
+  CheckEquals(LValue, RemovedList[0]);
+  CheckNotEquals(LVersion, FOne.Version);
+
+  RemovedList.Clear;
+  while not FFull.Empty do
+  begin
+    LValue := FFull.First;
+    LVersion := FFull.Version;
+    FFull.RemoveAt(0);
+    CheckEquals(1, RemovedList.Count);
+    CheckEquals(LValue, RemovedList[0]);
+    CheckNotEquals(LVersion, FOne.Version);
+    RemovedList.Clear;
+  end;
 end;
 
 procedure TConformance_IList.Test_SetItem;
+var
+  LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.SetItem(-1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [empty].SetItem(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.SetItem(0, -1) end,
+    'EArgumentOutOfRangeException not thrown in [empty].SetItem(0)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.SetItem(-1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [one].SetItem(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.SetItem(1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [one].SetItem(1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.SetItem(-1, -1) end,
+    'EArgumentOutOfRangeException not thrown in [full].SetItem(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.SetItem(FFull.Count, -1) end,
+    'EArgumentOutOfRangeException not thrown in [full].SetItem(L)'
+  );
+
+  LVersion := FOne.Version;
+  FOne.SetItem(0, FOne.Single);
+  CheckEquals(0, RemovedList.Count);
+  CheckEquals(LVersion, FOne.Version);
+  FOne.SetItem(0, FOne.Single - 1);
+  CheckEquals(1, RemovedList.Count);
+  CheckEquals(FOne.Single + 1, RemovedList[0]);
+  CheckNotEquals(LVersion, FOne.Version);
 end;
 
 { TConformance_ILinkedList }
@@ -2624,45 +2990,183 @@ begin
 end;
 
 procedure TConformance_ILinkedList.Test_AddFirst;
+var
+  LVersion: NativeInt;
+  LNew: NativeInt;
+  LLastCount: NativeInt;
+  LEnumerator: IEnumerator<NativeInt>;
+  I: NativeInt;
 begin
-  Fail('Not implemented!');
+  LVersion := FEmpty.Version;
+  FEmpty.AddFirst(FOne.Single);
+  CheckEquals(1, FEmpty.Count);
+  CheckEquals(FOne.Single, FEmpty.Single);
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LNew := GenerateUniqueRandomElement(Elements);
+  LLastCount := FFull.Count;
+  FFull.AddFirst(LNew);
+  CheckEquals(LLastCount + 1, FFull.Count);
+  CheckEquals(0, FFull.IndexOf(LNew));
+  CheckTrue(FFull.Contains(LNew));
+
+  LEnumerator := FFull.GetEnumerator();
+  LEnumerator.MoveNext();
+  for I := 0 to Length(Elements) - 1 do
+  begin
+    CheckTrue(LEnumerator.MoveNext());
+    CheckEquals(Elements[I], LEnumerator.Current);
+  end;
 end;
 
 procedure TConformance_ILinkedList.Test_AddLast;
+var
+  LVersion: NativeInt;
+  LNew: NativeInt;
+  LLastCount: NativeInt;
+  LEnumerator: IEnumerator<NativeInt>;
+  I: NativeInt;
 begin
-  Fail('Not implemented!');
+  LVersion := FEmpty.Version;
+  FEmpty.AddLast(FOne.Single);
+  CheckEquals(1, FEmpty.Count);
+  CheckEquals(FOne.Single, FEmpty.Single);
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LNew := GenerateUniqueRandomElement(Elements);
+  LLastCount := FFull.Count;
+  FFull.AddLast(LNew);
+  CheckEquals(LLastCount + 1, FFull.Count);
+  CheckEquals(LLastCount, FFull.IndexOf(LNew));
+  CheckTrue(FFull.Contains(LNew));
+
+  LEnumerator := FFull.GetEnumerator();
+  for I := 0 to Length(Elements) - 1 do
+  begin
+    CheckTrue(LEnumerator.MoveNext());
+    CheckEquals(Elements[I], LEnumerator.Current);
+  end;
 end;
 
 procedure TConformance_ILinkedList.Test_ExtractFirst;
+var
+  LValue, LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.ExtractFirst() end,
+    'ECollectionEmptyException not thrown in [empty].ExtractFirst()'
+  );
+
+  LValue := FOne.Single;
+  LVersion := FOne.Version;
+  CheckEquals(LValue, FOne.ExtractFirst());
+  CheckEquals(0, RemovedList.Count);
+  CheckNotEquals(LVersion, FOne.Version);
+
+  while not FFull.Empty do
+  begin
+    LValue := FFull.First;
+    LVersion := FFull.Version;
+    CheckEquals(LValue, FFull.ExtractFirst());
+    CheckEquals(0, RemovedList.Count);
+    CheckNotEquals(LVersion, FOne.Version);
+    RemovedList.Clear;
+  end;
 end;
 
 procedure TConformance_ILinkedList.Test_ExtractLast;
+var
+  LValue, LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.ExtractLast() end,
+    'ECollectionEmptyException not thrown in [empty].ExtractLast()'
+  );
+
+  LValue := FOne.Single;
+  LVersion := FOne.Version;
+  CheckEquals(LValue, FOne.ExtractLast());
+  CheckEquals(0, RemovedList.Count);
+  CheckNotEquals(LVersion, FOne.Version);
+
+  while not FFull.Empty do
+  begin
+    LValue := FFull.Last;
+    LVersion := FFull.Version;
+    CheckEquals(LValue, FFull.ExtractLast());
+    CheckEquals(0, RemovedList.Count);
+    CheckNotEquals(LVersion, FOne.Version);
+    RemovedList.Clear;
+  end;
 end;
 
-procedure TConformance_ILinkedList.Test_First;
+procedure TConformance_ILinkedList.Test_ILinkedList_First;
 begin
-  Fail('Not implemented!');
+  Test_First;
 end;
 
-procedure TConformance_ILinkedList.Test_Last;
+procedure TConformance_ILinkedList.Test_ILinkedList_Last;
 begin
-  Fail('Not implemented!');
+  Test_Last;
 end;
 
 procedure TConformance_ILinkedList.Test_RemoveFirst;
+var
+  LValue, LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.RemoveFirst() end,
+    'ECollectionEmptyException not thrown in [empty].RemoveFirst()'
+  );
+
+  LValue := FOne.Single;
+  LVersion := FOne.Version;
+  FOne.RemoveFirst();
+  CheckEquals(1, RemovedList.Count);
+  CheckEquals(LValue, RemovedList[0]);
+  CheckNotEquals(LVersion, FOne.Version);
+
+  RemovedList.Clear;
+  while not FFull.Empty do
+  begin
+    LValue := FFull.First;
+    LVersion := FFull.Version;
+    FFull.RemoveFirst();
+    CheckEquals(1, RemovedList.Count);
+    CheckEquals(LValue, RemovedList[0]);
+    CheckNotEquals(LVersion, FOne.Version);
+    RemovedList.Clear;
+  end;
 end;
 
 procedure TConformance_ILinkedList.Test_RemoveLast;
+var
+  LValue, LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
-end;
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.RemoveLast() end,
+    'ECollectionEmptyException not thrown in [empty].RemoveLast()'
+  );
 
+  LValue := FOne.Single;
+  LVersion := FOne.Version;
+  FOne.RemoveLast();
+  CheckEquals(1, RemovedList.Count);
+  CheckEquals(LValue, RemovedList[0]);
+  CheckNotEquals(LVersion, FOne.Version);
+
+  RemovedList.Clear;
+  while not FFull.Empty do
+  begin
+    LValue := FFull.Last;
+    LVersion := FFull.Version;
+    FFull.RemoveLast();
+    CheckEquals(1, RemovedList.Count);
+    CheckEquals(LValue, RemovedList[0]);
+    CheckNotEquals(LVersion, FOne.Version);
+    RemovedList.Clear;
+  end;
+end;
 
 { TConformance_IEnumerable_Associative }
 
@@ -3109,33 +3613,165 @@ begin
 end;
 
 procedure TConformance_IBag.Test_AddWeight;
+var
+  LWeight: NativeUInt;
+  LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  LVersion := FEmpty.Version;
+  FEmpty.Add(FOne.Single);
+  CheckEquals(1, FEmpty.Count, 'Expected count to be 1 in [empty]');
+  CheckNotEquals(LVersion, FEmpty.Version, 'Expected version change in [empty]');
+
+  LVersion := FEmpty.Version;
+  CheckTrue(FEmpty.ContainsWeight(FOne.Single, 1), 'Expected to contain at least a weight of 1 in [empty]');
+  FEmpty.AddWeight(FOne.Single, 100);
+  CheckEquals(101, FEmpty.Count, 'Expected count to be 101 in [empty]');
+  CheckNotEquals(LVersion, FEmpty.Version, 'Expected version change in [empty]');
+  CheckTrue(FEmpty.ContainsWeight(FOne.Single, 101), 'Expected to contain at least a weight of 101 in [empty]');
+
+  LVersion := FOne.Version;
+  LWeight := FOne.GetWeight(FOne.Single);
+  FOne.Add(FOne.Single);
+  CheckEquals(2, FOne.Count, 'Expected count to be 2 in [one]');
+  CheckNotEquals(LVersion, FOne.Version, 'Expected version change in [onr]');
+
+  CheckTrue(FOne.ContainsWeight(FOne.First, LWeight + 1), 'Expected to contain at least a weight of +1 in [one]' );
+  CheckTrue(FOne.ContainsWeight(FOne.First, LWeight + 2), 'Expected not to contain at least a weight of +2 in [one]' );
+
+  CheckEquals(0, RemovedList.Count, 'Did not expect any cleaning!');
 end;
 
 procedure TConformance_IBag.Test_ContainsWeight;
+var
+  LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckTrue(FEmpty.ContainsWeight(FOne.Single, 0), 'Expected [empty] to contain a weight of zero.');
+  CheckTrue(FOne.ContainsWeight(FOne.Single, 0), 'Expected [one] to contain a weight of zero.');
+  CheckTrue(FOne.ContainsWeight(FOne.Single, 1), 'Expected [one] to contain a weight of 1.');
+  CheckTrue(FOne.ContainsWeight(FOne.Single, 2), 'Not expected [one] to contain a weight of 2.');
+
+  FOne.AddWeight(FOne.Single, 1);
+  CheckTrue(FOne.ContainsWeight(FOne.First, 2), 'Not expected [one] to contain a weight of 2.');
+
+  for LValue in FFull do
+    CheckTrue(FFull.ContainsWeight(LValue, 1), 'Expected [full] to contain the value');
 end;
 
 procedure TConformance_IBag.Test_GetWeight;
+var
+  LGroupings: IEnexCollection<IGrouping<NativeInt, NativeInt>>;
+  LGrouping: IGrouping<NativeInt, NativeInt>;
+  LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  CheckEquals(0, FEmpty.GetWeight(Elements[0]), 'Expected 0 weight in [empty]');
+  CheckEquals(1, FOne.GetWeight(Elements[0]), 'Expected 1 weight in [one]');
+
+  FOne.Add(Elements[0]);
+  CheckEquals(2, FOne.GetWeight(Elements[0]), 'Expected 2 weight in [one]');
+
+  LGroupings := FFull.Distinct.Op.GroupBy<NativeInt>(
+    function(V: NativeInt): NativeInt begin Result := FFull.GetWeight(V); end);
+
+  for LGrouping in LGroupings do
+    for LValue in LGrouping do
+    begin
+      CheckEquals(FFull.GetWeight(LGrouping.Key), LValue);
+    end;
 end;
 
 procedure TConformance_IBag.Test_RemoveAllWeight;
+var
+  LVersion: NativeInt;
+  LList: IList<NativeInt>;
+  LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  LVersion := FEmpty.Version;
+  FEmpty.RemoveAllWeight(FOne.Single);
+  CheckEquals(LVersion, FEmpty.Version, 'Did not expect version change in [empty]');
+  CheckEquals(0, RemovedList.Count, 'Did not expect any cleaning for [empty]!');
+
+  FEmpty.AddWeight(FOne.Single, 100);
+  LVersion := FEmpty.Version;
+  CheckEquals(100, FEmpty.Count, 'Expected count to be 100 in [empty]');
+  FEmpty.RemoveAllWeight(FOne.Single);
+  CheckEquals(0, FEmpty.Count, 'Expected count to be 0 in [empty]');
+  CheckEquals(1, RemovedList.Count, 'Expect cleaning for [empty]');
+  CheckFalse(FEmpty.Contains(FOne.Single), 'Did not expect to contain at least a weight of 1 in [empty]');
+  CheckNotEquals(LVersion, FEmpty.Version, 'Expected version change in [empty]');
+
+  LVersion := FEmpty.Version;
+  FOne.RemoveAllWeight(FOne.Single);
+  CheckEquals(1, RemovedList.Count, 'Expected 1 cleaning for [one]!');
+  CheckEquals(Elements[0], RemovedList[0], 'Expected proper cleaned element for [one]!');
+  CheckNotEquals(LVersion, FEmpty.Version, 'Expected version change in [one]');
+
+  LList := FFull.ToList();
+  RemovedList.Clear;
+  for LValue in LList do
+    FFull.RemoveAllWeight(LValue);
+
+  CheckTrue(FFull.Empty, 'Expected fully cleaned [full]!');
+  CheckEquals(LList.Distinct.Count, RemovedList.Count, 'Expected N cleaning for [full]!');
 end;
 
 procedure TConformance_IBag.Test_RemoveWeight;
+var
+  LVersion: NativeInt;
+  LList: IList<NativeInt>;
+  LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  LVersion := FEmpty.Version;
+  FEmpty.RemoveWeight(FOne.Single, 1);
+  CheckEquals(LVersion, FEmpty.Version, 'Did not expect version change in [empty]');
+  CheckEquals(0, RemovedList.Count, 'Did not expect any cleaning for [empty]!');
+
+  FEmpty.AddWeight(FOne.Single, 100);
+  CheckEquals(100, FEmpty.Count, 'Expected count to be 100 in [empty]');
+  LVersion := FEmpty.Version;
+  FEmpty.RemoveWeight(FOne.Single, 99);
+  CheckEquals(1, FEmpty.Count, 'Expected count to be 1 in [empty]');
+  CheckEquals(0, RemovedList.Count, 'Did not expect any cleaning for empty!');
+  CheckTrue(FEmpty.ContainsWeight(FOne.Single, 1), 'Expected to contain at least a weight of 1 in [empty]');
+  CheckFalse(FEmpty.ContainsWeight(FOne.Single, 2), 'Did not expect to contain at least a weight of 2 in [empty]');
+  CheckTrue(FEmpty.Contains(FOne.Single), 'Expected to contain at least a weight of 1 in [empty]');
+  CheckNotEquals(LVersion, FEmpty.Version, 'Expected version change in [empty]');
+  LVersion := FEmpty.Version;
+  FEmpty.RemoveWeight(FOne.Single, 100);
+  CheckEquals(0, FEmpty.Count, 'Expected count to be 0 in [empty]');
+  CheckEquals(1, RemovedList.Count, 'Expected 1 cleaning for [empty]!');
+  CheckEquals(FOne.Single, RemovedList[0], 'Expected proper cleaned element for [empty]!');
+  CheckNotEquals(LVersion, FEmpty.Version, 'Expected version change in [empty]');
+
+  LList := FFull.ToList();
+  RemovedList.Clear;
+  for LValue in LList do
+    FFull.RemoveWeight(LValue, 1);
+
+  CheckTrue(FFull.Empty, 'Expected fully cleaned [full]!');
+  CheckEquals(LList.Distinct.Count, RemovedList.Count, 'Expected N cleaning for [full]!');
 end;
 
 procedure TConformance_IBag.Test_SetWeight;
+var
+  LList: IList<NativeInt>;
+  LValue: NativeInt;
 begin
-  Fail('Not implemented!');
+  FEmpty.SetWeight(FOne.Single, 10);
+  CheckEquals(10, FEmpty.GetWeight(FOne.Single), 'Expected a weight of 10 for [empty].');
+  FEmpty.SetWeight(FOne.Single, 0);
+  CheckEquals(0, FEmpty.GetWeight(FOne.Single), 'Expected a weight of 0 for [empty].');
+  CheckFalse(FEmpty.Contains(FOne.Single), 'Did not expect [empty] to contain the value.');
+
+  RemovedList.Clear;
+
+  LList := FFull.Distinct.ToList;
+  for LValue in LList do
+  begin
+    FFull.SetWeight(LValue, 0);
+    CheckTrue(RemovedList.Contains(LValue), 'Expected value set to 0 to be removed in [full].');
+  end;
+
+  CheckEquals(RemovedList.Count, LList.Count, 'Expected all values to be removed only once in [full]');
 end;
 
 { TConformance_ISet }

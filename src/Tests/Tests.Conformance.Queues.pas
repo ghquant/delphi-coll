@@ -32,22 +32,101 @@ uses SysUtils,
      TestFramework,
      Generics.Collections,
      Collections.Base,
+     Collections.Lists,
      Collections.Queues;
 
 type
   TConformance_TQueue = class(TConformance_IQueue)
+  protected
+    procedure SetUp_IQueue(out AEmpty, AOne, AFull: IQueue<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
   published
   end;
 
   TConformance_TLinkedQueue = class(TConformance_IQueue)
+  protected
+    procedure SetUp_IQueue(out AEmpty, AOne, AFull: IQueue<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
   published
   end;
 
   TConformance_TLinkedList_AsQueue = class(TConformance_IQueue)
+  protected
+    procedure SetUp_IQueue(out AEmpty, AOne, AFull: IQueue<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
   published
   end;
 
 implementation
+
+{ TConformance_TQueue }
+
+procedure TConformance_TQueue.SetUp_IQueue(out AEmpty, AOne,
+  AFull: IQueue<NativeInt>; out AElements: TElements; out AOrdering: TOrdering);
+var
+  LItem: NativeInt;
+  LEmpty, LOne, LFull: TQueue<NativeInt>;
+begin
+  AElements := GenerateRepeatableRandomElements();
+  AOrdering := oInsert;
+
+  LEmpty := TQueue<NativeInt>.Create(); LEmpty.RemoveNotification := RemoveNotification;
+  LOne := TQueue<NativeInt>.Create(); LOne.RemoveNotification := RemoveNotification;
+  LOne.Enqueue(AElements[0]);
+  LFull := TQueue<NativeInt>.Create(); LFull.RemoveNotification := RemoveNotification;
+
+  for LItem in AElements do
+    LFull.Enqueue(LItem);
+
+  AEmpty := LEmpty;
+  AOne := LOne;
+  AFull := LFull;
+end;
+
+{ TConformance_TLinkedQueue }
+
+procedure TConformance_TLinkedQueue.SetUp_IQueue(out AEmpty, AOne,
+  AFull: IQueue<NativeInt>; out AElements: TElements; out AOrdering: TOrdering);
+var
+  LItem: NativeInt;
+  LEmpty, LOne, LFull: TLinkedQueue<NativeInt>;
+begin
+  AElements := GenerateRepeatableRandomElements();
+  AOrdering := oInsert;
+
+  LEmpty := TLinkedQueue<NativeInt>.Create(); LEmpty.RemoveNotification := RemoveNotification;
+  LOne := TLinkedQueue<NativeInt>.Create(); LOne.RemoveNotification := RemoveNotification;
+  LOne.Enqueue(AElements[0]);
+  LFull := TLinkedQueue<NativeInt>.Create(); LFull.RemoveNotification := RemoveNotification;
+
+  for LItem in AElements do
+    LFull.Enqueue(LItem);
+
+  AEmpty := LEmpty;
+  AOne := LOne;
+  AFull := LFull;
+end;
+
+{ TConformance_TLinkedList_AsQueue }
+
+procedure TConformance_TLinkedList_AsQueue.SetUp_IQueue(out AEmpty, AOne,
+  AFull: IQueue<NativeInt>; out AElements: TElements; out AOrdering: TOrdering);
+var
+  LItem: NativeInt;
+  LEmpty, LOne, LFull: TLinkedList<NativeInt>;
+begin
+  AElements := GenerateRepeatableRandomElements();
+  AOrdering := oInsert;
+
+  LEmpty := TLinkedList<NativeInt>.Create(); LEmpty.RemoveNotification := RemoveNotification;
+  LOne := TLinkedList<NativeInt>.Create(); LOne.RemoveNotification := RemoveNotification;
+  LOne.AddLast(AElements[0]);
+  LFull := TLinkedList<NativeInt>.Create(); LFull.RemoveNotification := RemoveNotification;
+
+  for LItem in AElements do
+    LFull.AddLast(LItem);
+
+  AEmpty := LEmpty;
+  AOne := LOne;
+  AFull := LFull;
+end;
 
 initialization
   RegisterTests('Conformance.Simple.Queues', [

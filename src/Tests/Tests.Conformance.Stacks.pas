@@ -32,6 +32,7 @@ uses SysUtils,
      TestFramework,
      Generics.Collections,
      Collections.Base,
+     Collections.Lists,
      Collections.Stacks;
 
 type
@@ -42,10 +43,14 @@ type
   end;
 
   TConformance_TLinkedStack = class(TConformance_IStack)
+  protected
+    procedure SetUp_IStack(out AEmpty, AOne, AFull: IStack<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
   published
   end;
 
   TConformance_TLinkedList_AsStack = class(TConformance_IStack)
+  protected
+    procedure SetUp_IStack(out AEmpty, AOne, AFull: IStack<NativeInt>; out AElements: TElements; out AOrdering: TOrdering); override;
   published
   end;
 
@@ -73,6 +78,54 @@ begin
   AOne := LOne;
   AFull := LFull;
 end;
+
+{ TConformance_TLinkedStack }
+
+procedure TConformance_TLinkedStack.SetUp_IStack(out AEmpty, AOne, AFull: IStack<NativeInt>; out AElements: TElements; out AOrdering: TOrdering);
+var
+  LItem: NativeInt;
+  LEmpty, LOne, LFull: TLinkedStack<NativeInt>;
+begin
+  AElements := GenerateRepeatableRandomElements();
+  AOrdering := oInsert;
+
+  LEmpty := TLinkedStack<NativeInt>.Create(); LEmpty.RemoveNotification := RemoveNotification;
+  LOne := TLinkedStack<NativeInt>.Create(); LOne.RemoveNotification := RemoveNotification;
+  LOne.Push(AElements[0]);
+  LFull := TLinkedStack<NativeInt>.Create(); LFull.RemoveNotification := RemoveNotification;
+
+  for LItem in AElements do
+    LFull.Push(LItem);
+
+  AEmpty := LEmpty;
+  AOne := LOne;
+  AFull := LFull;
+end;
+
+{ TConformance_TLinkedList_AsStack }
+
+procedure TConformance_TLinkedList_AsStack.SetUp_IStack(out AEmpty, AOne,
+  AFull: IStack<NativeInt>; out AElements: TElements; out AOrdering: TOrdering);
+var
+  LItem: NativeInt;
+  LEmpty, LOne, LFull: TLinkedList<NativeInt>;
+begin
+  AElements := GenerateRepeatableRandomElements();
+  AOrdering := oInsert;
+
+  LEmpty := TLinkedList<NativeInt>.Create(); LEmpty.RemoveNotification := RemoveNotification;
+  LOne := TLinkedList<NativeInt>.Create(); LOne.RemoveNotification := RemoveNotification;
+  LOne.AddLast(AElements[0]);
+  LFull := TLinkedList<NativeInt>.Create(); LFull.RemoveNotification := RemoveNotification;
+
+  for LItem in AElements do
+    LFull.AddLast(LItem);
+
+  AEmpty := LEmpty;
+  AOne := LOne;
+  AFull := LFull;
+end;
+
 
 initialization
   RegisterTests('Conformance.Simple.Stacks', [

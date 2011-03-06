@@ -1038,21 +1038,24 @@ procedure TLinkedStack<T>.Clear;
 var
   LCurrent, LNext: PEntry;
 begin
-  LCurrent := FFirst;
-  while Assigned(LCurrent) do
+  if Assigned(FFirst) then
   begin
-    NotifyElementRemoved(LCurrent^.FValue);
+    LCurrent := FFirst;
+    while Assigned(LCurrent) do
+    begin
+      NotifyElementRemoved(LCurrent^.FValue);
 
-    { Release}
-    LNext := LCurrent^.FNext;
-    ReleaseEntry(LCurrent);
-    LCurrent := LNext;
+      { Release}
+      LNext := LCurrent^.FNext;
+      ReleaseEntry(LCurrent);
+      LCurrent := LNext;
+    end;
+
+    FFirst := nil;
+    FLast := nil;
+    FCount := 0;
+    NotifyCollectionChanged();
   end;
-
-  FFirst := nil;
-  FLast := nil;
-  FCount := 0;
-  NotifyCollectionChanged();
 end;
 
 function TLinkedStack<T>.Contains(const AValue: T): Boolean;

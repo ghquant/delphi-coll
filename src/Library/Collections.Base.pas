@@ -1034,43 +1034,13 @@ type
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    function IndexOf(const AValue: T): NativeInt; overload;
-
-    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index to from which the search starts.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
+    function IndexOf(const AValue: T): NativeInt;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    function LastIndexOf(const AValue: T): NativeInt; overload;
+    function LastIndexOf(const AValue: T): NativeInt;
 
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>

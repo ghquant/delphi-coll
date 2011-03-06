@@ -72,7 +72,6 @@ type
   published
   end;
 
-
 implementation
 
 initialization

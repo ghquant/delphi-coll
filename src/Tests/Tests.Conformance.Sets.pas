@@ -183,7 +183,11 @@ var
   LEmpty, LOne, LFull: TSortedSet<NativeInt>;
 begin
   AElements := GenerateUniqueRandomElements();
-  AOrdering := oNone;
+
+  if GetSortOrder then
+    AOrdering := oAscending
+  else
+    AOrdering := oDescending;
 
   LEmpty := TSortedSet<NativeInt>.Create(TRules<NativeInt>.Default, GetSortOrder); LEmpty.RemoveNotification := RemoveNotification;
   LOne := TSortedSet<NativeInt>.Create(TRules<NativeInt>.Default, GetSortOrder); LOne.RemoveNotification := RemoveNotification;
@@ -243,7 +247,11 @@ var
   LEmpty, LOne, LFull: TArraySet<NativeInt>;
 begin
   AElements := GenerateUniqueRandomElements();
-  AOrdering := oNone;
+
+  if GetSortOrder then
+    AOrdering := oAscending
+  else
+    AOrdering := oDescending;
 
   LEmpty := TArraySet<NativeInt>.Create(TRules<NativeInt>.Default, 0, GetSortOrder); LEmpty.RemoveNotification := RemoveNotification;
   LOne := TArraySet<NativeInt>.Create(TRules<NativeInt>.Default, 0, GetSortOrder); LOne.RemoveNotification := RemoveNotification;
@@ -509,7 +517,11 @@ var
   LEmpty, LOne, LFull: TBitSetAdapter;
 begin
   AElements := GenerateUniqueRandomElements();
-  AOrdering := oNone;
+
+  if GetSortOrder then
+    AOrdering := oAscending
+  else
+    AOrdering := oDescending;
 
   LEmpty := TBitSetAdapter.Create(GetSortOrder); LEmpty.FBitSet.RemoveNotification := RemoveNotification;
   LOne := TBitSetAdapter.Create(GetSortOrder); LOne.FBitSet.RemoveNotification := RemoveNotification;

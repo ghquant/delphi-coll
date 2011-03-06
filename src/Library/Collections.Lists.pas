@@ -146,47 +146,14 @@ type
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <remarks>The implementation in this class performs a search using the enumerator. Most descendant collections will provide a better implementation.</remarks>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload; virtual;
-
-    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    function IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
-
-    ///  <summary>Searches for the first appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    function IndexOf(const AValue: T): NativeInt; overload;
-
-    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">Always raised in current implementation.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; overload; virtual;
-
-    ///  <summary>Searches for the last appearance of a given element in this list.</summary>
-    ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
-    ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="AStartIndex"/> is out of bounds.</exception>
-    ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>LastIndexOf</c> method is not overridden.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt; overload;
+    function IndexOf(const AValue: T): NativeInt; virtual;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>LastIndexOf</c> method is not overridden.</exception>
-    function LastIndexOf(const AValue: T): NativeInt; overload;
+    function LastIndexOf(const AValue: T): NativeInt; virtual;
 
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the collection.</param>
@@ -442,19 +409,15 @@ type
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; override;
+    function IndexOf(const AValue: T): NativeInt; override;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; override;
+    function LastIndexOf(const AValue: T): NativeInt; override;
 
     ///  <summary>Specifies the number of elements in the list.</summary>
     ///  <returns>A positive value specifying the number of elements in the list.</returns>
@@ -676,21 +639,17 @@ type
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; override;
+    function IndexOf(const AValue: T): NativeInt; override;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <remarks>This method uses binary search because the list is always sorted.</remarks>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; override;
+    function LastIndexOf(const AValue: T): NativeInt; override;
 
     ///  <summary>Returns the biggest element.</summary>
     ///  <returns>An element from the list considered to have the biggest value.</returns>
@@ -814,19 +773,15 @@ type
 
     ///  <summary>Searches for the first appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; override;
+    function IndexOf(const AValue: T): NativeInt; override;
 
     ///  <summary>Searches for the last appearance of a given element in this list.</summary>
     ///  <param name="AValue">The value to search for.</param>
-    ///  <param name="AStartIndex">The index from which the search starts.</param>
-    ///  <param name="ACount">The number of elements after the starting one to check against.</param>
     ///  <returns><c>-1</c> if the value was not found; otherwise a positive value indicating the index of the value.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException">Parameter combination is incorrect.</exception>
-    function LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt; override;
+    function LastIndexOf(const AValue: T): NativeInt; override;
 
     ///  <summary>Specifies the number of elements in the list.</summary>
     ///  <returns>A positive value specifying the number of elements in the list.</returns>
@@ -1050,50 +1005,20 @@ begin
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
-function TAbstractList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
+function TAbstractList<T>.IndexOf(const AValue: T): NativeInt;
 var
   LEnumerator: IEnumerator<T>;
-  LCount: NativeInt;
 begin
-  if ACount = 0 then
-    Exit(-1);
-
-  LCount := GetCount();
-
-  { Check for indexes }
-  if (AStartIndex >= LCount) or (AStartIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if ((AStartIndex + ACount) > LCount) or (ACount < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
   LEnumerator := GetEnumerator();
   Result := 0;
+
   while LEnumerator.MoveNext() do
   begin
-    { Over the edge? }
-    if (Result >= AStartIndex + ACount) then
-      Break;
-
-    { Check elements }
-    if ElementsAreEqual(AValue, LEnumerator.Current) and (Result >= AStartIndex) then
-      Exit;
-
+    if ElementsAreEqual(AValue, LEnumerator.Current) then Exit;
     Inc(Result);
   end;
 
   Result := -1;
-end;
-
-function TAbstractList<T>.IndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt;
-begin
-  Result := IndexOf(AValue, AStartIndex, GetCount() - AStartIndex);
-end;
-
-function TAbstractList<T>.IndexOf(const AValue: T): NativeInt;
-begin
-  Result := IndexOf(AValue, 0, GetCount());
 end;
 
 procedure TAbstractList<T>.InsertAll(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
@@ -1117,17 +1042,7 @@ begin
   ExceptionHelper.Throw_OperationNotSupported('Insert');
 end;
 
-function TAbstractList<T>.LastIndexOf(const AValue: T; const AStartIndex: NativeInt): NativeInt;
-begin
-  Result := LastIndexOf(AValue, AStartIndex, (GetCount() - AStartIndex));
-end;
-
 function TAbstractList<T>.LastIndexOf(const AValue: T): NativeInt;
-begin
-  Result := LastIndexOf(AValue, 0, GetCount());
-end;
-
-function TAbstractList<T>.LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
 begin
   ExceptionHelper.Throw_OperationNotSupported('LastIndexOf');
 end;
@@ -1438,30 +1353,13 @@ begin
      SetLength(FArray, FLength * 2);
 end;
 
-function TList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
-var
-  I: NativeInt;
+function TList<T>.IndexOf(const AValue: T): NativeInt;
 begin
-  Result := -1;
-
-  if ACount = 0 then
-    Exit;
-  
-  { Check for indexes }
-  if (AStartIndex >= FLength) or (AStartIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
-  { Search for the AValue }
-  for I := AStartIndex to ((AStartIndex + ACount) - 1) do
-    if ElementsAreEqual(FArray[I], AValue) then
-    begin
-      Result := I;
+  for Result := 0 to FLength - 1 do
+    if ElementsAreEqual(FArray[Result], AValue) then
       Exit;
-    end;
+
+  Result := -1;
 end;
 
 procedure TList<T>.Insert(const AIndex: NativeInt; const AValue: T);
@@ -1691,30 +1589,13 @@ begin
 end;
 {$ENDIF}
 
-function TList<T>.LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
-var
-  I: NativeInt;
+function TList<T>.LastIndexOf(const AValue: T): NativeInt;
 begin
-  Result := -1;
-
-  if ACount = 0 then
-    Exit;
-
-  { Check for indexes }
-  if (AStartIndex >= FLength) or (AStartIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
-  { Search for the AValue }
-  for I := ((AStartIndex + ACount) - 1) downto AStartIndex do
-    if ElementsAreEqual(FArray[I], AValue) then
-    begin
-      Result := I;
+  for Result := FLength - 1 downto 0 do
+    if ElementsAreEqual(FArray[Result], AValue) then
       Exit;
-    end;
+
+  Result := -1;
 end;
 
 procedure TList<T>.Reverse(const AStartIndex, ACount: NativeInt);
@@ -2069,32 +1950,17 @@ begin
   Result := -1;
 end;
 
-function TSortedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
+function TSortedList<T>.IndexOf(const AValue: T): NativeInt;
 var
   I, J: NativeInt;
 begin
-  Result := -1;
-
-  if ACount = 0 then
-    Exit;
-
-  { Check for indexes }
-  if (AStartIndex >= FLength) or (AStartIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
   { Search for the value }
-  J := BinarySearch(AValue, AStartIndex, ACount, FAscending);
+  J := BinarySearch(AValue, 0, FLength, FAscending);
 
   if J = -1 then
-     Exit(-1)
-  else
-    Inc(J, AStartIndex);
+     Exit(-1);
 
-  for I := J - 1 downto AStartIndex do
+  for I := J - 1 downto 0 do
     if not ElementsAreEqual(AValue, FArray[I]) then
     begin
       Result := I + 1;
@@ -2125,32 +1991,17 @@ begin
   ExceptionHelper.Throw_OperationNotSupported('SetItem');
 end;
 
-function TSortedList<T>.LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
+function TSortedList<T>.LastIndexOf(const AValue: T): NativeInt;
 var
   I, J: NativeInt;
 begin
-  Result := -1;
-
-  if ACount = 0 then
-    Exit;
-
-  { Check for indexes }
-  if (AStartIndex >= FLength) or (AStartIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if ((AStartIndex + ACount) > FLength) or (ACount < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
   { Search for the value }
-  J := BinarySearch(AValue, AStartIndex, ACount, FAscending);
+  J := BinarySearch(AValue, 0, FLength, FAscending);
 
   if J = -1 then
-    Exit(-1)
-  else
-    Inc(J, AStartIndex);
+    Exit(-1);
 
-  for I := J + 1 to AStartIndex + ACount - 1 do
+  for I := J + 1 to FLength - 1 do
     if not ElementsAreEqual(AValue, FArray[I]) then
     begin
       Result := I - 1;
@@ -2280,31 +2131,16 @@ begin
   Result := LEnumerator;
 end;
 
-function TLinkedList<T>.IndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
+function TLinkedList<T>.IndexOf(const AValue: T): NativeInt;
 var
   LCurrent: PEntry;
 begin
-  if ACount = 0 then
-    Exit(-1);
-
-  { Check for indexes }
-  if (AStartIndex >= FCount) or (AStartIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if ((AStartIndex + ACount) > FCount) or (ACount < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
   LCurrent := FFirst;
   Result := 0;
   while Assigned(LCurrent) do
   begin
-    { Over the edge? }
-    if (Result >= AStartIndex + ACount) then
-      Break;
-
     { Check elements }
-    if ElementsAreEqual(AValue, LCurrent^.FValue) and (Result >= AStartIndex) then
+    if ElementsAreEqual(AValue, LCurrent^.FValue) then
       Exit;
 
     LCurrent := LCurrent^.FNext;
@@ -2425,32 +2261,16 @@ begin
   Result := FLast^.FValue;
 end;
 
-function TLinkedList<T>.LastIndexOf(const AValue: T; const AStartIndex, ACount: NativeInt): NativeInt;
+function TLinkedList<T>.LastIndexOf(const AValue: T): NativeInt;
 var
   LCurrent: PEntry;
 begin
-  { Special case }
-  if ACount = 0 then
-    Exit(-1);
-
-  { Check for indexes }
-  if (AStartIndex >= FCount) or (AStartIndex < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStartIndex');
-
-  { Check for indexes }
-  if ((AStartIndex + ACount) > FCount) or (ACount < 0) then
-     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
-
   LCurrent := FLast;
   Result := FCount - 1;
   while Assigned(LCurrent) do
   begin
-    { Over the edge? }
-    if (Result < AStartIndex) then
-      Break;
-
     { Check elements }
-    if ElementsAreEqual(AValue, LCurrent^.FValue) and (Result < (AStartIndex + ACount)) then
+    if ElementsAreEqual(AValue, LCurrent^.FValue) then
       Exit;
 
     LCurrent := LCurrent^.FPrev;
