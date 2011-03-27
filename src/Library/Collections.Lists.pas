@@ -989,6 +989,9 @@ end;
 
 function TAbstractList<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
+  if AIndex < 0 then
+    ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
+
   if not TryGetItemAt(AIndex, Result) then
     Result := ADefault
 end;
@@ -1137,21 +1140,33 @@ end;
 
 function TAbstractLinkedList<T>.ExtractFirst: T;
 begin
+  if GetCount() = 0 then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
   Result := ExtractAt(0);
 end;
 
 function TAbstractLinkedList<T>.ExtractLast: T;
 begin
+  if GetCount() = 0 then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
   Result := ExtractAt(GetCount() - 1);
 end;
 
 procedure TAbstractLinkedList<T>.RemoveFirst;
 begin
+  if GetCount() = 0 then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
   RemoveAt(0);
 end;
 
 procedure TAbstractLinkedList<T>.RemoveLast;
 begin
+  if GetCount() = 0 then
+    ExceptionHelper.Throw_CollectionEmptyError();
+
   RemoveAt(GetCount() - 1);
 end;
 
@@ -1230,8 +1245,13 @@ var
   I: NativeInt;
 begin
   { Should clean up each element individually }
-  for I := 0 to FLength - 1 do
-    NotifyElementRemoved(FArray[I]);
+  if FLength > 0 then
+  begin
+    for I := 0 to FLength - 1 do
+      NotifyElementRemoved(FArray[I]);
+
+    NotifyCollectionChanged();
+  end;
 
   { Reset the length }
   FLength := 0;
@@ -2025,21 +2045,25 @@ procedure TLinkedList<T>.Clear;
 var
   LCurrent, LNext: PEntry;
 begin
-  LCurrent := FFirst;
-  while Assigned(LCurrent) do
+  if FFirst <> nil then
   begin
-    NotifyElementRemoved(LCurrent^.FValue);
+    LCurrent := FFirst;
+    while Assigned(LCurrent) do
+    begin
+      NotifyElementRemoved(LCurrent^.FValue);
 
-    { Release}
-    LNext := LCurrent^.FNext;
-    ReleaseEntry(LCurrent);
-    LCurrent := LNext;
+      { Release}
+      LNext := LCurrent^.FNext;
+      ReleaseEntry(LCurrent);
+      LCurrent := LNext;
+    end;
+
+    FFirst := nil;
+    FLast := nil;
+    FCount := 0;
+
+    NotifyCollectionChanged();
   end;
-
-  FFirst := nil;
-  FLast := nil;
-  FCount := 0;
-  NotifyCollectionChanged();
 end;
 
 procedure TLinkedList<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
@@ -2223,6 +2247,9 @@ begin
 
     Inc(FCount);
   end;
+
+  if not Assigned(LNewFirst) then
+    Exit;
 
   { The chain is created! now append it to this list's chain }
   if Assigned(LCurrent) then

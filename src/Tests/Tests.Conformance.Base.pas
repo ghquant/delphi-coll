@@ -46,6 +46,7 @@ uses SysUtils,
       8. Stack.Peek = Last
       9. Queue.Peek = First
      10. Push-Pop, Enqueue-Dequeue chain
+     11. MaxKey/MinKey check for correct orderfing on Ascending/Descending.
 
 }
 
@@ -297,6 +298,8 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
 
+    procedure CheckEquals(const AExpected, AActual: TPair<NativeInt, NativeInt>; const AMessage: String = ''); overload;
+
   published
     procedure Test_GetEnumerator();
     procedure Test_Enumerator_Early_Current;
@@ -310,6 +313,9 @@ type
   protected
     procedure SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<TPair<NativeInt, NativeInt>>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
     procedure SetUp_ICollection(out AEmpty, AOne, AFull: ICollection<TPair<NativeInt, NativeInt>>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
+
+    function MinusOne: TPair<NativeInt, NativeInt>; overload;
+    function MinusOne(const APair: TPair<NativeInt, NativeInt>): TPair<NativeInt, NativeInt>; overload;
 
   published
     procedure Test_Version();
@@ -350,11 +356,20 @@ type
   TConformance_IMap = class(TConformance_IEnexAssociativeCollection)
   strict private
     FEmpty, FOne, FFull: IMap<NativeInt, NativeInt>;
-
+    FRemovedKeys: Generics.Collections.TList<NativeInt>;
+    FRemovedValues: Generics.Collections.TList<NativeInt>;
   protected
+    property RemovedKeys: Generics.Collections.TList<NativeInt> read FRemovedKeys;
+    property RemovedValues: Generics.Collections.TList<NativeInt> read FRemovedValues;
+
+    procedure KeyRemoveNotification(const AValue: NativeInt);
+    procedure ValueRemoveNotification(const AValue: NativeInt);
+
     procedure SetUp_IEnexAssociativeCollection(out AEmpty, AOne, AFull: IEnexAssociativeCollection<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); override;
     procedure SetUp_IMap(out AEmpty, AOne, AFull: IMap<NativeInt, NativeInt>; out APairs: TPairs; out AKeyOrdering: TOrdering); virtual; abstract;
 
+    procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure Test_Clear;
     procedure Test_Add_1;
@@ -550,10 +565,6 @@ end;
 
 procedure TConformance_IEnumerable_Simple.Test_Enumerator_Early_Current;
 begin
-  {
-    Tests:
-      1. Current MUST return something even if MoveNext() was not used.
-  }
   CheckTrue(FEmpty.GetEnumerator().Current = Default(NativeInt), 'Expected Current to be default for [empty].');
   CheckTrue(FOne.GetEnumerator().Current = Default(NativeInt), 'Expected Current to be default for [one].');
   CheckTrue(FFull.GetEnumerator().Current = Default(NativeInt), 'Expected Current to be default for [full].');
@@ -584,7 +595,7 @@ begin
   LEnumerator := FFull.GetEnumerator();
   LList := Generics.Collections.TList<NativeInt>.Create();
   LList.AddRange(FElements);
-  LIsFirst := False;
+  LIsFirst := True;
   LIndex := 0;
 
   while LEnumerator.MoveNext() do
@@ -617,11 +628,6 @@ procedure TConformance_IEnumerable_Simple.Test_GetEnumerator;
 var
   LEnumerator: IEnumerator<NativeInt>;
 begin
-  {
-    Tests:
-      1. MUST return a valid enumerator.
-      2. MUST return always a new enumerator and not re-use another.
-  }
   LEnumerator := FEmpty.GetEnumerator();
   CheckTrue(Assigned(LEnumerator), 'Expected a non-nil enumerator for [empty].');
   CheckTrue(Pointer(LEnumerator) <> Pointer(FEmpty.GetEnumerator()), 'Expected a new object enumerator for [empty].');
@@ -653,11 +659,6 @@ var
   LEnumerator: IEnumerator<NativeInt>;
   LIndex: NativeInt;
 begin
-  {  Tests:
-       1. EArgumentOutOfRangeException when index is negative;
-       2. EArgumentOutOfSpaceException when index exceeds the free space in the array.
-       3. The all elements for [full].
-  }
   SetLength(LArray, 1);
   CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.CopyTo(LArray, -1); end,
@@ -727,11 +728,6 @@ var
   LEnumerator: IEnumerator<NativeInt>;
   LIndex: NativeInt;
 begin
-  {  Tests:
-       1. EArgumentOutOfRangeException when index is negative;
-       2. EArgumentOutOfSpaceException when index exceeds the free space in the array.
-       3. The all elements for [full].
-  }
   SetLength(LArray, 1);
   FEmpty.CopyTo(LArray);
 
@@ -770,12 +766,6 @@ end;
 
 procedure TConformance_ICollection_Simple.Test_Empty;
 begin
-  {  Tests:
-       1. Empty is True for [empty].
-       2. Empty is False for [one].
-       3. Empty is False for [full].
-  }
-
   CheckTrue(FEmpty.Empty, 'Expected empty for [empty].');
   CheckFalse(FOne.Empty, 'Expected non-empty for [one].');
   CheckFalse(FFull.Empty, 'Expected non-empty for [full].');
@@ -783,12 +773,6 @@ end;
 
 procedure TConformance_ICollection_Simple.Test_GetCount;
 begin
-  {  Tests:
-       1. Count for [empty] is zero.
-       2. Count for [one] is one.
-       3. Count for [full] is equal to the length of element array.
-  }
-
   CheckEquals(0, FEmpty.GetCount(), 'Expected zero count for [empty].');
   CheckEquals(1, FOne.GetCount(), 'Expected 1 count for [one].');
   CheckEquals(Length(Elements), FFull.GetCount(), 'Expected > 1 count for [full].');
@@ -852,12 +836,6 @@ end;
 
 procedure TConformance_ICollection_Simple.Test_Version;
 begin
-  { Tests:
-      1. Version() for [empty] is zero.
-      2. Version() for [one] is non-zero.
-      3. Version() for [full] is bigger than for [one]
-  }
-
   CheckEquals(0, FEmpty.Version(), 'Expected the version for [empty] to be zero.');
   CheckTrue(FOne.Version() > FEmpty.Version(), 'Expected the version for [one] to be bigger than zero.');
   CheckTrue(FFull.Version() > FEmpty.Version(), 'Expected the version for [full] to be bigger than for [one].');
@@ -1556,12 +1534,12 @@ begin
   if Ordering = oAscending then
   begin
     CheckEquals(FFull.Min(), FFull.First(), 'Expected Min to be equal to First in [full]');
-    CheckEquals(FFull.Max(), FFull.ElementAt(0), 'Expected Max to be equal to [0] in [full]');
+    CheckEquals(FFull.Min(), FFull.ElementAt(0), 'Expected Min to be equal to [0] in [full]');
   end;
   if Ordering = oDescending then
   begin
     CheckEquals(FFull.Min(), FFull.Last(), 'Expected Min to be equal to Last in [full]');
-    CheckEquals(FFull.Max(), FFull.ElementAt(FFull.Count - 1), 'Expected Max to be equal to [L-1] in [full]');
+    CheckEquals(FFull.Min(), FFull.ElementAt(FFull.Count - 1), 'Expected Min to be equal to [L-1] in [full]');
   end;
 end;
 
@@ -1573,12 +1551,6 @@ var
   LValue, LPrev: NativeInt;
   LFirst: Boolean;
 begin
-  { Tests:
-      1. EArgumentNilException for nil comparer.
-      2. Empty for [empty].
-      3. One for [one].
-      4. Properly ordered for [full]
-  }
   LComparer := nil;
 
   CheckException(EArgumentNilException,
@@ -1664,12 +1636,6 @@ var
   LValue, LPrev: NativeInt;
   LFirst: Boolean;
 begin
-  { Tests:
-      2. Empty for [empty].
-      3. One for [one].
-      4. Properly ordered for [full]
-  }
-
   { Ascending }
   LOrdered := FEmpty.Ordered(True);
   CheckTrue(LOrdered.Empty, 'Expected empty asc ordered for [empty]');
@@ -1773,13 +1739,6 @@ var
   LArray: TArray<NativeInt>;
   LIndex, LValue: NativeInt;
 begin
-  { Test:
-      1. [empty] is empty.
-      2. [one] is one.
-      3. [full] is reversed.
-      4. order is preserved in reversed.
-  }
-
   LReversed := FEmpty.Reversed();
   CheckTrue(LReversed.Empty, 'Expected reversed of [empty] to be empty');
 
@@ -2727,6 +2686,20 @@ procedure TConformance_IList.Test_Insert;
 var
   LVersion: NativeInt;
 begin
+  if Ordering in [oAscending, oDescending] then
+  begin
+    CheckException(ENotSupportedException,
+      procedure() begin FEmpty.Insert(-1, -1) end,
+      'ENotSupportedException not thrown in [empty].Insert(-1)'
+    );
+    CheckException(ENotSupportedException,
+      procedure() begin FOne.Insert(0, -1) end,
+      'ENotSupportedException not thrown in [one].Insert(0)'
+    );
+
+    Exit;
+  end;
+
   CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.Insert(-1, -1) end,
     'EArgumentOutOfRangeException not thrown in [empty].Insert(-1)'
@@ -2787,6 +2760,20 @@ procedure TConformance_IList.Test_InsertAll;
 var
   LVersion: NativeInt;
 begin
+  if Ordering in [oAscending, oDescending] then
+  begin
+    CheckException(ENotSupportedException,
+      procedure() begin FEmpty.InsertAll(-1, nil) end,
+      'ENotSupportedException not thrown in [empty].InsertAll(-1)'
+    );
+    CheckException(ENotSupportedException,
+      procedure() begin FOne.InsertAll(0, FEmpty) end,
+      'ENotSupportedException not thrown in [one].InsertAll(0)'
+    );
+
+    Exit;
+  end;
+
   CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.InsertAll(-1, FOne) end,
     'EArgumentOutOfRangeException not thrown in [empty].InsertAll(-1)'
@@ -2932,6 +2919,20 @@ procedure TConformance_IList.Test_SetItem;
 var
   LVersion: NativeInt;
 begin
+  if Ordering in [oAscending, oDescending] then
+  begin
+    CheckException(ENotSupportedException,
+      procedure() begin FEmpty.SetItem(-1, -1) end,
+      'ENotSupportedException not thrown in [empty].SetItem(-1)'
+    );
+    CheckException(ENotSupportedException,
+      procedure() begin FOne.SetItem(0, -1) end,
+      'ENotSupportedException not thrown in [one].SetItem(0)'
+    );
+
+    Exit;
+  end;
+
   CheckException(EArgumentOutOfRangeException,
     procedure() begin FEmpty.SetItem(-1, -1) end,
     'EArgumentOutOfRangeException not thrown in [empty].SetItem(-1)'
@@ -2960,7 +2961,7 @@ begin
   LVersion := FOne.Version;
   FOne.SetItem(0, FOne.Single);
   CheckEquals(0, RemovedList.Count);
-  CheckEquals(LVersion, FOne.Version);
+  CheckNotEquals(LVersion, FOne.Version);
   FOne.SetItem(0, FOne.Single - 1);
   CheckEquals(1, RemovedList.Count);
   CheckEquals(FOne.Single + 1, RemovedList[0]);
@@ -2980,13 +2981,101 @@ begin
 end;
 
 procedure TConformance_ILinkedList.Test_AddAllFirst;
+var
+  LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  if Ordering in [oAscending, oDescending] then
+  begin
+    CheckException(ENotSupportedException,
+      procedure() begin FEmpty.AddAllFirst(nil) end,
+      'ENotSupportedException not thrown in [empty].AddAllFirst(nil)'
+    );
+    CheckException(ENotSupportedException,
+      procedure() begin FOne.AddAllFirst(FEmpty) end,
+      'ENotSupportedException not thrown in [one].AddAllFirst(E)'
+    );
+
+    Exit;
+  end;
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.AddAllFirst(nil) end,
+    'EArgumentNilException not thrown in [empty].AddAllFirst(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.AddAllFirst(nil) end,
+    'EArgumentNilException not thrown in [one].AddAllFirst(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.AddAllFirst(nil) end,
+    'EArgumentNilException not thrown in [full].AddAllFirst(nil)'
+  );
+
+  LVersion := FOne.Version;
+  FOne.AddAllFirst(FEmpty);
+  CheckEquals(1, FOne.Count);
+  CheckEquals(LVersion, FOne.Version);
+
+  LVersion := FEmpty.Version;
+  FEmpty.AddAllFirst(FOne);
+  CheckEquals(1, FEmpty.Count);
+  CheckEquals(FOne.Single, FEmpty.Single);
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LVersion := FOne.Version;
+  FOne.AddAllFirst(FFull);
+  CheckEquals(FFull.Count + 1, FOne.Count);
+  CheckNotEquals(LVersion, FOne.Version);
+  CheckTrue(FOne.EqualsTo(FFull.Reversed().Concat(FEmpty)));
 end;
 
 procedure TConformance_ILinkedList.Test_AddAllLast;
+var
+  LVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  if Ordering in [oAscending, oDescending] then
+  begin
+    CheckException(ENotSupportedException,
+      procedure() begin FEmpty.AddAllLast(nil) end,
+      'ENotSupportedException not thrown in [empty].AddAllLast(nil)'
+    );
+    CheckException(ENotSupportedException,
+      procedure() begin FOne.AddAllLast(FEmpty) end,
+      'ENotSupportedException not thrown in [one].AddAllLast(E)'
+    );
+
+    Exit;
+  end;
+
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.AddAllLast(nil) end,
+    'EArgumentNilException not thrown in [empty].AddAllLast(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.AddAllLast(nil) end,
+    'EArgumentNilException not thrown in [one].AddAllLast(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.AddAllLast(nil) end,
+    'EArgumentNilException not thrown in [full].AddAllLast(nil)'
+  );
+
+  LVersion := FOne.Version;
+  FOne.AddAllLast(FEmpty);
+  CheckEquals(1, FOne.Count);
+  CheckEquals(LVersion, FOne.Version);
+
+  LVersion := FEmpty.Version;
+  FEmpty.AddAllLast(FOne);
+  CheckEquals(1, FEmpty.Count);
+  CheckEquals(FOne.Single, FEmpty.Single);
+  CheckNotEquals(LVersion, FEmpty.Version);
+
+  LVersion := FOne.Version;
+  FOne.AddAllLast(FFull);
+  CheckEquals(FFull.Count + 1, FOne.Count);
+  CheckNotEquals(LVersion, FOne.Version);
+  CheckTrue(FOne.EqualsTo(FEmpty.Concat(FFull)));
 end;
 
 procedure TConformance_ILinkedList.Test_AddFirst;
@@ -2997,6 +3086,20 @@ var
   LEnumerator: IEnumerator<NativeInt>;
   I: NativeInt;
 begin
+  if Ordering in [oAscending, oDescending] then
+  begin
+    CheckException(ENotSupportedException,
+      procedure() begin FEmpty.AddFirst(-1) end,
+      'ENotSupportedException not thrown in [empty].AddFirst(-1)'
+    );
+    CheckException(ENotSupportedException,
+      procedure() begin FOne.AddFirst(-1) end,
+      'ENotSupportedException not thrown in [one].AddFirst(-1)'
+    );
+
+    Exit;
+  end;
+
   LVersion := FEmpty.Version;
   FEmpty.AddFirst(FOne.Single);
   CheckEquals(1, FEmpty.Count);
@@ -3027,6 +3130,21 @@ var
   LEnumerator: IEnumerator<NativeInt>;
   I: NativeInt;
 begin
+  if Ordering in [oAscending, oDescending] then
+  begin
+    CheckException(ENotSupportedException,
+      procedure() begin FEmpty.AddLast(-1) end,
+      'ENotSupportedException not thrown in [empty].AddLast(-1)'
+    );
+    CheckException(ENotSupportedException,
+      procedure() begin FOne.AddLast(-1) end,
+      'ENotSupportedException not thrown in [one].AddLast(-1)'
+    );
+
+    Exit;
+  end;
+
+
   LVersion := FEmpty.Version;
   FEmpty.AddLast(FOne.Single);
   CheckEquals(1, FEmpty.Count);
@@ -3170,6 +3288,12 @@ end;
 
 { TConformance_IEnumerable_Associative }
 
+procedure TConformance_IEnumerable_Associative.CheckEquals(const AExpected, AActual: TPair<NativeInt, NativeInt>; const AMessage: String);
+begin
+  CheckEquals(AExpected.Key, AActual.Key, AMessage);
+  CheckEquals(AExpected.Value, AActual.Value, AMessage);
+end;
+
 procedure TConformance_IEnumerable_Associative.SetUp;
 begin
   inherited;
@@ -3188,20 +3312,96 @@ end;
 
 procedure TConformance_IEnumerable_Associative.Test_Enumerator_Early_Current;
 begin
-  Fail('Not implemented!');
+  CheckEquals(FEmpty.GetEnumerator().Current, Default(TPair<NativeInt, NativeInt>), 'Expected Current to be default for [empty].');
+  CheckEquals(FOne.GetEnumerator().Current, Default(TPair<NativeInt, NativeInt>), 'Expected Current to be default for [one].');
+  CheckEquals(FFull.GetEnumerator().Current, Default(TPair<NativeInt, NativeInt>), 'Expected Current to be default for [full].');
 end;
 
 procedure TConformance_IEnumerable_Associative.Test_Enumerator_ReachEnd;
+var
+  LEnumerator: IEnumerator<TPair<NativeInt, NativeInt>>;
+  LLast: TPair<NativeInt, NativeInt>;
+  LIndex: NativeInt;
+  LList: Generics.Collections.TList<TPair<NativeInt, NativeInt>>;
+  LIsFirst: Boolean;
 begin
-  Fail('Not implemented!');
+  LEnumerator := FEmpty.GetEnumerator();
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 1.MoveNext() for [empty]');
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 2.MoveNext() for [empty]');
+
+  LEnumerator := FOne.GetEnumerator();
+  CheckTrue(LEnumerator.MoveNext(), 'Expected a valid 1.MoveNext() for [one]');
+  LLast := LEnumerator.Current;
+
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 2.MoveNext() for [one]');
+  CheckEquals(LLast, LEnumerator.Current, 'Expected the last value to remain constant for [one]');
+
+  CheckFalse(LEnumerator.MoveNext(), 'Did not expect a valid 3.MoveNext() for [one]');
+  CheckEquals(LLast, LEnumerator.Current, 'Expected the last value to remain constant for [one]');
+  CheckEquals(LLast, FPairs[0], 'Expected the only value to be valid [one]');
+
+  LEnumerator := FFull.GetEnumerator();
+  LList := Generics.Collections.TList<TPair<NativeInt, NativeInt>>.Create();
+  LList.AddRange(FPairs);
+  LIsFirst := True;
+  LIndex := 0;
+
+  while LEnumerator.MoveNext() do
+  begin
+    if LIsFirst then
+      LIsFirst := False
+    else begin
+      { Check ordering if applied }
+      if FKeyOrdering = oAscending then
+        CheckTrue(LEnumerator.Current.Key >= LLast.Key, 'Expected Vi >= Vi-1 always for [full]!')
+      else if FKeyOrdering = oDescending then
+        CheckTrue(LEnumerator.Current.Key <= LLast.Key, 'Expected Vi <= Vi-1 always for [full]!');
+    end;
+
+    LLast := LEnumerator.Current;
+
+    if FKeyOrdering = oInsert then
+      CheckEquals(FPairs[LIndex], LLast, 'Expected insert ordering to apply for [full].');
+
+    LList.Remove(LEnumerator.Current);
+    Inc(LIndex);
+  end;
+
+  { Check that all elements have been enumerated }
+  CheckEquals(0, LList.Count, 'Expected that all elements are enumerated in [full].');
+  LList.Free;
 end;
 
 procedure TConformance_IEnumerable_Associative.Test_GetEnumerator;
+var
+  LEnumerator: IEnumerator<TPair<NativeInt, NativeInt>>;
 begin
-  Fail('Not implemented!');
+  LEnumerator := FEmpty.GetEnumerator();
+  CheckTrue(Assigned(LEnumerator), 'Expected a non-nil enumerator for [empty].');
+  CheckTrue(Pointer(LEnumerator) <> Pointer(FEmpty.GetEnumerator()), 'Expected a new object enumerator for [empty].');
+
+  LEnumerator := FOne.GetEnumerator();
+  CheckTrue(Assigned(LEnumerator), 'Expected a non-nil enumerator for [one].');
+  CheckTrue(Pointer(LEnumerator) <> Pointer(FOne.GetEnumerator()), 'Expected a new object enumerator for [one].');
+
+  LEnumerator := FFull.GetEnumerator();
+  CheckTrue(Assigned(LEnumerator), 'Expected a non-nil enumerator for [full].');
+  CheckTrue(Pointer(LEnumerator) <> Pointer(FFull.GetEnumerator()), 'Expected a new object enumerator for [full].');
 end;
 
 { TConformance_ICollection_Associative }
+
+function TConformance_ICollection_Associative.MinusOne: TPair<NativeInt, NativeInt>;
+begin
+  Result.Key := -1;
+  Result.Value := -1;
+end;
+
+function TConformance_ICollection_Associative.MinusOne(const APair: TPair<NativeInt, NativeInt>): TPair<NativeInt, NativeInt>;
+begin
+  Result.Key := APair.Key - 1;
+  Result.Value := APair.Value - 1;
+end;
 
 procedure TConformance_ICollection_Associative.SetUp_IEnumerable(out AEmpty, AOne, AFull: IEnumerable<TPair<NativeInt, NativeInt>>;
   out APairs: TPairs; out AKeyOrdering: TOrdering);
@@ -3214,43 +3414,191 @@ begin
 end;
 
 procedure TConformance_ICollection_Associative.Test_CopyTo_1;
+var
+  LArray: TArray<TPair<NativeInt, NativeInt>>;
+  LEnumerator: IEnumerator<TPair<NativeInt, NativeInt>>;
+  LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  SetLength(LArray, 1);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray, -1); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray, 2); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo(2)'
+  );
+  FEmpty.CopyTo(LArray, 0);
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray, 0); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo(0)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.CopyTo(LArray, 0); end,
+    'EArgumentOutOfRangeException not thrown in [one].CopyTo(0)'
+  );
+  SetLength(LArray, 10);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.CopyTo(LArray, -1); end,
+    'EArgumentOutOfRangeException not thrown in [one].CopyTo(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FOne.CopyTo(LArray, 10); end,
+    'EArgumentOutOfRangeException not thrown in [one].CopyTo(10)'
+  );
+  FOne.CopyTo(LArray, 9);
+  CheckEquals(LArray[9], Pairs[0], 'Expected the element to be coopied properly [one].');
+
+
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray, 0); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo(0)'
+  );
+  SetLength(LArray, Length(Pairs) - 1);
+  CheckException(EArgumentOutOfSpaceException,
+    procedure() begin FFull.CopyTo(LArray, 0); end,
+    'EArgumentOutOfSpaceException not thrown in [full].CopyTo(0)'
+  );
+  SetLength(LArray, Length(Pairs) + 1);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray, -1); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo(-1)'
+  );
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray, Length(LArray)); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo(L)'
+  );
+  FFull.CopyTo(LArray, 1);
+
+  LEnumerator := FFull.GetEnumerator();
+  LIndex := 1;
+  while LEnumerator.MoveNext() do
+  begin
+    CheckEquals(LEnumerator.Current, LArray[LIndex], 'Expected the copied array to be same order as enumerator for [full].');
+    Inc(LIndex);
+  end;
+  CheckEquals(Length(LArray), LIndex, 'Expected same count as enumerator for [full]');
 end;
 
 procedure TConformance_ICollection_Associative.Test_CopyTo_2;
+var
+  LArray: TArray<TPair<NativeInt, NativeInt>>;
+  LEnumerator: IEnumerator<TPair<NativeInt, NativeInt>>;
+  LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  SetLength(LArray, 1);
+  FEmpty.CopyTo(LArray);
+
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FEmpty.CopyTo(LArray); end,
+    'EArgumentOutOfRangeException not thrown in [empty].CopyTo()'
+  );
+  SetLength(LArray, 10);
+  FOne.CopyTo(LArray, 9);
+  CheckEquals(LArray[9], PAirs[0], 'Expected the element to be coopied properly [one].');
+
+
+  SetLength(LArray, 0);
+  CheckException(EArgumentOutOfRangeException,
+    procedure() begin FFull.CopyTo(LArray); end,
+    'EArgumentOutOfRangeException not thrown in [full].CopyTo()'
+  );
+  SetLength(LArray, Length(Pairs) - 1);
+  CheckException(EArgumentOutOfSpaceException,
+    procedure() begin FFull.CopyTo(LArray); end,
+    'EArgumentOutOfSpaceException not thrown in [full].CopyTo()'
+  );
+  SetLength(LArray, Length(Pairs) + 1);
+  FFull.CopyTo(LArray, 1);
+
+  LEnumerator := FFull.GetEnumerator();
+  LIndex := 1;
+  while LEnumerator.MoveNext() do
+  begin
+    CheckEquals(LEnumerator.Current, LArray[LIndex], 'Expected the copied array to be same order as enumerator for [full].');
+    Inc(LIndex);
+  end;
+  CheckEquals(Length(LArray), LIndex, 'Expected same count as enumerator for [full]');
 end;
 
 procedure TConformance_ICollection_Associative.Test_Empty;
 begin
-  Fail('Not implemented!');
+  CheckTrue(FEmpty.Empty, 'Expected empty for [empty].');
+  CheckFalse(FOne.Empty, 'Expected non-empty for [one].');
+  CheckFalse(FFull.Empty, 'Expected non-empty for [full].');
 end;
 
 procedure TConformance_ICollection_Associative.Test_GetCount;
 begin
-  Fail('Not implemented!');
+  CheckEquals(0, FEmpty.GetCount(), 'Expected zero count for [empty].');
+  CheckEquals(1, FOne.GetCount(), 'Expected 1 count for [one].');
+  CheckEquals(Length(Pairs), FFull.GetCount(), 'Expected > 1 count for [full].');
 end;
 
 procedure TConformance_ICollection_Associative.Test_Single;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.Single(); end,
+    'ECollectionEmptyException not thrown in [empty].Single()'
+  );
+
+  CheckEquals(Pairs[0], FOne.Single(), 'Expected "single" value failed for [one]');
+
+  CheckException(ECollectionNotOneException,
+    procedure() begin FFull.Single(); end,
+    'ECollectionNotOneException not thrown in [full].Single()'
+  );
 end;
 
 procedure TConformance_ICollection_Associative.Test_SingleOrDefault;
+var
+  LSingle: TPair<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionNotOneException,
+    procedure() begin FFull.SingleOrDefault(MinusOne); end,
+    'ECollectionNotOneException not thrown in [full].SingleOrDefault()'
+  );
+
+  CheckEquals(MinusOne, FEmpty.SingleOrDefault(MinusOne), 'Expected "-1" value failed for [one]');
+
+  LSingle := FOne.Single();
+  CheckEquals(LSingle, FOne.SingleOrDefault(MinusOne(LSingle)), 'Expected "single" value failed for [one]');
 end;
 
 procedure TConformance_ICollection_Associative.Test_ToArray;
+var
+  LArray: TArray<TPair<NativeInt, NativeInt>>;
+  LEnumerator: IEnumerator<TPair<NativeInt, NativeInt>>;
+  LIndex: NativeInt;
 begin
-  Fail('Not implemented!');
+  LArray := FEmpty.ToArray();
+  CheckEquals(0, Length(LArray), 'Expected a length of zero for the elements of [empty].');
+
+  LArray := FOne.ToArray();
+  CheckEquals(1, Length(LArray), 'Expected a length of 1 for the elements of [one].');
+  CheckEquals(Pairs[0], LArray[0], 'Expected a proper single element for [one].');
+
+  LArray := FFull.ToArray();
+  CheckEquals(Length(Pairs), Length(LArray), 'Expected a proper length for [full].');
+  LEnumerator := FFull.GetEnumerator();
+
+  LIndex := 0;
+  while LEnumerator.MoveNext() do
+  begin
+    CheckEquals(LEnumerator.Current, LArray[LIndex], 'Expected the copied array to be same order as enumerator for [full]');
+    Inc(LIndex);
+  end;
+  CheckEquals(Length(LArray), LIndex, 'Expected same count as enumerator for [full]');
 end;
 
 procedure TConformance_ICollection_Associative.Test_Version;
 begin
-  Fail('Not implemented!');
+  CheckEquals(0, FEmpty.Version(), 'Expected the version for [empty] to be zero.');
+  CheckTrue(FOne.Version() > FEmpty.Version(), 'Expected the version for [one] to be bigger than zero.');
+  CheckTrue(FFull.Version() > FEmpty.Version(), 'Expected the version for [full] to be bigger than for [one].');
 end;
 
 { TConformance_IEnexAssociativeCollection }
@@ -3266,53 +3614,233 @@ begin
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_DistinctByKeys;
+var
+  LDistinct: IEnexAssociativeCollection<NativeInt, NativeInt>;
+  LDistKeys: ISet<NativeInt>;
+  LPair: TPair<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  LDistinct := FEmpty.DistinctByKeys;
+  CheckTrue(LDistinct.Empty);
+
+  LDistinct := FOne.DistinctByKeys;
+  CheckEquals(1, LDistinct.Count);
+  CheckEquals(LDistinct.Single, FOne.Single);
+
+  LDistinct := FFull.DistinctByKeys;
+  CheckTrue(LDistinct.Count <= FFull.Count);
+  LDistKeys := LDistinct.Keys.ToSet();
+  CheckTrue(LDistKeys.Count = LDistinct.Count);
+
+  for LPair in FFull do
+    CheckTrue(LDistKeys.Contains(LPair.Key));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_DistinctByValues;
+var
+  LDistinct: IEnexAssociativeCollection<NativeInt, NativeInt>;
+  LDistVals: ISet<NativeInt>;
+  LPair: TPair<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  LDistinct := FEmpty.DistinctByValues;
+  CheckTrue(LDistinct.Empty);
+
+  LDistinct := FOne.DistinctByValues;
+  CheckEquals(1, LDistinct.Count);
+  CheckEquals(LDistinct.Single, FOne.Single);
+
+  LDistinct := FFull.DistinctByValues;
+  CheckTrue(LDistinct.Count <= FFull.Count);
+  LDistVals := LDistinct.Values.ToSet();
+  CheckTrue(LDistVals.Count = LDistinct.Count);
+
+  for LPair in FFull do
+    CheckTrue(LDistVals.Contains(LPair.Value));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_Includes;
 begin
-  Fail('Not implemented!');
+  CheckTrue(FEmpty.Includes(FEmpty));
+  CheckTrue(FOne.Includes(FEmpty));
+  CheckFalse(FEmpty.Includes(FOne));
+  CheckTrue(FOne.Includes(FOne));
+  CheckTrue(FFull.Includes(FOne));
+  CheckTrue(FFull.Includes(FFull));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_KeyHasValue;
+var
+  LPair: TPair<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  CheckFalse(FEmpty.KeyHasValue(-1));
+  CheckFalse(FOne.KeyHasValue(FOne.Single.Key - 1));
+  CheckTrue(FOne.KeyHasValue(FOne.Single.Key));
+
+  for LPair in FFull do
+    CheckTrue(FFull.KeyHasValue(LPair.Key));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_MaxKey;
+var
+  LPair: TPair<NativeInt, NativeInt>;
+  LMaxKey: NativeInt;
+  LFirst: Boolean;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.MaxKey end,
+    'ECollectionEmptyException not thrown in [empty].MaxKey()'
+  );
+  CheckEquals(FOne.Single.Key, FOne.MaxKey);
+
+  LFirst := true;
+  LMaxKey := -1;
+
+  for LPair in FFull do
+  begin
+    if LFirst then
+    begin
+      LMaxKey := LPair.Key;
+      LFirst := false;
+    end else
+    begin
+      if LPair.Key > LMaxKey then
+        LMaxKey := LPair.Key;
+    end;
+  end;
+
+  CheckEquals(LMaxKey, FFull.MaxKey);
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_MaxValue;
+var
+  LPair: TPair<NativeInt, NativeInt>;
+  LMaxValue: NativeInt;
+  LFirst: Boolean;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.MaxValue end,
+    'ECollectionEmptyException not thrown in [empty].MaxKey()'
+  );
+  CheckEquals(FOne.Single.Key, FOne.MaxValue);
+
+  LFirst := true;
+  LMaxValue := -1;
+
+  for LPair in FFull do
+  begin
+    if LFirst then
+    begin
+      LMaxValue := LPair.Value;
+      LFirst := false;
+    end else
+    begin
+      if LPair.Value > LMaxValue then
+        LMaxValue := LPair.Key;
+    end;
+  end;
+
+  CheckEquals(LMaxValue, FFull.MaxValue);
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_MinKey;
+var
+  LPair: TPair<NativeInt, NativeInt>;
+  LMinKey: NativeInt;
+  LFirst: Boolean;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.MinKey end,
+    'ECollectionEmptyException not thrown in [empty].MinKey()'
+  );
+  CheckEquals(FOne.Single.Key, FOne.MinKey);
+
+  LFirst := true;
+  LMinKey := -1;
+
+  for LPair in FFull do
+  begin
+    if LFirst then
+    begin
+      LMinKey := LPair.Key;
+      LFirst := false;
+    end else
+    begin
+      if LPair.Key < LMinKey then
+        LMinKey := LPair.Key;
+    end;
+  end;
+
+  CheckEquals(LMinKey, FFull.MinKey);
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_MinValue;
+var
+  LPair: TPair<NativeInt, NativeInt>;
+  LMinValue: NativeInt;
+  LFirst: Boolean;
 begin
-  Fail('Not implemented!');
+  CheckException(ECollectionEmptyException,
+    procedure() begin FEmpty.MinValue end,
+    'ECollectionEmptyException not thrown in [empty].MaxKey()'
+  );
+  CheckEquals(FOne.Single.Key, FOne.MinValue);
+
+  LFirst := true;
+  LMinValue := -1;
+
+  for LPair in FFull do
+  begin
+    if LFirst then
+    begin
+      LMinValue := LPair.Value;
+      LFirst := false;
+    end else
+    begin
+      if LPair.Value < LMinValue then
+        LMinValue := LPair.Key;
+    end;
+  end;
+
+  CheckEquals(LMinValue, FFull.MinValue);
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_SelectKeys;
+var
+  LKeys: IEnexCollection<NativeInt>;
+  LKey: NativeInt;
 begin
-  Fail('Not implemented!');
+  LKeys := FEmpty.SelectKeys;
+  CheckTrue(LKeys.Empty);
+
+  LKeys := FOne.SelectKeys;
+  CheckEquals(1, LKeys.Count);
+  CheckEquals(FOne.Single.Key, LKeys.Single);
+
+  LKeys := FFull.SelectKeys;
+  CheckTrue(LKeys.Count <= FFull.Count);
+
+  for LKey in LKeys do
+    CheckTrue(FFull.KeyHasValue(LKey));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_SelectValues;
+var
+  LValues: IEnexCollection<NativeInt>;
+  LValueSet: ISet<NativeInt>;
+  LPair: TPair<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  LValues := FEmpty.SelectKeys;
+  CheckTrue(LValues.Empty);
+
+  LValues := FOne.SelectKeys;
+  CheckEquals(1, LValues.Count);
+  CheckEquals(FOne.Single.Value, LValues.Single);
+
+  LValues := FFull.SelectKeys;
+  CheckTrue(LValues.Count = FFull.Count);
+  LValueSet := LValues.ToSet();
+
+  for LPair in FFull do
+    CheckTrue(LValueSet.Contains(LPair.Value));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_ToDictionary;
@@ -3321,21 +3849,112 @@ begin
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_ValueForKey;
+var
+  LPair: TPair<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  CheckException(EKeyNotFoundException,
+    procedure() begin FEmpty.ValueForKey(-1); end,
+    'EKeyNotFoundException not thrown in [empty].ValueForKey()'
+  );
+  CheckException(EKeyNotFoundException,
+    procedure() begin FOne.ValueForKey(MinusOne(FOne.Single)); end,
+    'EKeyNotFoundException not thrown in [one].ValueForKey()'
+  );
+
+  CheckEquals(FOne.Single, FOne.ValueForKey(FOne.Single.Key));
+
+  for LPair in FFull do
+    CheckEquals(LPair, FFull.ValueForKey(LPair.Key));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_Where;
+var
+  LPredicate: TPredicate<NativeInt, NativeInt>;
+  LFiltered: IEnexAssociativeCollection<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.Where(nil) end,
+    'EArgumentNilException not thrown in [empty].Where(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.Where(nil) end,
+    'EArgumentNilException not thrown in [one].Where(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.Where(nil) end,
+    'EArgumentNilException not thrown in [full].Where(nil)'
+  );
+
+  LPredicate := function(K, V: NativeInt): Boolean begin Exit(False); end;
+
+  CheckTrue(FEmpty.Where(LPredicate).Empty);
+  CheckTrue(FOne.Where(LPredicate).Empty);
+  CheckTrue(FFull.Where(LPredicate).Empty);
+
+  LPredicate := function(K, V: NativeInt): Boolean begin Exit(True); end;
+
+  CheckTrue(FEmpty.Where(LPredicate).Empty);
+
+  LFiltered := FOne.Where(LPredicate);
+  CheckTrue(LFiltered.Includes(FOne));
+  CheckTrue(FOne.Includes(LFiltered));
+
+  LFiltered := FFull.Where(LPredicate);
+  CheckTrue(LFiltered.Includes(FFull));
+  CheckTrue(FFull.Includes(LFiltered));
 end;
 
 procedure TConformance_IEnexAssociativeCollection.Test_WhereNot;
+var
+  LPredicate: TPredicate<NativeInt, NativeInt>;
+  LFiltered: IEnexAssociativeCollection<NativeInt, NativeInt>;
 begin
-  Fail('Not implemented!');
+  CheckException(EArgumentNilException,
+    procedure() begin FEmpty.WhereNot(nil) end,
+    'EArgumentNilException not thrown in [empty].Where(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FOne.WhereNot(nil) end,
+    'EArgumentNilException not thrown in [one].Where(nil)'
+  );
+  CheckException(EArgumentNilException,
+    procedure() begin FFull.WhereNot(nil) end,
+    'EArgumentNilException not thrown in [full].Where(nil)'
+  );
+
+  LPredicate := function(K, V: NativeInt): Boolean begin Exit(True); end;
+
+  CheckTrue(FEmpty.WhereNot(LPredicate).Empty);
+  CheckTrue(FOne.WhereNot(LPredicate).Empty);
+  CheckTrue(FFull.WhereNot(LPredicate).Empty);
+
+  LPredicate := function(K, V: NativeInt): Boolean begin Exit(False); end;
+
+  CheckTrue(FEmpty.WhereNot(LPredicate).Empty);
+
+  LFiltered := FOne.WhereNot(LPredicate);
+  CheckTrue(LFiltered.Includes(FOne));
+  CheckTrue(FOne.Includes(LFiltered));
+
+  LFiltered := FFull.WhereNot(LPredicate);
+  CheckTrue(LFiltered.Includes(FFull));
+  CheckTrue(FFull.Includes(LFiltered));
 end;
 
 { TConformance_IMap }
+
+procedure TConformance_IMap.KeyRemoveNotification(const AValue: NativeInt);
+begin
+  if Assigned(FRemovedKeys) then
+    FRemovedKeys.Add(AValue);
+end;
+
+procedure TConformance_IMap.SetUp;
+begin
+  inherited;
+  FRemovedKeys := Generics.Collections.TList<NativeInt>.Create();
+  FRemovedValues := Generics.Collections.TList<NativeInt>.Create();
+end;
 
 procedure TConformance_IMap.SetUp_IEnexAssociativeCollection(out AEmpty, AOne, AFull: IEnexAssociativeCollection<NativeInt, NativeInt>;
   out APairs: TPairs; out AKeyOrdering: TOrdering);
@@ -3345,6 +3964,13 @@ begin
   AEmpty := FEmpty;
   AOne := FOne;
   AFull := FFull;
+end;
+
+procedure TConformance_IMap.TearDown;
+begin
+  FreeAndNil(FRemovedKeys);
+  FreeAndNil(FRemovedValues);
+  inherited;
 end;
 
 procedure TConformance_IMap.Test_AddAll;
@@ -3363,8 +3989,48 @@ begin
 end;
 
 procedure TConformance_IMap.Test_Clear;
+var
+  LKeyList, LValueList: IList<NativeInt>;
+  LValue: NativeInt;
+  LLastVersion: NativeInt;
 begin
-  Fail('Not implemented!');
+  LLastVersion := FEmpty.Version;
+  FEmpty.Clear();
+  CheckEquals(0, FRemovedKeys.Count);
+  CheckEquals(0, FRemovedValues.Count);
+  CheckEquals(LLastVersion, FEmpty.Version);
+
+  LLastVersion := FOne.Version;
+  FOne.Clear();
+  CheckEquals(1, FRemovedKeys.Count);
+  CheckEquals(1, FRemovedValues.Count);
+  CheckNotEquals(LLastVersion, FEmpty.Version);
+
+  FRemovedKeys.Clear;
+  FRemovedValues.Clear;
+
+  LKeyList := FFull.Keys.ToList();
+  LValueList := FFull.Values.ToList();
+  LLastVersion := FFull.Version;
+  FFull.Clear();
+  CheckEquals(LKeyList.Count, FRemovedKeys.Count);
+  CheckEquals(LValueList.Count, FRemovedValues.Count);
+  CheckNotEquals(LLastVersion, FFull.Version);
+
+  for LValue in FRemovedKeys do
+  begin
+    CheckTrue(LKeyList.Contains(LValue));
+    LKeyList.Remove(LValue);
+  end;
+
+  for LValue in FRemovedValues do
+  begin
+    CheckTrue(LValuesList.Contains(LValue));
+    LValueList.Remove(LValue);
+  end;
+
+  CheckTrue(LKeyList.Empty);
+  CheckTrue(LValueList.Empty);
 end;
 
 procedure TConformance_IMap.Test_ContainsKey;
@@ -3380,6 +4046,12 @@ end;
 procedure TConformance_IMap.Test_Remove;
 begin
   Fail('Not implemented!');
+end;
+
+procedure TConformance_IMap.ValueRemoveNotification(const AValue: NativeInt);
+begin
+  if Assigned(FRemovedValues) then
+    FRemovedValues.Add(AValue);
 end;
 
 { TConformance_IDictionary }
