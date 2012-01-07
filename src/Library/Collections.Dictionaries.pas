@@ -695,7 +695,7 @@ constructor TAbstractDictionary<TKey, TValue>.Create(const AKeyRules: TRules<TKe
 begin
   inherited Create(AKeyRules, AValueRules);
 
-  FKeyCollection := TKeyCollection.Create(Self);
+  FKeyCollection := TKeySequence.Create(Self);
   FValueCollection := TValueSequence.Create(Self);
 end;
 
@@ -779,9 +779,9 @@ begin
     ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
-{ TAbstractDictionary<TKey, TValue>.TKeyCollection }
+{ TAbstractDictionary<TKey, TValue>.TKeySequence }
 
-procedure TAbstractDictionary<TKey, TValue>.TKeyCollection.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
+procedure TAbstractDictionary<TKey, TValue>.TKeySequence.CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt);
 var
   LArray: TArray<TPair<TKey, TValue>>;
   I: NativeInt;
@@ -800,18 +800,18 @@ begin
     AArray[AStartIndex + I] := LArray[I].Key;
 end;
 
-constructor TAbstractDictionary<TKey, TValue>.TKeyCollection.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+constructor TAbstractDictionary<TKey, TValue>.TKeySequence.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
 begin
   inherited Create(AOwner.KeyRules);
   FOwner := AOwner;
 end;
 
-function TAbstractDictionary<TKey, TValue>.TKeyCollection.GetCount: NativeInt;
+function TAbstractDictionary<TKey, TValue>.TKeySequence.GetCount: NativeInt;
 begin
   Result := FOwner.GetCount();
 end;
 
-function TAbstractDictionary<TKey, TValue>.TKeyCollection.GetEnumerator: IEnumerator<TKey>;
+function TAbstractDictionary<TKey, TValue>.TKeySequence.GetEnumerator: IEnumerator<TKey>;
 begin
   Result := TKeyEnumerator.Create(FOwner);
 end;

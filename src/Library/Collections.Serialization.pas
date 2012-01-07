@@ -2517,7 +2517,7 @@ var
   LIndex, LCount: NativeInt;
   LArrayId: Int32;
   LOutPtr: Pointer;
-  LDim: LongInt;
+  LDim: NativeInt;
 begin
   { ARefToRecord points to the first field in the record }
   ASSERT(ATypeInfo^.Kind = tkDynArray);
