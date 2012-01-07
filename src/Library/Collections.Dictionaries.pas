@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2011, Ciobanu Alexandru
+* Copyright (c) 2008-2012, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ type
       function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
-    TKeyCollection = class(TSequence<TKey>)
+    TKeySequence = class(TSequence<TKey>)
     private
       FOwner: TAbstractDictionary<TKey, TValue>;
     protected
@@ -65,7 +65,7 @@ type
       procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
     end;
 
-    TValueCollection = class(TSequence<TValue>)
+    TValueSequence = class(TSequence<TValue>)
     private
       FOwner: TAbstractDictionary<TKey, TValue>;
     protected
@@ -696,7 +696,7 @@ begin
   inherited Create(AKeyRules, AValueRules);
 
   FKeyCollection := TKeyCollection.Create(Self);
-  FValueCollection := TValueCollection.Create(Self);
+  FValueCollection := TValueSequence.Create(Self);
 end;
 
 function TAbstractDictionary<TKey, TValue>.Extract(const AKey: TKey): TValue;
@@ -816,9 +816,9 @@ begin
   Result := TKeyEnumerator.Create(FOwner);
 end;
 
-{ TAbstractDictionary<TKey, TValue>.TValueCollection }
+{ TAbstractDictionary<TKey, TValue>.TValueSequence }
 
-procedure TAbstractDictionary<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
+procedure TAbstractDictionary<TKey, TValue>.TValueSequence.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
 var
   LArray: TArray<TPair<TKey, TValue>>;
   I: NativeInt;
@@ -837,18 +837,18 @@ begin
     AArray[AStartIndex + I] := LArray[I].Value;
 end;
 
-constructor TAbstractDictionary<TKey, TValue>.TValueCollection.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
+constructor TAbstractDictionary<TKey, TValue>.TValueSequence.Create(const AOwner: TAbstractDictionary<TKey, TValue>);
 begin
   inherited Create(AOwner.ValueRules);
   FOwner := AOwner;
 end;
 
-function TAbstractDictionary<TKey, TValue>.TValueCollection.GetCount: NativeInt;
+function TAbstractDictionary<TKey, TValue>.TValueSequence.GetCount: NativeInt;
 begin
   Result := FOwner.GetCount();
 end;
 
-function TAbstractDictionary<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
+function TAbstractDictionary<TKey, TValue>.TValueSequence.GetEnumerator: IEnumerator<TValue>;
 begin
   Result := TValueEnumerator.Create(FOwner);
 end;

@@ -67,7 +67,17 @@ begin
   WriteLn;
 
   { Create a list filled in with some strings }
-  LList := TStringList.Create(['There', 'is', 'a', 'cow', 'eating', 'grass', 'on', 'the', 'field', '', '.']);
+  LList := TStringList.Create();
+  LList.Add('There');
+  LList.Add('is');
+  LList.Add('cow');
+  LList.Add('eating');
+  LList.Add('grass');
+  LList.Add('on');
+  LList.Add('the');
+  LList.Add('field');
+  LList.Add('');
+  LList.Add('.');
 
   { Create the stream we are going to write to }
   LStream := TMemoryStream.Create();

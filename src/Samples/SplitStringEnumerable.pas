@@ -41,7 +41,7 @@ uses
 type
   { A new collection. Derive it from TEnexCollection. Since the elements in our new collection
     are strings (parts of a given initial string) we need to type the generic base as TEnexCollection<string>.}
-  TSplitStringCollection = class(TEnexCollection<string>)
+  TSplitStringCollection = class(TSequence<string>)
   private type
     {
       This is the enumerator. It's a private type in TSplitStringCollection. Noone but this collection
@@ -50,7 +50,7 @@ type
 
       We derive it from TEnumerator<T>. This type implements IEnumerator<T> and provides some base plumbing code.
     }
-    TEnumerator = class(TEnumerator<string>)
+    TEnumerator = class(TAbstractEnumerator<string>)
     private
       LNowIndex, LPrevIndex, FLength: NativeInt;
 
@@ -105,7 +105,7 @@ type
 
   { This is the "facade" function. It takes a string and a separator and returns an interface
     reference to a new TSplitStringCollection class that you can play with. }
-  function SplitString(const AString: string; const ASeparator: Char = ' '): IEnexCollection<string>;
+  function SplitString(const AString: string; const ASeparator: Char = ' '): ISequence<string>;
 
   ///  <summary>Runs the current sample.</summary>
   procedure RunSample();
@@ -156,7 +156,7 @@ begin
   end;
 end;
 
-function SplitString(const AString: string; const ASeparator: Char): IEnexCollection<string>;
+function SplitString(const AString: string; const ASeparator: Char): ISequence<string>;
 begin
   { The code is absolutely stupid }
   Result := TSplitStringCollection.Create(AString, ASeparator);

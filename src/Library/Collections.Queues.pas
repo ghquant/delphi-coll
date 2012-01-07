@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2011, Ciobanu Alexandru
+* Copyright (c) 2008-2012, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -509,7 +509,7 @@ type
 type
   ///  <summary>The generic <c>priority queue</c> collection.</summary>
   ///  <remarks>This collection reorganizes the first-out element based on a given priority.</remarks>
-  TPriorityQueue<TPriority, TValue> = class(TAssociatiation<TPriority, TValue>, IPriorityQueue<TPriority, TValue>, IDynamic)
+  TPriorityQueue<TPriority, TValue> = class(TAssociation<TPriority, TValue>, IPriorityQueue<TPriority, TValue>, IDynamic)
   private type
     {$REGION 'Internal Types'}
     { Internal storage }

@@ -51,7 +51,7 @@
 			<DCC_DependencyCheckOutputName>..\..\bin\Tests.exe</DCC_DependencyCheckOutputName>
 			<DCC_BplOutput>..\..\bin</DCC_BplOutput>
 			<DCC_UsePackage>vclx;vcl;rtl;vclimg;vcldb;dbrtl;adortl;DbxCommonDriver;dbexpress;dbxcds;xmlrtl;vclie;inet;IndyProtocols;ExpertsCreators;ExpertsUI;inetdbbde;inetdbxpress;vclactnband;vclribbon;soaprtl;dsnap;dsnapcon;websnap;webdsnap;inetdb;bdertl;vcldbx;IndySystem;IndyCore;DataSnapIndy10ServerTransport;DataSnapProviderClient;DbxClientDriver;DataSnapClient;DataSnapServer;DBXInterBaseDriver;DBXMySQLDriver;DBXFirebirdDriver;DBXSybaseASEDriver;DBXSybaseASADriver;DBXOracleDriver;DBXMSSQLDriver;DBXInformixDriver;DBXDb2Driver;AzureCloud;vcltouch;svnui;svn;CloudService;$(DCC_UsePackage)</DCC_UsePackage>
-			<DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\..\bin;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_ExeOutput>..\..\bin</DCC_ExeOutput>
 			<DCC_Define>_CONSOLE_TESTRUNNER;$(DCC_Define)</DCC_Define>

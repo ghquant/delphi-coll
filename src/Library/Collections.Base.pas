@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2008-2011, Ciobanu Alexandru
+* Copyright (c) 2008-2012, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ type
 
   ///  <summary>Base interface inherited by all specific collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all collections implemented in this package.</remarks>
-  IAbstractSequence<T> = interface(IEnumerable<T>)
+  IContainer<T> = interface(IEnumerable<T>)
     ///  <summary>Returns the current version of the collection.</summary>
     ///  <returns>An integer value specifying the current "structural version" of the collection.</returns>
     ///  <remarks>This function returns a number that is modified by the implementing collection each time
@@ -265,10 +265,10 @@ type
     function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): ISequence<IGrouping<TKey, T>>; overload;
   end;
 
-  ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
+  ///  <summary>Base sequence interface inherited by all specific collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all collections implemented in this package. It also introduces
   ///  a large set of extended operations that can be performed on any collection that supports enumerability.</remarks>
-  ISequence<T> = interface(IAbstractSequence<T>)
+  ISequence<T> = interface(IContainer<T>)
     ///  <summary>Checks whether the elements in this collection are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
@@ -718,7 +718,7 @@ type
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific associative collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all associative collections implemented in this package. It also introduces
   ///  a large se of extended operations that can pe performed on any collection that supports enumerability.</remarks>
-  IAssociation<TKey, TValue> = interface(IAbstractSequence<TPair<TKey, TValue>>)
+  IAssociation<TKey, TValue> = interface(IContainer<TPair<TKey, TValue>>)
     ///  <summary>Creates a new dictionary containing the elements of this collection.</summary>
     ///  <returns>A dictionary containing the elements copied from this collection.</returns>
     ///  <remarks>This method also copies the rule sets of this collection. Be careful if the rule set
@@ -1523,7 +1523,7 @@ type
 
   ///  <summary>Non-generic base class for all collections.</summary>
   ///  <remarks>This class provides some basics like version management and count retrieval.</remarks>
-  TAbstractSequence = class abstract(TRefCountedObject)
+  TAbstractContainer = class abstract(TRefCountedObject)
   private
     FVersion: NativeInt;
 
@@ -1563,7 +1563,7 @@ type
   ///  <summary>Base class for all collections.</summary>
   ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
   ///  enumerability .</remarks>
-  TAbstractSequence<T> = class abstract(TAbstractSequence, IAbstractSequence<T>, IEnumerable<T>)
+  TAbstractContainer<T> = class abstract(TAbstractContainer, IContainer<T>, IEnumerable<T>)
   protected
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
@@ -1631,13 +1631,13 @@ type
   TAbstractEnumerator<T> = class abstract(TRefCountedObject, IEnumerator<T>)
   private
     FCreatedAtVersion: NativeInt;
-    FOwner: TAbstractSequence;
+    FOwner: TAbstractContainer;
     FCurrent: T;
     FEnded: Boolean;
   protected
     ///  <summary>Specifies the owner collection.</summary>
     ///  <returns>The collection that generated this enumerator.</returns>
-    property Owner: TAbstractSequence read FOwner;
+    property Owner: TAbstractContainer read FOwner;
 
     ///  <summary>Returns the current element of the enumerated collection.</summary>
     ///  <remarks>This method is the getter for <c>Current</c> property. Use the property to obtain the element instead.</remarks>
@@ -1654,7 +1654,7 @@ type
     ///  <param name="AOwner">The owner collection.</param>
     ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
-    constructor Create(const AOwner: TAbstractSequence);
+    constructor Create(const AOwner: TAbstractContainer);
 
     ///  <summary>Destroys this enumerator object.</summary>
     destructor Destroy; override;
@@ -1703,13 +1703,13 @@ type
     ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AEnumerator"/> is <c>nil</c>.</exception>
-    constructor Create(const AOwner: TAbstractSequence; const AEnumerator: IEnumerator<T>);
+    constructor Create(const AOwner: TAbstractContainer; const AEnumerator: IEnumerator<T>);
   end;
 
   ///  <summary>Base class for all non-associative Enex collections.</summary>
   ///  <remarks>All normal Enex collections (ex. list or stack) are derived from this base class.
   ///  It implements the extended Enex operations based on enumerability.</remarks>
-  TSequence<T> = class abstract(TAbstractSequence<T>, IComparable, ISequence<T>)
+  TSequence<T> = class abstract(TAbstractContainer<T>, IComparable, ISequence<T>)
   private
     FElementRules: TRules<T>;
 
@@ -2258,9 +2258,9 @@ type
   end;
 
   ///  <summary>Base class for all associative Enex collections.</summary>
-  ///  <remarks>All associative Enex collections (ex. dictionary or multi-map) are derived from this base class.
+  ///  <remarks>All associative collections (ex. dictionary or multi-map) are derived from this base class.
   ///  It implements the extended Enex operations based on enumerability.</remarks>
-  TAssociatiation<TKey, TValue> = class abstract(TAbstractSequence<TPair<TKey, TValue>>, IAssociation<TKey, TValue>)
+  TAssociation<TKey, TValue> = class abstract(TAbstractContainer<TPair<TKey, TValue>>, IAssociation<TKey, TValue>)
   private
     FKeyRules: TRules<TKey>;
     FValueRules: TRules<TValue>;
@@ -2504,7 +2504,7 @@ type
   ///  <summary>The base abstract class for associtative collections.</summary>
   ///  <remarks>This collection exposes some operations that need to be implemented in descending classes and some
   ///  default implementations using Enex operations.</remarks>
-  TAbstractMap<TKey, TValue> = class abstract(TAssociatiation<TKey, TValue>, IMap<TKey, TValue>)
+  TAbstractMap<TKey, TValue> = class abstract(TAssociation<TKey, TValue>, IMap<TKey, TValue>)
   public
     ///  <summary>Clears the contents of the collection.</summary>
     ///  <remarks>This implementation uses Enex <c>First</c> operation on collection's keys to obtain key and then calls <c>Remove</c> to remove it along side its value.</remarks>
@@ -3079,13 +3079,13 @@ type
       end;
 
     private
-      FCollection: TAssociatiation<TKey, TValue>;
+      FCollection: TAssociation<TKey, TValue>;
 
     protected
       function GetCount(): NativeInt; override;
 
     public
-      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      constructor Create(const ACollection: TAssociation<TKey, TValue>); overload;
       destructor Destroy(); override;
       function GetEnumerator(): IEnumerator<TKey>; override;
     end;
@@ -3100,18 +3100,18 @@ type
       end;
 
     private
-      FCollection: TAssociatiation<TKey, TValue>;
+      FCollection: TAssociation<TKey, TValue>;
 
     protected
       function GetCount(): NativeInt; override;
 
     public
-      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      constructor Create(const ACollection: TAssociation<TKey, TValue>); overload;
       destructor Destroy(); override;
       function GetEnumerator(): IEnumerator<TValue>; override;
     end;
 
-    TAssociativeWhereSequence<TKey, TValue> = class sealed(TAssociatiation<TKey, TValue>)
+    TAssociativeWhereSequence<TKey, TValue> = class sealed(TAssociation<TKey, TValue>)
     private type
       TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
       public
@@ -3119,17 +3119,17 @@ type
       end;
 
     var
-      FCollection: TAssociatiation<TKey, TValue>;
+      FCollection: TAssociation<TKey, TValue>;
       FPredicate: TPredicate<TKey, TValue>;
       FInvertResult: Boolean;
     public
-      constructor Create(const ACollection: TAssociatiation<TKey, TValue>;
+      constructor Create(const ACollection: TAssociation<TKey, TValue>;
           const APredicate: TPredicate<TKey, TValue>; const AInvertResult: Boolean); overload;
       destructor Destroy(); override;
       function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
     end;
 
-    TAssociativeDistinctByKeysSequence<TKey, TValue> = class sealed(TAssociatiation<TKey, TValue>)
+    TAssociativeDistinctByKeysSequence<TKey, TValue> = class sealed(TAssociation<TKey, TValue>)
     private type
       TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
       private
@@ -3139,15 +3139,15 @@ type
       end;
 
     private
-      FCollection: TAssociatiation<TKey, TValue>;
+      FCollection: TAssociation<TKey, TValue>;
 
     public
-      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      constructor Create(const ACollection: TAssociation<TKey, TValue>); overload;
       destructor Destroy(); override;
       function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
     end;
 
-    TAssociativeDistinctByValuesSequence<TKey, TValue> = class sealed(TAssociatiation<TKey, TValue>)
+    TAssociativeDistinctByValuesSequence<TKey, TValue> = class sealed(TAssociation<TKey, TValue>)
     private type
       TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
       private
@@ -3157,10 +3157,10 @@ type
       end;
 
     private
-      FCollection: TAssociatiation<TKey, TValue>;
+      FCollection: TAssociation<TKey, TValue>;
 
     public
-      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      constructor Create(const ACollection: TAssociation<TKey, TValue>); overload;
       destructor Destroy(); override;
       function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
     end;
@@ -3181,7 +3181,7 @@ end;
 
 { TAbstractEnumerator<T> }
 
-constructor TAbstractEnumerator<T>.Create(const AOwner: TAbstractSequence);
+constructor TAbstractEnumerator<T>.Create(const AOwner: TAbstractContainer);
 begin
   FOwner := AOwner;
   KeepObjectAlive(FOwner);
@@ -3225,7 +3225,7 @@ begin
   Result := True;
 end;
 
-constructor TForwardingEnumerator<T>.Create(const AOwner: TAbstractSequence; const AEnumerator: IEnumerator<T>);
+constructor TForwardingEnumerator<T>.Create(const AOwner: TAbstractContainer; const AEnumerator: IEnumerator<T>);
 begin
   inherited Create(AOwner);
 
@@ -3338,27 +3338,27 @@ begin
   Result := Collections.TSelectSequence<T, TOut>.Create(FInstance, ASelector, ARules);
 end;
 
-{ TAbstractSequence }
+{ TAbstractContainer }
 
-procedure TAbstractSequence.NotifyCollectionChanged;
+procedure TAbstractContainer.NotifyCollectionChanged;
 begin
   Inc(FVersion);
 end;
 
-function TAbstractSequence.Version: NativeInt;
+function TAbstractContainer.Version: NativeInt;
 begin
   Result := FVersion;
 end;
 
-{ TAbstractSequence<T> }
+{ TAbstractContainer<T> }
 
-procedure TAbstractSequence<T>.CopyTo(var AArray: array of T);
+procedure TAbstractContainer<T>.CopyTo(var AArray: array of T);
 begin
   { Call upper version }
   CopyTo(AArray, 0);
 end;
 
-procedure TAbstractSequence<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+procedure TAbstractContainer<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   LEnumerator: IEnumerator<T>;
   L, I: NativeInt;
@@ -3382,7 +3382,7 @@ begin
   end;
 end;
 
-function TAbstractSequence<T>.Empty: Boolean;
+function TAbstractContainer<T>.Empty: Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3393,7 +3393,7 @@ begin
   Result := (not LEnumerator.MoveNext());
 end;
 
-function TAbstractSequence<T>.GetCount: NativeInt;
+function TAbstractContainer<T>.GetCount: NativeInt;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3405,7 +3405,7 @@ begin
   while LEnumerator.MoveNext() do Inc(Result);
 end;
 
-function TAbstractSequence<T>.Single: T;
+function TAbstractContainer<T>.Single: T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3423,7 +3423,7 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-function TAbstractSequence<T>.SingleOrDefault(const ADefault: T): T;
+function TAbstractContainer<T>.SingleOrDefault(const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3441,7 +3441,7 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-function TAbstractSequence<T>.ToArray: TArray<T>;
+function TAbstractContainer<T>.ToArray: TArray<T>;
 var
   LCount: NativeInt;
   LResult: TArray<T>;
@@ -4576,14 +4576,14 @@ begin
 end;
 
 
-{ TAssociatiation<TKey, TValue> }
+{ TAssociation<TKey, TValue> }
 
-constructor TAssociatiation<TKey, TValue>.Create;
+constructor TAssociation<TKey, TValue>.Create;
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default);
 end;
 
-function TAssociatiation<TKey, TValue>.CompareKeys(const ALeft, ARight: TKey): NativeInt;
+function TAssociation<TKey, TValue>.CompareKeys(const ALeft, ARight: TKey): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FKeyRules.FComparer) then
@@ -4592,7 +4592,7 @@ begin
   Result := FKeyRules.FComparer.Compare(ALeft, ARight);
 end;
 
-function TAssociatiation<TKey, TValue>.CompareValues(const ALeft, ARight: TValue): NativeInt;
+function TAssociation<TKey, TValue>.CompareValues(const ALeft, ARight: TValue): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FValueRules.FComparer) then
@@ -4601,23 +4601,23 @@ begin
   Result := FValueRules.FComparer.Compare(ALeft, ARight);
 end;
 
-constructor TAssociatiation<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+constructor TAssociation<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
   FKeyRules := AKeyRules;
   FValueRules := AValueRules;
 end;
 
-function TAssociatiation<TKey, TValue>.DistinctByKeys: IAssociation<TKey, TValue>;
+function TAssociation<TKey, TValue>.DistinctByKeys: IAssociation<TKey, TValue>;
 begin
   Result := Collections.TAssociativeDistinctByKeysSequence<TKey, TValue>.Create(Self);
 end;
 
-function TAssociatiation<TKey, TValue>.DistinctByValues: IAssociation<TKey, TValue>;
+function TAssociation<TKey, TValue>.DistinctByValues: IAssociation<TKey, TValue>;
 begin
   Result := Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.Create(Self);
 end;
 
-function TAssociatiation<TKey, TValue>.GetKeyHashCode(const AValue: TKey): NativeInt;
+function TAssociation<TKey, TValue>.GetKeyHashCode(const AValue: TKey): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FKeyRules.FEqComparer) then
@@ -4626,7 +4626,7 @@ begin
   Result := FKeyRules.FEqComparer.GetHashCode(AValue);
 end;
 
-function TAssociatiation<TKey, TValue>.GetValueHashCode(const AValue: TValue): NativeInt;
+function TAssociation<TKey, TValue>.GetValueHashCode(const AValue: TValue): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FValueRules.FEqComparer) then
@@ -4635,17 +4635,17 @@ begin
   Result := FValueRules.FEqComparer.GetHashCode(AValue);
 end;
 
-procedure TAssociatiation<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
+procedure TAssociation<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   // Nothing!
 end;
 
-procedure TAssociatiation<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
+procedure TAssociation<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   // Nothing!
 end;
 
-function TAssociatiation<TKey, TValue>.Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean;
+function TAssociation<TKey, TValue>.Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4663,7 +4663,7 @@ begin
   Result := true;
 end;
 
-function TAssociatiation<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
+function TAssociation<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4682,7 +4682,7 @@ begin
   Result := false;
 end;
 
-function TAssociatiation<TKey, TValue>.KeysAreEqual(const ALeft, ARight: TKey): Boolean;
+function TAssociation<TKey, TValue>.KeysAreEqual(const ALeft, ARight: TKey): Boolean;
 begin
   { Lazy init }
   if not Assigned(FKeyRules.FEqComparer) then
@@ -4691,7 +4691,7 @@ begin
   Result := FKeyRules.FEqComparer.Equals(ALeft, ARight);
 end;
 
-function TAssociatiation<TKey, TValue>.MaxKey: TKey;
+function TAssociation<TKey, TValue>.MaxKey: TKey;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4717,7 +4717,7 @@ begin
   end;
 end;
 
-function TAssociatiation<TKey, TValue>.MaxValue: TValue;
+function TAssociation<TKey, TValue>.MaxValue: TValue;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4743,7 +4743,7 @@ begin
   end;
 end;
 
-function TAssociatiation<TKey, TValue>.MinKey: TKey;
+function TAssociation<TKey, TValue>.MinKey: TKey;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4769,7 +4769,7 @@ begin
   end;
 end;
 
-function TAssociatiation<TKey, TValue>.MinValue: TValue;
+function TAssociation<TKey, TValue>.MinValue: TValue;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4795,7 +4795,7 @@ begin
   end;
 end;
 
-procedure TAssociatiation<TKey, TValue>.NotifyKeyRemoved(const AKey: TKey);
+procedure TAssociation<TKey, TValue>.NotifyKeyRemoved(const AKey: TKey);
 begin
   { Handle stuff }
   if Assigned(FKeyRemoveNotification) then
@@ -4804,7 +4804,7 @@ begin
     HandleKeyRemoved(AKey);
 end;
 
-procedure TAssociatiation<TKey, TValue>.NotifyValueRemoved(const AValue: TValue);
+procedure TAssociation<TKey, TValue>.NotifyValueRemoved(const AValue: TValue);
 begin
   { Handle stuff }
   if Assigned(FValueRemoveNotification) then
@@ -4813,25 +4813,25 @@ begin
     HandleValueRemoved(AValue);
 end;
 
-function TAssociatiation<TKey, TValue>.SelectKeys: ISequence<TKey>;
+function TAssociation<TKey, TValue>.SelectKeys: ISequence<TKey>;
 begin
   { Create a selector }
   Result := Collections.TSelectKeysSequence<TKey, TValue>.Create(Self);
 end;
 
-function TAssociatiation<TKey, TValue>.SelectValues: ISequence<TValue>;
+function TAssociation<TKey, TValue>.SelectValues: ISequence<TValue>;
 begin
   { Create a selector }
   Result := Collections.TSelectValuesSequence<TKey, TValue>.Create(Self);
 end;
 
-function TAssociatiation<TKey, TValue>.ToDictionary: IDictionary<TKey, TValue>;
+function TAssociation<TKey, TValue>.ToDictionary: IDictionary<TKey, TValue>;
 begin
   Result := TDictionary<TKey, TValue>.Create(KeyRules, ValueRules);
   Result.AddAll(Self);
 end;
 
-function TAssociatiation<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
+function TAssociation<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4849,7 +4849,7 @@ begin
   ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
-function TAssociatiation<TKey, TValue>.ValuesAreEqual(const ALeft, ARight: TValue): Boolean;
+function TAssociation<TKey, TValue>.ValuesAreEqual(const ALeft, ARight: TValue): Boolean;
 begin
   { Lazy init }
   if not Assigned(FValueRules.FEqComparer) then
@@ -4858,7 +4858,7 @@ begin
   Result := FValueRules.FEqComparer.Equals(ALeft, ARight);
 end;
 
-function TAssociatiation<TKey, TValue>.Where(
+function TAssociation<TKey, TValue>.Where(
   const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 begin
   { Check arguments }
@@ -4869,7 +4869,7 @@ begin
   Result := Collections.TAssociativeWhereSequence<TKey, TValue>.Create(Self, APredicate, False); // Don't invert the result
 end;
 
-function TAssociatiation<TKey, TValue>.WhereKeyBetween(const ALower,
+function TAssociation<TKey, TValue>.WhereKeyBetween(const ALower,
   AHigher: TKey): IAssociation<TKey, TValue>;
 var
   LLower, LHigher: TKey;
@@ -4887,7 +4887,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereKeyGreater(
+function TAssociation<TKey, TValue>.WhereKeyGreater(
   const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
@@ -4904,7 +4904,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereKeyGreaterOrEqual(
+function TAssociation<TKey, TValue>.WhereKeyGreaterOrEqual(
   const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
@@ -4921,7 +4921,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereKeyLower(
+function TAssociation<TKey, TValue>.WhereKeyLower(
   const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
@@ -4939,7 +4939,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereKeyLowerOrEqual(
+function TAssociation<TKey, TValue>.WhereKeyLowerOrEqual(
   const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
@@ -4956,7 +4956,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereNot(
+function TAssociation<TKey, TValue>.WhereNot(
   const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 begin
   { Check arguments }
@@ -4967,7 +4967,7 @@ begin
   Result := Collections.TAssociativeWhereSequence<TKey, TValue>.Create(Self, APredicate, True); // Invert the result
 end;
 
-function TAssociatiation<TKey, TValue>.WhereValueBetween(
+function TAssociation<TKey, TValue>.WhereValueBetween(
   const ALower, AHigher: TValue): IAssociation<TKey, TValue>;
 var
   LLower, LHigher: TValue;
@@ -4985,7 +4985,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereValueGreater(
+function TAssociation<TKey, TValue>.WhereValueGreater(
   const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
@@ -5002,7 +5002,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereValueGreaterOrEqual(
+function TAssociation<TKey, TValue>.WhereValueGreaterOrEqual(
   const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
@@ -5019,7 +5019,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereValueLower(
+function TAssociation<TKey, TValue>.WhereValueLower(
   const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
@@ -5036,7 +5036,7 @@ begin
   );
 end;
 
-function TAssociatiation<TKey, TValue>.WhereValueLowerOrEqual(
+function TAssociation<TKey, TValue>.WhereValueLowerOrEqual(
   const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
@@ -6274,7 +6274,7 @@ end;
 
 { TSelectKeysSequence<TKey, TValue> }
 
-constructor Collections.TSelectKeysSequence<TKey, TValue>.Create(const ACollection: TAssociatiation<TKey, TValue>);
+constructor Collections.TSelectKeysSequence<TKey, TValue>.Create(const ACollection: TAssociation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6323,7 +6323,7 @@ end;
 { Collections.TSelectValuesSequence<TKey, TValue> }
 
 constructor Collections.TSelectValuesSequence<TKey, TValue>.Create(
-  const ACollection: TAssociatiation<TKey, TValue>);
+  const ACollection: TAssociation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6373,7 +6373,7 @@ end;
 { Collections.TAssociativeWhereSequence<TKey, TValue> }
 
 constructor Collections.TAssociativeWhereSequence<TKey, TValue>.Create(
-  const ACollection: TAssociatiation<TKey, TValue>;
+  const ACollection: TAssociation<TKey, TValue>;
   const APredicate: TPredicate<TKey, TValue>;
   const AInvertResult: Boolean);
 begin
@@ -6421,7 +6421,7 @@ end;
 { Collections.TAssociativeDistinctByKeysSequence<TKey, TValue> }
 
 constructor Collections.TAssociativeDistinctByKeysSequence<TKey, TValue>.Create(
-  const ACollection: TAssociatiation<TKey, TValue>);
+  const ACollection: TAssociation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6464,7 +6464,7 @@ end;
 { TAssociativeDistinctByValuesSequence<TKey, TValue> }
 
 constructor Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.Create(
-  const ACollection: TAssociatiation<TKey, TValue>);
+  const ACollection: TAssociation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then

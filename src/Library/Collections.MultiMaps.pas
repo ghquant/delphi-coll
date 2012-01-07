@@ -1,5 +1,5 @@
 (*
-* Copyright (c) 2009-2011, Ciobanu Alexandru
+* Copyright (c) 2009-2012, Ciobanu Alexandru
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ type
       function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
-    TValueCollection = class(TSequence<TValue>)
+    TValueSequence = class(TSequence<TValue>)
     private
       FOwner: TAbstractMultiMap<TKey, TValue>;
     protected
@@ -76,6 +76,8 @@ type
     FKeyCollection: ISequence<TKey>;
     FValueCollection: ISequence<TValue>;
     FDictionary: IDictionary<TKey, ICollection<TValue>>;
+    FLastKey: TKey;
+    FLastCollection: ICollection<TValue>;
 
   protected
     ///  <summary>Specifies the internal dictionary used as back-end.</summary>
@@ -659,18 +661,21 @@ implementation
 { TAbstractMultiMap<TKey, TValue> }
 
 procedure TAbstractMultiMap<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
-var
-  LList: ICollection<TValue>;
 begin
-  { Try to look-up what we need. Create a new LList and add it if required. }
-  if not FDictionary.TryGetValue(AKey, LList) then
+  if not KeysAreEqual(AKey, FLastKey) or not Assigned(FLastCollection) then
   begin
-    LList := CreateCollection(ValueRules);
-    FDictionary[AKey] := LList;
+    { Try to look-up what we need. Create a new LList and add it if required. }
+    if not FDictionary.TryGetValue(AKey, FLastCollection) then
+    begin
+      FLastCollection := CreateCollection(ValueRules);
+      FDictionary[AKey] := FLastCollection;
+    end;
+
+    FLastKey := AKey;
   end;
 
   { Add the new element to the LList }
-  LList.Add(AValue);
+  FLastCollection.Add(AValue);
 
   { Increase the version }
   Inc(FKnownCount);
@@ -685,6 +690,9 @@ begin
 
   { Increase the version }
   FKnownCount := 0;
+  FLastKey := default(TKey);
+  FLastCollection := nil;
+
   NotifyCollectionChanged();
 end;
 
@@ -772,7 +780,7 @@ begin
   FDictionary := CreateDictionary(KeyRules);
 
   FKeyCollection := FDictionary.Keys;
-  FValueCollection := TValueCollection.Create(Self);
+  FValueCollection := TValueSequence.Create(Self);
 
   { Create an internal empty list }
   FEmpty := CreateCollection(ValueRules);
@@ -952,30 +960,30 @@ begin
     ACurrent := FOwnerEnumerator.Current.Value;
 end;
 
-{ TAbstractMultiMap<TKey, TValue>.TValueCollection }
+{ TAbstractMultiMap<TKey, TValue>.TValueSequence }
 
-constructor TAbstractMultiMap<TKey, TValue>.TValueCollection.Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
+constructor TAbstractMultiMap<TKey, TValue>.TValueSequence.Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
 begin
   inherited Create(AOwner.ValueRules);
   FOwner := AOwner;
 end;
 
-function TAbstractMultiMap<TKey, TValue>.TValueCollection.Empty: Boolean;
+function TAbstractMultiMap<TKey, TValue>.TValueSequence.Empty: Boolean;
 begin
   Result := FOwner.Empty;
 end;
 
-function TAbstractMultiMap<TKey, TValue>.TValueCollection.GetCount: NativeInt;
+function TAbstractMultiMap<TKey, TValue>.TValueSequence.GetCount: NativeInt;
 begin
   Result := FOwner.Count;
 end;
 
-function TAbstractMultiMap<TKey, TValue>.TValueCollection.GetEnumerator: IEnumerator<TValue>;
+function TAbstractMultiMap<TKey, TValue>.TValueSequence.GetEnumerator: IEnumerator<TValue>;
 begin
   Result := TValueEnumerator.Create(FOwner);
 end;
 
-procedure TAbstractMultiMap<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
+procedure TAbstractMultiMap<TKey, TValue>.TValueSequence.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
 var
   LList: ICollection<TValue>;
   X: NativeInt;
