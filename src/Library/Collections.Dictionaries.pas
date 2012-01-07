@@ -54,7 +54,7 @@ type
       function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
-    TKeyCollection = class(TEnexCollection<TKey>)
+    TKeyCollection = class(TSequence<TKey>)
     private
       FOwner: TAbstractDictionary<TKey, TValue>;
     protected
@@ -65,7 +65,7 @@ type
       procedure CopyTo(var AArray: array of TKey; const AStartIndex: NativeInt); overload; override;
     end;
 
-    TValueCollection = class(TEnexCollection<TValue>)
+    TValueCollection = class(TSequence<TValue>)
     private
       FOwner: TAbstractDictionary<TKey, TValue>;
     protected
@@ -78,8 +78,8 @@ type
     {$ENDREGION}
 
   private
-    FKeyCollection: IEnexCollection<TKey>;
-    FValueCollection: IEnexCollection<TValue>;
+    FKeyCollection: ISequence<TKey>;
+    FValueCollection: ISequence<TValue>;
 
   protected
     ///  <summary>Returns the value associated with the given key.</summary>
@@ -174,11 +174,11 @@ type
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    property Keys: IEnexCollection<TKey> read FKeyCollection;
+    property Keys: ISequence<TKey> read FKeyCollection;
 
     ///  <summary>Specifies the collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    property Values: IEnexCollection<TValue> read FValueCollection;
+    property Values: ISequence<TValue> read FValueCollection;
 
     ///  <summary>Returns the value associated with the given key.</summary>
     ///  <param name="AKey">The key for which to return the associated value.</param>
@@ -196,11 +196,11 @@ type
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the dictionary.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; override;
+    function SelectKeys(): ISequence<TKey>; override;
 
     ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the dictionary.</returns>
-    function SelectValues(): IEnexCollection<TValue>; override;
+    function SelectValues(): ISequence<TValue>; override;
   end;
 
 type
@@ -738,12 +738,12 @@ begin
   end;
 end;
 
-function TAbstractDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
+function TAbstractDictionary<TKey, TValue>.SelectKeys: ISequence<TKey>;
 begin
   Result := FKeyCollection;
 end;
 
-function TAbstractDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
+function TAbstractDictionary<TKey, TValue>.SelectValues: ISequence<TValue>;
 begin
   Result := FValueCollection;
 end;
@@ -1221,19 +1221,19 @@ end;
 procedure TObjectDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 procedure TObjectDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
 begin
   { Only act if owns objects is set. Otherwise fallback to default. }
-  if (FOwnsValues) and (TObject(ACurrent) <> TObject(ANew)) then
+  if (FOwnsValues) and (PObject(@ACurrent)^ <> PObject(@ANew)^) then
   begin
     NotifyValueRemoved(ACurrent);
     ACurrent := ANew;
@@ -1713,19 +1713,19 @@ end;
 procedure TObjectLinkedDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectLinkedDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 procedure TObjectLinkedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
 begin
   { Only act if owns objects is set. Otherwise fallback to default. }
-  if (FOwnsValues) and (TObject(ACurrent) <> TObject(ANew)) then
+  if (FOwnsValues) and (PObject(@ACurrent)^ <> PObject(@ANew)^) then
   begin
     NotifyValueRemoved(ACurrent);
     ACurrent := ANew;
@@ -2637,19 +2637,19 @@ end;
 procedure TObjectSortedDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectSortedDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 procedure TObjectSortedDictionary<TKey, TValue>.ReplaceValue(var ACurrent: TValue; const ANew: TValue);
 begin
   { Only act if owns objects is set. Otherwise fallback to default. }
-  if (FOwnsValues) and (TObject(ACurrent) <> TObject(ANew)) then
+  if (FOwnsValues) and (PObject(@ACurrent)^ <> PObject(@ANew)^) then
   begin
     NotifyValueRemoved(ACurrent);
     ACurrent := ANew;

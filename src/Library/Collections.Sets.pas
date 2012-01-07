@@ -35,7 +35,7 @@ type
   ///  <summary>The asbstract base for all generic <c>set</c> collections.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractSet<T> = class abstract(TAbstractOperableCollection<T>, ISet<T>)
+  TAbstractSet<T> = class abstract(TCollection<T>, ISet<T>)
   public
     ///  <summary>Creates a new <c>set</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>

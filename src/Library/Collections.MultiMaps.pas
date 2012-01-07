@@ -42,7 +42,7 @@ type
     {$REGION 'Internal Types'}
     TEnumerator = class(TAbstractEnumerator<TPair<TKey, TValue>>)
     private
-      FDictionaryEnumerator: IEnumerator<TPair<TKey, IOperableCollection<TValue>>>;
+      FDictionaryEnumerator: IEnumerator<TPair<TKey, ICollection<TValue>>>;
       FCollectionEnumerator: IEnumerator<TValue>;
     public
       constructor Create(const AOwner: TAbstractMultiMap<TKey, TValue>);
@@ -57,7 +57,7 @@ type
       function TryMoveNext(out ACurrent: TValue): Boolean; override;
     end;
 
-    TValueCollection = class(TEnexCollection<TValue>)
+    TValueCollection = class(TSequence<TValue>)
     private
       FOwner: TAbstractMultiMap<TKey, TValue>;
     protected
@@ -72,15 +72,15 @@ type
 
   private
     FKnownCount: NativeInt;
-    FEmpty: IOperableCollection<TValue>;
-    FKeyCollection: IEnexCollection<TKey>;
-    FValueCollection: IEnexCollection<TValue>;
-    FDictionary: IDictionary<TKey, IOperableCollection<TValue>>;
+    FEmpty: ICollection<TValue>;
+    FKeyCollection: ISequence<TKey>;
+    FValueCollection: ISequence<TValue>;
+    FDictionary: IDictionary<TKey, ICollection<TValue>>;
 
   protected
     ///  <summary>Specifies the internal dictionary used as back-end.</summary>
     ///  <returns>A dictionary of lists used as back-end.</summary>
-    property Dictionary: IDictionary<TKey, IOperableCollection<TValue>> read FDictionary;
+    property Dictionary: IDictionary<TKey, ICollection<TValue>> read FDictionary;
 
     ///  <summary>Returns the number of pairs in the multi-map.</summary>
     ///  <returns>A positive value specifying the total number of pairs in the multi-map.</returns>
@@ -94,15 +94,15 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetValues(const AKey: TKey): IEnexCollection<TValue>;
+    function GetValues(const AKey: TKey): ISequence<TValue>;
 
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
-    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>; virtual; abstract;
+    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>; virtual; abstract;
 
     ///  <summary>Called when the map needs to initialize a list associated with a key.</summary>
     ///  <param name="AValueRules">The rule set describing the values.</param>
-    function CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>; virtual; abstract;
+    function CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>; virtual; abstract;
   public
     ///  <summary>Creates a new <c>multi-map</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the map.</param>
@@ -128,7 +128,7 @@ type
     ///  <returns>A collection of values associated with the key.</returns>
     ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
-    function ExtractValues(const AKey: TKey): IEnexCollection<TValue>;
+    function ExtractValues(const AKey: TKey): ISequence<TValue>;
 
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -168,18 +168,18 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <param name="AValues">The Enex collection that stores the associated values.</param>
     ///  <returns><c>True</c> if the key exists in the collection; <c>False</c> otherwise.</returns>
-    function TryGetValues(const AKey: TKey; out AValues: IEnexCollection<TValue>): Boolean; overload;
+    function TryGetValues(const AKey: TKey; out AValues: ISequence<TValue>): Boolean; overload;
 
     ///  <summary>Tries to extract the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>The associated collection if the key is valid; an empty collection otherwise.</returns>
-    function TryGetValues(const AKey: TKey): IEnexCollection<TValue>; overload;
+    function TryGetValues(const AKey: TKey): ISequence<TValue>; overload;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the multi-map.</exception>
-    property Items[const AKey: TKey]: IEnexCollection<TValue> read GetValues; default;
+    property Items[const AKey: TKey]: ISequence<TValue> read GetValues; default;
 
     ///  <summary>Returns the number of pairs in the multi-map.</summary>
     ///  <returns>A positive value specifying the total number of pairs in the multi-map.</returns>
@@ -191,11 +191,11 @@ type
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the multi-map.</returns>
-    property Keys: IEnexCollection<TKey> read FKeyCollection;
+    property Keys: ISequence<TKey> read FKeyCollection;
 
     ///  <summary>Specifies the collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the multi-map.</returns>
-    property Values: IEnexCollection<TValue> read FValueCollection;
+    property Values: ISequence<TValue> read FValueCollection;
 
     ///  <summary>Returns a new enumerator object used to enumerate this multi-map.</summary>
     ///  <remarks>This method is usually called by compiler-generated code. Its purpose is to create an enumerator
@@ -225,11 +225,11 @@ type
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the multi-map.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; override;
+    function SelectKeys(): ISequence<TKey>; override;
 
     ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the multi-map.</returns>
-    function SelectValues(): IEnexCollection<TValue>; override;
+    function SelectValues(): ISequence<TValue>; override;
   end;
 
 type
@@ -244,13 +244,13 @@ type
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the map.</remarks>
-    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>; override;
+    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>; override;
 
     ///  <summary>Called when the map needs to initialize a list associated with a key.</summary>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a simple array-based list. This list is associated with a key and stores the map's
     ///  values for that key.</remarks>
-    function CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>; override;
+    function CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>; override;
   public
     ///  <summary>Creates a new <c>multi-map</c> collection.</summary>
     ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
@@ -311,13 +311,13 @@ type
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <remarks>This method creates an AVL dictionary used as the underlying back-end for the map.</remarks>
-    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>; override;
+    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>; override;
 
     ///  <summary>Called when the map needs to initialize a list associated with a key.</summary>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a simple array-based list. This list is associated with a key and store the map's
     ///  values for that key.</remarks>
-    function CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>; override;
+    function CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>; override;
   public
     ///  <summary>Creates a new <c>multi-map</c> collection.</summary>
     ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
@@ -389,13 +389,13 @@ type
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <remarks>This method creates a hash-based dictionary used as the underlying back-end for the map.</remarks>
-    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>; override;
+    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>; override;
 
     ///  <summary>Called when the map needs to initialize a set associated with a key.</summary>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a hash-based set. This set is associated with a key and stores the map's
     ///  values for that key.</remarks>
-    function CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>; override;
+    function CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>; override;
   public
     ///  <summary>Creates a new <c>multi-map</c> collection.</summary>
     ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
@@ -455,13 +455,13 @@ type
     ///  <summary>Called when the map needs to initialize its internal dictionary.</summary>
     ///  <param name="AKeyRules">The rule set describing the keys.</param>
     ///  <remarks>This method creates an AVL dictionary used as the underlying back-end for the map.</remarks>
-    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>; override;
+    function CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>; override;
 
     ///  <summary>Called when the map needs to initialize a set associated with a key.</summary>
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates an AVL-based set. This set is associated with a key and stores the map's
     ///  values for that key.</remarks>
-    function CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>; override;
+    function CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>; override;
   public
     ///  <summary>Creates a new <c>multi-map</c> collection.</summary>
     ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
@@ -534,7 +534,7 @@ type
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates a simple array-based sorted list. This list is associated with a key and stores the map's
     ///  values for that key.</remarks>
-    function CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>; override;
+    function CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>; override;
   public
     ///  <summary>Creates a new <c>multi-map</c> collection.</summary>
     ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
@@ -600,7 +600,7 @@ type
     ///  <param name="AValueRules">The rule set describing the values.</param>
     ///  <remarks>This method creates an AVL-based set. This set is associated with a key and stores the map's
     ///  values for that key.</remarks>
-    function CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>; override;
+    function CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>; override;
   public
     ///  <summary>Creates a new <c>multi-map</c> collection.</summary>
     ///  <remarks>This constructor requests the default rule set. Call the overloaded constructor if
@@ -660,7 +660,7 @@ implementation
 
 procedure TAbstractMultiMap<TKey, TValue>.Add(const AKey: TKey; const AValue: TValue);
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
 begin
   { Try to look-up what we need. Create a new LList and add it if required. }
   if not FDictionary.TryGetValue(AKey, LList) then
@@ -696,7 +696,7 @@ end;
 
 function TAbstractMultiMap<TKey, TValue>.ContainsPAir(const AKey: TKey; const AValue: TValue): Boolean;
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
 begin
   { Try to find .. otherwise fail! }
   if FDictionary.TryGetValue(AKey, LList) then
@@ -713,7 +713,7 @@ end;
 
 function TAbstractMultiMap<TKey, TValue>.ContainsValue(const AValue: TValue): Boolean;
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
 begin
   { Iterate over the dictionary }
   for LList in FDictionary.Values do
@@ -731,7 +731,7 @@ procedure TAbstractMultiMap<TKey, TValue>.CopyTo(var AArray: array of TPair<TKey
 var
   LKey: TKey;
   LArray: TArray<TValue>;
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
   X, I, LCount: NativeInt;
 begin
   { Check for indexes }
@@ -778,9 +778,9 @@ begin
   FEmpty := CreateCollection(ValueRules);
 end;
 
-function TAbstractMultiMap<TKey, TValue>.ExtractValues(const AKey: TKey): IEnexCollection<TValue>;
+function TAbstractMultiMap<TKey, TValue>.ExtractValues(const AKey: TKey): ISequence<TValue>;
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
   LNewList: TLinkedList<TValue>;
 begin
   if FDictionary.TryGetValue(AKey, LList) then
@@ -815,9 +815,9 @@ begin
   Result := TEnumerator.Create(Self);
 end;
 
-function TAbstractMultiMap<TKey, TValue>.GetValues(const AKey: TKey): IEnexCollection<TValue>;
+function TAbstractMultiMap<TKey, TValue>.GetValues(const AKey: TKey): ISequence<TValue>;
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
 begin
   if not FDictionary.TryGetValue(AKey, LList) then
     ExceptionHelper.Throw_KeyNotFoundError('AKey');
@@ -832,7 +832,7 @@ end;
 
 procedure TAbstractMultiMap<TKey, TValue>.RemovePair(const AKey: TKey; const AValue: TValue);
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
 begin
   { Simply remove the value from the LList at key }
   if FDictionary.TryGetValue(AKey, LList) then
@@ -859,26 +859,26 @@ begin
   RemovePair(APair.Key, APair.Value);
 end;
 
-function TAbstractMultiMap<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
+function TAbstractMultiMap<TKey, TValue>.SelectKeys: ISequence<TKey>;
 begin
   Result := Keys;
 end;
 
-function TAbstractMultiMap<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
+function TAbstractMultiMap<TKey, TValue>.SelectValues: ISequence<TValue>;
 begin
   Result := Values;
 end;
 
-function TAbstractMultiMap<TKey, TValue>.TryGetValues(const AKey: TKey): IEnexCollection<TValue>;
+function TAbstractMultiMap<TKey, TValue>.TryGetValues(const AKey: TKey): ISequence<TValue>;
 begin
   if not TryGetValues(AKey, Result) then
     Result := FEmpty;
 end;
 
 function TAbstractMultiMap<TKey, TValue>.TryGetValues(const AKey: TKey;
-  out AValues: IEnexCollection<TValue>): Boolean;
+  out AValues: ISequence<TValue>): Boolean;
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
 begin
   { Use the internal stuff }
   Result := FDictionary.TryGetValue(AKey, LList);
@@ -894,7 +894,7 @@ end;
 
 procedure TAbstractMultiMap<TKey, TValue>.Remove(const AKey: TKey);
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
 begin
   if FDictionary.TryGetValue(AKey, LList) then
     Dec(FKnownCount, LList.Count);
@@ -977,7 +977,7 @@ end;
 
 procedure TAbstractMultiMap<TKey, TValue>.TValueCollection.CopyTo(var AArray: array of TValue; const AStartIndex: NativeInt);
 var
-  LList: IOperableCollection<TValue>;
+  LList: ICollection<TValue>;
   X: NativeInt;
 begin
   { Check for indexes }
@@ -1016,10 +1016,10 @@ begin
   Create(AKeyRules, AValueRules, CDefaultSize);
 end;
 
-function TMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>;
+function TMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>;
 var
   LNewCapacity: NativeInt;
-  LDictionary: TDictionary<TKey, IOperableCollection<TValue>>;
+  LDictionary: TDictionary<TKey, ICollection<TValue>>;
 begin
   { Create a simple dictionary }
   if FInitialCapacity <= 0 then
@@ -1027,13 +1027,13 @@ begin
   else
     LNewCapacity := FInitialCapacity;
 
-  LDictionary := TDictionary<TKey, IOperableCollection<TValue>>.Create(AKeyRules, TRules<IOperableCollection<TValue>>.Default, LNewCapacity);
+  LDictionary := TDictionary<TKey, ICollection<TValue>>.Create(AKeyRules, TRules<ICollection<TValue>>.Default, LNewCapacity);
   LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
 
   Result := LDictionary;
 end;
 
-function TMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>;
+function TMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>;
 var
   LList: TList<TValue>;
 begin
@@ -1049,13 +1049,13 @@ end;
 procedure TObjectMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TSortedMultiMap<TKey, TValue> }
@@ -1079,18 +1079,18 @@ begin
   Create(AKeyRules, AValueRules, True);
 end;
 
-function TSortedMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>;
+function TSortedMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>;
 var
-  LDictionary: TSortedDictionary<TKey, IOperableCollection<TValue>>;
+  LDictionary: TSortedDictionary<TKey, ICollection<TValue>>;
 begin
   { Create a simple dictionary }
-  LDictionary := TSortedDictionary<TKey, IOperableCollection<TValue>>.Create(AKeyRules, TRules<IOperableCollection<TValue>>.Default, FAscendingSort);
+  LDictionary := TSortedDictionary<TKey, ICollection<TValue>>.Create(AKeyRules, TRules<ICollection<TValue>>.Default, FAscendingSort);
   LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
 
   Result := LDictionary;
 end;
 
-function TSortedMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>;
+function TSortedMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>;
 var
   LList: TList<TValue>;
 begin
@@ -1116,13 +1116,13 @@ end;
 procedure TObjectSortedMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectSortedMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TDistinctMultiMap<TKey, TValue> }
@@ -1144,10 +1144,10 @@ begin
   Create(AKeyRules, AValueRules, CDefaultSize);
 end;
 
-function TDistinctMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>;
+function TDistinctMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>;
 var
   LNewCapacity: NativeInt;
-  LDictionary: TDictionary<TKey, IOperableCollection<TValue>>;
+  LDictionary: TDictionary<TKey, ICollection<TValue>>;
 begin
   { Create a simple dictionary }
   if FInitialCapacity <= 0 then
@@ -1155,13 +1155,13 @@ begin
   else
     LNewCapacity := FInitialCapacity;
 
-  LDictionary := TDictionary<TKey, IOperableCollection<TValue>>.Create(AKeyRules, TRules<IOperableCollection<TValue>>.Default, LNewCapacity);
+  LDictionary := TDictionary<TKey, ICollection<TValue>>.Create(AKeyRules, TRules<ICollection<TValue>>.Default, LNewCapacity);
   LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
 
   Result := LDictionary;
 end;
 
-function TDistinctMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>;
+function TDistinctMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>;
 var
   LSet: THashSet<TValue>;
 begin
@@ -1177,13 +1177,13 @@ end;
 procedure TObjectDistinctMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectDistinctMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TSortedDistinctMultiMap<TKey, TValue> }
@@ -1206,20 +1206,20 @@ begin
   Create(AKeyRules, AValueRules, True);
 end;
 
-function TSortedDistinctMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, IOperableCollection<TValue>>;
+function TSortedDistinctMultiMap<TKey, TValue>.CreateDictionary(const AKeyRules: TRules<TKey>): IDictionary<TKey, ICollection<TValue>>;
 var
-  LDictionary: TSortedDictionary<TKey, IOperableCollection<TValue>>;
+  LDictionary: TSortedDictionary<TKey, ICollection<TValue>>;
 begin
   { Create a simple dictionary }
-  LDictionary := TSortedDictionary<TKey, IOperableCollection<TValue>>.Create(AKeyRules,
-    TRules<IOperableCollection<TValue>>.Default, FAscendingSort);
+  LDictionary := TSortedDictionary<TKey, ICollection<TValue>>.Create(AKeyRules,
+    TRules<ICollection<TValue>>.Default, FAscendingSort);
 
   LDictionary.KeyRemoveNotification := NotifyKeyRemoved;
 
   Result := LDictionary;
 end;
 
-function TSortedDistinctMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>;
+function TSortedDistinctMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>;
 var
   LSet: THashSet<TValue>;
 begin
@@ -1245,13 +1245,13 @@ end;
 procedure TObjectSortedDistinctMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectSortedDistinctMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TDoubleSortedMultiMap<TKey, TValue> }
@@ -1275,7 +1275,7 @@ begin
   Create(AKeyRules, AValueRules, True, True);
 end;
 
-function TDoubleSortedMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>;
+function TDoubleSortedMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>;
 var
   LList: TSortedList<TValue>;
 begin
@@ -1291,13 +1291,13 @@ end;
 procedure TObjectDoubleSortedMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectDoubleSortedMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TDoubleSortedDistinctMultiMap<TKey, TValue> }
@@ -1321,7 +1321,7 @@ begin
   Create(AKeyRules, AValueRules, True, True);
 end;
 
-function TDoubleSortedDistinctMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): IOperableCollection<TValue>;
+function TDoubleSortedDistinctMultiMap<TKey, TValue>.CreateCollection(const AValueRules: TRules<TValue>): ICollection<TValue>;
 var
   LSet: TSortedSet<TValue>;
 begin
@@ -1337,13 +1337,13 @@ end;
 procedure TObjectDoubleSortedDistinctMultiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectDoubleSortedDistinctMultiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 end.

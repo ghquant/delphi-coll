@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all generic <c>stack (LIFO)</c> collection.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractStack<T> = class abstract(TAbstractOperableCollection<T>, IStack<T>)
+  TAbstractStack<T> = class abstract(TCollection<T>, IStack<T>)
   public
     ///  <summary>Creates a new <c>stack</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the set.</param>

@@ -129,6 +129,9 @@ type
     FArray: Member.TViewArray;
     { Reserved stuff }
     Reserved4: LongWord;
+{$IFDEF CPUX64}
+    Reserved4_1: LongWord;
+{$ENDIF}
   end;
 
   { Manager for our variant type }

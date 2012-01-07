@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all <c>bag</c> collections.</summary>
   ///  <remarks>This base class introduces and implements all bag operations. Specific <c>bag</c> implementations must
   ///  override only one method in order to create the specific dictionary type that is going to hold the element to weight associations.</remarks>
-  TAbstractBag<T> = class(TAbstractOperableCollection<T>, IBag<T>)
+  TAbstractBag<T> = class(TCollection<T>, IBag<T>)
   private type
     {$REGION 'Internal Types'}
     TEnumerator = class(TAbstractEnumerator<T>)

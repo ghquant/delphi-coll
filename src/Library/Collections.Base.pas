@@ -122,7 +122,7 @@ type
 
   ///  <summary>Base interface inherited by all specific collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all collections implemented in this package.</remarks>
-  ICollection<T> = interface(IEnumerable<T>)
+  IAbstractSequence<T> = interface(IEnumerable<T>)
     ///  <summary>Returns the current version of the collection.</summary>
     ///  <returns>An integer value specifying the current "structural version" of the collection.</returns>
     ///  <remarks>This function returns a number that is modified by the implementing collection each time
@@ -187,7 +187,7 @@ type
   IList<T> = interface;
   ISet<T> = interface;
   IDictionary<TKey, TValue> = interface;
-  IEnexCollection<T> = interface;
+  ISequence<T> = interface;
   IGrouping<TKey, T> = interface;
 
   ///  <summary>Offers an extended set of Enex operations.</summary>
@@ -209,7 +209,7 @@ type
     ///  For example, you can select a collection of integers where each integer is a field of a class in the original collection.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ARules"/> is <c>nil</c>.</exception>
-    function Select<TOut>(const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>): IEnexCollection<TOut>; overload;
+    function Select<TOut>(const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>): ISequence<TOut>; overload;
 
     ///  <summary>Represents a "select" operation.</summary>
     ///  <param name="ASelector">A selector method invoked for each element in the collection.</param>
@@ -217,7 +217,7 @@ type
     ///  <remarks>This method is used when it is required to select values related to the ones in the operated collection.
     ///  For example, you can select a collection of integers where each integer is a field of a class in the original collection.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
-    function Select<TOut>(const ASelector: TFunc<T, TOut>): IEnexCollection<TOut>; overload;
+    function Select<TOut>(const ASelector: TFunc<T, TOut>): ISequence<TOut>; overload;
 
 {$IF CompilerVersion > 21}
     ///  <summary>Represents a "select" operation.</summary>
@@ -226,7 +226,7 @@ type
     ///  <remarks>This method will only work for classes and record types!</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AMemberName"/> is not a real member of record or class.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
-    function Select<TOut>(const AMemberName: string): IEnexCollection<TOut>; overload;
+    function Select<TOut>(const AMemberName: string): ISequence<TOut>; overload;
 
     ///  <summary>Represents a "select" operation.</summary>
     ///  <param name="AMemberName">A record or class field/property name that will be selected.</param>
@@ -234,7 +234,7 @@ type
     ///  <remarks>This method will only work for classes and record types!</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AMemberName"/> is not a real member of record or class.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
-    function Select(const AMemberName: string): IEnexCollection<TAny>; overload;
+    function Select(const AMemberName: string): ISequence<TAny>; overload;
 
     ///  <summary>Represents a "select" operation.</summary>
     ///  <param name="AMemberNames">A record or class field/property names that will be selected.</param>
@@ -242,7 +242,7 @@ type
     ///  <remarks>This method will only work for classes and record types! The resulting view contains the selected members.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException"><paramref name="AMemberName"/> is not a real member of record or class.</exception>
     ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects ore records.</exception>
-    function Select(const AMemberNames: array of string): IEnexCollection<TView>; overload;
+    function Select(const AMemberNames: array of string): ISequence<TView>; overload;
 {$IFEND}
 
     ///  <summary>Represents a "where, select object" operation.</summary>
@@ -253,7 +253,7 @@ type
     ///  class. For example, <c>AList.Op.Select&lt;TMyObject&gt;</c> results in a new collection that only contains
     ///  "TMyObject" instances.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">The collection's elements are not objects.</exception>
-    function Select<TOut: class>(): IEnexCollection<TOut>; overload;
+    function Select<TOut: class>(): ISequence<TOut>; overload;
 
     ///  <summary>Groups all elements in the collection by a given key.</summary>
     ///  <param name="ASelector">The selector function. Returns the key (based on each collection element) that serves for grouping purposes.</param>
@@ -262,13 +262,13 @@ type
     ///  <remarks>This operation will call <paramref name="ASelector"/> for each element in the collection and retrieve a "key". Using this key,
     ///  the elements are grouped into new collections called groupings. The result of this operation is a collection of groupings. Each grouping
     ///  contains the elements from the original collection that have the same group and a key (which is the group value used).</remarks>
-    function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IGrouping<TKey, T>>; overload;
+    function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): ISequence<IGrouping<TKey, T>>; overload;
   end;
 
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all collections implemented in this package. It also introduces
   ///  a large set of extended operations that can be performed on any collection that supports enumerability.</remarks>
-  IEnexCollection<T> = interface(ICollection<T>)
+  ISequence<T> = interface(IAbstractSequence<T>)
     ///  <summary>Checks whether the elements in this collection are equal to the elements in another collection.</summary>
     ///  <param name="ACollection">The collection to compare to.</param>
     ///  <returns><c>True</c> if the collections are equal; <c>False</c> if the collections are different.</returns>
@@ -486,66 +486,66 @@ type
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function Where(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Selects only the elements that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function WhereNot(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Selects only the elements that are less than a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereLower(const ABound: T): IEnexCollection<T>;
+    function WhereLower(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements that are less than or equal to a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereLowerOrEqual(const ABound: T): IEnexCollection<T>;
+    function WhereLowerOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements that are greater than a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereGreater(const ABound: T): IEnexCollection<T>;
+    function WhereGreater(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements that are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+    function WhereGreaterOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements whose values are contained whithin a given interval.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The upper bound.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
     ///  <remarks>The elements that are equal to the lower or upper bounds, are also included.</remarks>
-    function WhereBetween(const ALower, AHigher: T): IEnexCollection<T>;
+    function WhereBetween(const ALower, AHigher: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection excluding duplicates.</summary>
     ///  <returns>A new collection that contains the distinct elements.</returns>
-    function Distinct(): IEnexCollection<T>;
+    function Distinct(): ISequence<T>;
 
     ///  <summary>Returns a new ordered collection that contains the elements from this collection.</summary>
     ///  <param name="AAscending">Specifies whether the elements are ordered ascending or descending.</param>
     ///  <returns>A new ordered collection.</returns>
-    function Ordered(const AAscending: Boolean = true): IEnexCollection<T>; overload;
+    function Ordered(const AAscending: Boolean = true): ISequence<T>; overload;
 
     ///  <summary>Returns a new ordered collection that contains the elements from this collection.</summary>
     ///  <param name="ASortProc">The comparison method.</param>
     ///  <returns>A new ordered collection.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
-    function Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>; overload;
+    function Ordered(const ASortProc: TComparison<T>): ISequence<T>; overload;
 
     ///  <summary>Revereses the contents of the collection.</summary>
     ///  <returns>A new collection that contains the elements from this collection but in reverse order.</returns>
-    function Reversed(): IEnexCollection<T>;
+    function Reversed(): ISequence<T>;
 
     ///  <summary>Concatenates this collection with another collection.</summary>
     ///  <param name="ACollection">A collection to concatenate.</param>
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Concat(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Creates a new collection that contains the elements from both collections taken a single time.</summary>
     ///  <param name="ACollection">The collection to unify with.</param>
@@ -553,20 +553,20 @@ type
     ///  from the given collection except the elements that already are present in this collection. This operation can be seen as
     ///  a "concat" operation followed by a "distinct" operation. </returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Union(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Creates a new collection that contains the elements from this collection minus the ones in the given collection.</summary>
     ///  <param name="ACollection">The collection to exclude.</param>
     ///  <returns>A new collection that contains the elements from this collection minus the those elements that are common between
     ///  this and the given collection.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Exclude(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Creates a new collection that contains the elements that are present in both collections.</summary>
     ///  <param name="ACollection">The collection to interset with.</param>
     ///  <returns>A new collection that contains the elements that are common to both collections.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Intersect(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Select the elements that whose indexes are located in the given range.</summary>
     ///  <param name="AStart">The lower bound.</param>
@@ -574,92 +574,92 @@ type
     ///  <returns>A new collection that contains the elements whose indexes in this collection are locate between <paramref name="AStart"/>
     ///  and <paramref name="AEnd"/>. Note that this method does not check the indexes. This means that a bad combination of parameters will
     ///  simply result in an empty or incorrect result.</returns>
-    function Range(const AStart, AEnd: NativeInt): IEnexCollection<T>;
+    function Range(const AStart, AEnd: NativeInt): ISequence<T>;
 
     ///  <summary>Selects only a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to select.</param>
     ///  <returns>A new collection that contains only the first <paramref name="ACount"/> elements.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Take(const ACount: NativeInt): IEnexCollection<T>;
+    function Take(const ACount: NativeInt): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function TakeWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function TakeWhile(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileLower(const ABound: T): IEnexCollection<T>;
+    function TakeWhileLower(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than
     ///  or equals to a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
+    function TakeWhileLowerOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are greater than
     ///  a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileGreater(const ABound: T): IEnexCollection<T>;
+    function TakeWhileGreater(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are greater than
     ///  or equals to a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+    function TakeWhileGreaterOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are between a given range of values.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The higher bound.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
+    function TakeWhileBetween(const ALower, AHigher: T): ISequence<T>;
 
     ///  <summary>Skips a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to skip.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Skip(const ACount: NativeInt): IEnexCollection<T>;
+    function Skip(const ACount: NativeInt): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function SkipWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function SkipWhile(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileLower(const ABound: T): IEnexCollection<T>;
+    function SkipWhileLower(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than or equal to a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
+    function SkipWhileLowerOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are greater than a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileGreater(const ABound: T): IEnexCollection<T>;
+    function SkipWhileGreater(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+    function SkipWhileGreaterOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are between a given range of values.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The higher bound.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
+    function SkipWhileBetween(const ALower, AHigher: T): ISequence<T>;
 
     ///  <summary>Exposes a type that provides extended Enex operations such as "select".</summary>
     ///  <returns>A record that exposes more Enex operations that otherwise would be impossible.</returns>
@@ -667,7 +667,7 @@ type
   end;
 
   ///  <summary>Enex collection that is presumed to be grouped by a certain key.</summary>
-  IGrouping<TKey, T> = interface(IEnexCollection<T>)
+  IGrouping<TKey, T> = interface(ISequence<T>)
     ///  <summary>Returns the key under which all elements in this collection are grouped.</summary>
     ///  <returns>The key of this grouping.</returns>
     function GetKey(): TKey;
@@ -680,7 +680,7 @@ type
   ///  <summary>Specifies a set of methods specific to all simple (non-associative) collections.</summary>
   ///  <remarks>This collection exposes operations such as <c>Add</c> or <c>Clear</c> that need to be implemented
   ///  in almost every class out there.</remarks>
-  IOperableCollection<T> = interface(IEnexCollection<T>)
+  ICollection<T> = interface(ISequence<T>)
     ///  <summary>Clears the contents of this collection.</summary>
     procedure Clear();
 
@@ -718,7 +718,7 @@ type
   ///  <summary>Base Enex (Extended enumerable) interface inherited by all specific associative collection interfaces.</summary>
   ///  <remarks>This interface defines a set of traits common to all associative collections implemented in this package. It also introduces
   ///  a large se of extended operations that can pe performed on any collection that supports enumerability.</remarks>
-  IEnexAssociativeCollection<TKey, TValue> = interface(ICollection<TPair<TKey, TValue>>)
+  IAssociation<TKey, TValue> = interface(IAbstractSequence<TPair<TKey, TValue>>)
     ///  <summary>Creates a new dictionary containing the elements of this collection.</summary>
     ///  <returns>A dictionary containing the elements copied from this collection.</returns>
     ///  <remarks>This method also copies the rule sets of this collection. Be careful if the rule set
@@ -761,27 +761,27 @@ type
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the collection.</returns>
-    function SelectKeys(): IEnexCollection<TKey>;
+    function SelectKeys(): ISequence<TKey>;
 
     ///  <summary>Returns a Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the collection.</returns>
-    function SelectValues(): IEnexCollection<TValue>;
+    function SelectValues(): ISequence<TValue>;
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the collection.</returns>
-    property Keys: IEnexCollection<TKey> read SelectKeys;
+    property Keys: ISequence<TKey> read SelectKeys;
 
     ///  <summary>Specifies the collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the collection.</returns>
-    property Values: IEnexCollection<TValue> read SelectValues;
+    property Values: ISequence<TValue> read SelectValues;
 
     ///  <summary>Selects all the key-value pairs from the collection excluding the duplicates by key.</summary>
     ///  <returns>A new collection that contains the distinct pairs.</returns>
-    function DistinctByKeys(): IEnexAssociativeCollection<TKey, TValue>;
+    function DistinctByKeys(): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects all the key-value pairs from the collection excluding the duplicates by value.</summary>
     ///  <returns>A new collection that contains the distinct pairs.</returns>
-    function DistinctByValues(): IEnexAssociativeCollection<TKey, TValue>;
+    function DistinctByValues(): IAssociation<TKey, TValue>;
 
     ///  <summary>Checks whether this collection includes the key-value pairs in another collection.</summary>
     ///  <param name="ACollection">The collection to check against.</param>
@@ -792,70 +792,70 @@ type
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
+    function Where(const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereNot(const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyLower(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyLower(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyLowerOrEqual(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyLowerOrEqual(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are greater than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyGreater(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyGreater(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyGreaterOrEqual(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyGreaterOrEqual(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are are contained whithin a given interval.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The upper bound.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyBetween(const ALower, AHigher: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyBetween(const ALower, AHigher: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are less than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueLower(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueLower(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are less than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueLowerOrEqual(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueLowerOrEqual(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are greater than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueGreater(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueGreater(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueGreaterOrEqual(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueGreaterOrEqual(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are are contained whithin a given interval.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The upper bound.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueBetween(const ALower, AHigher: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueBetween(const ALower, AHigher: TValue): IAssociation<TKey, TValue>;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>stack</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>stack</c>.</remarks>
-  IStack<T> = interface(IOperableCollection<T>)
+  IStack<T> = interface(ICollection<T>)
     ///  <summary>Pushes an element to the top of the stack.</summary>
     ///  <param name="AValue">The value to push.</param>
     procedure Push(const AValue: T);
@@ -875,7 +875,7 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>queue</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>queue</c>.</remarks>
-  IQueue<T> = interface(IOperableCollection<T>)
+  IQueue<T> = interface(ICollection<T>)
     ///  <summary>Appends an element to the head of the queue.</summary>
     ///  <param name="AValue">The value to append.</param>
     procedure Enqueue(const AValue: T);
@@ -895,7 +895,7 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>priority queue</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>priority queue</c>.</remarks>
-  IPriorityQueue<TPriority, TValue> = interface(IEnexAssociativeCollection<TPriority, TValue>)
+  IPriorityQueue<TPriority, TValue> = interface(IAssociation<TPriority, TValue>)
     ///  <summary>Clears the contents of the priority queue.</summary>
     procedure Clear();
 
@@ -931,7 +931,7 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>set</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>set</c>.</remarks>
-  ISet<T> = interface(IOperableCollection<T>)
+  ISet<T> = interface(ICollection<T>)
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>sorted set</c>.</summary>
@@ -1001,7 +1001,7 @@ type
 
   ///  <summary>The Enex interface that defines the behavior of a <c>list</c>.</summary>
   ///  <remarks>This interface is implemented by all collections that provide the functionality of a <c>list</c>.</remarks>
-  IList<T> = interface(IOperableCollection<T>)
+  IList<T> = interface(ICollection<T>)
     ///  <summary>Inserts an element into the list.</summary>
     ///  <param name="AIndex">The index to insert to.</param>
     ///  <param name="AValue">The value to insert.</param>
@@ -1119,7 +1119,7 @@ type
 
   ///  <summary>The Enex interface that defines the basic behavior of all <c>map</c>-like collections.</summary>
   ///  <remarks>This interface is inherited by all interfaces that provide <c>map</c>-like functionality.</remarks>
-  IMap<TKey, TValue> = interface(IEnexAssociativeCollection<TKey, TValue>)
+  IMap<TKey, TValue> = interface(IAssociation<TKey, TValue>)
     ///  <summary>Clears the contents of the map.</summary>
     procedure Clear();
 
@@ -1353,25 +1353,25 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetValuesByKey(const AKey: TKey): IEnexCollection<TValue>;
+    function GetValuesByKey(const AKey: TKey): ISequence<TValue>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    property ByKey[const AKey: TKey]: IEnexCollection<TValue> read GetValuesByKey;
+    property ByKey[const AKey: TKey]: ISequence<TValue> read GetValuesByKey;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    function GetKeysByValue(const AValue: TValue): IEnexCollection<TKey>;
+    function GetKeysByValue(const AValue: TValue): ISequence<TKey>;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the collection.</exception>
-    property ByValue[const AValue: TValue]: IEnexCollection<TKey> read GetKeysByValue;
+    property ByValue[const AValue: TValue]: ISequence<TKey> read GetKeysByValue;
   end;
 
   ///  <summary>The Enex interface that defines the behavior of a <c>multi-map</c>.</summary>
@@ -1383,7 +1383,7 @@ type
     ///  <returns>A collection of values associated with the key.</returns>
     ///  <remarks>This function is identical to <c>RemoveKey</c> but will return the associated values. If there is no given key, an exception is raised.</remarks>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The <paramref name="AKey"/> is not part of the map.</exception>
-    function ExtractValues(const AKey: TKey): IEnexCollection<TValue>;
+    function ExtractValues(const AKey: TKey): ISequence<TValue>;
 
     ///  <summary>Removes a key-value pair using a given key and value.</summary>
     ///  <param name="AKey">The key associated with the value.</param>
@@ -1416,24 +1416,24 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    function GetValues(const AKey: TKey): IEnexCollection<TValue>;
+    function GetValues(const AKey: TKey): ISequence<TValue>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the collection.</exception>
-    property Items[const AKey: TKey]: IEnexCollection<TValue> read GetValues; default;
+    property Items[const AKey: TKey]: ISequence<TValue> read GetValues; default;
 
     ///  <summary>Tries to extract the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <param name="AValues">The Enex collection that stores the associated values.</param>
     ///  <returns><c>True</c> if the key exists in the collection; <c>False</c> otherwise;</returns>
-    function TryGetValues(const AKey: TKey; out AValues: IEnexCollection<TValue>): Boolean; overload;
+    function TryGetValues(const AKey: TKey; out AValues: ISequence<TValue>): Boolean; overload;
 
     ///  <summary>Tries to extract the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>The associated collection if the key if valid; an empty collection otherwise.</returns>
-    function TryGetValues(const AKey: TKey): IEnexCollection<TValue>; overload;
+    function TryGetValues(const AKey: TKey): ISequence<TValue>; overload;
   end;
 
   ///  <summary>A special interface implemented by collections that support the concept of capacity.</summary>
@@ -1523,7 +1523,7 @@ type
 
   ///  <summary>Non-generic base class for all collections.</summary>
   ///  <remarks>This class provides some basics like version management and count retrieval.</remarks>
-  TAbstractCollection = class abstract(TRefCountedObject)
+  TAbstractSequence = class abstract(TRefCountedObject)
   private
     FVersion: NativeInt;
 
@@ -1563,7 +1563,7 @@ type
   ///  <summary>Base class for all collections.</summary>
   ///  <remarks>All collections are derived from this base class. It implements most Enex operations based on
   ///  enumerability .</remarks>
-  TAbstractCollection<T> = class abstract(TAbstractCollection, ICollection<T>, IEnumerable<T>)
+  TAbstractSequence<T> = class abstract(TAbstractSequence, IAbstractSequence<T>, IEnumerable<T>)
   protected
     ///  <summary>Returns the number of elements in the collection.</summary>
     ///  <returns>A positive value specifying the number of elements in the collection.</returns>
@@ -1631,13 +1631,13 @@ type
   TAbstractEnumerator<T> = class abstract(TRefCountedObject, IEnumerator<T>)
   private
     FCreatedAtVersion: NativeInt;
-    FOwner: TAbstractCollection;
+    FOwner: TAbstractSequence;
     FCurrent: T;
     FEnded: Boolean;
   protected
     ///  <summary>Specifies the owner collection.</summary>
     ///  <returns>The collection that generated this enumerator.</returns>
-    property Owner: TAbstractCollection read FOwner;
+    property Owner: TAbstractSequence read FOwner;
 
     ///  <summary>Returns the current element of the enumerated collection.</summary>
     ///  <remarks>This method is the getter for <c>Current</c> property. Use the property to obtain the element instead.</remarks>
@@ -1654,7 +1654,7 @@ type
     ///  <param name="AOwner">The owner collection.</param>
     ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
-    constructor Create(const AOwner: TAbstractCollection);
+    constructor Create(const AOwner: TAbstractSequence);
 
     ///  <summary>Destroys this enumerator object.</summary>
     destructor Destroy; override;
@@ -1703,13 +1703,13 @@ type
     ///  <remarks>Descending classes must always call this constructor in their constructor.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AOwner"/> is <c>nil</c>.</exception>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AEnumerator"/> is <c>nil</c>.</exception>
-    constructor Create(const AOwner: TAbstractCollection; const AEnumerator: IEnumerator<T>);
+    constructor Create(const AOwner: TAbstractSequence; const AEnumerator: IEnumerator<T>);
   end;
 
   ///  <summary>Base class for all non-associative Enex collections.</summary>
   ///  <remarks>All normal Enex collections (ex. list or stack) are derived from this base class.
   ///  It implements the extended Enex operations based on enumerability.</remarks>
-  TEnexCollection<T> = class abstract(TAbstractCollection<T>, IComparable, IEnexCollection<T>)
+  TSequence<T> = class abstract(TAbstractSequence<T>, IComparable, ISequence<T>)
   private
     FElementRules: TRules<T>;
 
@@ -1958,66 +1958,66 @@ type
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function Where(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Selects only the elements that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the elements that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function WhereNot(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Selects only the elements that are less than a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereLower(const ABound: T): IEnexCollection<T>;
+    function WhereLower(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements that are less than or equal to a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereLowerOrEqual(const ABound: T): IEnexCollection<T>;
+    function WhereLowerOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements that are greater than a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereGreater(const ABound: T): IEnexCollection<T>;
+    function WhereGreater(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements that are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The element to compare against.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
-    function WhereGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+    function WhereGreaterOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects only the elements whose values are contained whithin a given interval.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The upper bound.</param>
     ///  <returns>A new collection that contains only the elements that satisfy the relationship.</returns>
     ///  <remarks>The elements that are equal to the lower or upper bound are also included.</remarks>
-    function WhereBetween(const ALower, AHigher: T): IEnexCollection<T>;
+    function WhereBetween(const ALower, AHigher: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection excluding duplicates.</summary>
     ///  <returns>A new collection that contains the distinct elements.</returns>
-    function Distinct(): IEnexCollection<T>; virtual;
+    function Distinct(): ISequence<T>; virtual;
 
     ///  <summary>Returns a new ordered collection that contains the elements from this collection.</summary>
     ///  <param name="AAscending">Specifies whether the elements are ordered in an ascending or descending way.</param>
     ///  <returns>A new ordered collection.</returns>
-    function Ordered(const AAscending: Boolean = true): IEnexCollection<T>; overload; virtual;
+    function Ordered(const AAscending: Boolean = true): ISequence<T>; overload; virtual;
 
     ///  <summary>Returns a new ordered collection that contains the elements from this collection.</summary>
     ///  <param name="ASortProc">The comparison method.</param>
     ///  <returns>A new ordered collection.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASortProc"/> is <c>nil</c>.</exception>
-    function Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>; overload; virtual;
+    function Ordered(const ASortProc: TComparison<T>): ISequence<T>; overload; virtual;
 
     ///  <summary>Revereses the contents of the collection.</summary>
     ///  <returns>A new collection that contains the elements from this collection but in reverse order.</returns>
-    function Reversed(): IEnexCollection<T>; virtual;
+    function Reversed(): ISequence<T>; virtual;
 
     ///  <summary>Concatenates this collection with another collection.</summary>
     ///  <param name="ACollection">A collection to concatenate.</param>
     ///  <returns>A new collection that contains the elements from this collection followed by elements
     ///  from the given collection.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Concat(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Creates a new collection that contains the elements from both collections, taken a single time.</summary>
     ///  <param name="ACollection">The collection to unify with.</param>
@@ -2025,20 +2025,20 @@ type
     ///  from the given collection except the elements that already are present in this collection. This operation can be seen as
     ///  a "concat" operation followed by a "distinct" operation. </returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Union(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Creates a new collection that contains the elements from this collection minus the ones in the given collection.</summary>
     ///  <param name="ACollection">The collection to exclude.</param>
     ///  <returns>A new collection that contains the elements from this collection minus those elements that are common between
     ///  this and the given collection.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Exclude(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Creates a new collection that contains the elements that are present in both collections.</summary>
     ///  <param name="ACollection">The collection to interset with.</param>
     ///  <returns>A new collection that contains the elements that are common to both collections.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ACollection"/> is <c>nil</c>.</exception>
-    function Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+    function Intersect(const ACollection: ISequence<T>): ISequence<T>;
 
     ///  <summary>Select the elements whose indexes are located in the given range.</summary>
     ///  <param name="AStart">The lower bound.</param>
@@ -2046,92 +2046,92 @@ type
     ///  <returns>A new collection that contains the elements whose indexes in this collection are located between <paramref name="AStart"/>
     ///  and <paramref name="AEnd"/>. Note that this method does not check the indexes. This means that a bad combination of parameters will
     ///  simply result in an empty or incorrect result.</returns>
-    function Range(const AStart, AEnd: NativeInt): IEnexCollection<T>;
+    function Range(const AStart, AEnd: NativeInt): ISequence<T>;
 
     ///  <summary>Selects only a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to select.</param>
     ///  <returns>A new collection that contains only the first <paramref name="ACount"/> elements.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Take(const ACount: NativeInt): IEnexCollection<T>;
+    function Take(const ACount: NativeInt): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function TakeWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function TakeWhile(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileLower(const ABound: T): IEnexCollection<T>;
+    function TakeWhileLower(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are lower than
     ///  or equal to a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
+    function TakeWhileLowerOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are greater than
     ///  a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileGreater(const ABound: T): IEnexCollection<T>;
+    function TakeWhileGreater(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are greater than
     ///  or equal to a given value.</summary>
     ///  <param name="ABound">The value to check against.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+    function TakeWhileGreaterOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Selects all the elements from the collection while elements are between a given range of values.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The higher bound.</param>
     ///  <returns>A new collection that contains the selected elements.</returns>
     ///  <remarks>This method selects all elements from the collection while the given rule is satisfied.</remarks>
-    function TakeWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
+    function TakeWhileBetween(const ALower, AHigher: T): ISequence<T>;
 
     ///  <summary>Skips a given amount of elements.</summary>
     ///  <param name="ACount">The number of elements to skip.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero.</exception>
-    function Skip(const ACount: NativeInt): IEnexCollection<T>;
+    function Skip(const ACount: NativeInt): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while a given rule is satisfied.</summary>
     ///  <param name="APredicate">The rule to satisfy.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function SkipWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
+    function SkipWhile(const APredicate: TPredicate<T>): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileLower(const ABound: T): IEnexCollection<T>;
+    function SkipWhileLower(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are lower than or equal to a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
+    function SkipWhileLowerOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are greater than a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileGreater(const ABound: T): IEnexCollection<T>;
+    function SkipWhileGreater(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to check.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+    function SkipWhileGreaterOrEqual(const ABound: T): ISequence<T>;
 
     ///  <summary>Skips all the elements from the collection while elements are between a given range of values.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The higher bound.</param>
     ///  <returns>A new collection that contains the elements that were not skipped.</returns>
-    function SkipWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
+    function SkipWhileBetween(const ALower, AHigher: T): ISequence<T>;
 
     ///  <summary>Exposes a type that provides extended Enex operations such as "select".</summary>
     ///  <returns>A record that exposes more Enex operations that otherwise would be impossible.</returns>
@@ -2175,20 +2175,20 @@ type
     ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="AElement"/> is <c>nil</c>.</exception>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
-    class function Fill(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>; overload; static;
+    class function Fill(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): ISequence<T>; overload; static;
 
     ///  <summary>Generates a new collection that contains a given value for a given number of times.</summary>
     ///  <param name="AElement">The element to fill the collection with.</param>
     ///  <param name="ACount">The number of times the element is present in the collection (the length of the collection).</param>
     ///  <returns>A new collection containing the <paramref name="AElement"/>, <paramref name="ACount"/> times.</returns>
     ///  <exception cref="SysUtils|EArgumentOutOfRangeException"><paramref name="ACount"/> is zero or less.</exception>
-    class function Fill(const AElement: T; const ACount: NativeInt): IEnexCollection<T>; overload; static;
+    class function Fill(const AElement: T; const ACount: NativeInt): ISequence<T>; overload; static;
   end;
 
   ///  <summary>The base abstract class for simple (non-associative) collections.</summary>
   ///  <remarks>This collection exposes some operations that need to be implemented in descending classes and some
   ///  default implementations using Enex operations.</remarks>
-  TAbstractOperableCollection<T> = class abstract(TEnexCollection<T>, IOperableCollection<T>)
+  TCollection<T> = class abstract(TSequence<T>, ICollection<T>)
   private
     FRemoveNotification: TRemoveNotification<T>;
 
@@ -2260,8 +2260,7 @@ type
   ///  <summary>Base class for all associative Enex collections.</summary>
   ///  <remarks>All associative Enex collections (ex. dictionary or multi-map) are derived from this base class.
   ///  It implements the extended Enex operations based on enumerability.</remarks>
-  TEnexAssociativeCollection<TKey, TValue> = class abstract(TAbstractCollection<TPair<TKey, TValue>>,
-      IEnexAssociativeCollection<TKey, TValue>)
+  TAssociatiation<TKey, TValue> = class abstract(TAbstractSequence<TPair<TKey, TValue>>, IAssociation<TKey, TValue>)
   private
     FKeyRules: TRules<TKey>;
     FValueRules: TRules<TValue>;
@@ -2415,83 +2414,83 @@ type
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the collection.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; virtual;
+    function SelectKeys(): ISequence<TKey>; virtual;
 
     ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the collection.</returns>
-    function SelectValues(): IEnexCollection<TValue>; virtual;
+    function SelectValues(): ISequence<TValue>; virtual;
 
     ///  <summary>Selects all the key-value pairs from the collection excluding the duplicates by key.</summary>
     ///  <returns>A new collection that contains the distinct pairs.</returns>
-    function DistinctByKeys(): IEnexAssociativeCollection<TKey, TValue>;
+    function DistinctByKeys(): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects all the key-value pairs from the collection excluding the duplicates by value.</summary>
     ///  <returns>A new collection that contains the distinct pairs.</returns>
-    function DistinctByValues(): IEnexAssociativeCollection<TKey, TValue>;
+    function DistinctByValues(): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs that satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function Where(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
+    function Where(const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs that do not satisfy a given rule.</summary>
     ///  <param name="APredicate">The predicate that represents the rule.</param>
     ///  <returns>A new collection that contains only the pairs that do not satisfy the given rule.</returns>
     ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="APredicate"/> is <c>nil</c>.</exception>
-    function WhereNot(const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereNot(const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyLower(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyLower(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are less than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyLowerOrEqual(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyLowerOrEqual(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are greater than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyGreater(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyGreater(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyGreaterOrEqual(const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyGreaterOrEqual(const ABound: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose keys are contained whithin a given interval.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The upper bound.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereKeyBetween(const ALower, AHigher: TKey): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereKeyBetween(const ALower, AHigher: TKey): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are less than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueLower(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueLower(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are less than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueLowerOrEqual(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueLowerOrEqual(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are greater than a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueGreater(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueGreater(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are greater than or equal to a given value.</summary>
     ///  <param name="ABound">The value to compare against.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueGreaterOrEqual(const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueGreaterOrEqual(const ABound: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Selects only the key-value pairs whose values are contained whithin a given interval.</summary>
     ///  <param name="ALower">The lower bound.</param>
     ///  <param name="AHigher">The upper bound.</param>
     ///  <returns>A new collection that contains only the pairs that satisfy the relationship.</returns>
-    function WhereValueBetween(const ALower, AHigher: TValue): IEnexAssociativeCollection<TKey, TValue>;
+    function WhereValueBetween(const ALower, AHigher: TValue): IAssociation<TKey, TValue>;
 
     ///  <summary>Creates a new dictionary containing the elements of this collection.</summary>
     ///  <returns>A dictionary containing the elements copied from this collection.</returns>
@@ -2505,7 +2504,7 @@ type
   ///  <summary>The base abstract class for associtative collections.</summary>
   ///  <remarks>This collection exposes some operations that need to be implemented in descending classes and some
   ///  default implementations using Enex operations.</remarks>
-  TAbstractMap<TKey, TValue> = class abstract(TEnexAssociativeCollection<TKey, TValue>, IMap<TKey, TValue>)
+  TAbstractMap<TKey, TValue> = class abstract(TAssociatiation<TKey, TValue>, IMap<TKey, TValue>)
   public
     ///  <summary>Clears the contents of the collection.</summary>
     ///  <remarks>This implementation uses Enex <c>First</c> operation on collection's keys to obtain key and then calls <c>Remove</c> to remove it along side its value.</remarks>
@@ -2734,313 +2733,247 @@ resourcestring
 {$ENDREGION}
 
 {$REGION 'Enex Internal Enumerables'}
-  //TODO: doc all these classes :(
 type
-  TEnexWhereCollection<T> = class sealed(TEnexCollection<T>)
+  Collections = record
   private type
-    TEnumerator = class(TForwardingEnumerator<T>)
-    public
-      function AcceptValue(const AValue: T): Boolean; override;
-    end;
+    TWhereSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<T>)
+      public
+        function AcceptValue(const AValue: T): Boolean; override;
+      end;
 
-  private
-    FCollection: TEnexCollection<T>;
-    FPredicate: TPredicate<T>;
-    FInvertResult: Boolean;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>;
-      const APredicate: TPredicate<T>; const AInvertResult: Boolean); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexSelectCollection<T, TOut> = class sealed(TEnexCollection<TOut>, IEnexCollection<TOut>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<TOut>)
     private
-      FInEnumerator: IEnumerator<T>;
+      FCollection: TSequence<T>;
+      FPredicate: TPredicate<T>;
+      FInvertResult: Boolean;
+
     public
-      function TryMoveNext(out ACurrent: TOut): Boolean; override;
-    end;
-
-  private
-    FCollection: TEnexCollection<T>;
-    FSelector: TFunc<T, TOut>;
-
-  protected
-    function GetCount(): NativeInt; override;
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<TOut>; override;
-    function Empty(): Boolean; override;
-    function First(): TOut; override;
-    function Last(): TOut; override;
-    function Single(): TOut; override;
-    function ElementAt(const AIndex: NativeInt): TOut; override;
-  end;
-
-  TEnexSelectClassCollection<T, TOut: class> = class sealed(TEnexCollection<TOut>, IEnexCollection<TOut>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<TOut>)
-    private
-      FInEnumerator: IEnumerator<T>;
-    public
-      function TryMoveNext(out ACurrent: TOut): Boolean; override;
-    end;
-
-  private
-    FCollection: TEnexCollection<T>;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const ARules: TRules<TOut>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<TOut>; override;
-  end;
-
-  TEnexConcatCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<T>)
-    private
-      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
-    public
-      function TryMoveNext(out ACurrent: T): Boolean; override;
-    end;
-
-  private
-    FCollection1: TEnexCollection<T>;
-    FCollection2: IEnexCollection<T>;
-  protected
-    function GetCount(): NativeInt; override;
-
-  public
-    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-    function Empty(): Boolean; override;
-    function Any(const APredicate: TPredicate<T>): Boolean; override;
-    function All(const APredicate: TPredicate<T>): Boolean; override;
-  end;
-
-  TEnexUnionCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<T>)
-    private
-      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
-      FSet: ISet<T>;
-    public
-      function TryMoveNext(out ACurrent: T): Boolean; override;
-    end;
-
-  private
-    FCollection1: TEnexCollection<T>;
-    FCollection2: IEnexCollection<T>;
-  public
-    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexExclusionCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<T>)
-    private
-      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
-      FSet: ISet<T>;
-    public
-      function TryMoveNext(out ACurrent: T): Boolean; override;
-    end;
-
-  private
-    FCollection1: TEnexCollection<T>;
-    FCollection2: IEnexCollection<T>;
-  public
-    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexIntersectionCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<T>)
-    private
-      FInEnumerator1, FInEnumerator2: IEnumerator<T>;
-      FSet: ISet<T>;
-    public
-      function TryMoveNext(out ACurrent: T): Boolean; override;
-    end;
-
-  private
-    FCollection1: TEnexCollection<T>;
-    FCollection2: IEnexCollection<T>;
-  public
-    constructor Create(const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexDistinctCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TForwardingEnumerator<T>)
-    private
-      FSet: ISet<T>;
-    public
-      function AcceptValue(const AValue: T): Boolean; override;
-    end;
-
-  private
-    FCollection: TEnexCollection<T>;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexRangeCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<T>)
-    private
-      FInEnumerator: IEnumerator<T>;
-      FCurrentIndex: NativeInt;
-    public
-      function TryMoveNext(out ACurrent: T): Boolean; override;
-    end;
-
-  private
-    FStart, FEnd: NativeInt;
-    FCollection: TEnexCollection<T>;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const AStart, AEnd: NativeInt); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexSkipCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TForwardingEnumerator<T>)
-    private
-      FCurrentIndex: NativeInt;
-    public
-      function AcceptValue(const AValue: T): Boolean; override;
-    end;
-
-  private
-    FCount: NativeInt;
-    FCollection: TEnexCollection<T>;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexTakeCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TForwardingEnumerator<T>)
-    private
-      FCurrentIndex: NativeInt;
-    public
-      function AcceptValue(const AValue: T): Boolean; override;
-    end;
-
-  private
-    FCount: NativeInt;
-    FCollection: TEnexCollection<T>;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexFillCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<T>)
-    private
-      FRemaining: NativeInt;
-    public
-      function TryMoveNext(out ACurrent: T): Boolean; override;
-    end;
-
-  private
-    FElement: T;
-    FCount: NativeInt;
-
-  protected
-    function GetCount(): NativeInt; override;
-  public
-    constructor Create(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>);
-    function GetEnumerator(): IEnumerator<T>; override;
-    function Empty(): Boolean; override;
-    function Max(): T; override;
-    function Min(): T; override;
-    function First(): T; override;
-    function FirstOrDefault(const ADefault: T): T; override;
-    function Last(): T; override;
-    function LastOrDefault(const ADefault: T): T; override;
-    function Single(): T; override;
-    function SingleOrDefault(const ADefault: T): T; override;
-    function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
-    function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
-    function ElementAt(const AIndex: NativeInt): T; override;
-    function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
-    function Any(const APredicate: TPredicate<T>): Boolean; override;
-    function All(const APredicate: TPredicate<T>): Boolean; override;
-    function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
-  end;
-
-  TEnexTakeWhileCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<T>)
-    private
-      FInEnumerator: IEnumerator<T>;
-    public
-      function TryMoveNext(out ACurrent: T): Boolean; override;
-    end;
-
-  private
-    FCollection: TEnexCollection<T>;
-    FPredicate: TPredicate<T>;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexSkipWhileCollection<T> = class sealed(TEnexCollection<T>)
-  private type
-    TEnumerator = class(TForwardingEnumerator<T>)
-    private
-      FStarted: Boolean;
-    public
-      function AcceptValue(const AValue: T): Boolean; override;
-    end;
-
-  private
-    FCollection: TEnexCollection<T>;
-    FPredicate: TPredicate<T>;
-
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<T>; override;
-  end;
-
-  TEnexGroupByCollection<T, TBy> = class sealed(TEnexCollection<IGrouping<TBy, T>>)
-  private type
-    TEnexGroupingCollection = class(TEnexCollection<T>, IGrouping<TBy, T>)
-    private
-      FBy: TBy;
-      FList: IList<T>;
-    public
-      function GetKey(): TBy;
-      function GetCount(): NativeInt; override;
+      constructor Create(const ACollection: TSequence<T>;
+        const APredicate: TPredicate<T>; const AInvertResult: Boolean); overload;
+      destructor Destroy(); override;
       function GetEnumerator(): IEnumerator<T>; override;
-      procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
+    end;
+
+    TSelectSequence<T, TOut> = class sealed(TSequence<TOut>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<TOut>)
+      private
+        FInEnumerator: IEnumerator<T>;
+      public
+        function TryMoveNext(out ACurrent: TOut): Boolean; override;
+      end;
+
+    private
+      FCollection: TSequence<T>;
+      FSelector: TFunc<T, TOut>;
+
+    protected
+      function GetCount(): NativeInt; override;
+    public
+      constructor Create(const ACollection: TSequence<T>; const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<TOut>; override;
+      function Empty(): Boolean; override;
+      function First(): TOut; override;
+      function Last(): TOut; override;
+      function Single(): TOut; override;
+      function ElementAt(const AIndex: NativeInt): TOut; override;
+    end;
+
+    TSelectClassSequence<T, TOut: class> = class sealed(TSequence<TOut>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<TOut>)
+      private
+        FInEnumerator: IEnumerator<T>;
+      public
+        function TryMoveNext(out ACurrent: TOut): Boolean; override;
+      end;
+
+    private
+      FCollection: TSequence<T>;
+
+    public
+      constructor Create(const ACollection: TSequence<T>; const ARules: TRules<TOut>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<TOut>; override;
+    end;
+
+    TConcatSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<T>)
+      private
+        FInEnumerator1, FInEnumerator2: IEnumerator<T>;
+      public
+        function TryMoveNext(out ACurrent: T): Boolean; override;
+      end;
+
+    private
+      FCollection1: TSequence<T>;
+      FCollection2: ISequence<T>;
+    protected
+      function GetCount(): NativeInt; override;
+
+    public
+      constructor Create(const ACollection1: TSequence<T>; const ACollection2: ISequence<T>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+      function Empty(): Boolean; override;
+      function Any(const APredicate: TPredicate<T>): Boolean; override;
+      function All(const APredicate: TPredicate<T>): Boolean; override;
+    end;
+
+    TUnionSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<T>)
+      private
+        FInEnumerator1, FInEnumerator2: IEnumerator<T>;
+        FSet: ISet<T>;
+      public
+        function TryMoveNext(out ACurrent: T): Boolean; override;
+      end;
+
+    private
+      FCollection1: TSequence<T>;
+      FCollection2: ISequence<T>;
+    public
+      constructor Create(const ACollection1: TSequence<T>; const ACollection2: ISequence<T>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+    end;
+
+    TExclusionSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<T>)
+      private
+        FInEnumerator1, FInEnumerator2: IEnumerator<T>;
+        FSet: ISet<T>;
+      public
+        function TryMoveNext(out ACurrent: T): Boolean; override;
+      end;
+
+    private
+      FCollection1: TSequence<T>;
+      FCollection2: ISequence<T>;
+    public
+      constructor Create(const ACollection1: TSequence<T>; const ACollection2: ISequence<T>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+    end;
+
+    TIntersectionSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<T>)
+      private
+        FInEnumerator1, FInEnumerator2: IEnumerator<T>;
+        FSet: ISet<T>;
+      public
+        function TryMoveNext(out ACurrent: T): Boolean; override;
+      end;
+
+    private
+      FCollection1: TSequence<T>;
+      FCollection2: ISequence<T>;
+    public
+      constructor Create(const ACollection1: TSequence<T>; const ACollection2: ISequence<T>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+    end;
+
+    TDistinctSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<T>)
+      private
+        FSet: ISet<T>;
+      public
+        function AcceptValue(const AValue: T): Boolean; override;
+      end;
+
+    private
+      FCollection: TSequence<T>;
+
+    public
+      constructor Create(const ACollection: TSequence<T>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+    end;
+
+    TRangeSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<T>)
+      private
+        FInEnumerator: IEnumerator<T>;
+        FCurrentIndex: NativeInt;
+      public
+        function TryMoveNext(out ACurrent: T): Boolean; override;
+      end;
+
+    private
+      FStart, FEnd: NativeInt;
+      FCollection: TSequence<T>;
+
+    public
+      constructor Create(const ACollection: TSequence<T>; const AStart, AEnd: NativeInt); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+    end;
+
+    TSkipSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<T>)
+      private
+        FCurrentIndex: NativeInt;
+      public
+        function AcceptValue(const AValue: T): Boolean; override;
+      end;
+
+    private
+      FCount: NativeInt;
+      FCollection: TSequence<T>;
+
+    public
+      constructor Create(const ACollection: TSequence<T>; const ACount: NativeInt); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+    end;
+
+    TTakeSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<T>)
+      private
+        FCurrentIndex: NativeInt;
+      public
+        function AcceptValue(const AValue: T): Boolean; override;
+      end;
+
+    private
+      FCount: NativeInt;
+      FCollection: TSequence<T>;
+
+    public
+      constructor Create(const ACollection: TSequence<T>; const ACount: NativeInt); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
+    end;
+
+    TFillSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<T>)
+      private
+        FRemaining: NativeInt;
+      public
+        function TryMoveNext(out ACurrent: T): Boolean; override;
+      end;
+
+    private
+      FElement: T;
+      FCount: NativeInt;
+
+    protected
+      function GetCount(): NativeInt; override;
+    public
+      constructor Create(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>);
+      function GetEnumerator(): IEnumerator<T>; override;
       function Empty(): Boolean; override;
       function Max(): T; override;
       function Min(): T; override;
@@ -3059,111 +2992,180 @@ type
       function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
     end;
 
-  private var
-    FCollection: TEnexCollection<T>;
-    FSelector: TFunc<T, TBy>;
+    TTakeWhileSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<T>)
+      private
+        FInEnumerator: IEnumerator<T>;
+      public
+        function TryMoveNext(out ACurrent: T): Boolean; override;
+      end;
 
-  public
-    constructor Create(const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TBy>);
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<IGrouping<TBy, T>>; override;
-  end;
-
-  TEnexSelectKeysCollection<TKey, TValue> = class sealed(TEnexCollection<TKey>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<TKey>)
     private
-      FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
+      FCollection: TSequence<T>;
+      FPredicate: TPredicate<T>;
+
     public
-      function TryMoveNext(out ACurrent: TKey): Boolean; override;
+      constructor Create(const ACollection: TSequence<T>; const APredicate: TPredicate<T>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
     end;
 
-  private
-    FCollection: TEnexAssociativeCollection<TKey, TValue>;
+    TSkipWhileSequence<T> = class sealed(TSequence<T>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<T>)
+      private
+        FStarted: Boolean;
+      public
+        function AcceptValue(const AValue: T): Boolean; override;
+      end;
 
-  protected
-    function GetCount(): NativeInt; override;
-
-  public
-    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<TKey>; override;
-  end;
-
-  TEnexSelectValuesCollection<TKey, TValue> = class sealed(TEnexCollection<TValue>)
-  private type
-    TEnumerator = class(TAbstractEnumerator<TValue>)
     private
-      FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
+      FCollection: TSequence<T>;
+      FPredicate: TPredicate<T>;
+
     public
-      function TryMoveNext(out ACurrent: TValue): Boolean; override;
+      constructor Create(const ACollection: TSequence<T>; const APredicate: TPredicate<T>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<T>; override;
     end;
 
-  private
-    FCollection: TEnexAssociativeCollection<TKey, TValue>;
+    TGroupBySequence<T, TBy> = class sealed(TSequence<IGrouping<TBy, T>>)
+    private type
+      TEnexGroupingCollection = class(TSequence<T>, IGrouping<TBy, T>)
+      private
+        FBy: TBy;
+        FList: IList<T>;
+      public
+        function GetKey(): TBy;
+        function GetCount(): NativeInt; override;
+        function GetEnumerator(): IEnumerator<T>; override;
+        procedure CopyTo(var AArray: array of T; const AStartIndex: NativeInt); overload; override;
+        function Empty(): Boolean; override;
+        function Max(): T; override;
+        function Min(): T; override;
+        function First(): T; override;
+        function FirstOrDefault(const ADefault: T): T; override;
+        function Last(): T; override;
+        function LastOrDefault(const ADefault: T): T; override;
+        function Single(): T; override;
+        function SingleOrDefault(const ADefault: T): T; override;
+        function Aggregate(const AAggregator: TFunc<T, T, T>): T; override;
+        function AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T; override;
+        function ElementAt(const AIndex: NativeInt): T; override;
+        function ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T; override;
+        function Any(const APredicate: TPredicate<T>): Boolean; override;
+        function All(const APredicate: TPredicate<T>): Boolean; override;
+        function EqualsTo(const ACollection: IEnumerable<T>): Boolean; override;
+      end;
 
-  protected
-    function GetCount(): NativeInt; override;
+    private var
+      FCollection: TSequence<T>;
+      FSelector: TFunc<T, TBy>;
 
-  public
-    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<TValue>; override;
-  end;
-
-  TEnexAssociativeWhereCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>)
-  private type
-    TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
     public
-      function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
+      constructor Create(const ACollection: TSequence<T>; const ASelector: TFunc<T, TBy>);
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<IGrouping<TBy, T>>; override;
     end;
 
-  var
-    FCollection: TEnexAssociativeCollection<TKey, TValue>;
-    FPredicate: TPredicate<TKey, TValue>;
-    FInvertResult: Boolean;
-  public
-    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>;
-        const APredicate: TPredicate<TKey, TValue>; const AInvertResult: Boolean); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
-  end;
+    TSelectKeysSequence<TKey, TValue> = class sealed(TSequence<TKey>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<TKey>)
+      private
+        FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
+      public
+        function TryMoveNext(out ACurrent: TKey): Boolean; override;
+      end;
 
-  TEnexAssociativeDistinctByKeysCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>)
-  private type
-    TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
     private
-      FSet: ISet<TKey>;
+      FCollection: TAssociatiation<TKey, TValue>;
+
+    protected
+      function GetCount(): NativeInt; override;
+
     public
-      function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
+      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<TKey>; override;
     end;
 
-  private
-    FCollection: TEnexAssociativeCollection<TKey, TValue>;
+    TSelectValuesSequence<TKey, TValue> = class sealed(TSequence<TValue>)
+    private type
+      TEnumerator = class(TAbstractEnumerator<TValue>)
+      private
+        FInEnumerator: IEnumerator<TPair<TKey, TValue>>;
+      public
+        function TryMoveNext(out ACurrent: TValue): Boolean; override;
+      end;
 
-  public
-    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
-  end;
-
-  TEnexAssociativeDistinctByValuesCollection<TKey, TValue> = class sealed(TEnexAssociativeCollection<TKey, TValue>)
-  private type
-    TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
     private
-      FSet: ISet<TValue>;
+      FCollection: TAssociatiation<TKey, TValue>;
+
+    protected
+      function GetCount(): NativeInt; override;
+
     public
-      function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
+      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<TValue>; override;
     end;
 
-  private
-    FCollection: TEnexAssociativeCollection<TKey, TValue>;
+    TAssociativeWhereSequence<TKey, TValue> = class sealed(TAssociatiation<TKey, TValue>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
+      public
+        function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
+      end;
 
-  public
-    constructor Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>); overload;
-    destructor Destroy(); override;
-    function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
+    var
+      FCollection: TAssociatiation<TKey, TValue>;
+      FPredicate: TPredicate<TKey, TValue>;
+      FInvertResult: Boolean;
+    public
+      constructor Create(const ACollection: TAssociatiation<TKey, TValue>;
+          const APredicate: TPredicate<TKey, TValue>; const AInvertResult: Boolean); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
+    end;
+
+    TAssociativeDistinctByKeysSequence<TKey, TValue> = class sealed(TAssociatiation<TKey, TValue>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
+      private
+        FSet: ISet<TKey>;
+      public
+        function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
+      end;
+
+    private
+      FCollection: TAssociatiation<TKey, TValue>;
+
+    public
+      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
+    end;
+
+    TAssociativeDistinctByValuesSequence<TKey, TValue> = class sealed(TAssociatiation<TKey, TValue>)
+    private type
+      TEnumerator = class(TForwardingEnumerator<TPair<TKey, TValue>>)
+      private
+        FSet: ISet<TValue>;
+      public
+        function AcceptValue(const AValue: TPair<TKey, TValue>): Boolean; override;
+      end;
+
+    private
+      FCollection: TAssociatiation<TKey, TValue>;
+
+    public
+      constructor Create(const ACollection: TAssociatiation<TKey, TValue>); overload;
+      destructor Destroy(); override;
+      function GetEnumerator(): IEnumerator<TPair<TKey, TValue>>; override;
+    end;
   end;
+
 {$ENDREGION}
 
 implementation
@@ -3179,7 +3181,7 @@ end;
 
 { TAbstractEnumerator<T> }
 
-constructor TAbstractEnumerator<T>.Create(const AOwner: TAbstractCollection);
+constructor TAbstractEnumerator<T>.Create(const AOwner: TAbstractSequence);
 begin
   FOwner := AOwner;
   KeepObjectAlive(FOwner);
@@ -3223,7 +3225,7 @@ begin
   Result := True;
 end;
 
-constructor TForwardingEnumerator<T>.Create(const AOwner: TAbstractCollection; const AEnumerator: IEnumerator<T>);
+constructor TForwardingEnumerator<T>.Create(const AOwner: TAbstractSequence; const AEnumerator: IEnumerator<T>);
 begin
   inherited Create(AOwner);
 
@@ -3252,18 +3254,18 @@ end;
 
 { TEnexExtOps<T> }
 
-function TEnexExtOps<T>.GroupBy<TKey>(const ASelector: TFunc<T, TKey>): IEnexCollection<IGrouping<TKey, T>>;
+function TEnexExtOps<T>.GroupBy<TKey>(const ASelector: TFunc<T, TKey>): ISequence<IGrouping<TKey, T>>;
 begin
   { Check arguments }
   if not Assigned(ASelector) then
     ExceptionHelper.Throw_ArgumentNilError('ASelector');
 
   { Create an intermediate collection that will lazy-create the actual stuff }
-  Result := TEnexGroupByCollection<T, TKey>.Create(FInstance, ASelector);
+  Result := Collections.TGroupBySequence<T, TKey>.Create(FInstance, ASelector);
 end;
 
 {$IF CompilerVersion > 21}
-function TEnexExtOps<T>.Select(const AMemberName: string): IEnexCollection<TAny>;
+function TEnexExtOps<T>.Select(const AMemberName: string): ISequence<TAny>;
 var
   LSelector: TFunc<T, TAny>;
 begin
@@ -3277,7 +3279,7 @@ begin
   Result := Select<TAny>(LSelector);
 end;
 
-function TEnexExtOps<T>.Select<TOut>(const AMemberName: string): IEnexCollection<TOut>;
+function TEnexExtOps<T>.Select<TOut>(const AMemberName: string): ISequence<TOut>;
 var
   LSelector: TFunc<T, TOut>;
 begin
@@ -3291,7 +3293,7 @@ begin
   Result := Select<TOut>(LSelector);
 end;
 
-function TEnexExtOps<T>.Select(const AMemberNames: array of string): IEnexCollection<TView>;
+function TEnexExtOps<T>.Select(const AMemberNames: array of string): ISequence<TView>;
 var
   LSelector: TFunc<T, TView>;
 begin
@@ -3306,7 +3308,7 @@ begin
 end;
 {$IFEND}
 
-function TEnexExtOps<T>.Select<TOut>: IEnexCollection<TOut>;
+function TEnexExtOps<T>.Select<TOut>: ISequence<TOut>;
 var
   LTypeInfo: PTypeInfo;
 begin
@@ -3317,46 +3319,46 @@ begin
   if (not Assigned(LTypeInfo)) or (LTypeInfo^.Kind <> tkClass) then
     ExceptionHelper.Throw_TypeNotAClassError(GetTypeName(LTypeInfo));
 
-  Result := TEnexSelectClassCollection<TObject, TOut>.Create(FInstance, TRules<TOut>.Default);
+  Result := Collections.TSelectClassSequence<TObject, TOut>.Create(FInstance, TRules<TOut>.Default);
 end;
 
-function TEnexExtOps<T>.Select<TOut>(const ASelector: TFunc<T, TOut>): IEnexCollection<TOut>;
+function TEnexExtOps<T>.Select<TOut>(const ASelector: TFunc<T, TOut>): ISequence<TOut>;
 begin
   { With default type support }
   Result := Select<TOut>(ASelector, TRules<TOut>.Default);
 end;
 
-function TEnexExtOps<T>.Select<TOut>(const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>): IEnexCollection<TOut>;
+function TEnexExtOps<T>.Select<TOut>(const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>): ISequence<TOut>;
 begin
   { Check arguments }
   if not Assigned(ASelector) then
     ExceptionHelper.Throw_ArgumentNilError('ASelector');
 
   { Create a new Enex collection }
-  Result := TEnexSelectCollection<T, TOut>.Create(FInstance, ASelector, ARules);
+  Result := Collections.TSelectSequence<T, TOut>.Create(FInstance, ASelector, ARules);
 end;
 
-{ TAbstractCollection }
+{ TAbstractSequence }
 
-procedure TAbstractCollection.NotifyCollectionChanged;
+procedure TAbstractSequence.NotifyCollectionChanged;
 begin
   Inc(FVersion);
 end;
 
-function TAbstractCollection.Version: NativeInt;
+function TAbstractSequence.Version: NativeInt;
 begin
   Result := FVersion;
 end;
 
-{ TCollection<T> }
+{ TAbstractSequence<T> }
 
-procedure TAbstractCollection<T>.CopyTo(var AArray: array of T);
+procedure TAbstractSequence<T>.CopyTo(var AArray: array of T);
 begin
   { Call upper version }
   CopyTo(AArray, 0);
 end;
 
-procedure TAbstractCollection<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+procedure TAbstractSequence<T>.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 var
   LEnumerator: IEnumerator<T>;
   L, I: NativeInt;
@@ -3380,7 +3382,7 @@ begin
   end;
 end;
 
-function TAbstractCollection<T>.Empty: Boolean;
+function TAbstractSequence<T>.Empty: Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3391,7 +3393,7 @@ begin
   Result := (not LEnumerator.MoveNext());
 end;
 
-function TAbstractCollection<T>.GetCount: NativeInt;
+function TAbstractSequence<T>.GetCount: NativeInt;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3403,7 +3405,7 @@ begin
   while LEnumerator.MoveNext() do Inc(Result);
 end;
 
-function TAbstractCollection<T>.Single: T;
+function TAbstractSequence<T>.Single: T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3421,7 +3423,7 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-function TAbstractCollection<T>.SingleOrDefault(const ADefault: T): T;
+function TAbstractSequence<T>.SingleOrDefault(const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3439,7 +3441,7 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-function TAbstractCollection<T>.ToArray: TArray<T>;
+function TAbstractSequence<T>.ToArray: TArray<T>;
 var
   LCount: NativeInt;
   LResult: TArray<T>;
@@ -3459,9 +3461,9 @@ begin
   Result := LResult;
 end;
 
-{ TEnexCollection<T> }
+{ TSequence<T> }
 
-function TEnexCollection<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
+function TSequence<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3486,7 +3488,7 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
+function TSequence<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3511,7 +3513,7 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.All(const APredicate: TPredicate<T>): Boolean;
+function TSequence<T>.All(const APredicate: TPredicate<T>): Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3531,7 +3533,7 @@ begin
   Result := true;
 end;
 
-function TEnexCollection<T>.Any(const APredicate: TPredicate<T>): Boolean;
+function TSequence<T>.Any(const APredicate: TPredicate<T>): Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3551,7 +3553,7 @@ begin
   Result := false;
 end;
 
-function TEnexCollection<T>.CompareElements(const ALeft, ARight: T): NativeInt;
+function TSequence<T>.CompareElements(const ALeft, ARight: T): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FElementRules.FComparer) then
@@ -3560,13 +3562,13 @@ begin
   Result := FElementRules.FComparer.Compare(ALeft, ARight);
 end;
 
-function TEnexCollection<T>.CompareTo(AObject: TObject): Integer;
+function TSequence<T>.CompareTo(AObject: TObject): Integer;
 var
   LIterSelf, LIterTo: IEnumerator<T>;
   LMovSelf, LMovTo: Boolean;
 begin
   { Check if we can continue }
-  if (not Assigned(AObject)) or (not AObject.InheritsFrom(TEnexCollection<T>)) then
+  if (not Assigned(AObject)) or (not AObject.InheritsFrom(TSequence<T>)) then
     Result := 1
   else begin
     { Assume equality }
@@ -3574,7 +3576,7 @@ begin
 
     { Get enumerators }
     LIterSelf := GetEnumerator();
-    LIterTo := TEnexCollection<T>(AObject).GetEnumerator();
+    LIterTo := TSequence<T>(AObject).GetEnumerator();
 
     while true do
     begin
@@ -3606,33 +3608,33 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.Concat(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+function TSequence<T>.Concat(const ACollection: ISequence<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexConcatCollection<T>.Create(Self, ACollection);
+  Result := Collections.TConcatSequence<T>.Create(Self, ACollection);
 end;
 
-constructor TEnexCollection<T>.Create(const ARules: TRules<T>);
+constructor TSequence<T>.Create(const ARules: TRules<T>);
 begin
   FElementRules := ARules;
 end;
 
-constructor TEnexCollection<T>.Create;
+constructor TSequence<T>.Create;
 begin
   Create(TRules<T>.Default);
 end;
 
-function TEnexCollection<T>.Distinct: IEnexCollection<T>;
+function TSequence<T>.Distinct: ISequence<T>;
 begin
   { Create a new enumerator }
-  Result := TEnexDistinctCollection<T>.Create(Self);
+  Result := Collections.TDistinctSequence<T>.Create(Self);
 end;
 
-function TEnexCollection<T>.ElementAt(const AIndex: NativeInt): T;
+function TSequence<T>.ElementAt(const AIndex: NativeInt): T;
 var
   LEnumerator: IEnumerator<T>;
   LCount: NativeInt;
@@ -3657,7 +3659,7 @@ begin
   ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
 end;
 
-function TEnexCollection<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
+function TSequence<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
   LCount: NativeInt;
@@ -3682,7 +3684,7 @@ begin
   Result := ADefault;
 end;
 
-function TEnexCollection<T>.ElementsAreEqual(const ALeft, ARight: T): Boolean;
+function TSequence<T>.ElementsAreEqual(const ALeft, ARight: T): Boolean;
 begin
   { Lazy init }
   if not Assigned(FElementRules.FEqComparer) then
@@ -3691,13 +3693,13 @@ begin
   Result := FElementRules.FEqComparer.Equals(ALeft, ARight);
 end;
 
-function TEnexCollection<T>.Equals(Obj: TObject): Boolean;
+function TSequence<T>.Equals(Obj: TObject): Boolean;
 begin
   { Call comparison }
   Result := (CompareTo(Obj) = 0);
 end;
 
-function TEnexCollection<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
+function TSequence<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
   LEnumerator1, LEnumerator2: IEnumerator<T>;
   LMoved1, LMoved2: Boolean;
@@ -3733,33 +3735,33 @@ begin
   Result := true;
 end;
 
-function TEnexCollection<T>.Exclude(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+function TSequence<T>.Exclude(const ACollection: ISequence<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexExclusionCollection<T>.Create(Self, ACollection);
+  Result := Collections.TExclusionSequence<T>.Create(Self, ACollection);
 end;
 
-class function TEnexCollection<T>.Fill(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): IEnexCollection<T>;
+class function TSequence<T>.Fill(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>): ISequence<T>;
 begin
   { Check arguments }
   if ACount <= 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create an collection }
-  Result := TEnexFillCollection<T>.Create(AElement, ACount, ARules);
+  Result := Collections.TFillSequence<T>.Create(AElement, ACount, ARules);
 end;
 
-class function TEnexCollection<T>.Fill(const AElement: T; const ACount: NativeInt): IEnexCollection<T>;
+class function TSequence<T>.Fill(const AElement: T; const ACount: NativeInt): ISequence<T>;
 begin
   { Call upper function }
   Result := Fill(AElement, ACount, TRules<T>.Default);
 end;
 
-function TEnexCollection<T>.First: T;
+function TSequence<T>.First: T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3773,7 +3775,7 @@ begin
     ExceptionHelper.Throw_CollectionEmptyError();
 end;
 
-function TEnexCollection<T>.FirstOrDefault(const ADefault: T): T;
+function TSequence<T>.FirstOrDefault(const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3787,7 +3789,7 @@ begin
     Result := ADefault;
 end;
 
-function TEnexCollection<T>.FirstWhere(const APredicate: TPredicate<T>): T;
+function TSequence<T>.FirstWhere(const APredicate: TPredicate<T>): T;
 var
   LEnumerator: IEnumerator<T>;
   LWasOne: Boolean;
@@ -3815,7 +3817,7 @@ begin
     ExceptionHelper.Throw_CollectionEmptyError();
 end;
 
-function TEnexCollection<T>.FirstWhereBetween(const ALower, AHigher: T): T;
+function TSequence<T>.FirstWhereBetween(const ALower, AHigher: T): T;
 begin
   Result := FirstWhere(
     function(Arg1: T): Boolean
@@ -3826,7 +3828,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereBetweenOrDefault(const ALower, AHigher, ADefault: T): T;
+function TSequence<T>.FirstWhereBetweenOrDefault(const ALower, AHigher, ADefault: T): T;
 begin
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
@@ -3838,7 +3840,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereGreater(const ABound: T): T;
+function TSequence<T>.FirstWhereGreater(const ABound: T): T;
 begin
   Result := FirstWhere(
     function(Arg1: T): Boolean
@@ -3848,7 +3850,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereGreaterOrDefault(const ABound, ADefault: T): T;
+function TSequence<T>.FirstWhereGreaterOrDefault(const ABound, ADefault: T): T;
 begin
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
@@ -3859,7 +3861,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereGreaterOrEqual(const ABound: T): T;
+function TSequence<T>.FirstWhereGreaterOrEqual(const ABound: T): T;
 begin
   Result := FirstWhere(
     function(Arg1: T): Boolean
@@ -3869,7 +3871,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereGreaterOrEqualOrDefault(const ABound, ADefault: T): T;
+function TSequence<T>.FirstWhereGreaterOrEqualOrDefault(const ABound, ADefault: T): T;
 begin
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
@@ -3880,7 +3882,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereLower(const ABound: T): T;
+function TSequence<T>.FirstWhereLower(const ABound: T): T;
 begin
   Result := FirstWhere(
     function(Arg1: T): Boolean
@@ -3890,7 +3892,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereLowerOrDefault(const ABound, ADefault: T): T;
+function TSequence<T>.FirstWhereLowerOrDefault(const ABound, ADefault: T): T;
 begin
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
@@ -3901,7 +3903,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereLowerOrEqual(const ABound: T): T;
+function TSequence<T>.FirstWhereLowerOrEqual(const ABound: T): T;
 begin
   Result := FirstWhere(
     function(Arg1: T): Boolean
@@ -3911,7 +3913,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereLowerOrEqualOrDefault(const ABound, ADefault: T): T;
+function TSequence<T>.FirstWhereLowerOrEqualOrDefault(const ABound, ADefault: T): T;
 begin
   Result := FirstWhereOrDefault(
     function(Arg1: T): Boolean
@@ -3922,7 +3924,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereNot(const APredicate: TPredicate<T>): T;
+function TSequence<T>.FirstWhereNot(const APredicate: TPredicate<T>): T;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -3935,7 +3937,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereNotOrDefault(
+function TSequence<T>.FirstWhereNotOrDefault(
   const APredicate: TPredicate<T>; const ADefault: T): T;
 begin
   if not Assigned(APredicate) then
@@ -3950,7 +3952,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.FirstWhereOrDefault(const APredicate: TPredicate<T>; const ADefault: T): T;
+function TSequence<T>.FirstWhereOrDefault(const APredicate: TPredicate<T>; const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -3969,7 +3971,7 @@ begin
   Result := ADefault;
 end;
 
-function TEnexCollection<T>.GetElementHashCode(const AValue: T): NativeInt;
+function TSequence<T>.GetElementHashCode(const AValue: T): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FElementRules.FEqComparer) then
@@ -3978,7 +3980,7 @@ begin
   Result := FElementRules.FEqComparer.GetHashCode(AValue);
 end;
 
-function TEnexCollection<T>.GetHashCode: Integer;
+function TSequence<T>.GetHashCode: Integer;
 const
   CMagic = $0F;
 
@@ -3996,17 +3998,17 @@ begin
     Result := CMagic * Result + GetElementHashCode(LEnumerator.Current);
 end;
 
-function TEnexCollection<T>.Intersect(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+function TSequence<T>.Intersect(const ACollection: ISequence<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexIntersectionCollection<T>.Create(Self, ACollection);
+  Result := Collections.TIntersectionSequence<T>.Create(Self, ACollection);
 end;
 
-function TEnexCollection<T>.Last: T;
+function TSequence<T>.Last: T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -4028,7 +4030,7 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.LastOrDefault(const ADefault: T): T;
+function TSequence<T>.LastOrDefault(const ADefault: T): T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -4050,7 +4052,7 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.Max: T;
+function TSequence<T>.Max: T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -4076,7 +4078,7 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.Min: T;
+function TSequence<T>.Min: T;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -4102,7 +4104,7 @@ begin
   end;
 end;
 
-function TEnexCollection<T>.Op: TEnexExtOps<T>;
+function TSequence<T>.Op: TEnexExtOps<T>;
 begin
   { Build up the record + keep an optional reference to the object }
   Result.FInstance := Self;
@@ -4110,7 +4112,7 @@ begin
   Result.FRules := FElementRules;
 end;
 
-function TEnexCollection<T>.Range(const AStart, AEnd: NativeInt): IEnexCollection<T>;
+function TSequence<T>.Range(const AStart, AEnd: NativeInt): ISequence<T>;
 begin
   if AStart < 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStart');
@@ -4118,10 +4120,10 @@ begin
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AEnd');
 
   { Create a new Enex collection }
-  Result := TEnexRangeCollection<T>.Create(Self, AStart, AEnd);
+  Result := Collections.TRangeSequence<T>.Create(Self, AStart, AEnd);
 end;
 
-function TEnexCollection<T>.Reversed: IEnexCollection<T>;
+function TSequence<T>.Reversed: ISequence<T>;
 var
   LList: TList<T>;
 begin
@@ -4134,27 +4136,27 @@ begin
   Result := LList;
 end;
 
-function TEnexCollection<T>.Skip(const ACount: NativeInt): IEnexCollection<T>;
+function TSequence<T>.Skip(const ACount: NativeInt): ISequence<T>;
 begin
   { Check parameters }
   if ACount = 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new Enex collection }
-  Result := TEnexSkipCollection<T>.Create(Self, ACount);
+  Result := Collections.TSkipSequence<T>.Create(Self, ACount);
 end;
 
-function TEnexCollection<T>.SkipWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
+function TSequence<T>.SkipWhile(const APredicate: TPredicate<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Create a new Enex collection }
-  Result := TEnexSkipWhileCollection<T>.Create(Self, APredicate);
+  Result := Collections.TSkipWhileSequence<T>.Create(Self, APredicate);
 end;
 
-function TEnexCollection<T>.SkipWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
+function TSequence<T>.SkipWhileBetween(const ALower, AHigher: T): ISequence<T>;
 var
   LLower, LHigher: T;
 begin
@@ -4171,7 +4173,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.SkipWhileGreater(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.SkipWhileGreater(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4187,7 +4189,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.SkipWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.SkipWhileGreaterOrEqual(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4203,7 +4205,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.SkipWhileLower(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.SkipWhileLower(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4219,7 +4221,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.SkipWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.SkipWhileLowerOrEqual(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4235,7 +4237,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.Ordered(const ASortProc: TComparison<T>): IEnexCollection<T>;
+function TSequence<T>.Ordered(const ASortProc: TComparison<T>): ISequence<T>;
 var
   LList: TList<T>;
 begin
@@ -4248,7 +4250,7 @@ begin
   Result := LList;
 end;
 
-function TEnexCollection<T>.Ordered(const AAscending: Boolean = true): IEnexCollection<T>;
+function TSequence<T>.Ordered(const AAscending: Boolean = true): ISequence<T>;
 var
   LList: TList<T>;
 begin
@@ -4261,27 +4263,27 @@ begin
   Result := LList;
 end;
 
-function TEnexCollection<T>.Take(const ACount: NativeInt): IEnexCollection<T>;
+function TSequence<T>.Take(const ACount: NativeInt): ISequence<T>;
 begin
   { Check parameters }
   if ACount = 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
 
   { Create a new Enex collection }
-  Result := TEnexTakeCollection<T>.Create(Self, ACount);
+  Result := Collections.TTakeSequence<T>.Create(Self, ACount);
 end;
 
-function TEnexCollection<T>.TakeWhile(const APredicate: TPredicate<T>): IEnexCollection<T>;
+function TSequence<T>.TakeWhile(const APredicate: TPredicate<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Create a new Enex collection }
-  Result := TEnexTakeWhileCollection<T>.Create(Self, APredicate);
+  Result := Collections.TTakeWhileSequence<T>.Create(Self, APredicate);
 end;
 
-function TEnexCollection<T>.TakeWhileBetween(const ALower, AHigher: T): IEnexCollection<T>;
+function TSequence<T>.TakeWhileBetween(const ALower, AHigher: T): ISequence<T>;
 var
   LLower, LHigher: T;
 begin
@@ -4298,7 +4300,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.TakeWhileGreater(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.TakeWhileGreater(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4314,7 +4316,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.TakeWhileGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.TakeWhileGreaterOrEqual(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4330,7 +4332,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.TakeWhileLower(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.TakeWhileLower(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4346,7 +4348,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.TakeWhileLowerOrEqual(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.TakeWhileLowerOrEqual(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4362,41 +4364,41 @@ begin
   );
 end;
 
-function TEnexCollection<T>.ToList: IList<T>;
+function TSequence<T>.ToList: IList<T>;
 begin
   { Simply make up a list }
   Result := TList<T>.Create(ElementRules);
   Result.AddAll(Self);
 end;
 
-function TEnexCollection<T>.ToSet: ISet<T>;
+function TSequence<T>.ToSet: ISet<T>;
 begin
   { Simply make up a bag }
   Result := THashSet<T>.Create(ElementRules);
   Result.AddAll(Self);
 end;
 
-function TEnexCollection<T>.Union(const ACollection: IEnexCollection<T>): IEnexCollection<T>;
+function TSequence<T>.Union(const ACollection: ISequence<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(ACollection) then
     ExceptionHelper.Throw_ArgumentNilError('ACollection');
 
   { Create concatenation iterator }
-  Result := TEnexUnionCollection<T>.Create(Self, ACollection);
+  Result := Collections.TUnionSequence<T>.Create(Self, ACollection);
 end;
 
-function TEnexCollection<T>.Where(const APredicate: TPredicate<T>): IEnexCollection<T>;
+function TSequence<T>.Where(const APredicate: TPredicate<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Create a new Enex collection }
-  Result := TEnexWhereCollection<T>.Create(Self, APredicate, False); // Don't invert the result
+  Result := Collections.TWhereSequence<T>.Create(Self, APredicate, False); // Don't invert the result
 end;
 
-function TEnexCollection<T>.WhereBetween(const ALower, AHigher: T): IEnexCollection<T>;
+function TSequence<T>.WhereBetween(const ALower, AHigher: T): ISequence<T>;
 var
   LLower, LHigher: T;
 begin
@@ -4413,7 +4415,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.WhereGreater(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.WhereGreater(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4429,7 +4431,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.WhereGreaterOrEqual(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.WhereGreaterOrEqual(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4445,7 +4447,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.WhereLower(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.WhereLower(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4461,7 +4463,7 @@ begin
   );
 end;
 
-function TEnexCollection<T>.WhereLowerOrEqual(const ABound: T): IEnexCollection<T>;
+function TSequence<T>.WhereLowerOrEqual(const ABound: T): ISequence<T>;
 var
   LBound: T;
 begin
@@ -4477,26 +4479,25 @@ begin
   );
 end;
 
-function TEnexCollection<T>.WhereNot(
-  const APredicate: TPredicate<T>): IEnexCollection<T>;
+function TSequence<T>.WhereNot(
+  const APredicate: TPredicate<T>): ISequence<T>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Create a new Enex collection }
-  Result := TEnexWhereCollection<T>.Create(Self, APredicate, True); // Invert the result
+  Result := Collections.TWhereSequence<T>.Create(Self, APredicate, True); // Invert the result
 end;
 
+{ TCollection<T> }
 
-{ TAbstractOperableCollection<T> }
-
-procedure TAbstractOperableCollection<T>.Add(const AValue: T);
+procedure TCollection<T>.Add(const AValue: T);
 begin
   ExceptionHelper.Throw_OperationNotSupported('Add');
 end;
 
-procedure TAbstractOperableCollection<T>.AddAll(const ACollection: IEnumerable<T>);
+procedure TCollection<T>.AddAll(const ACollection: IEnumerable<T>);
 var
   LValue: T;
 begin
@@ -4507,7 +4508,7 @@ begin
     Add(LValue);
 end;
 
-procedure TAbstractOperableCollection<T>.Clear;
+procedure TCollection<T>.Clear;
 var
   LValue: T;
 begin
@@ -4520,7 +4521,7 @@ begin
   end;
 end;
 
-function TAbstractOperableCollection<T>.Contains(const AValue: T): Boolean;
+function TCollection<T>.Contains(const AValue: T): Boolean;
 var
   LEnumerator: IEnumerator<T>;
 begin
@@ -4532,7 +4533,7 @@ begin
   Result := False;
 end;
 
-function TAbstractOperableCollection<T>.ContainsAll(const ACollection: IEnumerable<T>): Boolean;
+function TCollection<T>.ContainsAll(const ACollection: IEnumerable<T>): Boolean;
 var
   LValue: T;
 begin
@@ -4544,12 +4545,12 @@ begin
     Result := Result and Contains(LValue);
 end;
 
-procedure TAbstractOperableCollection<T>.HandleElementRemoved(const AElement: T);
+procedure TCollection<T>.HandleElementRemoved(const AElement: T);
 begin
   // Nothing
 end;
 
-procedure TAbstractOperableCollection<T>.NotifyElementRemoved(const AElement: T);
+procedure TCollection<T>.NotifyElementRemoved(const AElement: T);
 begin
   { Handle removal }
   if Assigned(FRemoveNotification) then
@@ -4558,12 +4559,12 @@ begin
     HandleElementRemoved(AElement);
 end;
 
-procedure TAbstractOperableCollection<T>.Remove(const AValue: T);
+procedure TCollection<T>.Remove(const AValue: T);
 begin
   ExceptionHelper.Throw_OperationNotSupported('Remove');
 end;
 
-procedure TAbstractOperableCollection<T>.RemoveAll(const ACollection: IEnumerable<T>);
+procedure TCollection<T>.RemoveAll(const ACollection: IEnumerable<T>);
 var
   LValue: T;
 begin
@@ -4575,14 +4576,14 @@ begin
 end;
 
 
-{ TEnexAssociativeCollection<TKey, TValue> }
+{ TAssociatiation<TKey, TValue> }
 
-constructor TEnexAssociativeCollection<TKey, TValue>.Create;
+constructor TAssociatiation<TKey, TValue>.Create;
 begin
   Create(TRules<TKey>.Default, TRules<TValue>.Default);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.CompareKeys(const ALeft, ARight: TKey): NativeInt;
+function TAssociatiation<TKey, TValue>.CompareKeys(const ALeft, ARight: TKey): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FKeyRules.FComparer) then
@@ -4591,7 +4592,7 @@ begin
   Result := FKeyRules.FComparer.Compare(ALeft, ARight);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.CompareValues(const ALeft, ARight: TValue): NativeInt;
+function TAssociatiation<TKey, TValue>.CompareValues(const ALeft, ARight: TValue): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FValueRules.FComparer) then
@@ -4600,23 +4601,23 @@ begin
   Result := FValueRules.FComparer.Compare(ALeft, ARight);
 end;
 
-constructor TEnexAssociativeCollection<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
+constructor TAssociatiation<TKey, TValue>.Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 begin
   FKeyRules := AKeyRules;
   FValueRules := AValueRules;
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.DistinctByKeys: IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.DistinctByKeys: IAssociation<TKey, TValue>;
 begin
-  Result := TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.Create(Self);
+  Result := Collections.TAssociativeDistinctByKeysSequence<TKey, TValue>.Create(Self);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.DistinctByValues: IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.DistinctByValues: IAssociation<TKey, TValue>;
 begin
-  Result := TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Create(Self);
+  Result := Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.Create(Self);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.GetKeyHashCode(const AValue: TKey): NativeInt;
+function TAssociatiation<TKey, TValue>.GetKeyHashCode(const AValue: TKey): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FKeyRules.FEqComparer) then
@@ -4625,7 +4626,7 @@ begin
   Result := FKeyRules.FEqComparer.GetHashCode(AValue);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.GetValueHashCode(const AValue: TValue): NativeInt;
+function TAssociatiation<TKey, TValue>.GetValueHashCode(const AValue: TValue): NativeInt;
 begin
   { Lazy init }
   if not Assigned(FValueRules.FEqComparer) then
@@ -4634,17 +4635,17 @@ begin
   Result := FValueRules.FEqComparer.GetHashCode(AValue);
 end;
 
-procedure TEnexAssociativeCollection<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
+procedure TAssociatiation<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   // Nothing!
 end;
 
-procedure TEnexAssociativeCollection<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
+procedure TAssociatiation<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   // Nothing!
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean;
+function TAssociatiation<TKey, TValue>.Includes(const ACollection: IEnumerable<TPair<TKey, TValue>>): Boolean;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4662,7 +4663,7 @@ begin
   Result := true;
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
+function TAssociatiation<TKey, TValue>.KeyHasValue(const AKey: TKey; const AValue: TValue): Boolean;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4681,7 +4682,7 @@ begin
   Result := false;
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.KeysAreEqual(const ALeft, ARight: TKey): Boolean;
+function TAssociatiation<TKey, TValue>.KeysAreEqual(const ALeft, ARight: TKey): Boolean;
 begin
   { Lazy init }
   if not Assigned(FKeyRules.FEqComparer) then
@@ -4690,7 +4691,7 @@ begin
   Result := FKeyRules.FEqComparer.Equals(ALeft, ARight);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.MaxKey: TKey;
+function TAssociatiation<TKey, TValue>.MaxKey: TKey;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4716,7 +4717,7 @@ begin
   end;
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.MaxValue: TValue;
+function TAssociatiation<TKey, TValue>.MaxValue: TValue;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4742,7 +4743,7 @@ begin
   end;
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.MinKey: TKey;
+function TAssociatiation<TKey, TValue>.MinKey: TKey;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4768,7 +4769,7 @@ begin
   end;
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.MinValue: TValue;
+function TAssociatiation<TKey, TValue>.MinValue: TValue;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4794,7 +4795,7 @@ begin
   end;
 end;
 
-procedure TEnexAssociativeCollection<TKey, TValue>.NotifyKeyRemoved(const AKey: TKey);
+procedure TAssociatiation<TKey, TValue>.NotifyKeyRemoved(const AKey: TKey);
 begin
   { Handle stuff }
   if Assigned(FKeyRemoveNotification) then
@@ -4803,7 +4804,7 @@ begin
     HandleKeyRemoved(AKey);
 end;
 
-procedure TEnexAssociativeCollection<TKey, TValue>.NotifyValueRemoved(const AValue: TValue);
+procedure TAssociatiation<TKey, TValue>.NotifyValueRemoved(const AValue: TValue);
 begin
   { Handle stuff }
   if Assigned(FValueRemoveNotification) then
@@ -4812,25 +4813,25 @@ begin
     HandleValueRemoved(AValue);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
+function TAssociatiation<TKey, TValue>.SelectKeys: ISequence<TKey>;
 begin
   { Create a selector }
-  Result := TEnexSelectKeysCollection<TKey, TValue>.Create(Self);
+  Result := Collections.TSelectKeysSequence<TKey, TValue>.Create(Self);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
+function TAssociatiation<TKey, TValue>.SelectValues: ISequence<TValue>;
 begin
   { Create a selector }
-  Result := TEnexSelectValuesCollection<TKey, TValue>.Create(Self);
+  Result := Collections.TSelectValuesSequence<TKey, TValue>.Create(Self);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.ToDictionary: IDictionary<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.ToDictionary: IDictionary<TKey, TValue>;
 begin
   Result := TDictionary<TKey, TValue>.Create(KeyRules, ValueRules);
   Result.AddAll(Self);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
+function TAssociatiation<TKey, TValue>.ValueForKey(const AKey: TKey): TValue;
 var
   LEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
@@ -4848,7 +4849,7 @@ begin
   ExceptionHelper.Throw_KeyNotFoundError('AKey');
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.ValuesAreEqual(const ALeft, ARight: TValue): Boolean;
+function TAssociatiation<TKey, TValue>.ValuesAreEqual(const ALeft, ARight: TValue): Boolean;
 begin
   { Lazy init }
   if not Assigned(FValueRules.FEqComparer) then
@@ -4857,19 +4858,19 @@ begin
   Result := FValueRules.FEqComparer.Equals(ALeft, ARight);
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.Where(
-  const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.Where(
+  const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Create a new Enex collection }
-  Result := TEnexAssociativeWhereCollection<TKey, TValue>.Create(Self, APredicate, False); // Don't invert the result
+  Result := Collections.TAssociativeWhereSequence<TKey, TValue>.Create(Self, APredicate, False); // Don't invert the result
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereKeyBetween(const ALower,
-  AHigher: TKey): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereKeyBetween(const ALower,
+  AHigher: TKey): IAssociation<TKey, TValue>;
 var
   LLower, LHigher: TKey;
 begin
@@ -4886,8 +4887,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereKeyGreater(
-  const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereKeyGreater(
+  const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
 begin
@@ -4903,8 +4904,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereKeyGreaterOrEqual(
-  const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereKeyGreaterOrEqual(
+  const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
 begin
@@ -4920,8 +4921,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereKeyLower(
-  const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereKeyLower(
+  const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
   LRules: TRules<TKey>;
@@ -4938,8 +4939,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereKeyLowerOrEqual(
-  const ABound: TKey): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereKeyLowerOrEqual(
+  const ABound: TKey): IAssociation<TKey, TValue>;
 var
   LBound: TKey;
 begin
@@ -4955,19 +4956,19 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereNot(
-  const APredicate: TPredicate<TKey, TValue>): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereNot(
+  const APredicate: TPredicate<TKey, TValue>): IAssociation<TKey, TValue>;
 begin
   { Check arguments }
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
 
   { Create a new Enex collection }
-  Result := TEnexAssociativeWhereCollection<TKey, TValue>.Create(Self, APredicate, True); // Invert the result
+  Result := Collections.TAssociativeWhereSequence<TKey, TValue>.Create(Self, APredicate, True); // Invert the result
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereValueBetween(
-  const ALower, AHigher: TValue): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereValueBetween(
+  const ALower, AHigher: TValue): IAssociation<TKey, TValue>;
 var
   LLower, LHigher: TValue;
 begin
@@ -4984,8 +4985,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereValueGreater(
-  const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereValueGreater(
+  const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
 begin
@@ -5001,8 +5002,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereValueGreaterOrEqual(
-  const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereValueGreaterOrEqual(
+  const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
 begin
@@ -5018,8 +5019,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereValueLower(
-  const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereValueLower(
+  const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
 begin
@@ -5035,8 +5036,8 @@ begin
   );
 end;
 
-function TEnexAssociativeCollection<TKey, TValue>.WhereValueLowerOrEqual(
-  const ABound: TValue): IEnexAssociativeCollection<TKey, TValue>;
+function TAssociatiation<TKey, TValue>.WhereValueLowerOrEqual(
+  const ABound: TValue): IAssociation<TKey, TValue>;
 var
   LBound: TValue;
 begin
@@ -5118,10 +5119,9 @@ begin
   ExceptionHelper.Throw_OperationNotSupported('Remove');
 end;
 
+{ Collections.TWhereSequence<T> }
 
-{ TEnexWhereCollection<T> }
-
-constructor TEnexWhereCollection<T>.Create(const ACollection: TEnexCollection<T>;
+constructor Collections.TWhereSequence<T>.Create(const ACollection: TSequence<T>;
   const APredicate: TPredicate<T>; const AInvertResult: Boolean);
 begin
   { Check arguments }
@@ -5141,7 +5141,7 @@ begin
   FInvertResult := AInvertResult;
 end;
 
-destructor TEnexWhereCollection<T>.Destroy;
+destructor Collections.TWhereSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -5149,23 +5149,23 @@ begin
   inherited;
 end;
 
-function TEnexWhereCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TWhereSequence<T>.GetEnumerator: IEnumerator<T>;
 begin
   { Generate an enumerator }
   Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
-{ TEnexWhereCollection<T>.TEnumerator }
+{ Collections.TWhereSequence<T>.TEnumerator }
 
-function TEnexWhereCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
+function Collections.TWhereSequence<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  with TEnexWhereCollection<T>(Owner) do
+  with TWhereSequence<T>(Owner) do
     Result := FPredicate(AValue) xor FInvertResult;
 end;
 
-{ TEnexSelectCollection<T, TOut> }
+{ Collections.TSelectSequence<T, TOut> }
 
-constructor TEnexSelectCollection<T, TOut>.Create(const ACollection: TEnexCollection<T>;
+constructor Collections.TSelectSequence<T, TOut>.Create(const ACollection: TSequence<T>;
   const ASelector: TFunc<T, TOut>; const ARules: TRules<TOut>);
 begin
   { Check arguments }
@@ -5185,7 +5185,7 @@ begin
   FSelector := ASelector;
 end;
 
-destructor TEnexSelectCollection<T, TOut>.Destroy;
+destructor Collections.TSelectSequence<T, TOut>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -5193,27 +5193,27 @@ begin
   inherited;
 end;
 
-function TEnexSelectCollection<T, TOut>.ElementAt(const AIndex: NativeInt): TOut;
+function Collections.TSelectSequence<T, TOut>.ElementAt(const AIndex: NativeInt): TOut;
 begin
   Result := FSelector(FCollection.ElementAt(AIndex));
 end;
 
-function TEnexSelectCollection<T, TOut>.Empty: Boolean;
+function Collections.TSelectSequence<T, TOut>.Empty: Boolean;
 begin
   Result := FCollection.Empty;
 end;
 
-function TEnexSelectCollection<T, TOut>.First: TOut;
+function Collections.TSelectSequence<T, TOut>.First: TOut;
 begin
   Result := FSelector(FCollection.First);
 end;
 
-function TEnexSelectCollection<T, TOut>.GetCount: NativeInt;
+function Collections.TSelectSequence<T, TOut>.GetCount: NativeInt;
 begin
   Result := FCollection.GetCount();
 end;
 
-function TEnexSelectCollection<T, TOut>.GetEnumerator: IEnumerator<TOut>;
+function Collections.TSelectSequence<T, TOut>.GetEnumerator: IEnumerator<TOut>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5222,19 +5222,19 @@ begin
   Result := LEnumerator;
 end;
 
-function TEnexSelectCollection<T, TOut>.Last: TOut;
+function Collections.TSelectSequence<T, TOut>.Last: TOut;
 begin
   Result := FSelector(FCollection.Last);
 end;
 
-function TEnexSelectCollection<T, TOut>.Single: TOut;
+function Collections.TSelectSequence<T, TOut>.Single: TOut;
 begin
   Result := FSelector(FCollection.Single);
 end;
 
-{ TEnexSelectCollection<T, TOut>.TEnumerator }
+{ Collections.TSelectSequence<T, TOut>.TEnumerator }
 
-function TEnexSelectCollection<T, TOut>.TEnumerator.TryMoveNext(out ACurrent: TOut): Boolean;
+function Collections.TSelectSequence<T, TOut>.TEnumerator.TryMoveNext(out ACurrent: TOut): Boolean;
 begin
   { Next iteration }
   Result := FInEnumerator.MoveNext();
@@ -5244,23 +5244,23 @@ begin
     Exit;
 
   { Return the next "selected" element }
-  ACurrent := TEnexSelectCollection<T, TOut>(Owner).FSelector(FInEnumerator.Current);
+  ACurrent := TSelectSequence<T, TOut>(Owner).FSelector(FInEnumerator.Current);
 end;
 
-{ TEnexConcatCollection<T> }
+{ TConcatSequence<T> }
 
-function TEnexConcatCollection<T>.All(const APredicate: TPredicate<T>): Boolean;
+function Collections.TConcatSequence<T>.All(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FCollection1.All(APredicate) and FCollection2.All(APredicate);
 end;
 
-function TEnexConcatCollection<T>.Any(const APredicate: TPredicate<T>): Boolean;
+function Collections.TConcatSequence<T>.Any(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FCollection1.Any(APredicate) or FCollection2.Any(APredicate);
 end;
 
-constructor TEnexConcatCollection<T>.Create(
-  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
+constructor Collections.TConcatSequence<T>.Create(
+  const ACollection1: TSequence<T>; const ACollection2: ISequence<T>);
 begin
   { Check arguments }
   if not Assigned(ACollection1) then
@@ -5279,7 +5279,7 @@ begin
   FCollection2 := ACollection2;
 end;
 
-destructor TEnexConcatCollection<T>.Destroy;
+destructor Collections.TConcatSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection1, false);
@@ -5287,17 +5287,17 @@ begin
   inherited;
 end;
 
-function TEnexConcatCollection<T>.Empty: Boolean;
+function Collections.TConcatSequence<T>.Empty: Boolean;
 begin
   Result := (GetCount = 0);
 end;
 
-function TEnexConcatCollection<T>.GetCount: NativeInt;
+function Collections.TConcatSequence<T>.GetCount: NativeInt;
 begin
   Result := FCollection1.GetCount() + FCollection2.GetCount();
 end;
 
-function TEnexConcatCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TConcatSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5307,9 +5307,9 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexConcatCollection<T>.TEnumerator }
+{ Collections.TConcatSequence<T>.TEnumerator }
 
-function TEnexConcatCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
+function Collections.TConcatSequence<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   if Assigned(FInEnumerator1) then
   begin
@@ -5333,10 +5333,10 @@ begin
     ACurrent := FInEnumerator2.Current;
 end;
 
-{ TEnexUnionCollection<T> }
+{ Collections.TUnionSequence<T> }
 
-constructor TEnexUnionCollection<T>.Create(
-  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
+constructor Collections.TUnionSequence<T>.Create(
+  const ACollection1: TSequence<T>; const ACollection2: ISequence<T>);
 begin
   { Check arguments }
   if not Assigned(ACollection1) then
@@ -5355,7 +5355,7 @@ begin
   FCollection2 := ACollection2;
 end;
 
-destructor TEnexUnionCollection<T>.Destroy;
+destructor Collections.TUnionSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection1, false);
@@ -5363,7 +5363,7 @@ begin
   inherited;
 end;
 
-function TEnexUnionCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TUnionSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5374,9 +5374,9 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexUnionCollection<T>.TEnumerator }
+{ Collections.TUnionSequence<T>.TEnumerator }
 
-function TEnexUnionCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
+function Collections.TUnionSequence<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   if Assigned(FInEnumerator1) then
   begin
@@ -5416,10 +5416,10 @@ begin
   end;
 end;
 
-{ TEnexExclusionCollection<T> }
+{ Collections.TExclusionSequence<T> }
 
-constructor TEnexExclusionCollection<T>.Create(
-  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
+constructor Collections.TExclusionSequence<T>.Create(
+  const ACollection1: TSequence<T>; const ACollection2: ISequence<T>);
 begin
   { Check arguments }
   if not Assigned(ACollection1) then
@@ -5438,7 +5438,7 @@ begin
   FCollection2 := ACollection2;
 end;
 
-destructor TEnexExclusionCollection<T>.Destroy;
+destructor Collections.TExclusionSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection1, false);
@@ -5446,7 +5446,7 @@ begin
   inherited;
 end;
 
-function TEnexExclusionCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TExclusionSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5457,9 +5457,9 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexExclusionCollection<T>.TEnumerator }
+{ Collections.TExclusionSequence<T>.TEnumerator }
 
-function TEnexExclusionCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
+function Collections.TExclusionSequence<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   { Load the first enum into the set }
   if Assigned(FInEnumerator2) then
@@ -5489,10 +5489,10 @@ begin
   end;
 end;
 
-{ TEnexIntersectionCollection<T> }
+{ Collections.TIntersectionSequence<T> }
 
-constructor TEnexIntersectionCollection<T>.Create(
-  const ACollection1: TEnexCollection<T>; const ACollection2: IEnexCollection<T>);
+constructor Collections.TIntersectionSequence<T>.Create(
+  const ACollection1: TSequence<T>; const ACollection2: ISequence<T>);
 begin
   { Check arguments }
   if not Assigned(ACollection1) then
@@ -5511,7 +5511,7 @@ begin
   FCollection2 := ACollection2;
 end;
 
-destructor TEnexIntersectionCollection<T>.Destroy;
+destructor Collections.TIntersectionSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection1, false);
@@ -5519,7 +5519,7 @@ begin
   inherited;
 end;
 
-function TEnexIntersectionCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TIntersectionSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5530,9 +5530,9 @@ begin
   Result := LEnumerator;
 end;
 
-{ Collection.EnexIntersectionCollection<T>.TEnumerator }
+{ Collection.TIntersectionSequence<T>.TEnumerator }
 
-function TEnexIntersectionCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
+function Collections.TIntersectionSequence<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   { Load the first enum into the set }
   if Assigned(FInEnumerator1) then
@@ -5562,9 +5562,9 @@ begin
   end;
 end;
 
-{ TEnexRangeCollection<T> }
+{ Collections.TRangeSequence<T> }
 
-constructor TEnexRangeCollection<T>.Create(const ACollection: TEnexCollection<T>; const AStart, AEnd: NativeInt);
+constructor Collections.TRangeSequence<T>.Create(const ACollection: TSequence<T>; const AStart, AEnd: NativeInt);
 begin
   if AStart < 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AStart');
@@ -5587,7 +5587,7 @@ begin
   FEnd := AEnd;
 end;
 
-destructor TEnexRangeCollection<T>.Destroy;
+destructor Collections.TRangeSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -5595,7 +5595,7 @@ begin
   inherited;
 end;
 
-function TEnexRangeCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TRangeSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5604,11 +5604,11 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexRangeCollection<T>.TEnumerator }
+{ Collections.TRangeSequence<T>.TEnumerator }
 
-function TEnexRangeCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
+function Collections.TRangeSequence<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
-  with TEnexRangeCollection<T>(Owner) do
+  with TRangeSequence<T>(Owner) do
   begin
     while FCurrentIndex < FStart do
     begin
@@ -5633,9 +5633,9 @@ begin
   end;
 end;
 
-{ TEnexDistinctCollection<T> }
+{ Collections.TDistinctSequence<T> }
 
-constructor TEnexDistinctCollection<T>.Create(const ACollection: TEnexCollection<T>);
+constructor Collections.TDistinctSequence<T>.Create(const ACollection: TSequence<T>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -5648,7 +5648,7 @@ begin
   KeepObjectAlive(FCollection);
 end;
 
-destructor TEnexDistinctCollection<T>.Destroy;
+destructor Collections.TDistinctSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -5656,7 +5656,7 @@ begin
   inherited;
 end;
 
-function TEnexDistinctCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TDistinctSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5665,18 +5665,18 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexDistinctCollection<T>.TEnumerator }
+{ Collections.TDistinctSequence<T>.TEnumerator }
 
-function TEnexDistinctCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
+function Collections.TDistinctSequence<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
   Result := not FSet.Contains(AValue);
   if Result then
     FSet.Add(AValue);
 end;
 
-{ TEnexFillCollection<T> }
+{ TFillSequence<T> }
 
-function TEnexFillCollection<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
+function Collections.TFillSequence<T>.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 var
   I: NativeInt;
 begin
@@ -5698,7 +5698,7 @@ begin
   end;
 end;
 
-function TEnexFillCollection<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
+function Collections.TFillSequence<T>.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 var
   I: NativeInt;
 begin
@@ -5720,7 +5720,7 @@ begin
   end;
 end;
 
-function TEnexFillCollection<T>.All(const APredicate: TPredicate<T>): Boolean;
+function Collections.TFillSequence<T>.All(const APredicate: TPredicate<T>): Boolean;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -5731,7 +5731,7 @@ begin
     Result := true;
 end;
 
-function TEnexFillCollection<T>.Any(const APredicate: TPredicate<T>): Boolean;
+function Collections.TFillSequence<T>.Any(const APredicate: TPredicate<T>): Boolean;
 begin
   if not Assigned(APredicate) then
     ExceptionHelper.Throw_ArgumentNilError('APredicate');
@@ -5742,7 +5742,7 @@ begin
     Result := false;
 end;
 
-constructor TEnexFillCollection<T>.Create(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>);
+constructor Collections.TFillSequence<T>.Create(const AElement: T; const ACount: NativeInt; const ARules: TRules<T>);
 begin
   if ACount <= 0 then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('ACount');
@@ -5755,7 +5755,7 @@ begin
   FElement := AElement;
 end;
 
-function TEnexFillCollection<T>.ElementAt(const AIndex: NativeInt): T;
+function Collections.TFillSequence<T>.ElementAt(const AIndex: NativeInt): T;
 begin
   if (AIndex = FCount) or (AIndex < 0) then
     ExceptionHelper.Throw_ArgumentOutOfRangeError('AIndex');
@@ -5763,7 +5763,7 @@ begin
   Result := FElement;
 end;
 
-function TEnexFillCollection<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
+function Collections.TFillSequence<T>.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   if (AIndex = FCount) or (AIndex < 0) then
     Result := ADefault
@@ -5771,12 +5771,12 @@ begin
     Result := FElement;
 end;
 
-function TEnexFillCollection<T>.Empty: Boolean;
+function Collections.TFillSequence<T>.Empty: Boolean;
 begin
   Result := (FCount = 0);
 end;
 
-function TEnexFillCollection<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
+function Collections.TFillSequence<T>.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 var
   LValue: T;
   I: NativeInt;
@@ -5800,7 +5800,7 @@ begin
   Result := true;
 end;
 
-function TEnexFillCollection<T>.First: T;
+function Collections.TFillSequence<T>.First: T;
 begin
   if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
@@ -5808,7 +5808,7 @@ begin
   Result := FElement;
 end;
 
-function TEnexFillCollection<T>.FirstOrDefault(const ADefault: T): T;
+function Collections.TFillSequence<T>.FirstOrDefault(const ADefault: T): T;
 begin
   if FCount = 0 then
     Result := ADefault
@@ -5816,12 +5816,12 @@ begin
     Result := FElement;
 end;
 
-function TEnexFillCollection<T>.GetCount: NativeInt;
+function Collections.TFillSequence<T>.GetCount: NativeInt;
 begin
   Result := FCount;
 end;
 
-function TEnexFillCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TFillSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -5830,7 +5830,7 @@ begin
   Result := LEnumerator;
 end;
 
-function TEnexFillCollection<T>.Last: T;
+function Collections.TFillSequence<T>.Last: T;
 begin
   if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
@@ -5838,7 +5838,7 @@ begin
   Result := FElement;
 end;
 
-function TEnexFillCollection<T>.LastOrDefault(const ADefault: T): T;
+function Collections.TFillSequence<T>.LastOrDefault(const ADefault: T): T;
 begin
   if FCount = 0 then
     Result := ADefault
@@ -5846,7 +5846,7 @@ begin
     Result := FElement;
 end;
 
-function TEnexFillCollection<T>.Max: T;
+function Collections.TFillSequence<T>.Max: T;
 begin
   if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
@@ -5854,7 +5854,7 @@ begin
   Result := FElement;
 end;
 
-function TEnexFillCollection<T>.Min: T;
+function Collections.TFillSequence<T>.Min: T;
 begin
   if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError();
@@ -5862,7 +5862,7 @@ begin
   Result := FElement;
 end;
 
-function TEnexFillCollection<T>.Single: T;
+function Collections.TFillSequence<T>.Single: T;
 begin
   if FCount = 0 then
     ExceptionHelper.Throw_CollectionEmptyError()
@@ -5872,7 +5872,7 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-function TEnexFillCollection<T>.SingleOrDefault(const ADefault: T): T;
+function Collections.TFillSequence<T>.SingleOrDefault(const ADefault: T): T;
 begin
   if FCount = 0 then
     Result := ADefault
@@ -5882,9 +5882,9 @@ begin
     ExceptionHelper.Throw_CollectionHasMoreThanOneElement();
 end;
 
-{ TEnexFillCollection<T>.TEnumerator }
+{ Collections.TFillSequence<T>.TEnumerator }
 
-function TEnexFillCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
+function Collections.TFillSequence<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   { Check for end }
   Result := FRemaining > 0;
@@ -5892,13 +5892,13 @@ begin
   if Result then
   begin
     Dec(FRemaining);
-    ACurrent := TEnexFillCollection<T>(Owner).FElement;
+    ACurrent := TFillSequence<T>(Owner).FElement;
   end;
 end;
 
-{ TEnexSkipCollection<T> }
+{ Collections.TSkipSequence<T> }
 
-constructor TEnexSkipCollection<T>.Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt);
+constructor Collections.TSkipSequence<T>.Create(const ACollection: TSequence<T>; const ACount: NativeInt);
 begin
   { Check parameters }
   if ACount <= 0 then
@@ -5918,7 +5918,7 @@ begin
   FCount := ACount;
 end;
 
-destructor TEnexSkipCollection<T>.Destroy;
+destructor Collections.TSkipSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -5926,23 +5926,23 @@ begin
   inherited;
 end;
 
-function TEnexSkipCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TSkipSequence<T>.GetEnumerator: IEnumerator<T>;
 begin
   { Create the enumerator }
   Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
-{ TEnexSkipCollection<T>.TEnumerator }
+{ TSkipSequence<T>.TEnumerator }
 
-function TEnexSkipCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
+function Collections.TSkipSequence<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  Result := FCurrentIndex >= TEnexSkipCollection<T>(Owner).FCount;
+  Result := FCurrentIndex >= TSkipSequence<T>(Owner).FCount;
   Inc(FCurrentIndex);
 end;
 
-{ TEnexTakeCollection<T> }
+{ Collections.TTakeSequence<T> }
 
-constructor TEnexTakeCollection<T>.Create(const ACollection: TEnexCollection<T>; const ACount: NativeInt);
+constructor Collections.TTakeSequence<T>.Create(const ACollection: TSequence<T>; const ACount: NativeInt);
 begin
   { Check parameters }
   if ACount <= 0 then
@@ -5962,7 +5962,7 @@ begin
   FCount := ACount;
 end;
 
-destructor TEnexTakeCollection<T>.Destroy;
+destructor Collections.TTakeSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -5970,23 +5970,23 @@ begin
   inherited;
 end;
 
-function TEnexTakeCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TTakeSequence<T>.GetEnumerator: IEnumerator<T>;
 begin
   { Create the enumerator }
   Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
-{ TEnexTakeCollection<T>.TEnumerator }
+{ Collections.TTakeSequence<T>.TEnumerator }
 
-function TEnexTakeCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
+function Collections.TTakeSequence<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
-  Result := FCurrentIndex < TEnexSkipCollection<T>(Owner).FCount;
+  Result := FCurrentIndex < TSkipSequence<T>(Owner).FCount;
   Inc(FCurrentIndex);
 end;
 
-{ TEnexTakeWhileCollection<T> }
+{ Collections.TTakeWhileSequence<T> }
 
-constructor TEnexTakeWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>);
+constructor Collections.TTakeWhileSequence<T>.Create(const ACollection: TSequence<T>; const APredicate: TPredicate<T>);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -6005,7 +6005,7 @@ begin
   FPredicate := APredicate;
 end;
 
-destructor TEnexTakeWhileCollection<T>.Destroy;
+destructor Collections.TTakeWhileSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6013,7 +6013,7 @@ begin
   inherited;
 end;
 
-function TEnexTakeWhileCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TTakeWhileSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -6022,20 +6022,20 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexTakeWhileCollection<T>.TEnumerator }
+{ Collections.TTakeWhileSequence<T>.TEnumerator }
 
-function TEnexTakeWhileCollection<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
+function Collections.TTakeWhileSequence<T>.TEnumerator.TryMoveNext(out ACurrent: T): Boolean;
 begin
   Result := FInEnumerator.MoveNext() and
-     TEnexTakeWhileCollection<T>(Owner).FPredicate(FInEnumerator.Current);
+     TTakeWhileSequence<T>(Owner).FPredicate(FInEnumerator.Current);
 
   if Result then
     ACurrent := FInEnumerator.Current;
 end;
 
-{ TEnexSkipWhileCollection<T> }
+{ Collections.TSkipWhileSequence<T> }
 
-constructor TEnexSkipWhileCollection<T>.Create(const ACollection: TEnexCollection<T>; const APredicate: TPredicate<T>);
+constructor Collections.TSkipWhileSequence<T>.Create(const ACollection: TSequence<T>; const APredicate: TPredicate<T>);
 begin
   { Check arguments }
   if not Assigned(APredicate) then
@@ -6054,7 +6054,7 @@ begin
   FPredicate := APredicate;
 end;
 
-destructor TEnexSkipWhileCollection<T>.Destroy;
+destructor Collections.TSkipWhileSequence<T>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6062,7 +6062,7 @@ begin
   inherited;
 end;
 
-function TEnexSkipWhileCollection<T>.GetEnumerator: IEnumerator<T>;
+function Collections.TSkipWhileSequence<T>.GetEnumerator: IEnumerator<T>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -6070,13 +6070,13 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexSkipWhileCollection<T>.TEnumerator }
+{ Collections.TSkipWhileSequence<T>.TEnumerator }
 
-function TEnexSkipWhileCollection<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
+function Collections.TSkipWhileSequence<T>.TEnumerator.AcceptValue(const AValue: T): Boolean;
 begin
   if not FStarted then
   begin
-    if TEnexSkipWhileCollection<T>(Owner).FPredicate(AValue) then
+    if TSkipWhileSequence<T>(Owner).FPredicate(AValue) then
       Exit(False);
 
     FStarted := True;
@@ -6085,10 +6085,10 @@ begin
   Result := True;
 end;
 
-{ TEnexGroupByCollection<T, TGroup> }
+{ Collections.TGroupBySequence<T, TGroup> }
 
-constructor TEnexGroupByCollection<T, TBy>.Create(
-  const ACollection: TEnexCollection<T>; const ASelector: TFunc<T, TBy>);
+constructor Collections.TGroupBySequence<T, TBy>.Create(
+  const ACollection: TSequence<T>; const ASelector: TFunc<T, TBy>);
 begin
   { Check arguments }
   if not Assigned(ASelector) then
@@ -6107,7 +6107,7 @@ begin
   FSelector := ASelector;
 end;
 
-destructor TEnexGroupByCollection<T, TBy>.Destroy;
+destructor Collections.TGroupBySequence<T, TBy>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6115,7 +6115,7 @@ begin
   inherited;
 end;
 
-function TEnexGroupByCollection<T, TBy>.GetEnumerator: IEnumerator<IGrouping<TBy, T>>;
+function Collections.TGroupBySequence<T, TBy>.GetEnumerator: IEnumerator<IGrouping<TBy, T>>;
 var
   LDictionary: IDictionary<TBy, IList<T>>;
   LList: IList<T>;
@@ -6170,112 +6170,111 @@ begin
   Result := LOutList.GetEnumerator();
 end;
 
+{ Collections.TGroupBySequence<T, TKey>.TEnexGroupingCollection }
 
-{ TEnexGroupByCollection<T, TKey>.TEnexGroupingCollection }
-
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Aggregate(const AAggregator: TFunc<T, T, T>): T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.Aggregate(const AAggregator: TFunc<T, T, T>): T;
 begin
   Result := FList.Aggregate(AAggregator);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.AggregateOrDefault(const AAggregator: TFunc<T, T, T>; const ADefault: T): T;
 begin
   Result := FList.AggregateOrDefault(AAggregator, ADefault);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.All(const APredicate: TPredicate<T>): Boolean;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.All(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FList.All(APredicate);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Any(const APredicate: TPredicate<T>): Boolean;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.Any(const APredicate: TPredicate<T>): Boolean;
 begin
   Result := FList.Any(APredicate);
 end;
 
-procedure TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
+procedure Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.CopyTo(var AArray: array of T; const AStartIndex: NativeInt);
 begin
   FList.CopyTo(AArray, AStartIndex);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.ElementAt(const AIndex: NativeInt): T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.ElementAt(const AIndex: NativeInt): T;
 begin
   Result := FList.ElementAt(AIndex);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.ElementAtOrDefault(const AIndex: NativeInt; const ADefault: T): T;
 begin
   Result := FList.ElementAtOrDefault(AIndex, ADefault);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Empty: Boolean;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.Empty: Boolean;
 begin
   Result := FList.Empty;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.EqualsTo(const ACollection: IEnumerable<T>): Boolean;
 begin
   Result := FList.EqualsTo(ACollection);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.First: T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.First: T;
 begin
   Result := FList.First;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.FirstOrDefault(const ADefault: T): T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.FirstOrDefault(const ADefault: T): T;
 begin
   Result := FList.FirstOrDefault(ADefault);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.GetCount: NativeInt;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.GetCount: NativeInt;
 begin
   Result := FList.Count;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.GetEnumerator: IEnumerator<T>;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.GetEnumerator: IEnumerator<T>;
 begin
   Result := FList.GetEnumerator();
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.GetKey: TBy;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.GetKey: TBy;
 begin
   Result := FBy;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Last: T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.Last: T;
 begin
   Result := FList.Last;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.LastOrDefault(const ADefault: T): T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.LastOrDefault(const ADefault: T): T;
 begin
   Result := FList.LastOrDefault(ADefault);
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Max: T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.Max: T;
 begin
   Result := FList.Max;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Min: T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.Min: T;
 begin
   Result := FList.Min;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.Single: T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.Single: T;
 begin
   Result := FList.Single;
 end;
 
-function TEnexGroupByCollection<T, TBy>.TEnexGroupingCollection.SingleOrDefault(const ADefault: T): T;
+function Collections.TGroupBySequence<T, TBy>.TEnexGroupingCollection.SingleOrDefault(const ADefault: T): T;
 begin
   Result := FList.SingleOrDefault(ADefault);
 end;
 
-{ TEnexSelectKeysCollection<TKey, TValue> }
+{ TSelectKeysSequence<TKey, TValue> }
 
-constructor TEnexSelectKeysCollection<TKey, TValue>.Create(const ACollection: TEnexAssociativeCollection<TKey, TValue>);
+constructor Collections.TSelectKeysSequence<TKey, TValue>.Create(const ACollection: TAssociatiation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6289,7 +6288,7 @@ begin
   KeepObjectAlive(FCollection);
 end;
 
-destructor TEnexSelectKeysCollection<TKey, TValue>.Destroy;
+destructor Collections.TSelectKeysSequence<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6297,12 +6296,12 @@ begin
   inherited;
 end;
 
-function TEnexSelectKeysCollection<TKey, TValue>.GetCount: NativeInt;
+function Collections.TSelectKeysSequence<TKey, TValue>.GetCount: NativeInt;
 begin
   Result := FCollection.GetCount();
 end;
 
-function TEnexSelectKeysCollection<TKey, TValue>.GetEnumerator: IEnumerator<TKey>;
+function Collections.TSelectKeysSequence<TKey, TValue>.GetEnumerator: IEnumerator<TKey>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -6311,9 +6310,9 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexSelectKeysCollection<TKey, TValue>.TEnumerator }
+{ Collections.TSelectKeysSequence<TKey, TValue>.TEnumerator }
 
-function TEnexSelectKeysCollection<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TKey): Boolean;
+function Collections.TSelectKeysSequence<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TKey): Boolean;
 begin
   { Next iteration }
   Result := FInEnumerator.MoveNext();
@@ -6321,10 +6320,10 @@ begin
     ACurrent := FInEnumerator.Current.Key;
 end;
 
-{ TEnexSelectValuesCollection<TKey, TValue> }
+{ Collections.TSelectValuesSequence<TKey, TValue> }
 
-constructor TEnexSelectValuesCollection<TKey, TValue>.Create(
-  const ACollection: TEnexAssociativeCollection<TKey, TValue>);
+constructor Collections.TSelectValuesSequence<TKey, TValue>.Create(
+  const ACollection: TAssociatiation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6339,7 +6338,7 @@ begin
   KeepObjectAlive(FCollection);
 end;
 
-destructor TEnexSelectValuesCollection<TKey, TValue>.Destroy;
+destructor Collections.TSelectValuesSequence<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6347,12 +6346,12 @@ begin
   inherited;
 end;
 
-function TEnexSelectValuesCollection<TKey, TValue>.GetCount: NativeInt;
+function Collections.TSelectValuesSequence<TKey, TValue>.GetCount: NativeInt;
 begin
   Result := FCollection.GetCount();
 end;
 
-function TEnexSelectValuesCollection<TKey, TValue>.GetEnumerator: IEnumerator<TValue>;
+function Collections.TSelectValuesSequence<TKey, TValue>.GetEnumerator: IEnumerator<TValue>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -6361,9 +6360,9 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexSelectValuesCollection<TKey, TValue>.TEnumerator }
+{ Collections.TSelectValuesSequence<TKey, TValue>.TEnumerator }
 
-function TEnexSelectValuesCollection<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TValue): Boolean;
+function Collections.TSelectValuesSequence<TKey, TValue>.TEnumerator.TryMoveNext(out ACurrent: TValue): Boolean;
 begin
   { Next iteration }
   Result := FInEnumerator.MoveNext();
@@ -6371,10 +6370,10 @@ begin
     ACurrent := FInEnumerator.Current.Value;
 end;
 
-{ TEnexAssociativeWhereCollection<TKey, TValue> }
+{ Collections.TAssociativeWhereSequence<TKey, TValue> }
 
-constructor TEnexAssociativeWhereCollection<TKey, TValue>.Create(
-  const ACollection: TEnexAssociativeCollection<TKey, TValue>;
+constructor Collections.TAssociativeWhereSequence<TKey, TValue>.Create(
+  const ACollection: TAssociatiation<TKey, TValue>;
   const APredicate: TPredicate<TKey, TValue>;
   const AInvertResult: Boolean);
 begin
@@ -6397,7 +6396,7 @@ begin
   FInvertResult := AInvertResult;
 end;
 
-destructor TEnexAssociativeWhereCollection<TKey, TValue>.Destroy;
+destructor Collections.TAssociativeWhereSequence<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6405,24 +6404,24 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeWhereCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+function Collections.TAssociativeWhereSequence<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 begin
   { Generate an enumerator }
   Result := TEnumerator.Create(Self, FCollection.GetEnumerator());
 end;
 
-{ TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator }
+{ Collections.TAssociativeWhereSequence<TKey, TValue>.TEnumerator }
 
-function TEnexAssociativeWhereCollection<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
+function Collections.TAssociativeWhereSequence<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
 begin
-  with TEnexAssociativeWhereCollection<TKey, TValue>(Owner) do
+  with TAssociativeWhereSequence<TKey, TValue>(Owner) do
     Result := FPredicate(AValue.Key, AValue.Value) xor FInvertResult;
 end;
 
-{ TCollection.EnexAssociativeDistinctByKeysCollection<TKey, TValue> }
+{ Collections.TAssociativeDistinctByKeysSequence<TKey, TValue> }
 
-constructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.Create(
-  const ACollection: TEnexAssociativeCollection<TKey, TValue>);
+constructor Collections.TAssociativeDistinctByKeysSequence<TKey, TValue>.Create(
+  const ACollection: TAssociatiation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6436,7 +6435,7 @@ begin
   KeepObjectAlive(FCollection);
 end;
 
-destructor TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.Destroy;
+destructor Collections.TAssociativeDistinctByKeysSequence<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6444,7 +6443,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+function Collections.TAssociativeDistinctByKeysSequence<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -6453,19 +6452,19 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator }
+{ TAssociativeDistinctByKeysSequence<TKey, TValue>.TEnumerator }
 
-function TEnexAssociativeDistinctByKeysCollection<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
+function Collections.TAssociativeDistinctByKeysSequence<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
 begin
   Result := not FSet.Contains(AValue.Key);
   if Result then
     FSet.Add(AValue.Key);
 end;
 
-{ TEnexAssociativeDistinctByValuesCollection<TKey, TValue> }
+{ TAssociativeDistinctByValuesSequence<TKey, TValue> }
 
-constructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Create(
-  const ACollection: TEnexAssociativeCollection<TKey, TValue>);
+constructor Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.Create(
+  const ACollection: TAssociatiation<TKey, TValue>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6479,7 +6478,7 @@ begin
   KeepObjectAlive(FCollection);
 end;
 
-destructor TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.Destroy;
+destructor Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6487,7 +6486,7 @@ begin
   inherited;
 end;
 
-function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+function Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -6496,18 +6495,18 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator }
+{ Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.TEnumerator }
 
-function TEnexAssociativeDistinctByValuesCollection<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
+function Collections.TAssociativeDistinctByValuesSequence<TKey, TValue>.TEnumerator.AcceptValue(const AValue: TPair<TKey, TValue>): Boolean;
 begin
   Result := not FSet.Contains(AValue.Value);
   if Result then
     FSet.Add(AValue.Value);
 end;
 
-{ TEnexSelectClassCollection<T, TOut> }
+{ Collections.TSelectClassSequence<T, TOut> }
 
-constructor TEnexSelectClassCollection<T, TOut>.Create(const ACollection: TEnexCollection<T>; const ARules: TRules<TOut>);
+constructor Collections.TSelectClassSequence<T, TOut>.Create(const ACollection: TSequence<T>; const ARules: TRules<TOut>);
 begin
   { Check arguments }
   if not Assigned(ACollection) then
@@ -6521,7 +6520,7 @@ begin
   KeepObjectAlive(FCollection);
 end;
 
-destructor TEnexSelectClassCollection<T, TOut>.Destroy;
+destructor Collections.TSelectClassSequence<T, TOut>.Destroy;
 begin
   { Delete the enumerable if required }
   ReleaseObject(FCollection, false);
@@ -6529,7 +6528,7 @@ begin
   inherited;
 end;
 
-function TEnexSelectClassCollection<T, TOut>.GetEnumerator: IEnumerator<TOut>;
+function Collections.TSelectClassSequence<T, TOut>.GetEnumerator: IEnumerator<TOut>;
 var
   LEnumerator: TEnumerator;
 begin
@@ -6538,9 +6537,9 @@ begin
   Result := LEnumerator;
 end;
 
-{ TEnexSelectClassCollection<T, TOut>.TEnumerator }
+{ Collections.TSelectClassSequence<T, TOut>.TEnumerator }
 
-function TEnexSelectClassCollection<T, TOut>.TEnumerator.TryMoveNext(out ACurrent: TOut): Boolean;
+function Collections.TSelectClassSequence<T, TOut>.TEnumerator.TryMoveNext(out ACurrent: TOut): Boolean;
 begin
   { Iterate until given condition is met on an element }
   while True do

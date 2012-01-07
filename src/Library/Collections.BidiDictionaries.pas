@@ -41,8 +41,8 @@ type
     FByValueDictionary: IDictionary<TValue, TKey>;
 
     { Got from the underlying collections }
-    FValueCollection: IEnexCollection<TValue>;
-    FKeyCollection: IEnexCollection<TKey>;
+    FValueCollection: ISequence<TValue>;
+    FKeyCollection: ISequence<TKey>;
 
   protected
     function IDictionary<TKey, TValue>.Extract = ExtractValueForKey;
@@ -201,11 +201,11 @@ type
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the bidi-dictionary.</returns>
-    property Keys: IEnexCollection<TKey> read FKeyCollection;
+    property Keys: ISequence<TKey> read FKeyCollection;
 
     ///  <summary>Specifies the collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the bidi-dictionary.</returns>
-    property Values: IEnexCollection<TValue> read FValueCollection;
+    property Values: ISequence<TValue> read FValueCollection;
 
     ///  <summary>Returns the number of pairs in the bidi-map.</summary>
     ///  <returns>A positive value specifying the total number of pairs in the bidi-dictionary.</returns>
@@ -239,11 +239,11 @@ type
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the bidi-map.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; override;
+    function SelectKeys(): ISequence<TKey>; override;
 
     ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the bidi-map.</returns>
-    function SelectValues(): IEnexCollection<TValue>; override;
+    function SelectValues(): ISequence<TValue>; override;
 
     ///  <summary>Checks whether the dictionary is empty.</summary>
     ///  <returns><c>True</c> if the dictionary is empty; <c>False</c> otherwise.</returns>
@@ -685,12 +685,12 @@ begin
   end;
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
+function TAbstractBidiDictionary<TKey, TValue>.SelectKeys: ISequence<TKey>;
 begin
   Result := FKeyCollection;
 end;
 
-function TAbstractBidiDictionary<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
+function TAbstractBidiDictionary<TKey, TValue>.SelectValues: ISequence<TValue>;
 begin
   Result := FValueCollection;
 end;
@@ -801,13 +801,13 @@ end;
 procedure TObjectBidiDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectBidiDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TSortedBidiDictionary<TKey, TValue> }
@@ -861,13 +861,13 @@ end;
 procedure TObjectSortedBidiDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectSortedBidiDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TDoubleSortedBidiDictionary<TKey, TValue> }
@@ -923,13 +923,13 @@ end;
 procedure TObjectDoubleSortedBidiDictionary<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectDoubleSortedBidiDictionary<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 end.

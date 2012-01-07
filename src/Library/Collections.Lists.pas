@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all generic <c>list</c> collections.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractList<T> = class(TAbstractOperableCollection<T>, IList<T>)
+  TAbstractList<T> = class(TCollection<T>, IList<T>)
   protected
     ///  <summary>Returns the item at a given index.</summary>
     ///  <param name="AIndex">The index in the list.</param>

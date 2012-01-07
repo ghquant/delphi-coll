@@ -2,15 +2,26 @@
 		<PropertyGroup>
 			<ProjectGuid>{B6403A30-71D9-4B76-8676-CFF58E93639E}</ProjectGuid>
 			<MainSource>Collections.dpk</MainSource>
-			<ProjectVersion>12.3</ProjectVersion>
+			<ProjectVersion>13.4</ProjectVersion>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 			<Base>True</Base>
-			<Platform>Win32</Platform>
 			<AppType>Package</AppType>
 			<FrameworkType>None</FrameworkType>
+			<Platform Condition="'$(Platform)'==''">Win64</Platform>
+			<TargetedPlatforms>3</TargetedPlatforms>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+			<Base_Win64>true</Base_Win64>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+			<Base_Win32>true</Base_Win32>
+			<CfgParent>Base</CfgParent>
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
@@ -23,11 +34,23 @@
 			<CfgParent>Base</CfgParent>
 			<Base>true</Base>
 		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+			<Cfg_2_Win64>true</Cfg_2_Win64>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<VerInfo_Build>177</VerInfo_Build>
+			<VerInfo_Keys>CompanyName=Alexandru Ciobanu;FileDescription=Collections Package;FileVersion=1.2.0.177;InternalName=delphi-coll;LegalCopyright=Alexandru Ciobanu;LegalTrademarks=;OriginalFilename=;ProductName=Collections Package;ProductVersion=1.2.0.0;Comments=</VerInfo_Keys>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
+			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+			<VerInfo_MinorVer>2</VerInfo_MinorVer>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_DependencyCheckOutputName>..\..\bin\Collections.bpl</DCC_DependencyCheckOutputName>
 			<GenPackage>true</GenPackage>
-			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_BplOutput>..\..\bin</DCC_BplOutput>
 			<DCC_UnitSearchPath>..\..\bin;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_Platform>x86</DCC_Platform>
@@ -40,6 +63,20 @@
 			<DCC_K>false</DCC_K>
 			<DCC_F>false</DCC_F>
 		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win64)'!=''">
+			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+			<Icon_MainIcon>Collections_Icon.ico</Icon_MainIcon>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win32)'!=''">
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<Icon_MainIcon>Collections_Icon.ico</Icon_MainIcon>
+			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
 			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
@@ -49,8 +86,15 @@
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+			<DCC_UnitSearchPath>..\..\bin\$(Config)\$(Platform);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_BplOutput>..\..\bin\$(Config)\$(Platform)</DCC_BplOutput>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+			<DCC_DcpOutput>..\..\bin\$(Config)\$(Platform)</DCC_DcpOutput>
+			<DCC_DcuOutput>..\..\bin\$(Config)\$(Platform)</DCC_DcuOutput>
+		</PropertyGroup>
 		<ItemGroup>
-			<DelphiCompile Include="Collections.dpk">
+			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="rtl.dcp"/>
@@ -95,7 +139,7 @@
 						<VersionInfo Name="MajorVer">1</VersionInfo>
 						<VersionInfo Name="MinorVer">2</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">176</VersionInfo>
+						<VersionInfo Name="Build">177</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -107,7 +151,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName">Alexandru Ciobanu</VersionInfoKeys>
 						<VersionInfoKeys Name="FileDescription">Collections Package</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">1.2.0.176</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.2.0.177</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName">delphi-coll</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalCopyright">Alexandru Ciobanu</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
@@ -116,14 +160,11 @@
 						<VersionInfoKeys Name="ProductVersion">1.2.0.0</VersionInfoKeys>
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
-					<Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\svn150.bpl">Subversion integration</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\svnui150.bpl">User interface code for subversion integration</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\svnide150.bpl">Embarcadero Subversion Integration</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclDataSnapServer150.bpl">Embarcadero DBExpress DataSnap Server Components</Excluded_Packages>
-					</Excluded_Packages>
+					<Excluded_Packages/>
 				</Delphi.Personality>
 				<Platforms>
+					<Platform value="Win64">True</Platform>
+					<Platform value="OSX32">False</Platform>
 					<Platform value="Win32">True</Platform>
 				</Platforms>
 			</BorlandProject>

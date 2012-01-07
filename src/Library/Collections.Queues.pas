@@ -37,7 +37,7 @@ type
   ///  <summary>The abstract base class for all generic <c>queue</c> collections.</summary>
   ///  <remarks>Descending classes must implement the required abstract methods and optionally can implement
   ///  the non-required method.</remarks>
-  TAbstractQueue<T> = class(TAbstractOperableCollection<T>, IQueue<T>)
+  TAbstractQueue<T> = class(TCollection<T>, IQueue<T>)
   public
     ///  <summary>Creates a new <c>queue</c> collection.</summary>
     ///  <param name="ARules">A rule set describing the elements in the queue.</param>
@@ -509,7 +509,7 @@ type
 type
   ///  <summary>The generic <c>priority queue</c> collection.</summary>
   ///  <remarks>This collection reorganizes the first-out element based on a given priority.</remarks>
-  TPriorityQueue<TPriority, TValue> = class(TEnexAssociativeCollection<TPriority, TValue>, IPriorityQueue<TPriority, TValue>, IDynamic)
+  TPriorityQueue<TPriority, TValue> = class(TAssociatiation<TPriority, TValue>, IPriorityQueue<TPriority, TValue>, IDynamic)
   private type
     {$REGION 'Internal Types'}
     { Internal storage }
@@ -2008,13 +2008,13 @@ end;
 procedure TObjectPriorityQueue<TPriority, TValue>.HandleKeyRemoved(const AKey: TPriority);
 begin
   if FOwnsPriorities then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectPriorityQueue<TPriority, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 end.

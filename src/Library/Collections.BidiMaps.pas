@@ -41,8 +41,8 @@ type
     FByValueMap: IMultiMap<TValue, TKey>;
 
     { Got from the underlying collections }
-    FValueCollection: IEnexCollection<TValue>;
-    FKeyCollection: IEnexCollection<TKey>;
+    FValueCollection: ISequence<TValue>;
+    FKeyCollection: ISequence<TKey>;
 
   protected
     ///  <summary>Specifies the internal map used as back-end to store key relations.</summary>
@@ -71,13 +71,13 @@ type
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the bidi-map.</exception>
-    function GetKeysByValue(const AValue: TValue): IEnexCollection<TKey>;
+    function GetKeysByValue(const AValue: TValue): ISequence<TKey>;
 
     ///  <summary>Returns the collection of values associated with a key.</summary>
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the bidi-map.</exception>
-    function GetValuesByKey(const AKey: TKey): IEnexCollection<TValue>;
+    function GetValuesByKey(const AKey: TKey): ISequence<TValue>;
   public
     ///  <summary>Creates a new <c>bi-directional map</c> collection.</summary>
     ///  <param name="AKeyRules">A rule set describing the keys in the map.</param>
@@ -148,21 +148,21 @@ type
     ///  <param name="AKey">The key for which to obtain the associated values.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The key is not found in the bidi-map.</exception>
-    property ByKey[const AKey: TKey]: IEnexCollection<TValue> read GetValuesByKey;
+    property ByKey[const AKey: TKey]: ISequence<TValue> read GetValuesByKey;
 
     ///  <summary>Returns the collection of keys associated with a value.</summary>
     ///  <param name="AValue">The value for which to obtain the associated keys.</param>
     ///  <returns>An Enex collection that contains the values associated with this key.</returns>
     ///  <exception cref="Collections.Base|EKeyNotFoundException">The value is not found in the bidi-map.</exception>
-    property ByValue[const AValue: TValue]: IEnexCollection<TKey> read GetKeysByValue;
+    property ByValue[const AValue: TValue]: ISequence<TKey> read GetKeysByValue;
 
     ///  <summary>Specifies the collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the bidi-map.</returns>
-    property Keys: IEnexCollection<TKey> read FKeyCollection;
+    property Keys: ISequence<TKey> read FKeyCollection;
 
     ///  <summary>Specifies the collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the bidi-map.</returns>
-    property Values: IEnexCollection<TValue> read FValueCollection;
+    property Values: ISequence<TValue> read FValueCollection;
 
     ///  <summary>Returns the number of pairs in the bidi-map.</summary>
     ///  <returns>A positive value specifying the total number of pairs in the bidi-map.</returns>
@@ -196,11 +196,11 @@ type
 
     ///  <summary>Returns an Enex collection that contains only the keys.</summary>
     ///  <returns>An Enex collection that contains all the keys stored in the bidi-map.</returns>
-    function SelectKeys(): IEnexCollection<TKey>; override;
+    function SelectKeys(): ISequence<TKey>; override;
 
     ///  <summary>Returns an Enex collection that contains only the values.</summary>
     ///  <returns>An Enex collection that contains all the values stored in the bidi-map.</returns>
-    function SelectValues(): IEnexCollection<TValue>; override;
+    function SelectValues(): ISequence<TValue>; override;
   end;
 
 type
@@ -514,12 +514,12 @@ begin
   Result := FByKeyMap.GetEnumerator();
 end;
 
-function TAbstractBidiMap<TKey, TValue>.GetKeysByValue(const AValue: TValue): IEnexCollection<TKey>;
+function TAbstractBidiMap<TKey, TValue>.GetKeysByValue(const AValue: TValue): ISequence<TKey>;
 begin
   Result := FByValueMap[AValue];
 end;
 
-function TAbstractBidiMap<TKey, TValue>.GetValuesByKey(const AKey: TKey): IEnexCollection<TValue>;
+function TAbstractBidiMap<TKey, TValue>.GetValuesByKey(const AKey: TKey): ISequence<TValue>;
 begin
   Result := FByKeyMap[AKey];
 end;
@@ -531,7 +531,7 @@ end;
 
 procedure TAbstractBidiMap<TKey, TValue>.RemovePair(const AKey: TKey; const AValue: TValue);
 var
-  LValues: IEnexCollection<TValue>;
+  LValues: ISequence<TValue>;
   LValue: TValue;
 begin
   { Check whether there is such a key }
@@ -555,7 +555,7 @@ end;
 
 procedure TAbstractBidiMap<TKey, TValue>.RemoveValuesForKey(const AKey: TKey);
 var
-  LValues: IEnexCollection<TValue>;
+  LValues: ISequence<TValue>;
   LValue: TValue;
 begin
   { Check whether there is such a key }
@@ -572,7 +572,7 @@ end;
 
 procedure TAbstractBidiMap<TKey, TValue>.RemoveKeysForValue(const AValue: TValue);
 var
-  LKeys: IEnexCollection<TKey>;
+  LKeys: ISequence<TKey>;
   LValue: TKey;
 begin
   { Check whether there is such a key }
@@ -587,13 +587,13 @@ begin
   FByValueMap.Remove(AValue);
 end;
 
-function TAbstractBidiMap<TKey, TValue>.SelectKeys: IEnexCollection<TKey>;
+function TAbstractBidiMap<TKey, TValue>.SelectKeys: ISequence<TKey>;
 begin
   { Pass the values on }
   Result := Keys;
 end;
 
-function TAbstractBidiMap<TKey, TValue>.SelectValues: IEnexCollection<TValue>;
+function TAbstractBidiMap<TKey, TValue>.SelectValues: ISequence<TValue>;
 begin
   { Pass the value on }
   Result := Values;
@@ -667,13 +667,13 @@ end;
 procedure TObjectBidiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectBidiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TSortedBidiMap<TKey, TValue> }
@@ -735,13 +735,13 @@ end;
 procedure TObjectSortedBidiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectSortedBidiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 { TDoubleSortedBidiMap<TKey, TValue> }
@@ -806,13 +806,13 @@ end;
 procedure TObjectDoubleSortedBidiMap<TKey, TValue>.HandleKeyRemoved(const AKey: TKey);
 begin
   if FOwnsKeys then
-    TObject(AKey).Free;
+    PObject(@AKey)^.Free;
 end;
 
 procedure TObjectDoubleSortedBidiMap<TKey, TValue>.HandleValueRemoved(const AValue: TValue);
 begin
   if FOwnsValues then
-    TObject(AValue).Free;
+    PObject(@AValue)^.Free;
 end;
 
 end.
