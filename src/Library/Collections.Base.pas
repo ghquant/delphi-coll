@@ -263,6 +263,59 @@ type
     ///  the elements are grouped into new collections called groupings. The result of this operation is a collection of groupings. Each grouping
     ///  contains the elements from the original collection that have the same group and a key (which is the group value used).</remarks>
     function GroupBy<TKey>(const ASelector: TFunc<T, TKey>): ISequence<IGrouping<TKey, T>>; overload;
+
+    ///  <summary>Orders the collection based on selector method.</summary>
+    ///  <param name="ASelector">The selector function. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <returns>The resulting ordered collection.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will call <paramref name="ASelector"/> for each element in the collection and retrieve a "key". Using this key,
+    ///  the elements are ordered into a new collection.</remarks>
+    function OrderBy<TKey>(const ASelector: TFunc<T, TKey>): ISequence<T>; overload;
+
+    ///  <summary>Orders the collection based on selector method.</summary>
+    ///  <param name="ASelector1">The selector function for the first key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector2">The selector function for the second key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <returns>The resulting ordered collection.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
+    ///  the elements are ordered into a new collection.</remarks>
+    function OrderBy<TKey1, TKey2>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>): ISequence<T>; overload;
+
+    ///  <summary>Orders the collection based on selector method.</summary>
+    ///  <param name="ASelector1">The selector function for the first key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector2">The selector function for the second key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector3">The selector function for the third key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <returns>The resulting ordered collection.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
+    ///  the elements are ordered into a new collection.</remarks>
+    function OrderBy<TKey1, TKey2, TKey3>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
+      const ASelector3: TFunc<T, TKey3>): ISequence<T>; overload;
+
+    ///  <summary>Orders the collection based on selector method.</summary>
+    ///  <param name="ASelector1">The selector function for the first key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector2">The selector function for the second key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector3">The selector function for the third key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector4">The selector function for the fourth key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <returns>The resulting ordered collection.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
+    ///  the elements are ordered into a new collection.</remarks>
+    function OrderBy<TKey1, TKey2, TKey3, TKey4>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
+      const ASelector3: TFunc<T, TKey3>; const ASelector4: TFunc<T, TKey4>): ISequence<T>; overload;
+
+    ///  <summary>Orders the collection based on selector method.</summary>
+    ///  <param name="ASelector1">The selector function for the first key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector2">The selector function for the second key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector3">The selector function for the third key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector4">The selector function for the fourth key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <param name="ASelector5">The selector function for the fifth key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
+    ///  <returns>The resulting ordered collection.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
+    ///  the elements are ordered into a new collection.</remarks>
+    function OrderBy<TKey1, TKey2, TKey3, TKey4, TKey5>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
+      const ASelector3: TFunc<T, TKey3>; const ASelector4: TFunc<T, TKey4>; const ASelector5: TFunc<T, TKey5>): ISequence<T>; overload;
   end;
 
   ///  <summary>Base sequence interface inherited by all specific collection interfaces.</summary>
@@ -3307,6 +3360,243 @@ begin
   Result := Select<TView>(LSelector);
 end;
 {$IFEND}
+
+function TEnexExtOps<T>.OrderBy<TKey1, TKey2, TKey3, TKey4, TKey5>(
+  const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
+  const ASelector3: TFunc<T, TKey3>; const ASelector4: TFunc<T, TKey4>;
+  const ASelector5: TFunc<T, TKey5>): ISequence<T>;
+var
+  LList: TList<T>;
+  LComparer1: IComparer<TKey1>;
+  LComparer2: IComparer<TKey2>;
+  LComparer3: IComparer<TKey3>;
+  LComparer4: IComparer<TKey4>;
+  LComparer5: IComparer<TKey5>;
+  LSortProc: TComparison<T>;
+begin
+  if not Assigned(ASelector1) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector1');
+
+  if not Assigned(ASelector2) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector2');
+
+  if not Assigned(ASelector3) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector3');
+
+  if not Assigned(ASelector4) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector4');
+
+  if not Assigned(ASelector5) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector5');
+
+  { Create an itermediary LList }
+  LList := TList<T>.Create();
+  LList.AddAll(TSequence<T>(FInstance));
+
+  { Create the comparer }
+  LComparer1 := TComparer<TKey1>.Default;
+  LComparer2 := TComparer<TKey2>.Default;
+  LComparer3 := TComparer<TKey3>.Default;
+  LComparer4 := TComparer<TKey4>.Default;
+  LComparer5 := TComparer<TKey5>.Default;
+  LSortProc :=
+    function(const Left, Right: T): Integer
+    begin
+      Result := LComparer1.Compare(ASelector1(Left), ASelector1(Right));
+      if Result = 0 then
+      begin
+        Result := LComparer2.Compare(ASelector2(Left), ASelector2(Right));
+
+        if Result = 0 then
+        begin
+          Result := LComparer3.Compare(ASelector3(Left), ASelector3(Right));
+
+          if Result = 0 then
+          begin
+            Result := LComparer4.Compare(ASelector4(Left), ASelector4(Right));
+
+            if Result = 0 then
+              Result := LComparer5.Compare(ASelector5(Left), ASelector5(Right));
+          end;
+        end;
+      end;
+    end;
+
+  { Sort the stuff }
+  LList.Sort(LSortProc);
+
+  { Pass the LList further }
+  Result := LList;
+end;
+
+function TEnexExtOps<T>.OrderBy<TKey1, TKey2, TKey3, TKey4>(
+  const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
+  const ASelector3: TFunc<T, TKey3>;
+  const ASelector4: TFunc<T, TKey4>): ISequence<T>;
+var
+  LList: TList<T>;
+  LComparer1: IComparer<TKey1>;
+  LComparer2: IComparer<TKey2>;
+  LComparer3: IComparer<TKey3>;
+  LComparer4: IComparer<TKey4>;
+  LSortProc: TComparison<T>;
+begin
+  if not Assigned(ASelector1) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector1');
+
+  if not Assigned(ASelector2) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector2');
+
+  if not Assigned(ASelector3) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector3');
+
+  if not Assigned(ASelector4) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector4');
+
+  { Create an itermediary LList }
+  LList := TList<T>.Create();
+  LList.AddAll(TSequence<T>(FInstance));
+
+  { Create the comparer }
+  LComparer1 := TComparer<TKey1>.Default;
+  LComparer2 := TComparer<TKey2>.Default;
+  LComparer3 := TComparer<TKey3>.Default;
+  LComparer4 := TComparer<TKey4>.Default;
+  LSortProc :=
+    function(const Left, Right: T): Integer
+    begin
+      Result := LComparer1.Compare(ASelector1(Left), ASelector1(Right));
+      if Result = 0 then
+      begin
+        Result := LComparer2.Compare(ASelector2(Left), ASelector2(Right));
+
+        if Result = 0 then
+        begin
+          Result := LComparer3.Compare(ASelector3(Left), ASelector3(Right));
+
+          if Result = 0 then
+            Result := LComparer4.Compare(ASelector4(Left), ASelector4(Right));
+        end;
+      end;
+    end;
+
+  { Sort the stuff }
+  LList.Sort(LSortProc);
+
+  { Pass the LList further }
+  Result := LList;
+end;
+
+function TEnexExtOps<T>.OrderBy<TKey1, TKey2, TKey3>(
+  const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
+  const ASelector3: TFunc<T, TKey3>): ISequence<T>;
+var
+  LList: TList<T>;
+  LComparer1: IComparer<TKey1>;
+  LComparer2: IComparer<TKey2>;
+  LComparer3: IComparer<TKey3>;
+  LSortProc: TComparison<T>;
+begin
+  if not Assigned(ASelector1) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector1');
+
+  if not Assigned(ASelector2) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector2');
+
+  if not Assigned(ASelector3) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector3');
+
+  { Create an itermediary LList }
+  LList := TList<T>.Create();
+  LList.AddAll(TSequence<T>(FInstance));
+
+  { Create the comparer }
+  LComparer1 := TComparer<TKey1>.Default;
+  LComparer2 := TComparer<TKey2>.Default;
+  LComparer3 := TComparer<TKey3>.Default;
+  LSortProc :=
+    function(const Left, Right: T): Integer
+    begin
+      Result := LComparer1.Compare(ASelector1(Left), ASelector1(Right));
+      if Result = 0 then
+      begin
+        Result := LComparer2.Compare(ASelector2(Left), ASelector2(Right));
+
+        if Result = 0 then
+          Result := LComparer3.Compare(ASelector3(Left), ASelector3(Right));
+      end;
+    end;
+
+  { Sort the stuff }
+  LList.Sort(LSortProc);
+
+  { Pass the LList further }
+  Result := LList;
+end;
+
+function TEnexExtOps<T>.OrderBy<TKey1, TKey2>(const ASelector1: TFunc<T, TKey1>;
+  const ASelector2: TFunc<T, TKey2>): ISequence<T>;
+var
+  LList: TList<T>;
+  LComparer1: IComparer<TKey1>;
+  LComparer2: IComparer<TKey2>;
+  LSortProc: TComparison<T>;
+begin
+  if not Assigned(ASelector1) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector1');
+
+  if not Assigned(ASelector2) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector2');
+
+  { Create an itermediary LList }
+  LList := TList<T>.Create();
+  LList.AddAll(TSequence<T>(FInstance));
+
+  { Create the comparer }
+  LComparer1 := TComparer<TKey1>.Default;
+  LComparer2 := TComparer<TKey2>.Default;
+  LSortProc :=
+    function(const Left, Right: T): Integer
+    begin
+      Result := LComparer1.Compare(ASelector1(Left), ASelector1(Right));
+      if Result = 0 then
+        Result := LComparer2.Compare(ASelector2(Left), ASelector2(Right));
+    end;
+
+  { Sort the stuff }
+  LList.Sort(LSortProc);
+
+  { Pass the LList further }
+  Result := LList;
+end;
+
+function TEnexExtOps<T>.OrderBy<TKey>(const ASelector: TFunc<T, TKey>): ISequence<T>;
+var
+  LList: TList<T>;
+  LComparer: IComparer<TKey>;
+  LSortProc: TComparison<T>;
+begin
+  if not Assigned(ASelector) then
+    ExceptionHelper.Throw_ArgumentNilError('ASelector');
+
+  { Create an itermediary LList }
+  LList := TList<T>.Create();
+  LList.AddAll(TSequence<T>(FInstance));
+
+  { Create the comparer }
+  LComparer := TComparer<TKey>.Default;
+  LSortProc :=
+    function(const Left, Right: T): Integer
+    begin
+      Result := LComparer.Compare(ASelector(Left), ASelector(Right));
+    end;
+
+  { Sort the stuff }
+  LList.Sort(LSortProc);
+
+  { Pass the LList further }
+  Result := LList;
+end;
 
 function TEnexExtOps<T>.Select<TOut>: ISequence<TOut>;
 var
