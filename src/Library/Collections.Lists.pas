@@ -81,10 +81,6 @@ type
     ///  <param name="ARules">A rule set describing the elements in the list.</param>
     constructor Create(const ARules: TRules<T>);
 
-    ///  <summary>Destroys this instance.</summary>
-    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
-    destructor Destroy(); override;
-
     ///  <summary>Appends an element to the back of the list.</summary>
     ///  <param name="AValue">The value to append.</param>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Insert</c> method is not overridden.</exception>
@@ -973,12 +969,6 @@ end;
 constructor TAbstractList<T>.Create(const ARules: TRules<T>);
 begin
   inherited Create(ARules);
-end;
-
-destructor TAbstractList<T>.Destroy;
-begin
-  Clear();
-  inherited;
 end;
 
 function TAbstractList<T>.ElementAt(const AIndex: NativeInt): T;

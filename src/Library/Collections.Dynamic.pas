@@ -201,8 +201,11 @@ var
 { Member.TSelector<T, K> }
 
 function Member.TSelector<T, K>.GenericInvoke(AFrom: T): K;
+var
+  LValue: TValue;
 begin
-  Result := TValueInvoke(AFrom).AsType<K>();
+  LValue := TValueInvoke(AFrom);
+  Result := LValue.AsType<K>();
 end;
 
 { Member.TRecordFieldSelector<T, K> }

@@ -24,28 +24,28 @@
 			<MSBuild Projects="Library\Collections.dproj"/>
 		</Target>
 		<Target Name="Collections:Clean">
-			<MSBuild Targets="Clean" Projects="Library\Collections.dproj"/>
+			<MSBuild Projects="Library\Collections.dproj" Targets="Clean"/>
 		</Target>
 		<Target Name="Collections:Make">
-			<MSBuild Targets="Make" Projects="Library\Collections.dproj"/>
+			<MSBuild Projects="Library\Collections.dproj" Targets="Make"/>
 		</Target>
-		<Target DependsOnTargets="Collections" Name="Tests">
+		<Target Name="Tests" DependsOnTargets="Collections">
 			<MSBuild Projects="Tests\Tests.dproj"/>
 		</Target>
-		<Target DependsOnTargets="Collections:Clean" Name="Tests:Clean">
-			<MSBuild Targets="Clean" Projects="Tests\Tests.dproj"/>
+		<Target Name="Tests:Clean" DependsOnTargets="Collections:Clean">
+			<MSBuild Projects="Tests\Tests.dproj" Targets="Clean"/>
 		</Target>
-		<Target DependsOnTargets="Collections:Make" Name="Tests:Make">
-			<MSBuild Targets="Make" Projects="Tests\Tests.dproj"/>
+		<Target Name="Tests:Make" DependsOnTargets="Collections:Make">
+			<MSBuild Projects="Tests\Tests.dproj" Targets="Make"/>
 		</Target>
-		<Target DependsOnTargets="Collections" Name="Samples">
+		<Target Name="Samples" DependsOnTargets="Collections">
 			<MSBuild Projects="Samples\Samples.dproj"/>
 		</Target>
-		<Target DependsOnTargets="Collections:Clean" Name="Samples:Clean">
-			<MSBuild Targets="Clean" Projects="Samples\Samples.dproj"/>
+		<Target Name="Samples:Clean" DependsOnTargets="Collections:Clean">
+			<MSBuild Projects="Samples\Samples.dproj" Targets="Clean"/>
 		</Target>
-		<Target DependsOnTargets="Collections:Make" Name="Samples:Make">
-			<MSBuild Targets="Make" Projects="Samples\Samples.dproj"/>
+		<Target Name="Samples:Make" DependsOnTargets="Collections:Make">
+			<MSBuild Projects="Samples\Samples.dproj" Targets="Make"/>
 		</Target>
 		<Target Name="Build">
 			<CallTarget Targets="Collections;Tests;Samples"/>
@@ -56,5 +56,5 @@
 		<Target Name="Make">
 			<CallTarget Targets="Collections:Make;Tests:Make;Samples:Make"/>
 		</Target>
-		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 	</Project>

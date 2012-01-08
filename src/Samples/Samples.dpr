@@ -30,9 +30,12 @@ program Samples;
 
 uses
   SysUtils,
+  Collections.Dynamic,
   Op_Select_View in 'Op_Select_View.pas',
   SplitStringEnumerable in 'SplitStringEnumerable.pas',
-  List_Store_Load in 'List_Store_Load.pas';
+  List_Store_Load in 'List_Store_Load.pas',
+  Sort_Person in 'Sort_Person.pas',
+  Joining in 'Joining.pas';
 
 begin
   { Just to test that we do not have memory leaks }
@@ -43,11 +46,13 @@ begin
     Op_Select_View.RunSample();
     SplitStringEnumerable.RunSample();
     List_Store_Load.RunSample();
+    Sort_Person.RunSample();
+    Joining.RunSample();
 
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
 
-  readln;
+  ReadLn;
 end.

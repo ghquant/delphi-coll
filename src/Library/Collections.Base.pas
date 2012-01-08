@@ -267,7 +267,7 @@ type
     ///  <summary>Orders the collection based on selector method.</summary>
     ///  <param name="ASelector">The selector function. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <returns>The resulting ordered collection.</returns>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector1"/> is <c>nil</c>.</exception>
     ///  <remarks>This operation will call <paramref name="ASelector"/> for each element in the collection and retrieve a "key". Using this key,
     ///  the elements are ordered into a new collection.</remarks>
     function OrderBy<TKey>(const ASelector: TFunc<T, TKey>): ISequence<T>; overload;
@@ -276,7 +276,8 @@ type
     ///  <param name="ASelector1">The selector function for the first key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <param name="ASelector2">The selector function for the second key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <returns>The resulting ordered collection.</returns>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector1"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector2"/> is <c>nil</c>.</exception>
     ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
     ///  the elements are ordered into a new collection.</remarks>
     function OrderBy<TKey1, TKey2>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>): ISequence<T>; overload;
@@ -286,7 +287,9 @@ type
     ///  <param name="ASelector2">The selector function for the second key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <param name="ASelector3">The selector function for the third key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <returns>The resulting ordered collection.</returns>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector1"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector2"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector3"/> is <c>nil</c>.</exception>
     ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
     ///  the elements are ordered into a new collection.</remarks>
     function OrderBy<TKey1, TKey2, TKey3>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
@@ -298,7 +301,10 @@ type
     ///  <param name="ASelector3">The selector function for the third key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <param name="ASelector4">The selector function for the fourth key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <returns>The resulting ordered collection.</returns>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector1"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector2"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector3"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector4"/> is <c>nil</c>.</exception>
     ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
     ///  the elements are ordered into a new collection.</remarks>
     function OrderBy<TKey1, TKey2, TKey3, TKey4>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
@@ -311,11 +317,40 @@ type
     ///  <param name="ASelector4">The selector function for the fourth key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <param name="ASelector5">The selector function for the fifth key. Returns the key (based on each collection element) that serves for ordering purposes.</param>
     ///  <returns>The resulting ordered collection.</returns>
-    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector1"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector2"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector3"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector4"/> is <c>nil</c>.</exception>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector5"/> is <c>nil</c>.</exception>
     ///  <remarks>This operation will call each <paramref name="ASelector"/> for elements in the collection and retrieve the ordering "keys". Using these keys,
     ///  the elements are ordered into a new collection.</remarks>
     function OrderBy<TKey1, TKey2, TKey3, TKey4, TKey5>(const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
       const ASelector3: TFunc<T, TKey3>; const ASelector4: TFunc<T, TKey4>; const ASelector5: TFunc<T, TKey5>): ISequence<T>; overload;
+
+    ///  <summary>Joins this sequence with another enumerable collection using a common key.</summary>
+    ///  <param name="AInner">The inner collection to join with.</param>
+    ///  <param name="AKeySelector">The selector function for the key of this collection.</param>
+    ///  <param name="AInnerKeySelector">The selector function for the key of the inner collection.</param>
+    ///  <param name="AResultSelector">The selector function that combines the result.</param>
+    ///  <returns>The resulting joined collection.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will enumerate the collection and extract the key for each element. For each key it will try to
+    ///  pair up the element with elements in the <c>AInner</c> collection. This function can also be considered an "INNER JOIN" where the elements in the outer
+    ///  collection are paired up with elements in the inner collection by the means of a common key (provided by the selector functions).</remarks>
+    function Join<TInner, TKey, TResult>(const AInner: IEnumerable<TInner>; const AKeySelector: TFunc<T, TKey>;
+      const AInnerKeySelector: TFunc<TInner, TKey>; const AResultSelector: TFunc<T, TInner, TResult>): ISequence<TResult>; overload;
+
+    ///  <summary>Joins ang groups this sequence with another enumerable collection using a common key.</summary>
+    ///  <param name="AInner">The inner collection to join with.</param>
+    ///  <param name="AKeySelector">The selector function for the key of this collection.</param>
+    ///  <param name="AInnerKeySelector">The selector function for the key of the inner collection.</param>
+    ///  <param name="AResultSelector">The selector function that combines the result.</param>
+    ///  <returns>The resulting joined collection.</returns>
+    ///  <exception cref="SysUtils|EArgumentNilException"><paramref name="ASelector"/> is <c>nil</c>.</exception>
+    ///  <remarks>This operation will enumerate the collection and extract the key for each element. For each key it will try to
+    ///  pair up the element with elements in the <c>AInner</c> collection; and generate a group of elements.</remarks>
+    function GroupJoin<TInner, TKey, TResult>(const AInner: IEnumerable<TInner>; const AKeySelector: TFunc<T, TKey>;
+      const AInnerKeySelector: TFunc<TInner, TKey>; const AResultSelector: TFunc<T, ISequence<TInner>, TResult>): ISequence<TResult>; overload;
   end;
 
   ///  <summary>Base sequence interface inherited by all specific collection interfaces.</summary>
@@ -2260,6 +2295,10 @@ type
     ///  removal mechanisms are involved.</remarks>
     procedure NotifyElementRemoved(const AElement: T);
   public
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
     ///  <summary>Specifies a custom remove notification method that will be called by this
     ///  collection when elements are removed.</summary>
     ///  <returns>The notification method.</returns>
@@ -2559,6 +2598,10 @@ type
   ///  default implementations using Enex operations.</remarks>
   TAbstractMap<TKey, TValue> = class abstract(TAssociation<TKey, TValue>, IMap<TKey, TValue>)
   public
+    ///  <summary>Destroys this instance.</summary>
+    ///  <remarks>Do not call this method directly; call <c>Free</c> instead.</remarks>
+    destructor Destroy(); override;
+
     ///  <summary>Clears the contents of the collection.</summary>
     ///  <remarks>This implementation uses Enex <c>First</c> operation on collection's keys to obtain key and then calls <c>Remove</c> to remove it along side its value.</remarks>
     ///  <exception cref="Generics.Collections|ENotSupportedException">If <c>Remove</c> method is not overridden.</exception>
@@ -3360,6 +3403,132 @@ begin
   Result := Select<TView>(LSelector);
 end;
 {$IFEND}
+
+function TEnexExtOps<T>.GroupJoin<TInner, TKey, TResult>(
+  const AInner: IEnumerable<TInner>; const AKeySelector: TFunc<T, TKey>;
+  const AInnerKeySelector: TFunc<TInner, TKey>;
+  const AResultSelector: TFunc<T, ISequence<TInner>, TResult>): ISequence<TResult>;
+var
+  LInnerGroups: IDictionary<TKey, IList<TInner>>;
+  LInnerValue: TInner;
+  LValue: T;
+  LKey: TKey;
+  LInnerList: IList<TInner>;
+  LResult: IList<TResult>;
+begin
+  if not Assigned(AInner) then
+    ExceptionHelper.Throw_ArgumentNilError('AInner');
+
+  if not Assigned(AKeySelector) then
+    ExceptionHelper.Throw_ArgumentNilError('AKeySelector');
+
+  if not Assigned(AInnerKeySelector) then
+    ExceptionHelper.Throw_ArgumentNilError('AInnerKeySelector');
+
+  if not Assigned(AResultSelector) then
+    ExceptionHelper.Throw_ArgumentNilError('AResultSelector');
+
+  { Group the inner values by key }
+  LInnerGroups := TDictionary<TKey, IList<TInner>>.Create();
+
+  for LInnerValue in AInner do
+  begin
+    { Generate the key for the inner element }
+    LKey := AInnerKeySelector(LInnerValue);
+
+    { Add the element into our small simulated multi-map here }
+    if not LInnerGroups.TryGetValue(LKey, LInnerList) then
+    begin
+      LInnerList := TList<TInner>.Create();
+      LInnerGroups.Add(LKey, LInnerList);
+    end;
+
+    LInnerList.Add(LInnerValue);
+  end;
+
+  { M'kay, now that we have established the inner groups, let's start joining the fucker. }
+  LResult := TList<TResult>.Create();
+
+  for LValue in TSequence<T>(FInstance) do
+  begin
+    { Generate the key of the outer element }
+    LKey := AKeySelector(LValue);
+
+    { Now, if there is something in the inner group for this key, use it. }
+    if LInnerGroups.TryGetValue(LKey, LInnerList) then
+      LResult.Add(AResultSelector(LValue, LInnerList));
+  end;
+
+
+  Result := LResult;
+end;
+
+function TEnexExtOps<T>.Join<TInner, TKey, TResult>(
+  const AInner: IEnumerable<TInner>; const AKeySelector: TFunc<T, TKey>;
+  const AInnerKeySelector: TFunc<TInner, TKey>;
+  const AResultSelector: TFunc<T, TInner, TResult>): ISequence<TResult>;
+var
+  LInnerGroups: TObjectDictionary<TKey, TList<TInner>>;
+  LInnerValue: TInner;
+  LValue: T;
+  LKey: TKey;
+  LInnerList: TList<TInner>;
+  LResult: IList<TResult>;
+begin
+  if not Assigned(AInner) then
+    ExceptionHelper.Throw_ArgumentNilError('AInner');
+
+  if not Assigned(AKeySelector) then
+    ExceptionHelper.Throw_ArgumentNilError('AKeySelector');
+
+  if not Assigned(AInnerKeySelector) then
+    ExceptionHelper.Throw_ArgumentNilError('AInnerKeySelector');
+
+  if not Assigned(AResultSelector) then
+    ExceptionHelper.Throw_ArgumentNilError('AResultSelector');
+
+  { Group the inner values by key }
+  LInnerGroups := TObjectDictionary<TKey, TList<TInner>>.Create();
+  LInnerGroups.OwnsValues := True;
+
+  try
+    for LInnerValue in AInner do
+    begin
+      { Generate the key for the inner element }
+      LKey := AInnerKeySelector(LInnerValue);
+
+      { Add the element into our small simulated multi-map here }
+      if not LInnerGroups.TryGetValue(LKey, LInnerList) then
+      begin
+        LInnerList := TList<TInner>.Create();
+        LInnerGroups.Add(LKey, LInnerList);
+      end;
+
+      LInnerList.Add(LInnerValue);
+    end;
+
+    { M'kay, now that we have established the inner groups, let's start joining the fucker. }
+    LResult := TList<TResult>.Create();
+
+    for LValue in TSequence<T>(FInstance) do
+    begin
+      { Generate the key of the outer element }
+      LKey := AKeySelector(LValue);
+
+      { Now, if there is something in the inner group for this key, use it. }
+      if LInnerGroups.TryGetValue(LKey, LInnerList) then
+      begin
+        for LInnerValue in LInnerList do
+          LResult.Add(AResultSelector(LValue, LInnerValue));
+      end;
+    end;
+
+  finally
+    LInnerGroups.Free;
+  end;
+
+  Result := LResult;
+end;
 
 function TEnexExtOps<T>.OrderBy<TKey1, TKey2, TKey3, TKey4, TKey5>(
   const ASelector1: TFunc<T, TKey1>; const ASelector2: TFunc<T, TKey2>;
@@ -4835,6 +5004,12 @@ begin
     Result := Result and Contains(LValue);
 end;
 
+destructor TCollection<T>.Destroy;
+begin
+  Clear();
+  inherited;
+end;
+
 procedure TCollection<T>.HandleElementRemoved(const AElement: T);
 begin
   // Nothing
@@ -5402,6 +5577,12 @@ begin
       Exit(True);
 
   Result := False;
+end;
+
+destructor TAbstractMap<TKey, TValue>.Destroy;
+begin
+  Clear();
+  inherited;
 end;
 
 procedure TAbstractMap<TKey, TValue>.Remove(const AKey: TKey);

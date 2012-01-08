@@ -119,7 +119,6 @@ type
     ///  <param name="AValueRules">A rule set describing the values in the dictionary.</param>
     constructor Create(const AKeyRules: TRules<TKey>; const AValueRules: TRules<TValue>);
 
-
     ///  <summary>Adds a key-value pair to the dictionary.</summary>
     ///  <param name="AKey">The key of pair.</param>
     ///  <param name="AValue">The value associated with the key.</param>
